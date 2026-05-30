@@ -147,6 +147,7 @@ function toggleNavTab(tabId) {
 
   activeNavTab = tabId;
   expanded.classList.add('open');
+  expanded.dataset.state = 'open'; // UIElement data-state sync
 
   // Deactivate all rail buttons
   document.querySelectorAll('.nav-rail-btn').forEach(btn => {
@@ -178,7 +179,10 @@ function toggleNavTab(tabId) {
 function closeNavRail() {
   activeNavTab = null;
   const expanded = document.getElementById('sidebar-expanded');
-  if (expanded) expanded.classList.remove('open');
+  if (expanded) {
+    expanded.classList.remove('open');
+    expanded.dataset.state = 'closed'; // UIElement data-state sync
+  }
   document.querySelectorAll('.nav-rail-btn').forEach(btn => {
     btn.classList.remove('active');
     btn.setAttribute('aria-expanded', 'false');
@@ -187,6 +191,8 @@ function closeNavRail() {
 }
 
 function adjustMainLayout() {
+  // Guard: DOM may not be ready if called before initAppShell (race on dynamic script load)
+  if (document.readyState === 'loading') return;
   const expanded = document.getElementById('sidebar-expanded');
   const mainLayout = document.getElementById('main-layout');
   if (!mainLayout) return;
@@ -672,6 +678,12 @@ function applyToolbarContext(elementType) {
 function initAppShell() {
   buildNavRail();
   buildSidebarPanes();
+
+  // Bootstrap data-state on sidebar-expanded so CSS animation system
+  // has a defined starting state (avoids undefined → 'open' transition flash)
+  const _expInit = document.getElementById('sidebar-expanded');
+  if (_expInit && !_expInit.dataset.state) _expInit.dataset.state = 'closed';
+
   // margin-left is handled by CSS: margin-left: calc(var(--nav-w) + var(--sidebar-w))
   // on .main-layout. No JS pixel values needed here.
 

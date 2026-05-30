@@ -1107,7 +1107,7 @@ function _addPaneOverlay(wrap, paneId) {
   tabBar.style.cssText = `
     position:absolute;top:0;left:0;right:0;z-index:20;
     display:flex;align-items:stretch;gap:0;
-    height:28px;min-height:28px;
+    height:1.75rem;min-height:1.75rem;
     background:rgba(8,13,20,0.82);border-bottom:1px solid rgba(255,255,255,0.07);
     user-select:none;
   `;
@@ -1143,7 +1143,7 @@ function _addPaneOverlay(wrap, paneId) {
   const tb = document.createElement('div');
   tb.className = 'vp-toolbar';
   tb.style.cssText = `
-    position:absolute;top:34px;left:6px;z-index:15;
+    position:absolute;top:2.125rem;left:6px;z-index:15;
     display:flex;align-items:center;gap:4px;
     background:rgba(8,13,20,0.75);backdrop-filter:blur(8px);
     border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:4px 6px;

@@ -12,6 +12,7 @@ const { parseBuffer, applyMapping, validateRows, proposeMapping } = require('../
 const { getOrCreateBook } = require('../db/design-book');
 const { importBatch, getSpecsByProject, deleteSpecsBySession, updateSpec, deleteSpec } = require('../db/materials-specs');
 const { generateDriveSpecsPdf } = require('../services/schedule-pdf');
+const { saveContextSnapshot } = require('../db/wallt');
 
 // ─── Token helpers (copied from drive.js for self-contained routing) ─────────────
 const tokenCache = new Map();
@@ -287,6 +288,31 @@ router.post('/import-schedule', requireAuth, async (req, res) => {
     sheets: sheetResults,
     totalImported: sheetResults.reduce((s, r) => s + (r.imported || 0), 0),
     totalErrors: sheetResults.reduce((s, r) => s + (r.errors || 0), 0),
+  });
+
+  // Non-blocking: push a Drive context snapshot so Wallt knows fresh schedules exist
+  setImmediate(async () => {
+    try {
+      const scheduleFiles = sheetResults.map(r => ({ id: null, name: r.sheet, modified: new Date().toISOString() }));
+      const snapshot = {
+        source: 'drive_import',
+        pushed_at: new Date().toISOString(),
+        project_id: parseInt(projectId, 10),
+        project_name: null,
+        summary: {
+          total_files: scheduleFiles.length,
+          rvt_count: 0,
+          rfa_count: 0,
+          schedule_count: scheduleFiles.length,
+          other_count: 0,
+          primary_model: null,
+        },
+        files: { rvt: [], rfa: [], schedules: scheduleFiles },
+      };
+      await saveContextSnapshot(userId, parseInt(projectId, 10), snapshot);
+    } catch (e) {
+      console.warn('[drive-import] wallt-context push failed (non-fatal):', e.message);
+    }
   });
 });
 

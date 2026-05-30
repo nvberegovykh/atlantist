@@ -235,7 +235,7 @@ function wantsAutoExec(userMessage) {
 }
 
 async function callWallt(ai, contextWindow, userMessage, ctx = {}) {
-  const { projectContext, projectZoningDistrict, userId, conversationId } = ctx;
+  const { projectContext, projectZoningDistrict, userId, conversationId, driveContext } = ctx;
 
   // Abort signal check — abort any pending Wallt operation for this conversation
   if (conversationId) {
@@ -280,10 +280,26 @@ async function callWallt(ai, contextWindow, userMessage, ctx = {}) {
   // Build project context block
   const projectCtxBlock = formatProjectContext(projectContext);
 
+  // Build Drive context block (EXTERNAL tier — injected when snapshot is fresh)
+  let driveCtxBlock = '';
+  if (driveContext?.summary) {
+    const dc = driveContext;
+    const lines = ['\n## BIM Assets (Google Drive)'];
+    if (dc.summary.primary_model) {
+      const pm = dc.summary.primary_model;
+      lines.push(`Primary model: ${pm.name} (${pm.size_mb ?? '?'}MB, modified ${pm.modified?.slice(0,10) ?? 'unknown'})`);
+    }
+    lines.push(`Files: ${dc.summary.rvt_count} RVT, ${dc.summary.rfa_count} RFA, ${dc.summary.schedule_count} schedules`);
+    if (dc.files?.rvt?.length) lines.push('RVT: ' + dc.files.rvt.map(f => f.name).join(', '));
+    if (dc.files?.schedules?.length) lines.push('Schedules: ' + dc.files.schedules.map(f => f.name).join(', '));
+    driveCtxBlock = lines.join('\n');
+  }
+
   // Combine all context into a system-supplement message
+  const additionalCtx = [zoningCtxBlock, projectCtxBlock, driveCtxBlock].filter(Boolean).join('\n');
   const combinedContext = [
-    ...(zoningCtxBlock || projectCtxBlock
-      ? [{ role: 'developer', content: `Additional context:\n${zoningCtxBlock}${zoningCtxBlock && projectCtxBlock ? '\n' : ''}${projectCtxBlock}` }]
+    ...(additionalCtx
+      ? [{ role: 'developer', content: `Additional context:\n${additionalCtx}` }]
       : []),
     ...contextWindow,
   ];
@@ -379,9 +395,24 @@ router.post('/chat', optionalAuth, async (req, res) => {
       content: String(m.content || ''),
     }));
 
-    // Build project context (backend injection — Project Pill)
-    const projectContext = project_id ? await buildProjectContext(project_id) : null;
-    if (projectContext) projectContext._projectId = project_id;
+    // Build project context + Drive context in parallel (both non-fatal)
+    let projectContext = null;
+    let driveContext = null;
+    await Promise.allSettled([
+      (async () => {
+        projectContext = project_id ? await buildProjectContext(project_id) : null;
+        if (projectContext) projectContext._projectId = project_id;
+      })(),
+      (async () => {
+        if (userId) {
+          const snapshot = await getLatestContextSnapshot(userId).catch(() => null);
+          if (snapshot?.snapshot_data) {
+            const ageMs = Date.now() - new Date(snapshot.created_at).getTime();
+            if (ageMs < 24 * 60 * 60 * 1000) driveContext = snapshot.snapshot_data;
+          }
+        }
+      })(),
+    ]);
 
     // Last user message for RAG classification
     const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.content || '';
@@ -423,7 +454,7 @@ router.post('/chat', optionalAuth, async (req, res) => {
 
     const { reply, totalTokens, styleScore, sources, actions } = await callWallt(
       ai, contextWindow, lastUserMsg,
-      { projectContext, projectZoningDistrict: projectContext?.zoning_district, userId, rectOpinion, conversationId: session_id }
+      { projectContext, projectZoningDistrict: projectContext?.zoning_district, userId, rectOpinion, conversationId: session_id, driveContext }
     );
 
     // Abort signal was triggered — return cancelled response early
