@@ -1,5 +1,6 @@
 const http = require('http');
 const express = require('express');
+const sentry = require('./services/sentry');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const wsServer = require('./services/ws-server');
@@ -26,6 +27,11 @@ function requireBimAuth(req, res, next) {
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// ─── Sentry — init before routes, no-op if SENTRY_DSN unset ─────────────────
+sentry.init(app);
+app.use(sentry.requestHandler());
+app.use(sentry.traceHandler());
 
 if (!process.env.DATABASE_URL) {
   console.error('ERROR: DATABASE_URL environment variable is required');
@@ -253,6 +259,9 @@ app.use(require('./routes/wallt-landing'));
 
 // ─── Blog and feature gallery — static HTML ───────────────────────────────
 app.use(require('./routes/docs-static'));
+
+// Sentry error handler — captures 5xx before our handler responds
+app.use(sentry.errorHandler());
 
 app.use((err, req, res, _next) => {
   const requestId = req.headers['x-request-id'] || `req_${Date.now()}`;
