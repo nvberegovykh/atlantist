@@ -267,8 +267,20 @@ app.use((err, req, res, _next) => {
   res.status(500).send('Internal server error');
 });
 
-// Catch-all — redirect unknown routes to the landing page
-app.get('*', (_req, res) => {
+// Catch-all — redirect unknown SPA routes to landing page.
+// BUG-CATCH-ALL: Static asset requests (wasm, js, css, png, etc.) that reach
+// here mean the file is missing. Return 404 instead of 302 redirect so:
+//   - Browsers don't parse HTML as wasm/js (avoids MIME type errors)
+//   - ServiceWorker fetch handlers get a clean 404 to handle
+//   - web-ifc.wasm 302 redirect bug is eliminated
+app.get('*', (req, res) => {
+  const path = req.path;
+  // Static asset: any path with a file extension (dot in the last segment)
+  const lastSegment = path.split('/').pop();
+  if (lastSegment && lastSegment.includes('.')) {
+    return res.status(404).send('Not found');
+  }
+  // SPA route — redirect to landing
   res.redirect(302, '/');
 });
 

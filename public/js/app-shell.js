@@ -192,11 +192,15 @@ function adjustMainLayout() {
   if (!mainLayout) return;
   const isOpen = expanded && expanded.classList.contains('open');
 
-  // --sidebar-w: only the expanded nav panel (0 or 240px).
-  // --left-panel-w (200px) is always the explorer sidebar width — CSS constant.
-  // --nav-w (44px) always present.
+  // --sidebar-w: only the expanded nav panel (0 or 15rem).
+  // --left-panel-w (12.5rem) is always the explorer sidebar width — CSS constant.
+  // --nav-w (2.75rem) always present.
   // .main-layout margin = calc(var(--nav-w) + var(--left-panel-w) + var(--sidebar-w))
-  mainLayout.style.setProperty('--sidebar-w', isOpen ? '240px' : '0px');
+  const sidebarW = isOpen ? '15rem' : '0';
+  mainLayout.style.setProperty('--sidebar-w', sidebarW);
+  // Also set on :root so #sidebar-expanded (fixed-positioned, outside main-layout)
+  // picks up the var and animates its width correctly. BUG-UI-2 fix.
+  document.documentElement.style.setProperty('--sidebar-w', sidebarW);
 
   // Notify viewport system to recompute renderer sizes after CSS transition.
   setTimeout(() => {

@@ -25,10 +25,10 @@
   --accent-hover: #5b9bd5;
   --accent-active: #3a6dad;
 
-  --topbar-h: 44px;
-  --panel-w: 220px;
-  --props-w: 300px;
-  --im-w: 340px;
+  --topbar-h: 2.75rem;    /* 44px @ 16px base */
+  --panel-w: 13.75rem;   /* 220px @ 16px base */
+  --props-w: 18.75rem;   /* 300px @ 16px base */
+  --im-w: 21.25rem;      /* 340px @ 16px base */
   --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
 
@@ -86,9 +86,9 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-a
   display: flex;
   height: calc(100vh - var(--topbar-h));
   /* Three-tier left offset:
-     --nav-w (44px): nav-rail strip
-     --left-panel-w (200px): explorer sidebar
-     --sidebar-w (0 or 240px): expanded nav panel, written by adjustMainLayout() */
+     --nav-w (2.75rem): nav-rail strip
+     --left-panel-w (12.5rem): explorer sidebar
+     --sidebar-w (0 or 15rem): expanded nav panel, written by adjustMainLayout() */
   margin-left: calc(var(--nav-w) + var(--left-panel-w) + var(--sidebar-w));
   transition: margin-left 0.22s cubic-bezier(0.16,1,0.3,1); /* sync with sidebar transition */
   overflow: hidden;
@@ -3273,7 +3273,7 @@ select.energy-input { cursor: pointer; }
 
 /* ── RESPONSIVE: Mobile (< 768px) ───────────────────────────────────── */
 @media (max-width: 768px) {
-  :root { --topbar-h: 48px; }
+  :root { --topbar-h: 3rem; } /* 48px @ 16px base */
   .topbar { padding: 0 8px; gap: 4px; }
   .topbar-logo { min-width: auto; }
   .topbar-logo span { display: none; }

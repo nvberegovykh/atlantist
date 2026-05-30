@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="/css/tours.css"><!-- Phase 33: craft tour overlay -->
   <link rel="stylesheet" href="/css/app.css"><!-- must be last — dark override -->
   <link rel="stylesheet" href="/css/mobile.css"><!-- mobile/responsive layer -->
+  <link rel="stylesheet" href="/css/ui-motion.css"><!-- Phase 35: dynamic element enter/exit system -->
   <script src="/js/boot-safety.js"></script>
   <script type="importmap">
   {
@@ -3213,6 +3214,9 @@ window._swBannerArmedAt = Date.now();
   var s4 = document.createElement('script');
   s4.src = '/js/store.js?v=2';
   document.body.appendChild(s4);
+  var sMotion = document.createElement('script');
+  sMotion.src = '/js/ui-element.js?v=1';
+  document.body.appendChild(sMotion);
   var s5 = document.createElement('script');
   s5.src = '/js/app-shell.js?v=2';
   document.body.appendChild(s5);

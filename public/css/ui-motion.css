@@ -1,0 +1,382 @@
+/* ============================================================
+   ui-motion.css — Atlantist Dynamic Element System
+   Every UI element owns its enter/exit lifecycle.
+   Data-state contract:
+     [data-state="closed"]  → hidden (display:none after exit)
+     [data-state="opening"] → enter animation playing
+     [data-state="open"]    → fully visible + interactive
+     [data-state="closing"] → exit animation playing
+
+   NO element uses display:none inline. UIElement.js drives
+   all state transitions. Each element type registers its
+   own enter/exit keyframe via --el-enter / --el-exit vars.
+   ============================================================ */
+
+/* ── Motion tokens (extend brand-tokens.css) ─────────────────
+   Override in component scope for per-element tuning.       */
+:root {
+  /* Easing */
+  --ease-spring:   cubic-bezier(0.16, 1, 0.3, 1);   /* overshoots slightly → alive */
+  --ease-snap:     cubic-bezier(0.4,  0, 0.2, 1);    /* material standard */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);    /* fast decel, Fortnite feel */
+  --ease-in-back:  cubic-bezier(0.36, 0, 0.66, -0.56); /* pulls back before exit */
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);  /* slight overshoot on enter */
+
+  /* Durations */
+  --dur-instant: 80ms;
+  --dur-fast:    150ms;
+  --dur-base:    220ms;
+  --dur-slow:    340ms;
+  --dur-enter:   var(--dur-base);
+  --dur-exit:    var(--dur-fast);   /* exits always faster than enters */
+
+  /* Transform origins — element type sets these */
+  --el-origin: center;
+}
+
+/* ── Base state rules ────────────────────────────────────────
+   All [data-state] elements must set animation names.
+   The element class sets --el-enter and --el-exit.          */
+
+[data-state="closed"] {
+  display: none !important;
+  pointer-events: none;
+}
+
+[data-state="opening"] {
+  display: revert !important;     /* restore to natural display */
+  pointer-events: none;
+  animation: var(--el-enter, ui-fade-in) var(--dur-enter) var(--ease-spring) forwards;
+  transform-origin: var(--el-origin);
+}
+
+[data-state="open"] {
+  display: revert !important;
+  pointer-events: auto;
+  animation: none;
+  /* Subtly enforce final state so element is never caught mid-keyframe */
+  opacity: 1;
+  transform: none;
+}
+
+[data-state="closing"] {
+  display: revert !important;
+  pointer-events: none;
+  animation: var(--el-exit, ui-fade-out) var(--dur-exit) var(--ease-snap) forwards;
+  transform-origin: var(--el-origin);
+}
+
+/* ── Reduced motion — respect user preference ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  [data-state="opening"],
+  [data-state="closing"] {
+    animation-duration: 1ms !important;
+  }
+}
+
+
+/* ============================================================
+   KEYFRAME LIBRARY
+   Naming: ui-{direction/style}-{in|out}
+   Elements pick their pair via --el-enter / --el-exit.
+   ============================================================ */
+
+/* ── 1. Fade (default fallback) ──────────────────────────── */
+@keyframes ui-fade-in  { from { opacity: 0 }   to { opacity: 1 } }
+@keyframes ui-fade-out { from { opacity: 1 }   to { opacity: 0 } }
+
+/* ── 2. Slide from left (sidebar, nav panels) ────────────── */
+@keyframes ui-slide-left-in {
+  from { opacity: 0; transform: translateX(-100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes ui-slide-left-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-100%); }
+}
+
+/* ── 3. Slide from right (properties panel, IM panel) ───── */
+@keyframes ui-slide-right-in {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes ui-slide-right-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(100%); }
+}
+
+/* ── 4. Slide from bottom (drawers, version timeline) ───── */
+@keyframes ui-slide-up-in {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes ui-slide-up-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(100%); }
+}
+
+/* ── 5. Slide from top (topbar drop, command palette) ────── */
+@keyframes ui-slide-down-in {
+  from { opacity: 0; transform: translateY(-12px) scaleY(0.92); }
+  to   { opacity: 1; transform: translateY(0)     scaleY(1); }
+}
+@keyframes ui-slide-down-out {
+  from { opacity: 1; transform: translateY(0)     scaleY(1); }
+  to   { opacity: 0; transform: translateY(-8px)  scaleY(0.94); }
+}
+
+/* ── 6. Pop-scale (modals, dialogs, overlays) ────────────── */
+@keyframes ui-pop-in {
+  from { opacity: 0; transform: scale(0.88); }
+  60%  { opacity: 1; transform: scale(1.02); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes ui-pop-out {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.92); }
+}
+
+/* ── 7. Squish-scale (toasts, badge alerts — Fortnite feel) ─ */
+@keyframes ui-squish-in {
+  0%   { opacity: 0; transform: scale(0.6) translateY(12px); }
+  60%  { opacity: 1; transform: scale(1.06) translateY(-2px); }
+  80%  { transform: scale(0.97) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes ui-squish-out {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(0.8) translateY(8px); }
+}
+
+/* ── 8. Expand-width (sidebar expanding, context toolbar) ── */
+@keyframes ui-expand-x-in {
+  from { opacity: 0; transform: scaleX(0); }
+  to   { opacity: 1; transform: scaleX(1); }
+}
+@keyframes ui-expand-x-out {
+  from { opacity: 1; transform: scaleX(1); }
+  to   { opacity: 0; transform: scaleX(0); }
+}
+
+/* ── 9. Badge pop (notification dot, WS status) ─────────── */
+@keyframes ui-badge-in {
+  0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+  70%  { transform: scale(1.15) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+@keyframes ui-badge-out {
+  from { transform: scale(1); opacity: 1; }
+  to   { transform: scale(0); opacity: 0; }
+}
+
+/* ── 10. Tooltip/dropdown (small contextual floats) ─────── */
+@keyframes ui-float-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+@keyframes ui-float-out {
+  from { opacity: 1; transform: translateY(0)   scale(1); }
+  to   { opacity: 0; transform: translateY(4px) scale(0.97); }
+}
+
+/* ── 11. Overlay backdrop ───────────────────────────────── */
+@keyframes ui-overlay-in  { from { opacity: 0 } to { opacity: 1 } }
+@keyframes ui-overlay-out { from { opacity: 1 } to { opacity: 0 } }
+
+
+/* ============================================================
+   ELEMENT TYPE DECLARATIONS
+   Each block: sets --el-enter, --el-exit, --el-origin,
+   and optionally tweaks duration on the element itself.
+   ============================================================ */
+
+/* ── Nav-rail expanded panel ─────────────────────────────── */
+#sidebar-expanded {
+  --el-enter: ui-slide-left-in;
+  --el-exit:  ui-slide-left-out;
+  --el-origin: left center;
+  --dur-enter: var(--dur-slow);
+  --dur-exit:  var(--dur-base);
+}
+
+/* ── Explorer left sidebar ───────────────────────────────── */
+#sidebar-left {
+  --el-enter: ui-slide-left-in;
+  --el-exit:  ui-slide-left-out;
+  --el-origin: left center;
+  --dur-enter: var(--dur-base);
+}
+
+/* ── Properties panel (right) ───────────────────────────── */
+#sidebar-right,
+.properties-panel {
+  --el-enter: ui-slide-right-in;
+  --el-exit:  ui-slide-right-out;
+  --el-origin: right center;
+}
+
+/* ── IM panel (right, wider) ─────────────────────────────── */
+#im-panel {
+  --el-enter: ui-slide-right-in;
+  --el-exit:  ui-slide-right-out;
+  --el-origin: right center;
+  --dur-enter: var(--dur-slow);
+}
+
+/* ── Version timeline drawer (bottom) ───────────────────── */
+#version-timeline-drawer {
+  --el-enter: ui-slide-up-in;
+  --el-exit:  ui-slide-up-out;
+  --el-origin: bottom center;
+}
+
+/* ── Modals (generic) ────────────────────────────────────── */
+.modal,
+[id^="modal-"] {
+  --el-enter: ui-pop-in;
+  --el-exit:  ui-pop-out;
+  --el-origin: center;
+}
+
+/* Modal backdrop/overlay */
+.modal-overlay,
+.modal-backdrop {
+  --el-enter: ui-overlay-in;
+  --el-exit:  ui-overlay-out;
+  --dur-enter: var(--dur-fast);
+  --dur-exit:  var(--dur-fast);
+}
+
+/* ── Command palette ─────────────────────────────────────── */
+#command-palette,
+.command-palette {
+  --el-enter: ui-slide-down-in;
+  --el-exit:  ui-slide-down-out;
+  --el-origin: top center;
+  --dur-enter: var(--dur-fast);
+  --dur-exit:  var(--dur-instant);
+}
+
+/* ── Contextual toolbar ──────────────────────────────────── */
+#context-toolbar,
+.context-toolbar {
+  --el-enter: ui-slide-down-in;
+  --el-exit:  ui-slide-down-out;
+  --el-origin: top center;
+  --dur-enter: var(--dur-fast);
+}
+
+/* ── Toast / notification ────────────────────────────────── */
+.toast,
+#toast-container > * {
+  --el-enter: ui-squish-in;
+  --el-exit:  ui-squish-out;
+  --el-origin: bottom center;
+  --dur-enter: 280ms;
+}
+
+/* ── WS badge / status dots ──────────────────────────────── */
+.ws-badge,
+.dag-status,
+.presence-badge,
+.notif-dot {
+  --el-enter: ui-badge-in;
+  --el-exit:  ui-badge-out;
+  --dur-enter: 300ms;
+  --dur-exit:  var(--dur-fast);
+}
+
+/* ── Dropdown / context menu / tooltip ───────────────────── */
+.dropdown-menu,
+.context-menu,
+.tooltip-bubble,
+[role="menu"],
+[role="tooltip"] {
+  --el-enter: ui-float-in;
+  --el-exit:  ui-float-out;
+  --dur-enter: var(--dur-fast);
+  --dur-exit:  var(--dur-instant);
+}
+
+/* ── Viewport spinner ────────────────────────────────────── */
+.vp-spinner,
+.vp-loading-overlay {
+  --el-enter: ui-fade-in;
+  --el-exit:  ui-fade-out;
+  --dur-exit: var(--dur-base);
+}
+
+/* ── Wallt panel ─────────────────────────────────────────── */
+#wallt-panel,
+.wallt-panel {
+  --el-enter: ui-slide-right-in;
+  --el-exit:  ui-slide-right-out;
+  --el-origin: right center;
+  --dur-enter: var(--dur-slow);
+}
+
+/* ── Store overlay ───────────────────────────────────────── */
+#store-modal,
+.store-overlay {
+  --el-enter: ui-pop-in;
+  --el-exit:  ui-pop-out;
+  --el-origin: center;
+  --dur-enter: var(--dur-slow);
+}
+
+/* ── Node editor ─────────────────────────────────────────── */
+#node-editor,
+.node-editor-panel {
+  --el-enter: ui-slide-up-in;
+  --el-exit:  ui-slide-up-out;
+  --el-origin: bottom center;
+  --dur-enter: var(--dur-slow);
+}
+
+/* ── Simulation launcher ─────────────────────────────────── */
+#modal-simulations {
+  --el-enter: ui-pop-in;
+  --el-exit:  ui-pop-out;
+  --dur-enter: var(--dur-base);
+}
+
+/* ============================================================
+   INTERACTION STATE — hover/focus micro-animations
+   These are NOT lifecycle states, just enhancement polish.
+   ============================================================ */
+
+/* Toolbar icon press */
+.tool-btn:active,
+.nav-rail-btn:active,
+.tb-btn:active {
+  transform: scale(0.92);
+  transition: transform 60ms var(--ease-snap);
+}
+
+/* Presence avatar pop on hover */
+.presence-avatar {
+  transition: transform var(--dur-fast) var(--ease-out-back),
+              border-color var(--dur-fast) var(--ease-snap);
+}
+.presence-avatar:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+/* Level item highlight sweep */
+.level-item {
+  transition: background var(--dur-instant) var(--ease-snap);
+}
+
+/* Props section expand */
+.props-section {
+  transition: max-height var(--dur-base) var(--ease-spring);
+  overflow: hidden;
+}
+
+/* View button pop */
+.view-btn {
+  transition: background var(--dur-fast) var(--ease-snap),
+              color var(--dur-fast) var(--ease-snap),
+              transform 60ms var(--ease-snap);
+}
+.view-btn:active { transform: scale(0.94); }

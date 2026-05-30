@@ -678,6 +678,14 @@ function _makePane(pane, index) {
   // Loading spinner — injected into pane wrap
   injectViewportSpinner(wrap, (pane.tabs && pane.tabs[0]) ? pane.tabs[0].view : 'perspective_3d');
 
+  // BUG-UI-1 safety: if spinner hasn't dismissed in 4s, force-dismiss it.
+  // Prevents EL. Y (p3) and other panes from showing stuck spinner when the
+  // scene/renderer map isn't populated before the first scheduler tick.
+  setTimeout(() => {
+    const sp = wrap.querySelector('.vp-spinner');
+    if (sp) dismissViewportSpinner(sp);
+  }, 4000);
+
   // Track canvas size to handle hidden→visible transitions
   if (typeof ResizeObserver !== 'undefined') {
     new ResizeObserver(() => {
@@ -1390,7 +1398,16 @@ function _renderMaximized() {
 }
 
 function _getScene(view) {
-  if (window._atlantist_scenes) return window._atlantist_scenes[view] || null;
+  if (window._atlantist_scenes) {
+    // Direct key lookup — covers '3d', 'plan', 'section', 'elevation-x', 'elevation-y'
+    const direct = window._atlantist_scenes[view];
+    if (direct) return direct;
+    // BUG-UI-1 fix: VIEW_CAMERA_KEY maps many views → 'section' camKey.
+    // _getScene is called with camKey ('section'), not view ('left').
+    // But if somehow called with view name, resolve via camera key map.
+    const camKey = VIEW_CAMERA_KEY[view];
+    if (camKey && camKey !== view) return window._atlantist_scenes[camKey] || null;
+  }
   return null;
 }
 

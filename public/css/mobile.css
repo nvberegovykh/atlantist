@@ -321,7 +321,7 @@
 
 /* ── 320px: Absolute minimum ────────────────────────────────── */
 @media (max-width: 320px) {
-  :root { --topbar-h: 44px; }
+  :root { --topbar-h: 2.75rem; } /* 44px @ 16px base */
 
   /* Topbar: logo only, hide all buttons except hamburger */
   .topbar-logo span { display: none; }
@@ -438,9 +438,9 @@
 @media (min-width: 2560px) {
   :root {
     /* Scale up panels and type for high-DPI large displays */
-    --panel-w: 280px;
-    --props-w: 360px;
-    --topbar-h: 52px;
+    --panel-w: 17.5rem;    /* 280px @ 16px base */
+    --props-w: 22.5rem;    /* 360px @ 16px base */
+    --topbar-h: 3.25rem;   /* 52px @ 16px base */
     font-size: 15px;
   }
 

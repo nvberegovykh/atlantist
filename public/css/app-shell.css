@@ -24,9 +24,9 @@
   --shell-badge-beta:   rgba(52,121,196,0.22);
   --shell-focus:        0 0 0 2px #3479c4, 0 0 0 4px rgba(52,121,196,0.15);
   /* Layout architecture — zero hardcoded pixels */
-  --nav-w: 44px;             /* nav-rail fixed strip */
-  --left-panel-w: 200px;    /* explorer sidebar (sidebar-left) width */
-  --sidebar-w: 0px;          /* expanded nav panel; 0 when closed, 240px when open */
+  --nav-w: 2.75rem;          /* nav-rail fixed strip (44px @ 16px base) */
+  --left-panel-w: 12.5rem;  /* explorer sidebar (sidebar-left) width (200px @ 16px base) */
+  --sidebar-w: 0;            /* expanded nav panel; 0 when closed, 15rem when open */
 }
 
 /* ── Icon-rail (collapsed left nav strip) ─────────────────── */
@@ -115,7 +115,7 @@
 #sidebar-expanded.open {
   /* width driven by --sidebar-w CSS var, set by adjustMainLayout() in JS.
      Transition on #sidebar-expanded handles the animation. */
-  width: var(--sidebar-w, 240px);
+  width: var(--sidebar-w, 15rem);
 }
 
 .sidebar-pane {
@@ -304,7 +304,7 @@
 /* ── Version Timeline Drawer ──────────────────────────────── */
 #version-timeline-drawer {
   position: fixed;
-  bottom: 0; left: 44px; right: 0;
+  bottom: 0; left: var(--nav-w); right: 0;
   height: 0;
   background: var(--shell-surface);
   border-top: 1px solid var(--shell-border);

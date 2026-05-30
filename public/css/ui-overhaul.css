@@ -48,8 +48,8 @@ body {
 /* ── 3. TOPBAR ───────────────────────────────────────────────
    44px brand bar: logo · view controls · right actions       */
 #app-topbar {
-  height: 44px;
-  min-height: 44px;
+  height: var(--topbar-h, 2.75rem);
+  min-height: var(--topbar-h, 2.75rem);
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -152,8 +152,8 @@ html[data-theme="light"] #app-topbar {
    44-48px minimum hit targets. Active tool highlighted.
    Overflow handled by horizontal scroll on narrow widths.    */
 #toolbar {
-  height: 48px;
-  min-height: 48px;
+  height: 3rem;      /* 48px @ 16px base */
+  min-height: 3rem;
   flex-shrink: 0;
   display: flex;
   align-items: center;
@@ -2220,7 +2220,7 @@ textarea:focus-visible {
 
 /* Long-press popover on mobile */
 @media (max-width: 768px) {
-  #app-topbar { height: 48px; padding: 0 10px; }
+  #app-topbar { height: 3rem; padding: 0 10px; } /* 48px @ 16px base */
   #toolbar { display: none !important; }
   #mobile-toolbar { display: flex; }
   #level-sidebar { display: none !important; }
