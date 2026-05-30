@@ -88,6 +88,53 @@ async function runCoreMigrations(client) {
   await client.query(`
     CREATE INDEX IF NOT EXISTS users_stripe_subscription_id_idx ON users (stripe_subscription_id)
   `);
+
+  // Wallt AI Companion tables (Phase 34A)
+  // wallt_conversations — per-user conversation threads
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS wallt_conversations (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      title VARCHAR(512),
+      persona_version VARCHAR(32) DEFAULT '1.0.0',
+      context_project_id INTEGER,
+      context_metadata JSONB DEFAULT '{}',
+      is_archived BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMPTZ DEFAULT NOW(),
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  await client.query(`CREATE INDEX IF NOT EXISTS idx_wallt_conv_user ON wallt_conversations(user_id)`);
+
+  // wallt_messages — individual turns in a conversation
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS wallt_messages (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      conversation_id UUID NOT NULL REFERENCES wallt_conversations(id) ON DELETE CASCADE,
+      role VARCHAR(16) NOT NULL CHECK (role IN ('user','assistant','system')),
+      content TEXT NOT NULL DEFAULT '',
+      sources JSONB DEFAULT '[]',
+      metadata JSONB DEFAULT '{}',
+      style_score FLOAT,
+      actions_json JSONB DEFAULT '[]',
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  await client.query(`CREATE INDEX IF NOT EXISTS idx_wallt_msg_conv ON wallt_messages(conversation_id)`);
+
+  // wallt_context_snapshots — BIM project context pushed from Drive/client for AI injection
+  // snapshot_data is a structured JSON blob: { files, project_id, project_name, pushed_at, source }
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS wallt_context_snapshots (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      project_id INTEGER,
+      snapshot_data JSONB NOT NULL DEFAULT '{}',
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `);
+  await client.query(`CREATE INDEX IF NOT EXISTS idx_wallt_ctx_user ON wallt_context_snapshots(user_id, created_at DESC)`);
+  await client.query(`CREATE INDEX IF NOT EXISTS idx_wallt_ctx_project ON wallt_context_snapshots(project_id) WHERE project_id IS NOT NULL`);
 }
 
 /**

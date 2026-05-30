@@ -29,6 +29,7 @@
 const router = require('express').Router();
 const { optionalAuth } = require('./auth');
 const OpenAI = require('openai');
+const { getLatestContextSnapshot } = require('../db/wallt');
 const {
   buildAgentPrompt,
   logInvalidation,
@@ -293,12 +294,33 @@ router.post('/chat', optionalAuth, async (req, res) => {
     const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.content || '';
 
     // Build project context for Tier 1
+    // Run project lookup + Drive context snapshot read in parallel (both non-fatal on failure)
     let projectName = null;
-    if (projectId) {
-      const { getProjectById } = require('../db/projects');
-      const project = await getProjectById(projectId).catch(() => null);
-      projectName = project?.name || null;
-    }
+    let driveContext = null;
+    await Promise.allSettled([
+      (async () => {
+        if (projectId) {
+          const { getProjectById } = require('../db/projects');
+          const project = await getProjectById(projectId).catch(() => null);
+          projectName = project?.name || null;
+        }
+      })(),
+      (async () => {
+        if (userId) {
+          const snapshot = await getLatestContextSnapshot(userId).catch(() => null);
+          if (snapshot?.snapshot_data) {
+            // Only inject if the snapshot is recent (< 24h) and matches project scope
+            const ageMs = Date.now() - new Date(snapshot.created_at).getTime();
+            const projectMatches = !snapshot.snapshot_data.project_id
+                                 || !projectId
+                                 || snapshot.snapshot_data.project_id === projectId;
+            if (ageMs < 24 * 60 * 60 * 1000 && projectMatches) {
+              driveContext = snapshot.snapshot_data;
+            }
+          }
+        }
+      })(),
+    ]);
 
     // Tier 3: sector registry data (sector agents) or cross-sector hints (core agents)
     let tier3Data = {};
@@ -327,7 +349,11 @@ router.post('/chat', optionalAuth, async (req, res) => {
       previousOutputs: previousOutputs || [],
       sectorData: tier3Data,
       codeSnapshot: codeSnapshot || {},
-      taskContext: { conversationHistory: conversationHistory.map(m => `${m.role}: ${m.content}`).join('\n') },
+      taskContext: {
+        conversationHistory: conversationHistory.map(m => `${m.role}: ${m.content}`).join('\n'),
+        // EXTERNAL tier: Drive BIM context snapshot (injected when available + fresh)
+        driveContext: driveContext || null,
+      },
       cacheSalt,
       mcpContext: mcpContext || null,    // W6: inbound MCP task context
       sectorVersionsUsed: Object.keys(sectorVersionsUsed).length ? sectorVersionsUsed : null,

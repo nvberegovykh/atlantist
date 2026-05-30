@@ -7,6 +7,7 @@ const router = require('express').Router();
 const https = require('https');
 const { getSessionByToken } = require('../db/auth');
 const { getIntegration, upsertIntegration, updateTokens, disconnectIntegration, getConnectionStatus } = require('../db/user-integrations');
+const { saveContextSnapshot, getLatestContextSnapshot } = require('../db/wallt');
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const CLIENT_ID     = process.env.GOOGLE_DRIVE_CLIENT_ID;
@@ -300,11 +301,110 @@ router.get('/rvt-files', requireAuth, async (req, res) => {
       .sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
 
     res.json({ files: allFiles, scanned_folders: folders.length });
+
+    // Non-blocking: push Drive file list into wallt_context_snapshots
+    // Does NOT block the response — any error here is logged only.
+    setImmediate(async () => {
+      try {
+        const projectId = req.query.project_id ? parseInt(req.query.project_id, 10) : null;
+        const snapshot = buildDriveContextSnapshot(allFiles, projectId);
+        await saveContextSnapshot(req.userId, projectId, snapshot);
+      } catch (e) {
+        console.warn('[drive] wallt context snapshot write failed (non-fatal):', e.message);
+      }
+    });
+
   } catch (err) {
     console.error('[drive] rvt-files error:', err.message);
     res.status(500).json({ error: 'Failed to scan for .rvt files.' });
   }
 });
+
+// POST /api/drive/wallt-context — explicit Drive context push into wallt_context_snapshots
+// Called by client after any Drive action (import, file pick, folder browse).
+// project_id optional. Returns snapshot id.
+router.post('/wallt-context', requireAuth, async (req, res) => {
+  try {
+    const { project_id, files, project_name } = req.body;
+    const projectId = project_id ? parseInt(project_id, 10) : null;
+
+    // If files not provided, re-scan rvt-files on demand
+    let driveFiles = files;
+    if (!driveFiles) {
+      const accessToken = await getValidToken(req.userId);
+      if (!accessToken) return res.status(401).json({ error: 'Google Drive not connected.' });
+      // minimal scan: root folder only
+      const q = encodeURIComponent(`'${DRIVE_ROOT_ID}' in parents and trashed = false`);
+      const path = `/drive/v3/files?q=${q}&fields=files(id,name,mimeType,modifiedTime,size)&pageSize=100&orderBy=modifiedTime+desc`;
+      const result = await httpsRequest('GET', 'www.googleapis.com', path,
+        { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' });
+      driveFiles = result.status === 200
+        ? (result.data.files || []).filter(f => f.name.toLowerCase().match(/\.(rvt|rfa|xlsx|xls)$/))
+        : [];
+    }
+
+    const snapshot = buildDriveContextSnapshot(driveFiles, projectId, project_name);
+    const saved = await saveContextSnapshot(req.userId, projectId, snapshot);
+    res.status(201).json({ snapshot_id: saved.id, created_at: saved.created_at, file_count: driveFiles.length });
+  } catch (err) {
+    console.error('[drive] wallt-context push error:', err.message);
+    res.status(500).json({ error: 'Failed to push context snapshot.' });
+  }
+});
+
+// GET /api/drive/wallt-context/latest — read the latest context snapshot for the current user
+router.get('/wallt-context/latest', requireAuth, async (req, res) => {
+  try {
+    const snapshot = await getLatestContextSnapshot(req.userId);
+    if (!snapshot) return res.status(404).json({ error: 'No context snapshot found.' });
+    res.json(snapshot);
+  } catch (err) {
+    console.error('[drive] wallt-context read error:', err.message);
+    res.status(500).json({ error: 'Failed to read context snapshot.' });
+  }
+});
+
+// ─── Context snapshot builder ──────────────────────────────────────────────────
+// Structures Drive file metadata into a Wallt-consumable context payload.
+// Wallt agents read this to understand what BIM assets are available for the project.
+function buildDriveContextSnapshot(files, projectId = null, projectName = null) {
+  const rvtFiles  = files.filter(f => f.name?.toLowerCase().endsWith('.rvt'));
+  const rfaFiles  = files.filter(f => f.name?.toLowerCase().endsWith('.rfa'));
+  const xlsFiles  = files.filter(f => f.name?.toLowerCase().match(/\.xlsx?$/));
+  const otherFiles = files.filter(f => !f.name?.toLowerCase().match(/\.(rvt|rfa|xlsx?)$/));
+
+  return {
+    source: 'google_drive',
+    pushed_at: new Date().toISOString(),
+    project_id: projectId,
+    project_name: projectName || null,
+    drive_root: DRIVE_ROOT_ID,
+    summary: {
+      total_files: files.length,
+      rvt_count: rvtFiles.length,
+      rfa_count: rfaFiles.length,
+      schedule_count: xlsFiles.length,
+      other_count: otherFiles.length,
+      // Largest RVT — likely the primary model
+      primary_model: rvtFiles
+        .sort((a, b) => (b.size || 0) - (a.size || 0))[0]
+        ? {
+            name: rvtFiles[0].name,
+            id:   rvtFiles[0].id,
+            size_mb: rvtFiles[0].size ? Math.round(rvtFiles[0].size / 1024 / 1024) : null,
+            modified: rvtFiles[0].modifiedTime,
+            folder: rvtFiles[0].parentFolderName || null,
+          }
+        : null,
+    },
+    // Full file list — Wallt agents can reference specific files by id/name
+    files: {
+      rvt: rvtFiles.map(f => ({ id: f.id, name: f.name, size_mb: f.size ? Math.round(f.size/1024/1024) : null, modified: f.modifiedTime, folder: f.parentFolderName || null })),
+      rfa: rfaFiles.map(f => ({ id: f.id, name: f.name, modified: f.modifiedTime })),
+      schedules: xlsFiles.map(f => ({ id: f.id, name: f.name, modified: f.modifiedTime })),
+    },
+  };
+}
 
 // GET /api/drive/files/:fileId/download — streams a Drive file to the client
 // Large files (50-500MB): chunked transfer with progress, 5-min timeout per chunk

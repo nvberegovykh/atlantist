@@ -286,6 +286,26 @@ function buildDynamicSuffix(userMessage, taskContext = {}) {
   if (taskContext.conversationHistory) {
     lines.push(`\nConversation history:\n${taskContext.conversationHistory}`);
   }
+  // EXTERNAL tier: Drive BIM context — inject when present and recent
+  if (taskContext.driveContext) {
+    const dc = taskContext.driveContext;
+    const lines2 = ['\n## Available BIM Assets (Google Drive)'];
+    if (dc.summary?.primary_model) {
+      const pm = dc.summary.primary_model;
+      lines2.push(`Primary model: ${pm.name} (${pm.size_mb ?? '?'}MB, modified ${pm.modified?.slice(0,10) ?? 'unknown'}, folder: ${pm.folder ?? 'root'})`);
+    }
+    if (dc.summary) {
+      lines2.push(`Files: ${dc.summary.rvt_count} RVT, ${dc.summary.rfa_count} RFA, ${dc.summary.schedule_count} schedules`);
+    }
+    if (dc.files?.rvt?.length) {
+      lines2.push('RVT files: ' + dc.files.rvt.map(f => f.name).join(', '));
+    }
+    if (dc.files?.schedules?.length) {
+      lines2.push('Schedules: ' + dc.files.schedules.map(f => f.name).join(', '));
+    }
+    lines2.push(`Context pushed: ${dc.pushed_at?.slice(0,19) ?? 'unknown'}`);
+    lines.push(lines2.join('\n'));
+  }
   return lines.join('\n');
 }
 
