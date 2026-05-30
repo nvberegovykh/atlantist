@@ -39,7 +39,7 @@ import {
 import { canvas3dEl } from './canvas-bootstrap.js';
 // viewport-manager.js handles multi-pane layout, drag-resize, and VP canvas creation.
 // We import initViewports to wire the VP canvas to our renderers/controls.
-import { initViewports, applyViewportCameras, initCameraMap, buildViewportDOM, notifyPaneVisible, setOnAfterBuildViewportDOM, renderFloatingViewports, setRenderModeManagerScenes } from './viewport-manager.js';
+import { initViewports, applyViewportCameras, initCameraMap, buildViewportDOM, notifyPaneVisible, setOnAfterBuildViewportDOM, renderFloatingViewports, setRenderModeManagerScenes, resetLayout } from './viewport-manager.js';
 import { startPlacement, endPlacement, updatePlacementPosition, getModuleM, getModuleDerivedLocal, formatPlacementValue, getDoorDefaults, getWindowDefaults, getWallThicknessCandidates, syncModuleCache } from './placement-service.js';
 import { initCraftingPalette } from './crafting-palette.js';
 import { initIMPanel } from './im-panel.js';
@@ -3191,9 +3191,18 @@ function syncRendererSizes() {
 // Supports 2x2 grid, 2-col, 2-row, and single-pane layouts.
 // Grid state persisted in localStorage. Long-press (400ms) enters edit mode.
 
-let vpLayout = localStorage.getItem('atlantist-vp-layout') || '2x2';
+// BUG-UI-6: applyViewportGrid() is a legacy stub. viewport-manager.js owns all layout logic.
+// Kept as a no-op so any stale call sites don’t throw. resetLayout() is the real function.
+let vpLayout = '2x2'; // read-only legacy shim; viewport-manager reads its own localStorage key
 
 function applyViewportGrid() {
+  // No-op: viewport-manager.js builds and owns all viewport DOM + dividers.
+  // Call resetLayout() from viewport-manager if you need to reset the grid.
+  return;
+} /* applyViewportGrid stub end */
+// Dead code preserved below as comment block for reference only:
+/*
+function applyViewportGrid_DEAD() {
   const area = document.getElementById('viewport-area');
   if (!area) return;
   const layout = vpLayout;
@@ -3265,6 +3274,8 @@ function applyViewportGrid() {
     btn.classList.toggle('active', btn.dataset.layout === layout);
   });
 }
+*/
+// End of dead code comment block
 
 // ── Viewport layout menu toggle
 document.getElementById('btn-vp-layout')?.addEventListener('click', (e) => {
@@ -3281,24 +3292,21 @@ document.addEventListener('click', (e) => {
   }
 });
 
+// BUG-UI-6 fix: layout buttons delegate to viewport-manager resetLayout().
+// applyViewportGrid() is a no-op stub kept only for call-site safety.
 document.querySelectorAll('.vp-layout-opt').forEach(btn => {
   btn?.addEventListener('click', () => {
-    vpLayout = btn.dataset.layout;
-    localStorage.setItem('atlantist-vp-layout', vpLayout);
-    applyViewportGrid();
+    resetLayout(); // viewport-manager owns layout state
     document.querySelectorAll('#vp-layout-menu').forEach(m => m.classList.remove('open'));
   });
 });
 
 document.getElementById('vp-reset-layout')?.addEventListener('click', () => {
-  vpLayout = '2x2';
-  localStorage.setItem('atlantist-vp-layout', vpLayout);
-  applyViewportGrid();
+  resetLayout();
   document.querySelectorAll('#vp-layout-menu').forEach(m => m.classList.remove('open'));
 });
 
-// Apply initial layout
-applyViewportGrid();
+// viewport-manager initialises its own grid DOM — do not call applyViewportGrid() here.
 
 // ── Draggable divider bars (for 2x2 grid resize)
 function setupDividers() {
@@ -3403,13 +3411,12 @@ function setupDividers() {
   area.appendChild(hDivider);
 }
 
-// Deferred setup: runs after initViewports replaces the pre-rendered HTML canvas-wraps
-// with new DOM elements (built inside requestAnimationFrame). Without this deferral,
-// setupDividers would attach listeners to orphaned HTML elements that get replaced.
+// BUG-UI-6: setupDividers() removed — viewport-manager.js builds all dividers.
+// setupViewportEditMode() still runs; setupDividers() is a no-op stub.
 if (document.readyState === 'loading') {
-  window.addEventListener('DOMContentLoaded', () => setTimeout(() => { setupDividers(); setupViewportEditMode(); }, 0));
+  window.addEventListener('DOMContentLoaded', () => setTimeout(() => { setupViewportEditMode(); }, 0));
 } else {
-  setTimeout(() => { setupDividers(); setupViewportEditMode(); }, 0);
+  setTimeout(() => { setupViewportEditMode(); }, 0);
 }
 
 // ── Long-press on viewport wrap to enter edit mode (hide/swap)

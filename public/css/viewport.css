@@ -200,41 +200,55 @@
 }
 
 .vp-divider-col {
-  width: 12px;
-  min-width: 12px;
+  width: 0.75rem;     /* 12px — rem for scale-flexibility */
+  min-width: 0.75rem;
   cursor: col-resize;
 }
 
-/* Vertical visual bar + wide hit zone */
+/* Vertical visual bar: 2px crisp line centered, 44px hit zone via ::before */
 .vp-divider-col::before {
   top: 0; bottom: 0;
-  left: -16px; right: -16px; /* 12px + 16px each side = ~44px total hit zone */
+  left: -1.375rem; right: -1.375rem; /* (44px - 12px) / 2 = 16px each side */
 }
 .vp-divider-col::after {
   top: 0; bottom: 0;
-  left: 0; right: 0;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255,255,255,0.12) 20%,
-    rgba(255,255,255,0.12) 80%,
-    transparent 100%
-  );
+  left: calc(50% - 1px); right: calc(50% - 1px);
+  width: 2px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 1px;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.vp-divider-col:hover::after,
+.vp-divider-col.dragging::after,
+.vp-divider-col.drag-active::after {
+  background: rgba(74,141,245,0.9) !important;
+  box-shadow: 0 0 8px rgba(74,141,245,0.5);
 }
 
 .vp-divider-row {
-  height: 12px;
-  min-height: 12px;
+  height: 0.75rem;    /* 12px — rem */
+  min-height: 0.75rem;
   cursor: row-resize;
 }
 
-/* Horizontal visual bar + tall hit zone */
+/* Horizontal visual bar: 2px crisp line centered, 44px hit zone via ::before */
 .vp-divider-row::before {
   left: 0; right: 0;
-  top: -22px; bottom: -22px;
+  top: -1.375rem; bottom: -1.375rem;
 }
 .vp-divider-row::after {
   left: 0; right: 0;
-  top: 0; bottom: 0;
+  top: calc(50% - 1px); bottom: calc(50% - 1px);
+  height: 2px;
+  background: rgba(255,255,255,0.18);
+  border-radius: 1px;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.vp-divider-row:hover::after,
+.vp-divider-row.dragging::after,
+.vp-divider-row.drag-active::after {
+  background: rgba(74,141,245,0.9) !important;
+  box-shadow: 0 0 8px rgba(74,141,245,0.5);
 }
 
 /* ── Add viewport button ─────────────────────────────────────── */
