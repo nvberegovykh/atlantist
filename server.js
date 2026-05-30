@@ -8,6 +8,21 @@ const walltCache = require('./services/wallt-memory-cache');
 const { getSessionByToken } = require('./db/auth');
 const { getUserRole, setUserRole } = require('./db/roles');
 const { getUserByEmail } = require('./db/users');
+const { authMiddleware: _authMiddleware } = require('./routes/auth');
+const { rateLimit } = require('./lib/rate-limit');
+
+// Rate limiters — applied to high-risk endpoints
+const authRateLimit = rateLimit({ max: 20, windowSec: 60, keyPrefix: 'rl:auth' });
+const aiRateLimit   = rateLimit({ max: 30, windowSec: 60, keyPrefix: 'rl:ai',
+  keyFn: req => (req.user && req.user.id) ? String(req.user.id) : (req.ip || 'anon') });
+
+// BIM auth gate: 401 if no session token. Anonymous sessions allowed for demo projects.
+function requireBimAuth(req, res, next) {
+  _authMiddleware(req, res, () => {
+    if (!req.user) return res.status(401).json({ error: 'Authentication required' });
+    next();
+  });
+}
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -95,7 +110,7 @@ app.get('/app', async (req, res) => {
       const session = await getSessionByToken(sessionToken);
       if (session) {
         const appRole = await getUserRole(session.user_id);
-        res.cookie('app_role', appRole === 'admin' ? 'admin' : 'user', { httpOnly: false, maxAge: 86400 * 1000 });
+        res.cookie('app_role', appRole === 'admin' ? 'admin' : 'user', { httpOnly: false, maxAge: 86400 * 1000, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
       } else {
         res.clearCookie('session_token');
       }
@@ -129,12 +144,12 @@ app.use('/api', (_req, res, next) => {
   res.set('Vary', 'Accept-Encoding');
   next();
 });
-app.use('/api/levels', require('./routes/levels'));
-app.use('/api/dag', require('./routes/dag'));
+app.use('/api/levels', requireBimAuth, require('./routes/levels'));
+app.use('/api/dag', requireBimAuth, require('./routes/dag'));
 // IM-B: Information Modeling — type/instance split, type inheritance, constraint bindings
-app.use('/api/im', require('./routes/im-elements'));
-// elements router mounted at /api so both /api/wall-types and /api/elements/:id work
-app.use('/api', require('./routes/elements'));
+app.use('/api/im', requireBimAuth, require('./routes/im-elements'));
+// elements router — list, CRUD, and layers at /api/elements
+app.use('/api/elements', requireBimAuth, require('./routes/elements'));
 app.use('/api/issues', require('./routes/issues'));
 app.use('/api/families', require('./routes/families'));
 app.use('/api/demo', require('./routes/demo'));
@@ -142,7 +157,7 @@ app.use('/api/renders', require('./routes/renders'));
 app.use('/api/energy', require('./routes/energy'));
 app.use('/api/schedules', require('./routes/schedules'));
 app.use('/api/catalog', require('./routes/catalog'));
-app.use('/api/auth', require('./routes/auth'));
+app.use('/api/auth', authRateLimit, require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/projects', require('./routes/projects'));
 app.use('/api/matching', require('./routes/matching'));
@@ -168,13 +183,13 @@ app.use('/api/mep-fixtures', require('./routes/mep-fixtures'));
 app.use('/api/mep-elements', require('./routes/mep-elements'));
 app.use('/api/rvt-import', require('./routes/rvt-import'));
 app.use('/api/ifc', require('./routes/ifc'));
-app.use('/api/annotations', require('./routes/annotations'));
-app.use('/api/grids', require('./routes/grids'));
+app.use('/api/annotations', requireBimAuth, require('./routes/annotations'));
+app.use('/api/grids', requireBimAuth, require('./routes/grids'));
 app.use('/api/rooms', require('./routes/rooms'));
-app.use('/api/floors', require('./routes/floors'));
-app.use('/api/ceilings', require('./routes/ceilings'));
+app.use('/api/floors', requireBimAuth, require('./routes/floors'));
+app.use('/api/ceilings', requireBimAuth, require('./routes/ceilings'));
 app.use('/api/curved-surfaces', require('./routes/curved-surfaces'));
-app.use('/api/stairs', require('./routes/stairs'));
+app.use('/api/stairs', requireBimAuth, require('./routes/stairs'));
 app.use('/api/railings', require('./routes/railings'));
 app.use('/api/structural', require('./routes/structural'));
 app.use('/api/structural-audit', require('./routes/structural-audit'));
@@ -189,7 +204,7 @@ app.use('/api/webhooks', require('./routes/webhooks'));
 app.use('/api/inbound-email', require('./routes/inbound-email'));
 app.use('/api/forum', require('./routes/forum'));
 app.use('/api/crafting', require('./routes/crafting'));
-app.use('/api/crafting/recognize', require('./routes/recognizer'));
+app.use('/api/crafting/recognize', aiRateLimit, require('./routes/recognizer'));
 app.use('/api/crafting/sourcing', require('./routes/sourcing'));
 // Wallt sub-routes — specific paths FIRST, then the catch-all last
 app.use('/api/wallt/training',     require('./routes/wallt-training'));
@@ -206,9 +221,9 @@ app.use('/api/wallt/health',      require('./routes/wallt-health'));
 app.use('/api/wallt/deploy',       require('./routes/wallt-deploy'));
 app.use('/api/wallt/recover',     require('./routes/wallt-recover'));
 app.use('/api/wallt/context',     require('./routes/wallt-context-graph'));
-app.use('/api/wallt-api',         require('./routes/wallt-api'));
+app.use('/api/wallt-api',         aiRateLimit, require('./routes/wallt-api'));
 // vLLM proxy — health + metrics endpoints; routes to VLLM_BASE_URL if set, else OPENAI_BASE_URL
-app.use('/api/vllm-proxy',        require('./services/vllm-proxy').createRouter());
+app.use('/api/vllm-proxy',        aiRateLimit, require('./services/vllm-proxy').createRouter());
 // W5: KV Cache monitoring — hit/miss metrics, sector staleness, GPU mem, eviction log, alerts
 app.use('/api/vllm-cache-monitor', require('./routes/vllm-cache-monitor'));
 // W2: PagedAttention agent router — tiered prompts with cache namespacing for 10 agents
@@ -217,8 +232,8 @@ app.use('/api/wallt-agent',       require('./routes/wallt-agent'));
 app.use('/api/goal19',            require('./routes/goal19-pipeline'));
 // W4: Reasoner — deterministic graph traversal, view-first data access, pgvector ANN
 app.use('/api/wallt-reasoner',    require('./routes/wallt-reasoner'));
-app.use('/api/wallt',             require('./routes/wallt'));
 app.use('/api/wallt/scan',        require('./routes/wallt-scan'));
+app.use('/api/wallt',             aiRateLimit, require('./routes/wallt'));
 app.use('/api/rect', require('./routes/rect-pricing'));
 app.use('/api/viewport-states', require('./routes/viewport-states'));
 app.use('/api/app-events', require('./routes/app-events'));

@@ -209,6 +209,48 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// PUT /api/elements/:id/layers — replace all layers for a wall or roof element
+// Called by app.js layer editor panel when user saves layer stack changes.
+router.put('/:id/layers', async (req, res) => {
+  try {
+    const el = await getElementById(req.params.id);
+    if (!el) return res.status(404).json({ error: 'Element not found' });
+
+    if (el.project_id && await isProjectDemo(el.project_id)) {
+      return res.status(403).json({ error: 'Demo projects are read-only. Fork to create your own copy.' });
+    }
+
+    const { layers } = req.body;
+    if (!Array.isArray(layers)) {
+      return res.status(400).json({ error: 'layers must be an array' });
+    }
+
+    const before = { ...el };
+    if (el.type === 'wall') {
+      await setWallLayers(el.id, layers);
+    } else if (el.type === 'roof') {
+      await setRoofLayers(el.id, layers);
+    } else {
+      return res.status(400).json({ error: `Element type '${el.type}' does not support layers` });
+    }
+
+    const finalLayers = el.type === 'wall' ? await getWallLayers(el.id) : await getRoofLayers(el.id);
+    await appendEvent({
+      entity_type: 'element',
+      entity_id: el.id,
+      event_type: 'update',
+      before_data: before,
+      after_data: { ...el, layers: finalLayers },
+    });
+
+    ws.broadcastElementUpdate({ ...el, layers: finalLayers });
+    res.json({ ok: true, layers: finalLayers });
+  } catch (err) {
+    console.error('[elements] PUT /:id/layers', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/elements/:id/undo — restore to state before last event
 router.post('/:id/undo', async (req, res) => {
   try {

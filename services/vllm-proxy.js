@@ -136,23 +136,24 @@ async function getMetrics() {
 // ── Express router ────────────────────────────────────────────────────────────
 function createRouter() {
   const router = require('express').Router();
+  const { adminMiddleware } = require('../routes/auth');
 
-  // GET /api/vllm-proxy/health
+  // GET /api/vllm-proxy/health — public (needed by Render health probe)
   router.get('/health', async (req, res) => {
     const h = await checkHealth();
     const code = h.status === 'ok' ? 200 : h.status === 'degraded' ? 200 : 503;
     res.status(code).json(h);
   });
 
-  // GET /api/vllm-proxy/metrics
-  router.get('/metrics', async (req, res) => {
+  // GET /api/vllm-proxy/metrics — admin only (exposes internal perf data)
+  router.get('/metrics', adminMiddleware, async (req, res) => {
     const m = await getMetrics();
     res.set('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
     res.send(m.raw);
   });
 
-  // GET /api/vllm-proxy/status — human-readable status
-  router.get('/status', async (req, res) => {
+  // GET /api/vllm-proxy/status — human-readable status (admin only)
+  router.get('/status', adminMiddleware, async (req, res) => {
     const h = await checkHealth();
     const m = await getMetrics();
     res.json({

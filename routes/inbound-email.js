@@ -9,11 +9,14 @@ const router = require('express').Router();
 const EMAIL_PROXY_URL = process.env.POLSIA_EMAIL_PROXY_URL || process.env.EMAIL_PROXY_URL;
 const FROM_ADDRESS = 'Atlantist Support <support@atlantist.cloud>';
 
-// Forward targets — operator personal + Polsia company inbox
+// Forward targets — operator personal + Polsia company inbox.
+// Both must be set via env vars. If missing, the forward silently skips that target.
+// SUPPORT_FORWARD_1 defaults to atlantist@polsia.com (safe — Polsia's own inbox).
+// SUPPORT_FORWARD_2 has NO hardcoded fallback — must be explicitly configured.
 const FORWARD_TARGETS = [
   process.env.SUPPORT_FORWARD_1 || 'atlantist@polsia.com',
-  process.env.SUPPORT_FORWARD_2 || 'emelianen63@gmail.com'
-];
+  process.env.SUPPORT_FORWARD_2 || '',
+].filter(Boolean);
 
 /**
  * POST /api/inbound-email

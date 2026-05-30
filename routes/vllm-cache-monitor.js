@@ -7,8 +7,12 @@
 
 const express = require('express');
 const monitor = require('../services/vllm-cache-monitor');
+const { adminMiddleware } = require('./auth');
 
 const router = express.Router();
+
+// All cache monitor endpoints expose internal system metrics — admin only.
+router.use(adminMiddleware);
 
 // ── GET /api/vllm-cache-monitor/snapshot ──────────────────────────────────────
 // Returns the full current state: per-agent hit rates, sector staleness,

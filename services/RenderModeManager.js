@@ -187,13 +187,13 @@ function _getMaterial(geo, mode) {
   if (_matCache.has(key)) return _matCache.get(key);
   let mat;
   switch (mode) {
-    case 1: mat = _matSketch(geo);   break;
-    case 2: mat = _matSolid(geo);    break;
+    case 1: mat = _matSketch(cat);   break;
+    case 2: mat = _matSolid(cat);    break;
     // RP-3: delegate mode 3 (Shaded) to ShadedMode.js PBR factory
     case 3: mat = getShadedMaterial(geo); break;
-    case 4: mat = _matTextured(geo); break;
-    case 5: mat = _matAI(geo);       break;
-    default: mat = _matSolid(geo);
+    case 4: mat = _matTextured(cat); break;
+    case 5: mat = _matAI(cat);       break;
+    default: mat = _matSolid(cat);
   }
   _matCache.set(key, mat);
   return mat;

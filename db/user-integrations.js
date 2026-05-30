@@ -5,13 +5,18 @@
 const pool = require('./index');
 
 // Encrypt/decrypt helper — uses app-level ENCRYPTION_KEY env var.
-// Falls back to base64 passthrough if key is absent (dev only).
+// ENCRYPTION_KEY must be set. If absent, server refuses to start.
+// Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 const crypto = require('crypto');
 const ALGORITHM = 'aes-256-gcm';
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || ''; // Must be 32 bytes (hex or base64)
+if (!process.env.ENCRYPTION_KEY) {
+  console.error('[user-integrations] FATAL: ENCRYPTION_KEY env var is not set. OAuth tokens cannot be stored securely. Set ENCRYPTION_KEY to a 32-byte hex string.');
+  process.exit(1);
+}
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 32 bytes (hex or base64)
 
 function encrypt(plaintext) {
-  if (!ENCRYPTION_KEY || plaintext === null || plaintext === undefined) return plaintext;
+  if (plaintext === null || plaintext === undefined) return plaintext;
   const key = Buffer.from(ENCRYPTION_KEY.slice(0, 32).padEnd(32, '\u0000'), 'utf8');
   const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
@@ -21,7 +26,7 @@ function encrypt(plaintext) {
 }
 
 function decrypt(ciphertext) {
-  if (!ENCRYPTION_KEY || ciphertext === null || ciphertext === undefined) return ciphertext;
+  if (ciphertext === null || ciphertext === undefined) return ciphertext;
   try {
     const key = Buffer.from(ENCRYPTION_KEY.slice(0, 32).padEnd(32, '\u0000'), 'utf8');
     const [ivHex, tagHex, encHex] = ciphertext.split(':');

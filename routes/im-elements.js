@@ -23,6 +23,9 @@ function requireAuth(req, res, next) {
   if (!req.user && !req.session) return res.status(401).json({ error: 'Authentication required' });
   next();
 }
+// Apply auth to all IM routes. All IM data is project-scoped and not public.
+router.use(requireAuth);
+
 
 // ── Project-scoped bulk-load endpoints ────────────────────────────────────────
 // Called by IM panel on project init — falls through to SPA catch-all without these.

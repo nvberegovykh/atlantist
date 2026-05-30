@@ -26,8 +26,12 @@ const { logAudit } = require('../db/wallt-api');
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const crypto = require('crypto');
-const API_TOKEN = process.env.WALLT_API_TOKEN || 'changeme';
-const MASTER_SECRET = process.env.WALLT_MASTER_SECRET || 'changeme-master-secret-change-in-production';
+if (!process.env.WALLT_API_TOKEN || !process.env.WALLT_MASTER_SECRET) {
+  console.error('[wallt-api] FATAL: WALLT_API_TOKEN and WALLT_MASTER_SECRET must be set in environment. Refusing to start with default credentials.');
+  process.exit(1);
+}
+const API_TOKEN = process.env.WALLT_API_TOKEN;
+const MASTER_SECRET = process.env.WALLT_MASTER_SECRET;
 const RATE_LIMIT = 100;
 const WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const INGEST_TIMEOUT_MS = 10_000;  // P99 hard cap
