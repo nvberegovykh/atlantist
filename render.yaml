@@ -1,4 +1,9 @@
 services:
+  - type: redis
+    name: atlantist-redis
+    plan: free
+    ipAllowList: []
+
   - type: web
     name: atlantist
     runtime: node
@@ -23,6 +28,7 @@ services:
           name: atlantist-redis
           type: redis
           property: connectionString
+          envVarKey: REDIS_URL
       - key: WALLT_API_TOKEN
         sync: false
       - key: WALLT_MASTER_SECRET
@@ -57,8 +63,3 @@ databases:
     plan: free
     databaseName: atlantist
     user: atlantist
-
-  - name: atlantist-redis
-    plan: free
-    type: redis
-    ipAllowList: []
