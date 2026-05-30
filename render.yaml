@@ -28,7 +28,6 @@ services:
           name: atlantist-redis
           type: redis
           property: connectionString
-          envVarKey: REDIS_URL
       - key: WALLT_API_TOKEN
         sync: false
       - key: WALLT_MASTER_SECRET
