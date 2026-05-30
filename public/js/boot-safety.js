@@ -115,6 +115,22 @@
     // elements referenced by app.js that don't exist in app.html (legacy refs).
     // Add new IDs here whenever a null-warn appears for a conditionally-present element.
     var _knownDynamicIds = {
+      // App-shell elements only present on /app — not on /, /pricing, etc.
+      'entry-screen-overlay': true,
+      'props-tabs': true,
+      'btn-share-presence': true,
+      // Wallt widget elements — present on /app only, may not exist on other pages
+      'wallt-styles': true,
+      'wallt-trigger': true,
+      'wallt-collapse': true,
+      'wallt-new-chat': true,
+      'wallt-send-btn': true,
+      'wallt-settings-btn': true,
+      'wallt-voice-toggle': true,
+      'wallt-overlay': true,
+      'wallt-panel': true,
+      'wallt-input': true,
+      'wallt-project-pill': true,
       'cmd-palette': true,
       'cmd-palette-overlay': true,
       // app.js command-palette (dynamically built)

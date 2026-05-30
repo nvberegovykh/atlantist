@@ -63,6 +63,10 @@ app.use(express.static(path.join(__dirname, 'public'), {
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
     } else if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
       res.set('Cache-Control', 'no-cache, must-revalidate');
+    } else if (filePath.endsWith('.wasm')) {
+      // WASM MIME: browsers enforce application/wasm for WebAssembly module scripts
+      res.set('Content-Type', 'application/wasm');
+      res.set('Cache-Control', 'public, max-age=31536000, immutable');
     }
   }
 }));
@@ -80,7 +84,7 @@ app.use((_req, res, next) => { // no-cache HTML pages
 
 // CSP — allow Three.js CDN, Google Fonts, R2 images, inline scripts, and importmap eval
 app.use((_req, res, next) => {
-  res.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://pub-629428d185ca4960a0a73c850d32294b.r2.dev https://*.r2.dev https://*.bimobject.com https://*.grabcad.com https://*.sketchup.com https://*.polantis.com https://*.revitcity.com; connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://unpkg.com; worker-src 'self' blob:");
+  res.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://frontend-cdn.perplexity.ai; img-src 'self' data: blob: https://pub-629428d185ca4960a0a73c850d32294b.r2.dev https://*.r2.dev https://*.bimobject.com https://*.grabcad.com https://*.sketchup.com https://*.polantis.com https://*.revitcity.com; connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://unpkg.com https://frontend-cdn.perplexity.ai; worker-src 'self' blob:");
   next();
 });
 

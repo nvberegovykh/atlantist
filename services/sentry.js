@@ -64,7 +64,9 @@ function init(app) {
     });
 
     initialized = true;
-    console.log(`[sentry] Initialized — env=${process.env.NODE_ENV}, release=${process.env.RENDER_GIT_COMMIT || 'local'}`);
+    const env = process.env.NODE_ENV || 'development';
+    const rel = process.env.RENDER_GIT_COMMIT || 'local';
+    console.log(`[sentry] Initialized — env=${env}, release=${rel}`);
   } catch (err) {
     // @sentry/node not installed yet — graceful no-op
     console.warn('[sentry] @sentry/node not installed, running without error tracking:', err.message);

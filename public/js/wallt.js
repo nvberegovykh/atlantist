@@ -849,9 +849,12 @@
   };
 
   // ── Start ─────────────────────────────────────────────────
-  // Always wait for DOMContentLoaded to ensure all body elements (including
-  // those injected by other deferred scripts) are available before bindEvents().
-  // The previous 'else { init() }' branch caused race conditions where
-  // getElementById calls resolved to null on 'interactive' readyState.
-  document.addEventListener('DOMContentLoaded', init);
+  // FIX: defer scripts run after DOM is parsed — DOMContentLoaded may have
+  // already fired by the time wallt.js executes. Guard both cases.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    // DOM already ready — init immediately (covers defer + dynamic-append cases)
+    init();
+  }
 })();
