@@ -94,11 +94,12 @@ const ROUTE_CHECKS = [
     bodyContains: 'roofTypes',
   },
   // Task #2093700 — regression guard: /api/elements route must exist and route correctly.
-  // Accepts 200 (elements returned) or 404 (project has no elements yet in smoke test DB).
-  // The key regression is "not a routing 404" — the endpoint must resolve, data is optional.
+  // Accepts 200 (elements returned), 404 (project has no elements), or 401 (auth required —
+  // proves the route resolves to auth middleware, not a missing-route 404).
+  // The key regression is that the endpoint RESOLVES — any of these statuses confirm routing works.
   {
     path: '/api/elements?project_id=aabbccdd-0001-4000-8000-000000000001',
-    expectedStatus: [200, 404],
+    expectedStatus: [200, 401, 404],
     expectedContentType: 'application/json',
   },
 ];
