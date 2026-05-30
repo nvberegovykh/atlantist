@@ -14,7 +14,7 @@ const path = require('path');
 // Polsia-internal config that should never appear in a public snapshot.
 const SANITIZE_PATTERNS = [
   // Connection strings with embedded passwords
-  [/(postgresql|mysql|mongodb|redis):\/\/[^\/]*:[^\/]*@/g, 'REDACTED
+  [/(postgresql|mysql|mongodb|redis):\/\/[^\/]*:[^\/]*@/g, 'REDACTED'],
   // API key patterns (sk_live, sk_test, pk_live, etc.)
   [/\b(sk_|pk_)[a-zA-Z0-9]{20,}/g, 'sk_REDACTED'],
   // Anthropic / OpenAI keys
