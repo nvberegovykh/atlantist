@@ -1,0 +1,97 @@
+diff --git a/public/app.html b/public/app.html
+index 50783a8..a222f39 100644
+--- a/public/app.html
++++ b/public/app.html
+@@ -1031,7 +1031,7 @@
+ </div><!-- /main-layout -->
+ 
+ <!-- ── IM Panel — Information Modeling ───────────────────────────────────── -->
+-<div id="im-panel" style="display:none;position:fixed;top:var(--topbar-h);left:0;bottom:0;width:340px;background:var(--bg-panel);border-right:1px solid var(--border);z-index:var(--z-panel,200);flex-direction:column;overflow:hidden;box-shadow:4px 0 24px rgba(0,0,0,0.3)">
++<div id="im-panel" style="display:none;position:fixed;top:var(--topbar-h);left:0;bottom:0;width:var(--im-w);background:var(--bg-panel);border-right:1px solid var(--border);z-index:var(--z-panel,200);flex-direction:column;overflow:hidden;box-shadow:4px 0 24px rgba(0,0,0,0.3)">
+ 
+   <!-- IM Header -->
+   <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0">
+diff --git a/public/css/app-shell.css b/public/css/app-shell.css
+index c640510..51c9c54 100644
+--- a/public/css/app-shell.css
++++ b/public/css/app-shell.css
+@@ -23,13 +23,16 @@
+   --shell-success:      #4aad6e;
+   --shell-badge-beta:   rgba(52,121,196,0.22);
+   --shell-focus:        0 0 0 2px #3479c4, 0 0 0 4px rgba(52,121,196,0.15);
++  /* Layout architecture — zero hardcoded pixels */
++  --nav-w: 44px;       /* nav-rail fixed strip */
++  --sidebar-w: 0px;    /* expanded sidebar; set to 0 when closed, 240px when open */
+ }
+ 
+ /* ── Icon-rail (collapsed left nav strip) ─────────────────── */
+ #nav-rail {
+   position: fixed;
+-  left: 0; top: 40px; bottom: 0;
+-  width: 44px;
++  left: 0; top: var(--topbar-h); bottom: 0;
++  width: var(--nav-w);
+   background: var(--shell-bg);
+   border-right: 1px solid var(--shell-border);
+   display: flex;
+@@ -98,8 +101,8 @@
+ /* ── Expanded sidebar panel ────────────────────────────────── */
+ #sidebar-expanded {
+   position: fixed;
+-  left: 44px; top: 40px; bottom: 0;
+-  width: 0;
++  left: var(--nav-w); top: var(--topbar-h); bottom: 0;
++  width: var(--sidebar-w);
+   overflow: hidden;
+   background: var(--shell-surface);
+   border-right: 1px solid var(--shell-border);
+diff --git a/public/css/app.css b/public/css/app.css
+index 9a2926c..861a5a3 100644
+--- a/public/css/app.css
++++ b/public/css/app.css
+@@ -28,6 +28,7 @@
+   --topbar-h: 44px;
+   --panel-w: 220px;
+   --props-w: 300px;
++  --im-w: 340px;
+   --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+   --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+ 
+@@ -84,6 +85,11 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg-a
+ .main-layout {
+   display: flex;
+   height: calc(100vh - var(--topbar-h));
++  /* Always offset by nav-rail width + expanded sidebar width.
++     --sidebar-w is updated by adjustMainLayout() in app-shell.js.
++     Using CSS var calc ensures NO hardcoded pixels. */
++  margin-left: calc(var(--nav-w) + var(--sidebar-w));
++  transition: margin-left 0.22s cubic-bezier(0.16,1,0.3,1); /* sync with sidebar transition */
+   overflow: hidden;
+ }
+ 
+diff --git a/public/js/app-shell.js b/public/js/app-shell.js
+index eac6410..870989b 100644
+--- a/public/js/app-shell.js
++++ b/public/js/app-shell.js
+@@ -191,14 +191,13 @@ function adjustMainLayout() {
+   const mainLayout = document.getElementById('main-layout');
+   if (!mainLayout) return;
+   const isOpen = expanded && expanded.classList.contains('open');
+-  // 44px rail + 240px expanded when open
+-  const leftOffset = isOpen ? '284px' : '44px';
+-  mainLayout.style.marginLeft = leftOffset;
+-
+-  // Sidebar width change alters the VP canvas dimensions — notify the viewport
+-  // system to recompute renderer sizes and fire a fresh render frame so the
+-  // canvas never shows a black strip after the sidebar slides in/out.
+-  // A 200ms delay lets the CSS transition finish before we measure clientWidth.
++
++  // Use CSS variable --sidebar-w instead of hardcoded pixel.
++  // --sidebar-w: 0 when closed, 240px when open.
++  // --nav-w (44px) is always present as nav-rail width.
++  mainLayout.style.setProperty('--sidebar-w', isOpen ? '240px' : '0px');
++
++  // Notify viewport system to recompute renderer sizes after CSS transition.
+   setTimeout(() => {
+     if (typeof window._atlNotifyVPResize === 'function') window._atlNotifyVPResize();
+   }, 220);

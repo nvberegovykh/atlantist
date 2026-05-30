@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Crafting — Atlantist Mobile</title>
+  <style>
+    /* ── Design system — high contrast for store lighting ────────────────────── */
+    :root {
+      --bg: #000;
+      --bg-card: #111;
+      --border: #333;
+      --text: #fff;
+      --text-muted: #888;
+      --accent: #a855f7;
+      --green: #22c55e;
+      --green-bg: #052e16;
+      --yellow: #eab308;
+      --yellow-bg: #1c1400;
+      --red: #ef4444;
+      --red-bg: #1c0000;
+      --blue: #60a5fa;
+      --blue-bg: #0c1425;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; }
+
+    /* ── App header ─────────────────────────────────────────────────────────── */
+    header {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--bg); border-bottom: 1px solid var(--border);
+      padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+    }
+    .logo { color: var(--accent); font-weight: 700; font-size: 16px; }
+    header h1 { font-size: 14px; font-weight: 600; flex: 1; }
+    header .back-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Mode tabs ───────────────────────────────────────────────────────────── */
+    #mode-tabs {
+      display: flex; border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .mode-tab {
+      flex: 1; padding: 12px 4px; border: none; background: none;
+      color: var(--text-muted); font-size: 11px; font-weight: 500;
+      cursor: pointer; border-bottom: 3px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .mode-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .mode-tab .icon { font-size: 20px; }
+    .mode-tab .label { font-size: 10px; }
+
+    /* ── Page content ────────────────────────────────────────────────────────── */
+    #page { padding: 16px; min-height: calc(100vh - 120px); }
+
+    /* ── Assembly info bar ───────────────────────────────────────────────────── */
+    #assembly-bar {
+      padding: 12px 16px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 12px;
+      margin-bottom: 16px; display: flex; align-items: center; gap: 12px;
+    }
+    #assembly-bar .info { flex: 1; }
+    #assembly-bar .name { font-size: 14px; font-weight: 600; color: var(--text); }
+    #assembly-bar .meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    #assembly-bar .total {
+      font-size: 18px; font-weight: 700; color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Checklist item ──────────────────────────────────────────────────────── */
+    .check-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px; margin-bottom: 10px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; transition: border-color 0.2s;
+      cursor: pointer;
+    }
+    .check-item.checked {
+      background: var(--green-bg);
+      border-color: #166534;
+    }
+    .check-item .checkbox {
+      width: 28px; height: 28px; border-radius: 8px;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .check-item.checked .checkbox {
+      background: var(--green); border-color: var(--green);
+    }
+    .check-item .item-info { flex: 1; min-width: 0; }
+    .check-item .item-name { font-size: 15px; font-weight: 600; color: var(--text); }
+    .check-item .item-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .check-item .item-price { font-size: 14px; font-weight: 600; color: var(--text-muted); text-align: right; flex-shrink: 0; }
+    .check-item.checked .item-price { color: var(--green); }
+    .check-item.checked .item-name { text-decoration: line-through; opacity: 0.6; }
+
+    /* ── Scanner ─────────────────────────────────────────────────────────────── */
+    .scanner-view { text-align: center; }
+    .scanner-icon {
+      width: 100%; max-width: 300px; aspect-ratio: 1;
+      margin: 0 auto 24px;
+      background: var(--bg-card); border: 2px solid var(--accent);
+      border-radius: 24px; display: flex; align-items: center; justify-content: center;
+      font-size: 72px; cursor: pointer;
+      position: relative; overflow: hidden;
+    }
+    .scanner-icon::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--accent) 0%, transparent 50%);
+      opacity: 0.05;
+    }
+    .scanner-actions { display: flex; flex-direction: column; gap: 10px; }
+    .scan-btn {
+      width: 100%; padding: 16px; border-radius: 12px; border: none;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .scan-btn.primary { background: var(--accent); color: #fff; }
+    .scan-btn.secondary { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+
+    /* ── Comparison result card ─────────────────────────────────────────────── */
+    .compare-result {
+      padding: 16px; margin-top: 16px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .compare-result .match-score {
+      display: inline-block; padding: 4px 10px; border-radius: 8px;
+      font-size: 13px; font-weight: 700; margin-bottom: 10px;
+    }
+    .match-high { background: var(--green-bg); color: var(--green); border: 1px solid #166534; }
+    .match-mid { background: var(--yellow-bg); color: var(--yellow); border: 1px solid #854d0e; }
+    .match-low { background: var(--red-bg); color: var(--red); border: 1px solid #991b1b; }
+    .compare-result .name { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .compare-result .delta { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; }
+    .compare-result .actions { display: flex; gap: 8px; }
+    .compare-result button {
+      flex: 1; padding: 10px; border-radius: 8px; border: none;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .compare-result button.accept { background: var(--green); color: #fff; }
+    .compare-result button.reject { background: var(--bg-card); color: var(--red); border: 1px solid var(--border); }
+
+    /* ── Price comparison ────────────────────────────────────────────────────── */
+    .price-row {
+      display: flex; align-items: center; padding: 12px;
+      border-bottom: 1px solid var(--border); gap: 12px;
+    }
+    .price-row:last-child { border-bottom: none; }
+    .price-row .store { flex: 1; font-size: 13px; font-weight: 500; }
+    .price-row .price { font-size: 16px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+    .price-row .diff { font-size: 11px; color: var(--text-muted); }
+    .price-row .diff.cheaper { color: var(--green); }
+    .price-row .diff.pricier { color: var(--red); }
+    .price-row .best-badge {
+      padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 700;
+      background: var(--green-bg); color: var(--green); border: 1px solid #166534;
+    }
+
+    /* ── Substitution ────────────────────────────────────────────────────────── */
+    .sub-card {
+      padding: 14px 16px; margin-top: 12px;
+      background: var(--blue-bg); border: 1px solid #1e3a5f;
+      border-radius: 12px;
+    }
+    .sub-card .label { font-size: 11px; color: var(--blue); font-weight: 600; margin-bottom: 6px; }
+    .sub-card .name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .sub-card .detail { font-size: 12px; color: var(--text-muted); }
+    .sub-card .price-diff { font-size: 12px; color: var(--green); margin-top: 4px; }
+    .sub-card button {
+      margin-top: 8px; width: 100%; padding: 8px;
+      background: var(--blue); color: #fff; border: none; border-radius: 8px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+
+    /* ── Scanner panel ──────────────────────────────────────────────────────── */
+    #scanner-page .panel-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    #scanner-page .hint { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; text-align: center; }
+    .barcode-input {
+      width: 100%; padding: 14px; background: var(--bg-card); border: 2px solid var(--accent);
+      border-radius: 12px; color: var(--text); font-size: 16px; text-align: center;
+      outline: none; margin-bottom: 12px; letter-spacing: 0.1em;
+    }
+
+    /* ── Substitute suggestions ──────────────────────────────────────────────── */
+    #sub-page .panel-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .sub-suggestion {
+      padding: 14px; margin-bottom: 12px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 12px;
+    }
+    .sub-suggestion .orig { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+    .sub-suggestion .orig-name { font-size: 13px; text-decoration: line-through; opacity: 0.6; }
+    .sub-suggestion .arrow { font-size: 18px; color: var(--blue); margin: 8px 0; }
+    .sub-suggestion .new-name { font-size: 15px; font-weight: 600; color: var(--text); }
+    .sub-suggestion .specs { font-size: 12px; color: var(--text-muted); margin: 4px 0; }
+    .sub-suggestion .price { font-size: 13px; font-weight: 600; color: var(--green); margin-top: 6px; }
+    .sub-suggestion button {
+      margin-top: 8px; width: 100%; padding: 8px;
+      background: var(--blue); color: #fff; border: none; border-radius: 8px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+
+    /* ── Hidden elements ─────────────────────────────────────────────────────── */
+    .hidden { display: none !important; }
+
+    /* ── Empty state ─────────────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center; padding: 60px 24px; color: var(--text-muted);
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state .msg { font-size: 14px; line-height: 1.6; }
+    .empty-state button {
+      margin-top: 16px; padding: 12px 24px;
+      background: var(--accent); color: #fff; border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+
+    /* ── Progress ring ────────────────────────────────────────────────────────── */
+    .progress-ring {
+      width: 56px; height: 56px; position: relative; flex-shrink: 0;
+    }
+    .progress-ring svg { transform: rotate(-90deg); }
+    .progress-ring circle {
+      fill: none; stroke-width: 4;
+      cx: 28; cy: 28; r: 24;
+    }
+    .progress-ring .bg { stroke: var(--border); }
+    .progress-ring .fg { stroke: var(--accent); stroke-linecap: round;
+      stroke-dasharray: 150.8; stroke-dashoffset: 150.8; transition: stroke-dashoffset 0.4s; }
+    .progress-ring .text {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header>
+  <button class="back-btn" onclick="history.back()">←</button>
+  <span class="logo">Atlantist</span>
+  <h1>Crafting</h1>
+</header>
+
+<!-- ── Mode tabs ──────────────────────────────────────────────────────────── -->
+<nav id="mode-tabs">
+  <button class="mode-tab active" data-mode="checklist">
+    <span class="icon">✓</span>
+    <span class="label">Checklist</span>
+  </button>
+  <button class="mode-tab" data-mode="scanner">
+    <span class="icon">📷</span>
+    <span class="label">Scan</span>
+  </button>
+  <button class="mode-tab" data-mode="compare">
+    <span class="icon">⚖</span>
+    <span class="label">Compare</span>
+  </button>
+  <button class="mode-tab" data-mode="substitute">
+    <span class="icon">🔁</span>
+    <span class="label">Substitutes</span>
+  </button>
+</nav>
+
+<!-- ── Page: Checklist ────────────────────────────────────────────────────── -->
+<div id="page-checklist" class="page">
+  <div id="assembly-bar">
+    <div class="progress-ring">
+      <svg width="56" height="56">
+        <circle class="bg"/>
+        <circle class="fg" id="progress-ring-fg"/>
+      </svg>
+      <div class="text" id="progress-pct">0%</div>
+    </div>
+    <div class="info">
+      <div class="name" id="assembly-name">Loading…</div>
+      <div class="meta" id="assembly-meta">—</div>
+    </div>
+    <div class="total" id="assembly-total">$0</div>
+  </div>
+
+  <div id="checklist-items">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ── Page: Scanner ─────────────────────────────────────────────────────── -->
+<div id="page-scanner" class="page hidden">
+  <div class="scanner-view">
+    <div class="panel-title">Product Scanner</div>
+    <div class="hint">Scan a barcode or take a photo to check against your recipe spec.</div>
+
+    <div class="scanner-icon" id="camera-trigger">📷</div>
+
+    <div class="scanner-actions">
+      <button class="scan-btn primary" id="btn-take-photo">
+        📷 Take photo
+      </button>
+      <button class="scan-btn secondary" id="btn-enter-barcode">
+        🔢 Enter barcode
+      </button>
+    </div>
+
+    <!-- Barcode input (hidden until needed) -->
+    <div id="barcode-input-panel" class="hidden" style="margin-top:20px">
+      <input type="text" id="barcode-input" class="barcode-input" placeholder="Enter barcode…" maxlength="30">
+      <button class="scan-btn primary" id="btn-lookup-barcode" style="margin-top:8px">
+        Look up product
+      </button>
+    </div>
+
+    <!-- Scan result -->
+    <div id="scan-result" class="hidden" style="margin-top:20px">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ── Page: Compare ─────────────────────────────────────────────────────── -->
+<div id="page-compare" class="page hidden">
+  <div class="panel-title">Price Comparison</div>
+  <div class="hint" style="margin-bottom:16px">Select a thing from your assembly to compare prices across stores.</div>
+
+  <div id="compare-thing-select" style="margin-bottom:16px">
+    <!-- populated by JS -->
+  </div>
+
+  <div id="compare-results">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- ── Page: Substitutes ─────────────────────────────────────────────────── -->
+<div id="page-substitute" class="page hidden">
+  <div class="panel-title">Substitution Suggestions</div>
+  <div class="hint" style="margin-bottom:16px">When an item isn't available, here's what to use instead.</div>
+
+  <div id="sub-list">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- ── Scripts ──────────────────────────────────────────────────────────────── -->
+<script src="/js/boot-safety.js"></script>
+<script src="/js/crafting-ui.js"></script>
+<script>
+(async () => {
+  // ── Auth guard ──────────────────────────────────────────────────────────────
+  async function requireAuth() {
+    try {
+      const r = await fetch('/api/auth/me', { credentials: 'same-origin' });
+      if (r.status === 401) { window.location.href = '/login'; return null; }
+      return await r.json();
+    } catch { window.location.href = '/login'; return null; }
+  }
+  const me = await requireAuth();
+  if (!me) return;
+
+  // ── State ───────────────────────────────────────────────────────────────────
+  const checklist = []; // { thing, checked, price }
+  let currentMode = 'checklist';
+  let assemblyData = null;
+  let selectedCompareThingId = null;
+
+  // ── Load data ───────────────────────────────────────────────────────────────
+  await Promise.all([
+    CraftUI.loadInventory(null).catch(() => []),
+    CraftUI.loadWorkbench().catch(() => null),
+  ]);
+
+  // Load most recent assembly if exists
+  try {
+    const res = await fetch('/api/crafting/assemblies?limit=5', { credentials: 'same-origin' });
+    const data = await res.json();
+    if (data.assemblies?.length) {
+      await CraftUI.loadAssembly(data.assemblies[0].id);
+      assemblyData = CraftUI.assembly;
+    }
+  } catch {}
+
+  // Build checklist from assembly or inventory
+  const sourceThings = assemblyData?.sub_things?.length
+    ? assemblyData.sub_things.map(st => {
+        const t = CraftUI.inventory.find(i => i.id === st.thing_id);
+        return t ? { thing: t, quantity: st.quantity, checked: false } : null;
+      }).filter(Boolean)
+    : CraftUI.inventory.slice(0, 10).map(t => ({ thing: t, quantity: 1, checked: false }));
+
+  checklist.push(...sourceThings);
+
+  // ── Tab switching ───────────────────────────────────────────────────────────
+  document.querySelectorAll('.mode-tab').forEach(tab => {
+    tab?.addEventListener('click', () => {
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentMode = tab.dataset.mode;
+      document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+      document.getElementById(`page-${currentMode}`)?.classList.remove('hidden');
+      if (currentMode === 'checklist') renderChecklist();
+      if (currentMode === 'compare') renderComparePage();
+      if (currentMode === 'substitute') renderSubstitutes();
+    });
+  });
+
+  // ── Render checklist ────────────────────────────────────────────────────────
+  function renderChecklist() {
+    document.getElementById('assembly-name').textContent = assemblyData?.name || 'Current Assembly';
+    const checked = checklist.filter(i => i.checked).length;
+    const total = checklist.length;
+    const pct = total ? Math.round((checked / total) * 100) : 0;
+
+    document.getElementById('progress-pct').textContent = pct + '%';
+    const fg = document.getElementById('progress-ring-fg');
+    const circumference = 2 * Math.PI * 24; // r=24
+    fg.style.strokeDashoffset = circumference * (1 - pct / 100);
+
+    document.getElementById('assembly-meta').textContent = `${checked}/${total} items found`;
+    document.getElementById('assembly-total').textContent =
+      '$' + (assemblyData?.total_cost || 0).toFixed(0);
+
+    const listEl = document.getElementById('checklist-items');
+    if (!checklist.length) {
+      listEl.innerHTML = `<div class="empty-state">
+        <div class="icon">📦</div>
+        <div class="msg">No items in your assembly.<br>Open the <a href="/crafting-workbench" style="color:var(--accent)">Crafting Workbench</a> to add things.</div>
+      </div>`;
+      return;
+    }
+
+    listEl.innerHTML = checklist.map((item, i) => {
+      const name = item.thing.name;
+      const meta = [item.thing.source_type, item.quantity > 1 ? `×${item.quantity}` : ''].filter(Boolean).join(' · ');
+      return `<div class="check-item ${item.checked ? 'checked' : ''}" data-idx="${i}">
+        <div class="checkbox">${item.checked ? '✓' : ''}</div>
+        <div class="item-info">
+          <div class="item-name">${name}</div>
+          <div class="item-meta">${meta}</div>
+        </div>
+        <div class="item-price">${item.checked ? '✓ found' : '—'}</div>
+      </div>`;
+    }).join('');
+
+    listEl.querySelectorAll('.check-item').forEach(el => {
+      el?.addEventListener('click', () => {
+        const idx = parseInt(el.dataset.idx);
+        checklist[idx].checked = !checklist[idx].checked;
+        renderChecklist();
+      });
+    });
+  }
+
+  // ── Render compare page ─────────────────────────────────────────────────────
+  function renderComparePage() {
+    const selectEl = document.getElementById('compare-thing-select');
+    const resultsEl = document.getElementById('compare-results');
+
+    if (!checklist.length) {
+      selectEl.innerHTML = '';
+      resultsEl.innerHTML = `<div class="empty-state"><div class="icon">⚖</div><div class="msg">No assembly loaded. Add things in the <a href="/crafting-workbench" style="color:var(--accent)">Workbench</a>.</div></div>`;
+      return;
+    }
+
+    selectEl.innerHTML = `
+      <select id="compare-select" style="width:100%;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px">
+        <option value="">Select a thing to compare prices…</option>
+        ${checklist.map(item => `<option value="${item.thing.id}">${item.thing.name}</option>`).join('')}
+      </select>`;
+
+    document.getElementById('compare-select')?.addEventListener('change', async (e) => {
+      selectedCompareThingId = parseInt(e.target.value);
+      if (!selectedCompareThingId) return;
+      await loadCompareResults(selectedCompareThingId);
+    });
+
+    resultsEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:40px;font-size:13px">Select a thing above to see prices.</div>`;
+  }
+
+  async function loadCompareResults(thingId) {
+    const resultsEl = document.getElementById('compare-results');
+    const thing = CraftUI.inventory.find(t => t.id === thingId);
+    resultsEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px">Loading prices…</div>`;
+
+    try {
+      // Try sourcing engine for price comparison
+      const res = await fetch(`/api/crafting/sourcing/compare?thing_id=${thingId}`, {
+        credentials: 'same-origin'
+      });
+      const data = await res.json();
+
+      if (data.prices?.length) {
+        const bestPrice = Math.min(...data.prices.map(p => p.price_usd));
+        resultsEl.innerHTML = `<div style="margin-bottom:16px;font-size:13px;color:var(--text-muted)">Prices for <strong style="color:var(--text)">${thing?.name}</strong>:</div>` +
+          data.prices.map(p => {
+            const diff = p.price_usd - bestPrice;
+            const diffStr = diff > 0 ? `+$${diff.toFixed(2)}` : diff < 0 ? `$${diff.toFixed(2)} cheaper` : 'best price';
+            const diffClass = diff > 0 ? 'pricier' : diff < 0 ? 'cheaper' : '';
+            const best = diff <= 0;
+            return `<div class="price-row">
+              <div class="store">${p.store || 'Store'}</div>
+              <div class="price">$${p.price_usd.toFixed(2)}</div>
+              <div class="diff ${diffClass}">${diffStr}</div>
+              ${best ? '<div class="best-badge">BEST</div>' : ''}
+            </div>`;
+          }).join('');
+      } else {
+        resultsEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:40px;font-size:13px">
+          No price data found. Try the sourcing engine on desktop.
+        </div>`;
+      }
+    } catch {
+      resultsEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:40px;font-size:13px">
+        Price comparison unavailable offline.
+      </div>`;
+    }
+  }
+
+  // ── Render substitutes ───────────────────────────────────────────────────────
+  function renderSubstitutes() {
+    const listEl = document.getElementById('sub-list');
+    if (!checklist.length) {
+      listEl.innerHTML = `<div class="empty-state"><div class="icon">🔁</div><div class="msg">Add things to your assembly to see substitution suggestions.</div></div>`;
+      return;
+    }
+
+    // Generate placeholder substitutes based on source types
+    listEl.innerHTML = checklist.slice(0, 5).map(item => {
+      const name = item.thing.name;
+      // Placeholder substitutions — in real flow these come from sourcing engine
+      return `<div class="sub-suggestion">
+        <div class="orig">Unavailable:</div>
+        <div class="orig-name">${name}</div>
+        <div class="arrow">↓</div>
+        <div class="new-name">${name} — equivalent spec</div>
+        <div class="specs">Same load rating, similar dimensions</div>
+        <div class="price">~$0.40 more</div>
+        <button onclick="toast('Added substitute: ${name}')">✓ Use this substitute</button>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Scanner ─────────────────────────────────────────────────────────────────
+  document.getElementById('btn-enter-barcode')?.addEventListener('click', () => {
+    const panel = document.getElementById('barcode-input-panel');
+    panel.classList.toggle('hidden');
+  });
+
+  document.getElementById('btn-take-photo')?.addEventListener('click', async () => {
+    // Trigger file input for photo
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.onchange = async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      await processPhotoScan(file);
+    };
+    input.click();
+  });
+
+  document.getElementById('btn-lookup-barcode')?.addEventListener('click', async () => {
+    const code = document.getElementById('barcode-input')?.value.trim();
+    if (!code) return;
+    await processBarcodeScan(code);
+  });
+
+  async function processPhotoScan(file) {
+    const resultEl = document.getElementById('scan-result');
+    resultEl.classList.remove('hidden');
+    resultEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px">Analyzing photo…</div>`;
+
+    try {
+      // Use crafting recognizer on the photo
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const base64 = e.target.result;
+          // Try to recognize against existing checklist items
+          const matched = await CraftMobile.comparePhotoFromBase64(base64, checklist.map(c => c.thing.id));
+          if (matched) {
+            renderScanResult(matched, resultEl);
+          } else {
+            resultEl.innerHTML = `<div class="compare-result">
+              <div class="match-score match-low">Not matched</div>
+              <div class="name">Product not in your assembly list</div>
+              <div class="detail">This item isn't part of your current recipe.</div>
+              <div class="actions">
+                <button class="accept" onclick="toast('Item noted')">Add to list</button>
+                <button class="reject" onclick="document.getElementById('scan-result').classList.add('hidden')">Dismiss</button>
+              </div>
+            </div>`;
+          }
+        } catch (err) {
+          resultEl.innerHTML = `<div style="text-align:center;color:var(--red);padding:20px">Scan failed: ${err.message}</div>`;
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      resultEl.innerHTML = `<div style="text-align:center;color:var(--red);padding:20px">Error: ${err.message}</div>`;
+    }
+  }
+
+  async function processBarcodeScan(code) {
+    const resultEl = document.getElementById('scan-result');
+    resultEl.classList.remove('hidden');
+    resultEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:20px;font-size:13px">Looking up ${code}…</div>`;
+
+    try {
+      const res = await fetch('/api/crafting/sourcing/barcode', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ barcode: code }),
+      });
+      const data = await res.json();
+      if (data.product) {
+        const matchScore = data.match_score || 0.7;
+        const scoreClass = matchScore >= 0.85 ? 'match-high' : matchScore >= 0.6 ? 'match-mid' : 'match-low';
+        resultEl.innerHTML = `<div class="compare-result">
+          <div class="match-score ${scoreClass}">${Math.round(matchScore * 100)}% match</div>
+          <div class="name">${data.product.name || 'Product'}</div>
+          <div class="delta">${data.product.price ? '$' + data.product.price.toFixed(2) : 'price unknown'}</div>
+          <div class="actions">
+            <button class="accept" onclick="toast('Added: ' + '${data.product.name}')">Add to checklist</button>
+            <button class="reject" onclick="document.getElementById('scan-result').classList.add('hidden')">Not this</button>
+          </div>
+        </div>`;
+      } else {
+        resultEl.innerHTML = `<div class="compare-result">
+          <div class="match-score match-low">Unknown barcode</div>
+          <div class="name">${code}</div>
+          <div class="detail">This product wasn't found in our catalog.</div>
+          <div class="actions">
+            <button class="accept" onclick="document.getElementById('scan-result').classList.add('hidden')">OK</button>
+          </div>
+        </div>`;
+      }
+    } catch (err) {
+      resultEl.innerHTML = `<div style="text-align:center;color:var(--red);padding:20px">Lookup failed: ${err.message}</div>`;
+    }
+  }
+
+  function renderScanResult(matched, container) {
+    const score = matched.match_score || 0.7;
+    const scoreClass = score >= 0.85 ? 'match-high' : score >= 0.6 ? 'match-mid' : 'match-low';
+    const delta = matched.delta || '';
+
+    container.innerHTML = `<div class="compare-result">
+      <div class="match-score ${scoreClass}">${Math.round(score * 100)}% match</div>
+      <div class="name">${matched.name || 'Product'}</div>
+      <div class="delta">${delta}</div>
+      <div class="actions">
+        <button class="accept" onclick="toast('Found: ' + '${matched.name}')">✓ Mark found</button>
+        <button class="reject" onclick="document.getElementById('scan-result').classList.add('hidden')">Not this</button>
+      </div>
+    </div>`;
+  }
+
+  // Camera trigger (visual only)
+  document.getElementById('camera-trigger')?.addEventListener('click', () => {
+    const btn = document.getElementById('btn-take-photo');
+    btn?.click();
+  });
+
+  // ── Toast ───────────────────────────────────────────────────────────────────
+  function toast(msg) {
+    const el = document.createElement('div');
+    el.style = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:10px 20px;background:var(--bg-card);border:1px solid var(--accent);border-radius:10px;font-size:13px;color:var(--accent);z-index:9999;animation:fadeUp 0.2s';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+  function fadeUp(el) { el.style.opacity = '0'; el.style.transform = 'translateX(-50%) translateY(8px)'; }
+
+  // ── Init ────────────────────────────────────────────────────────────────────
+  renderChecklist();
+
+  // Handle "open camera" from camera button in scanner icon
+  document.querySelector('.scanner-icon')?.addEventListener('click', () => {
+    document.getElementById('btn-take-photo')?.click();
+  });
+
+})();
+</script>
+</body>
+</html>

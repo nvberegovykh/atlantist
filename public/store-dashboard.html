@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creator Dashboard — Atlantist Asset Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0c10; --bg-card: #13151c; --bg-card2: #1a1d27; --bg-raised: #1e2130;
+      --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+      --text: #f0eeea; --text-dim: rgba(240,238,234,0.55); --text-mid: rgba(240,238,234,0.35);
+      --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.15); --blue: #5b8fd9; --blue-dim: rgba(91,143,217,0.15);
+      --green: #3bba6c; --green-dim: rgba(59,186,108,0.1); --red: #e84855; --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+      --radius: 12px; --radius-sm: 8px;
+    }
+    html, body { min-height: 100vh; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    ::selection { background: var(--blue); color: white; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────── */
+    nav { display: flex; align-items: center; padding: 16px 48px; border-bottom: 1px solid var(--border); background: rgba(11,12,16,0.95); position: sticky; top: 0; z-index: 50; }
+    nav .logo { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    nav .logo svg { width: 26px; height: 26px; }
+    nav .breadcrumb { color: var(--text-mid); font-size: 13px; margin-left: 16px; }
+    nav .nav-links { margin-left: auto; display: flex; gap: 20px; align-items: center; }
+    nav .nav-links a { color: var(--text-dim); font-size: 13px; font-weight: 500; transition: color 0.15s; }
+    nav .nav-links a:hover { color: var(--text); text-decoration: none; }
+    nav .nav-links .active { color: var(--text); }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+    /* ── Header ───────────────────────────────────────────── */
+    .page-header { margin-bottom: 32px; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .page-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+    .page-header p { color: var(--text-dim); font-size: 14px; }
+    .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    /* ── Cards ────────────────────────────────────────────── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 40px; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+    .stat-card .stat-label { font-size: 12px; font-weight: 600; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .stat-card .stat-value { font-size: 32px; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+    .stat-card .stat-sub { font-size: 12px; color: var(--text-mid); }
+    .stat-card.gold { border-color: rgba(201,168,76,0.3); }
+    .stat-card.gold .stat-value { color: var(--gold); }
+    .stat-card.green { border-color: rgba(59,186,108,0.3); }
+    .stat-card.green .stat-value { color: var(--green); }
+
+    /* ── Stripe Connect ─────────────────────────────────── */
+    .connect-banner { background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius); padding: 24px; margin-bottom: 32px; display: flex; align-items: center; gap: 20px; }
+    .connect-banner .icon { width: 48px; height: 48px; background: var(--blue-dim); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .connect-banner .icon svg { width: 24px; height: 24px; stroke: var(--blue); }
+    .connect-banner h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .connect-banner p { font-size: 13px; color: var(--text-dim); }
+    .connect-banner .btn { margin-left: auto; white-space: nowrap; }
+    .connect-banner.connected { border-color: rgba(59,186,108,0.3); }
+    .connect-banner.connected .icon { background: var(--green-dim); }
+    .connect-banner.connected .icon svg { stroke: var(--green); }
+    .connect-banner.connected h3 { color: var(--green); }
+
+    /* ── Buttons ──────────────────────────────────────────── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: var(--blue); color: white; }
+    .btn-primary:hover { background: #6fa3e8; text-decoration: none; }
+    .btn-gold { background: var(--gold); color: #0b0c10; }
+    .btn-gold:hover { background: #d4b557; text-decoration: none; }
+    .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--text-dim); }
+    .btn-outline:hover { border-color: var(--border2); color: var(--text); text-decoration: none; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+    /* ── Section headers ─────────────────────────────────── */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-header h2 { font-size: 18px; font-weight: 700; }
+
+    /* ── Transactions table ─────────────────────────────── */
+    .tx-table-wrap { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 32px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; padding: 12px 16px; color: var(--text-mid); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); background: var(--bg-card2); }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .asset-title { font-weight: 600; color: var(--text); font-size: 14px; }
+    .tx-amount { font-weight: 600; }
+    .tx-payout { color: var(--green); font-weight: 600; }
+    .tx-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .tx-badge.paid { background: var(--green-dim); color: var(--green); }
+    .tx-badge.free { background: var(--blue-dim); color: var(--blue); }
+    .tx-date { font-size: 12px; color: var(--text-mid); }
+
+    /* ── Asset row ──────────────────────────────────────── */
+    .asset-thumb { width: 40px; height: 40px; border-radius: 6px; background: var(--bg-raised); overflow: hidden; flex-shrink: 0; }
+    .asset-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .asset-info { display: flex; align-items: center; gap: 12px; }
+    .asset-info .name { font-weight: 600; font-size: 14px; color: var(--text); }
+    .asset-info .meta { font-size: 12px; color: var(--text-mid); }
+
+    /* ── Loading / empty states ─────────────────────────── */
+    .loading { text-align: center; padding: 48px; color: var(--text-mid); font-size: 14px; }
+    .empty-state { text-align: center; padding: 48px; }
+    .empty-state svg { width: 48px; height: 48px; stroke: var(--text-mid); margin-bottom: 16px; opacity: 0.5; }
+    .empty-state h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .empty-state p { font-size: 13px; color: var(--text-dim); }
+
+    /* ── Loading skeleton ────────────────────────────────── */
+    @keyframes shimmer { 0% { background-position: -400px 0 } 100% { background-position: 400px 0 } }
+    .skeleton { background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card2) 50%, var(--bg-card) 75%); background-size: 800px 100%; animation: shimmer 1.4s infinite; border-radius: 4px; }
+
+    @media (max-width: 600px) {
+      nav { padding: 14px 20px; }
+      .container { padding: 24px 16px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .connect-banner { flex-direction: column; text-align: center; }
+      .connect-banner .btn { margin: 16px 0 0; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <svg viewBox="0 0 40 40" fill="none">
+      <circle cx="20" cy="20" r="19" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.3"/>
+      <circle cx="20" cy="20" r="14" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.5"/>
+      <circle cx="20" cy="20" r="9" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M20 8 L20 11 M20 29 L20 32 M8 20 L11 20 M29 20 L32 20" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="20" cy="20" r="3" fill="#c9a84c"/>
+    </svg>
+    Atlantist Store
+  </div>
+  <div class="breadcrumb"> / Creator Dashboard </div>
+  <div class="nav-links">
+    <a href="/store">Browse</a>
+    <a href="/store/dashboard" class="active">Dashboard</a>
+    <a href="/store/library">My Library</a>
+    <a href="/store/commission">Pricing Info</a>
+  </div>
+</nav>
+
+<div class="container">
+  <!-- Stripe Connect banner -->
+  <div id="connect-banner" class="connect-banner" style="display:none">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+      </svg>
+    </div>
+    <div>
+      <h3>Connect your Stripe account</h3>
+      <p>Link your Stripe account to receive payouts directly. Takes about 5 minutes.</p>
+    </div>
+    <button class="btn btn-gold" id="btn-connect-stripe" onclick="startStripeOnboarding()">
+      Connect Stripe →
+    </button>
+  </div>
+  <div id="connect-banner-done" class="connect-banner connected" style="display:none">
+    <div class="icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <div>
+      <h3>Stripe account connected</h3>
+      <p>Your payouts are enabled. Payments go directly to your Stripe account.</p>
+    </div>
+    <span style="font-size:13px;color:var(--text-mid)">Payouts: 2 business days</span>
+  </div>
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Creator Dashboard</h1>
+      <p>Track your sales, manage listings, and monitor your earnings.</p>
+    </div>
+    <div class="header-actions">
+      <a href="/app?panel=store-upload" class="btn btn-primary">+ New Asset</a>
+      <a href="/store" class="btn btn-outline">Browse Store</a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid" id="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total Revenue</div>
+      <div class="stat-value" id="stat-revenue">—</div>
+      <div class="stat-sub">lifetime net earnings</div>
+    </div>
+    <div class="stat-card gold">
+      <div class="stat-label">Pending Payout</div>
+      <div class="stat-value" id="stat-pending">—</div>
+      <div class="stat-sub">ready to transfer</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Downloads</div>
+      <div class="stat-value" id="stat-downloads">—</div>
+      <div class="stat-sub">across all listings</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-label">Active Listings</div>
+      <div class="stat-value" id="stat-listings">—</div>
+      <div class="stat-sub">published assets</div>
+    </div>
+  </div>
+
+  <!-- Recent Transactions -->
+  <div class="section-header">
+    <h2>Recent Transactions</h2>
+    <a href="/store/dashboard?view=all" class="btn btn-outline btn-sm">View All</a>
+  </div>
+
+  <div class="tx-table-wrap" id="tx-table-wrap">
+    <div class="loading" id="tx-loading">Loading transactions...</div>
+    <table id="tx-table" style="display:none">
+      <thead>
+        <tr>
+          <th>Asset</th>
+          <th>Buyer</th>
+          <th>Sale Price</th>
+          <th>Platform (2%)</th>
+          <th>Your Payout</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody id="tx-body"></tbody>
+    </table>
+    <div class="empty-state" id="tx-empty" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <h3>No sales yet</h3>
+      <p>Publish your first asset to start earning.</p>
+    </div>
+  </div>
+
+  <!-- Commission breakdown -->
+  <div class="section-header">
+    <h2>Earnings Breakdown</h2>
+  </div>
+  <div class="tx-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Metric</th><th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Gross Revenue (before commission)</td><td id="metric-gross">—</td></tr>
+        <tr><td>Platform Commission (2%)</td><td id="metric-commission" style="color:var(--text-mid)">—</td></tr>
+        <tr><td>Net Revenue (your earnings)</td><td id="metric-net" style="color:var(--green);font-weight:600">—</td></tr>
+        <tr><td>Total Lifetime Payouts</td><td id="metric-payout">—</td></tr>
+        <tr><td>Average Rating</td><td id="metric-rating">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="margin-top:16px">
+    <a href="/store/commission" class="btn btn-outline btn-sm">How pricing works →</a>
+  </div>
+</div>
+
+<script src="/js/boot-safety.js"></script>
+<script>
+async function init() {
+  try {
+    const [payoutRes, txRes] = await Promise.all([
+      fetch('/api/store/assets/payout', { credentials: 'include' }),
+      fetch('/api/store/assets/analytics', { credentials: 'include' }),
+    ]);
+
+    if (!payoutRes.ok) { window.location.href = '/app?redirect=/store/dashboard'; return; }
+
+    const payout = await payoutRes.json();
+    const analytics = await txRes.json();
+
+    // Stats
+    document.getElementById('stat-revenue').textContent = '$' + (payout.net_revenue || 0).toFixed(2);
+    document.getElementById('stat-pending').textContent = '$' + (payout.pending_payout || 0).toFixed(2);
+    document.getElementById('stat-downloads').textContent = payout.total_downloads || 0;
+    document.getElementById('stat-listings').textContent = payout.total_listings || 0;
+
+    // Metrics
+    document.getElementById('metric-gross').textContent = '$' + (payout.gross_revenue || 0).toFixed(2);
+    document.getElementById('metric-commission').textContent = '$' + (payout.platform_commission_usd || 0).toFixed(2);
+    document.getElementById('metric-net').textContent = '$' + (payout.net_revenue || 0).toFixed(2);
+    document.getElementById('metric-payout').textContent = '$' + (payout.lifetime_payout || 0).toFixed(2);
+    document.getElementById('metric-rating').textContent = payout.avg_rating ? payout.avg_rating.toFixed(1) + ' / 5' : 'No ratings yet';
+
+    // Connect banner
+    if (payout.stripe_connect_onboarded) {
+      document.getElementById('connect-banner-done').style.display = 'flex';
+    } else {
+      document.getElementById('connect-banner').style.display = 'flex';
+    }
+
+    // Transactions
+    const txs = payout.recent_transactions || [];
+    document.getElementById('tx-loading').style.display = 'none';
+
+    if (!txs.length) {
+      document.getElementById('tx-empty').style.display = 'block';
+    } else {
+      document.getElementById('tx-table').style.display = 'table';
+      document.getElementById('tx-body').innerHTML = txs.map(t => {
+        const date = new Date(t.acquired_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const badge = t.is_paid
+          ? '<span class="tx-badge paid">Paid</span>'
+          : '<span class="tx-badge free">Free</span>';
+        const amount = t.is_paid ? '$' + t.amount_usd.toFixed(2) : 'Free';
+        return `<tr>
+          <td><div class="asset-info">${t.asset_preview ? `<div class="asset-thumb"><img src="${t.asset_preview}" alt=""></div>` : ''}<div><div class="name">${t.asset_title || 'Unknown'}</div><div>${badge}</div></div></div></td>
+          <td>${t.buyer_name || t.buyer_email || 'Anonymous'}</td>
+          <td class="tx-amount">${amount}</td>
+          <td style="color:var(--text-mid)">${t.is_paid ? '$' + (t.commission_usd || 0).toFixed(2) : '—'}</td>
+          <td class="tx-payout">${t.is_paid ? '$' + (t.net_usd || 0).toFixed(2) : '—'}</td>
+          <td class="tx-date">${date}</td>
+        </tr>`;
+      }).join('');
+    }
+  } catch (err) {
+    console.error('[dashboard] init error:', err);
+    document.getElementById('tx-loading').textContent = 'Failed to load. Refresh to retry.';
+  }
+}
+
+async function startStripeOnboarding() {
+  const btn = document.getElementById('btn-connect-stripe');
+  btn.disabled = true;
+  btn.textContent = 'Loading...';
+  try {
+    const res = await fetch('/api/store/connect/account-link', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+      else alert('Could not create Stripe onboarding link. Please contact support.');
+    } else {
+      alert('Payment system not configured. Contact support@atlantist.cloud');
+    }
+  } catch (err) {
+    alert('Failed to start Stripe onboarding: ' + err.message);
+  }
+  btn.disabled = false;
+  btn.textContent = 'Connect Stripe →';
+}
+
+// Handle connect return
+const params = new URLSearchParams(window.location.search);
+if (params.get('connect') === 'success') {
+  // Refresh dashboard after onboarding
+  init();
+} else if (params.get('connect') === 'refresh') {
+  init();
+}
+
+init();
+</script>
+</body>
+</html>

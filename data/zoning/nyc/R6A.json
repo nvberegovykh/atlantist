@@ -1,0 +1,57 @@
+{
+  "district": "R6A",
+  "description": "Contextual medium-density residential district. Quality Housing bulk regulations are mandatory. Produces high lot-coverage 6-7 story buildings compatible with established neighborhoods.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "source_url_height": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22", "23-432", "23-34", "23-335"],
+  "bulk": {
+    "far_standard": 3.00,
+    "far_qualifying": 3.90,
+    "far_note": "UAP (Universal Affordability Preference) standard; community facility FAR per ZR §24-11",
+    "lot_coverage_max": 80,
+    "quality_housing_mandatory": true
+  },
+  "height_setback": {
+    "regulation_type": "Quality Housing (mandatory)",
+    "min_base_height_ft": 40,
+    "max_base_height_ft": 65,
+    "max_building_height_ft": 75,
+    "affordable_max_base_height_ft": 65,
+    "affordable_max_building_height_ft": 95,
+    "street_wall_setback_wide_st": "10 ft depth above max base height",
+    "street_wall_setback_narrow_st": "15 ft depth above max base height",
+    "street_wall_location": "No closer to street line than buildings within 150 ft on same block, up to 15 ft depth",
+    "sky_exposure_plane": "Applies per §23-433",
+    "tower_permitted": false,
+    "notes": "Per ZR §23-432 table (R6A, R6-1 rows). Quality Housing max building height 75 ft standard; 95 ft with qualifying affordable/senior housing."
+  },
+  "yards": {
+    "front": {
+      "requirement": "Per §23-322: min depth varies; new buildings should be no closer to street than adjacent buildings within 150 ft",
+      "note": "Open area between street wall and street line may be used for permitted obstructions per §23-41"
+    },
+    "side": {
+      "requirement": "Per §23-335: none required for Quality Housing in R6A contextual districts",
+      "note": "No rear yard required where rear lot line coincides with side lot line of adjoining zoning lot (§23-342)"
+    },
+    "rear": {
+      "requirement": "30 ft min depth per §23-342",
+      "through_lot_alternative": "Rear yard equivalent per §23-343 on through lots ≥180 ft depth from street to street — required only per paragraph (a) of §23-343",
+      "note": "No rear yard required at lot line coinciding with adjoining side lot line"
+    }
+  },
+  "permitted_uses": {
+    "residential": ["Dwelling units per §22-11", "Quality Housing required"],
+    "community_facility": "Per ZR §24-11: community facility FAR shall not exceed residential FAR unless modified",
+    "commercial": "Not permitted as primary use; C1 overlay required for local retail",
+    "parking": "50% of dwelling units required off-street parking outside front yard"
+  },
+  "dob_filing_notes": [
+    "File under NB (New Building) or Alt1 (Alteration Type 1) in DOB NOW",
+    "Quality Housing Program compliance certification required",
+    "If within 100 ft of wide street and qualifying affordable: FAR 3.90 applies — verify with NYC DCP zoning map",
+    "BSA variance may be needed for minor yard deviations"
+  ]
+}

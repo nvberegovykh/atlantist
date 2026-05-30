@@ -1,0 +1,53 @@
+{
+  "section": "ZR §35-31 + ZR Article II Chapter 2",
+  "title": "Use Groups and Permitted Uses — Residential, Commercial, and Community Facility",
+  "description": "Overview of Use Groups in NYC zoning, with focus on §35-31 mixed building rules and permitted residential uses. Covers residential conversion provisions and commercial district use permissions.",
+  "source_url": "https://zr.planning.nyc.gov/article-iii/chapter-5/35-31",
+  "source_url_use": "https://zr.planning.nyc.gov/article-ii/chapter-2",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["22-00", "22-11", "35-31", "35-32", "35-33", "32-00", "42-00"],
+  "content": {
+    "use_group_summary": {
+      "UG_I": "Agriculture and Open Uses — permitted in most districts",
+      "UG_II": "Residences — all residential uses",
+      "UG_III": "Institutions — schools, hospitals, religious, etc.",
+      "UG_IV": "Hazardous materials storage",
+      "UG_V": "Large-scale commercial (shopping centers)",
+      "UG_VI": "Retail and services (stores, restaurants, offices)",
+      "UG_VII": "Transient accommodations (hotels)",
+      "UG_VIII": "Arts and recreation (studios, theaters)",
+      "UG_IX": "Manufacturing (light industrial)",
+      "UG_X": "Heavy manufacturing"
+    },
+    "residential_use_rules": {
+      "permitted_in": ["All R districts", "C1-C6 commercial districts (per §35-31)", "M1-D through M5-D with authorization (§42-311)", "Special Mixed Use Districts (MX)"],
+      "conversion_rules": {
+        "zr_15_01": "All conversions to residences: permitted only in districts where residential is allowed by district regulations OR in M districts with authorization",
+        "zr_35_31": "Non-residential building existing on December 15, 1961 may be changed to residential use — floor area ratio regulations shall not apply to such change of use",
+        "exception_note": "Pre-1961 building conversion exempt from FAR limits — critical for adaptive reuse projects"
+      }
+    },
+    "commercial_use_rules": {
+      "C1_overlay": "Local retail: grocery, dry cleaner, restaurant, pharmacy, bank, retail ≤2500 sqft per establishment",
+      "C2_overlay": "Neighborhood retail and services: broader range of commercial uses",
+      "C4_C6": "Major commercial centers: offices, hotels, department stores, large retail",
+      "M_districts": "Commercial uses allowed per §42-00; manufacturing uses permitted per performance standards"
+    },
+    "community_facility_rules": {
+      "r6_r12": "Per ZR §24-11: community facility FAR shall not exceed residential FAR unless modified by special permit",
+      "commercial_districts": "Community facility uses per §33-20; separate FAR applies",
+      "mixed_buildings": "Community facility and residential in same building: per §35-33 for commercial districts"
+    },
+    "mixed_use_building_rules": {
+      "zr_35_33": "Commercial/community facility FAR + residential FAR each limited separately; total shall not exceed greatest single-use FAR",
+      "floor_area_sharing": "Where floor area is shared by multiple uses: attributed proportionally; floor area bonus applies to whichever use receives the bonus",
+      "residential_conversion_exemption": "Per §35-31: pre-1961 buildings converting to residential exempt from FAR cap"
+    }
+  },
+  "dob_filing_notes": [
+    "Confirm permitted use group for district — check ZR §22-11 (residential), §32-00 (commercial C1-C6), §42-00 (manufacturing)",
+    "Conversion of pre-1961 building: document building existence date; FAR limits waived per §35-31",
+    "Mixed-use buildings: separate analysis for commercial and residential FAR/height requirements",
+    "If community facility + residential: verify FAR per §24-11 or §35-33"
+  ]
+}

@@ -1,0 +1,145 @@
+name: Meta Ad Generation
+
+on:
+  # Run on deploy to main (after server code deploys)
+  push:
+    branches: [main]
+    paths:
+      - 'public/**'
+      - 'server.js'
+      - 'routes/**'
+      - 'db/**'
+      - 'scripts/ad_generator.js'
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      page_type:
+        description: 'Page type (hero, feature, pricing, integration)'
+        required: true
+        default: 'hero'
+      audience:
+        description: 'Target audience (architect, engineer, MEP, firm_owner)'
+        required: true
+        default: 'architect'
+      goal:
+        description: 'Campaign goal (signups, free_trial, conversions)'
+        required: true
+        default: 'signups'
+
+env:
+  SITE_URL: https://atlantist.cloud
+  NODE_VERSION: '20'
+
+jobs:
+  generate-ads:
+    name: Generate Meta Video Ads
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline
+
+      # ─── Pre-flight: check required secrets ───────────────────────────
+      - name: Validate environment
+        run: |
+          echo "Checking required secrets..."
+          if [ -z "${{ secrets.OPENAI_API_KEY }}" ]; then
+            echo "ERROR: OPENAI_API_KEY secret not set"
+            exit 1
+          fi
+          echo "✓ OPENAI_API_KEY present"
+          if [ -z "${{ secrets.POLSIA_R2_UPLOAD_URL }}" ]; then
+            echo "ERROR: POLSIA_R2_UPLOAD_URL secret not set"
+            exit 1
+          fi
+          echo "✓ POLSIA_R2_UPLOAD_URL present"
+          echo "✓ All required secrets validated"
+
+      # ─── Run ad generator script ─────────────────────────────────────
+      - name: Run ad generator
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          POLSIA_R2_BASE_URL: ${{ secrets.POLSIA_R2_BASE_URL }}
+          POLSIA_R2_UPLOAD_URL: ${{ secrets.POLSIA_R2_UPLOAD_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NODE_ENV: production
+        run: |
+          PAGE_TYPE="${{ github.event.inputs.page_type || 'hero' }}"
+          AUDIENCE="${{ github.event.inputs.audience || 'architect' }}"
+          GOAL="${{ github.event.inputs.goal || 'signups' }}"
+
+          echo ""
+          echo "============================================================"
+          echo "  Meta Ad Generation — Atlantist"
+          echo "  Page:      $PAGE_TYPE"
+          echo "  Audience:  $AUDIENCE"
+          echo "  Goal:      $GOAL"
+          echo "  Trigger:   ${{ github.event_name }}"
+          echo "============================================================"
+          echo ""
+
+          node scripts/ad_generator.js --site "${{ env.SITE_URL }}" --page "$PAGE_TYPE" --audience "$AUDIENCE" --goal "$GOAL"
+
+      # ─── Commit generated metadata (optional — staged, not pushed) ───
+      - name: Stage ad outputs
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          if [ -d debug ]; then
+            echo "Ad outputs staged in debug/ directory"
+            ls -la debug/ad_metadata_*.json 2>/dev/null || echo "No metadata files found"
+          fi
+
+  generate-hero-ads:
+    name: Generate Hero Ads (on deploy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'push' && (contains(join(github.event.commits.*.modified, ','), 'public/') || contains(join(github.event.commits.*.modified, ','), 'server.js'))
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm ci --prefer-offline
+
+      - name: Validate secrets
+        run: |
+          [ -n "${{ secrets.OPENAI_API_KEY }}" ] || { echo "OPENAI_API_KEY missing"; exit 1; }
+          [ -n "${{ secrets.POLSIA_R2_UPLOAD_URL }}" ] || { echo "POLSIA_R2_UPLOAD_URL missing"; exit 1; }
+
+      - name: Generate hero page ads for all audiences
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          POLSIA_R2_BASE_URL: ${{ secrets.POLSIA_R2_BASE_URL }}
+          POLSIA_R2_UPLOAD_URL: ${{ secrets.POLSIA_R2_UPLOAD_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          for audience in architect engineer firm_owner; do
+            echo ""
+            echo "─── Generating hero ads for audience: $audience ───"
+            node scripts/ad_generator.js --site "${{ env.SITE_URL }}" --page hero --audience "$audience" --goal signups
+          done
+
+      - name: Notify Slack on ad generation completion
+        if: always()
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: ${{ secrets.SLACK_ADS_CHANNEL_ID || 'C0000000000' }}
+          slack-message: |
+            :film_strip: *Atlantist Ad Generation Complete*
+            Trigger: `${{ github.event_name }}` on `${{ github.sha }}`
+            Branch: `${{ github.ref_name }}`
+            Commit message: `${{ github.event.commits[0].message }}`
+            See GitHub Actions: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        continue-on-error: true

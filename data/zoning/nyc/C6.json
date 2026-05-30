@@ -1,0 +1,43 @@
+{
+  "district": "C6",
+  "description": "General Central Commercial District. High-density commercial use with residential allowed. Residential equivalent typically R7-R10. Mixed buildings permitted with separate commercial and residential FAR.",
+  "source_url": "https://zr.planning.nyc.gov/article-iii/chapter-4",
+  "source_url_height": "https://zr.planning.nyc.gov/article-iii/chapter-5/35-31",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-iii/chapter-5/35-31",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["33-00", "33-12", "33-20", "33-42", "33-43", "35-31", "35-33"],
+  "bulk": {
+    "residential_equivalent": "R7 to R10 depending on C6 subdistrict (C6-1 through C6-9)",
+    "commercial_far": "Per §33-12 table for commercial FAR; varies by C6 subdistrict",
+    "residential_far": "Per underlying residential equivalent (§35-30)",
+    "mixed_building_far": "Commercial FAR + residential FAR each separately limited; total shall not exceed greatest single-use FAR per §35-33(d)",
+    "far_note": "Verify C6 subdistrict designation — C6-1 (R7) through C6-9 (R10) with corresponding FARs. Community facility follows §33-20.",
+    "verify_far": true
+  },
+  "height_setback": {
+    "regulation_type": "Commercial district height regulations per §33-43; residential portion per §23-43 (if R6-R12 equivalent)",
+    "notes": "Commercial district bulk: street wall location per §33-41, height per §33-43. Mixed buildings: residential portion follows §23-43 or §23-42 depending on equivalency. C1/C2 overlays within C6 follow commercial district provisions.",
+    "tower_permitted": "Yes in higher C6 subdistricts per §33-44 tower regulations"
+  },
+  "yards": {
+    "front": { "requirement": "None required in commercial districts for commercial portion; residential portion per R equivalent" },
+    "side": { "requirement": "None required for commercial portion" },
+    "rear": {
+      "requirement": "30 ft required for residential portion; commercial portion per §33-30",
+      "note": "Mixed buildings: separate yard analysis for commercial and residential"
+    }
+  },
+  "permitted_uses": {
+    "commercial": ["All Use Groups permitted in C6", "Offices, retail, hotels, entertainment per §32-00"],
+    "residential": ["Residential permitted in all C6 districts", "Conversions per §35-31", "Pre-1961 buildings exempt from FAR limits"],
+    "community_facility": "Per §33-20",
+    "parking": "No front yard requirement for parking; quantity per §36-00"
+  },
+  "dob_filing_notes": [
+    "Identify C6 subdistrict (C6-1 through C6-9) — determines residential equivalent and FAR",
+    "Mixed buildings: separate commercial and residential FAR analysis required",
+    "Verify total combined FAR does not exceed greatest single-use FAR per §35-33(d)",
+    "Pre-1961 building conversion: FAR limits waived per §35-31 — document building date",
+    "DOB: NB or Alt1. Full commercial and residential analysis for mixed-use"
+  ]
+}

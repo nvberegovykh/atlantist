@@ -1,0 +1,44 @@
+{
+  "district": "C1-2",
+  "description": "Commercial overlay district mapped within Residence Districts. Allows local retail and services at grade level while preserving residential character of surrounding area. Residential equivalent is R5.",
+  "source_url": "https://zr.planning.nyc.gov/article-iii/chapter-4",
+  "source_url_height": "https://zr.planning.nyc.gov/article-iii/chapter-5/35-31",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-iii/chapter-5/35-31",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["35-00", "35-31", "35-32", "35-33", "35-34", "35-61", "35-62"],
+  "bulk": {
+    "residential_equivalent": "R5",
+    "max_commercial_far": "2.0 (within C1 overlay)",
+    "max_residential_far": "Per R5 district regulations (1.0 to 2.0 depending on configuration)",
+    "total_far_limit": "The greater of commercial or residential FAR — no combined FAR cap",
+    "far_note": "Commercial portion limited to 2.0 FAR. Residential follows R5 underlying district. Community facility follows §33-20.",
+    "verify_far": true
+  },
+  "height_setback": {
+    "regulation_type": "R5 regulations apply per §35-62 for C1 overlays within R1-R5 equivalent",
+    "notes": "Height and setback follow R5 underlying district regulations as modified by §35-62. Street wall location per §35-61. Verify: C1-2 within higher-density residential (R6-R12) overlay would use §35-63 instead.",
+    "building_height_note": "Commercial portion height controlled by §33-43; residential portion by §23-42"
+  },
+  "yards": {
+    "front": { "requirement": "Per R5 regulations (§23-321)" },
+    "side": { "requirement": "Per §24-35 minimum side yards for commercial portions" },
+    "rear": {
+      "requirement": "Per R5 regulations; rear yard required at 30 ft depth in residential portion",
+      "note": "Commercial and residential portions may have different yard requirements"
+    }
+  },
+  "permitted_uses": {
+    "commercial": ["Local retail: grocery, dry cleaner, restaurant, bank, pharmacy", "Use Groups 1-6 permitted per §32-00"],
+    "residential": ["Residential uses permitted above commercial", "Conversions per §35-31: existing non-residential buildings pre-1961 may convert to residential without FAR limits"],
+    "ground_floor": "Commercial uses required at grade level per C1 overlay intent",
+    "community_facility": "Per §33-20 and §35-31"
+  },
+  "dob_filing_notes": [
+    "Confirm residential equivalent (R5) — check zoning map for overlay",
+    "C1-2 in R5 area: height/setback follow R5 per §35-62",
+    "Commercial FAR limited to 2.0 — verify no conflict with residential FAR",
+    "Conversion of pre-1961 building: per §35-31, FAR limits do not apply to change of use",
+    "Ground floor must be commercial — verify building program matches overlay intent",
+    "DOB: file NB or Alt1. Mixed-use building requires separate commercial and residential analysis"
+  ]
+}

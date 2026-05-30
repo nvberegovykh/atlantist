@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abuse Detection Admin — Atlantist</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0a1018">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #0d0d0f; color: #e2e8f0; min-height: 100vh; }
+  .header { background: #1a1a2e; border-bottom: 1px solid #2d2d4a; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 16px; font-weight: 600; color: #e2e8f0; }
+  .header .badge { background: #dc2626; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: #1a1a2e; border: 1px solid #2d2d4a; border-radius: 8px; padding: 20px; }
+  .stat-card .label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .stat-card .value { font-size: 28px; font-weight: 700; }
+  .stat-card.tier1 .value { color: #ef4444; }
+  .stat-card.tier2 .value { color: #f97316; }
+  .stat-card.tier3 .value { color: #eab308; }
+  .stat-card.safe .value { color: #22c55e; }
+
+  .section-title { font-size: 14px; font-weight: 600; color: #94a3b8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #2d2d4a; }
+  td { padding: 12px; border-bottom: 1px solid #1a1a2e; font-size: 13px; }
+  tr:hover td { background: #1a1a2e; }
+  .tier-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+  .tier-1 { background: #450a0a; color: #fca5a5; }
+  .tier-2 { background: #431407; color: #fdba74; }
+  .tier-3 { background: #422006; color: #fde047; }
+  .status-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .pending { background: #1e1b4b; color: #a5b4fc; }
+  .erased { background: #450a0a; color: #fca5a5; }
+  .suspended { background: #431407; color: #fdba74; }
+  .cleared { background: #14532d; color: #86efac; }
+  .flags-cell { max-width: 300px; }
+  .flag-tag { display: inline-block; background: #2d2d4a; color: #94a3b8; padding: 1px 6px; border-radius: 3px; font-size: 10px; margin: 1px; }
+  .action-btn { background: #dc2626; color: #fff; border: none; padding: 5px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: 600; }
+  .action-btn:hover { background: #b91c1c; }
+  .action-btn.clear { background: #14532d; }
+  .action-btn.clear:hover { background: #166534; }
+
+  .scan-table td:last-child { white-space: nowrap; }
+  .scan-type { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; }
+  .scan-type.deep { background: #1e3a5f; color: #93c5fd; }
+  .scan-type.daily { background: #1e3a2e; color: #86efac; }
+
+  .trigger-section { background: #1a1a2e; border: 1px solid #2d2d4a; border-radius: 8px; padding: 20px; margin-bottom: 24px; display: flex; gap: 12px; align-items: center; }
+  .trigger-btn { background: #1d4ed8; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600; }
+  .trigger-btn:hover { background: #1e40af; }
+  .trigger-btn:disabled { background: #1e293b; color: #475569; cursor: not-allowed; }
+
+  .loading { text-align: center; padding: 40px; color: #64748b; font-size: 14px; }
+  .error { background: #450a0a; border: 1px solid #7f1d1d; border-radius: 8px; padding: 16px; color: #fca5a5; margin-bottom: 24px; font-size: 13px; }
+
+  .tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid #2d2d4a; }
+  .tab { padding: 10px 20px; font-size: 13px; cursor: pointer; color: #64748b; border-bottom: 2px solid transparent; }
+  .tab.active { color: #e2e8f0; border-bottom-color: #3b82f6; }
+  .tab:hover { color: #94a3b8; }
+
+  .empty { text-align: center; padding: 40px; color: #475569; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Abuse Detection Admin <span class="badge">INTERNAL</span></h1>
+  <div id="last-updated" style="font-size:12px;color:#64748b;"></div>
+</div>
+
+<div class="container">
+
+  <div class="trigger-section">
+    <strong style="font-size:13px;">Manual Trigger:</strong>
+    <button class="trigger-btn" id="trigger-scan">Run Deep Scan Now</button>
+    <span id="trigger-status" style="font-size:12px;color:#64748b;"></span>
+  </div>
+
+  <div class="stat-grid" id="stats">
+    <div class="loading">Loading...</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="pending">Pending Flags</div>
+    <div class="tab" data-tab="scans">Scan History</div>
+    <div class="tab" data-tab="actions">Action Log</div>
+  </div>
+
+  <div id="tab-content">
+    <div class="loading">Loading...</div>
+  </div>
+</div>
+
+<script src="/js/boot-safety.js"></script>
+<script>
+let pending = [], scans = [], actions = [];
+
+async function loadData() {
+  try {
+    const resp = await fetch('/api/abuse');
+    if (!resp.ok) { document.getElementById('stats').innerHTML = '<div class="error">Auth required — log in as admin.</div>'; return; }
+    const data = await resp.json();
+    pending = data.pending || [];
+    scans = data.scans || [];
+    actions = data.recentActions || [];
+    render();
+  } catch (e) {
+    document.getElementById('stats').innerHTML = '<div class="error">Failed to load: ' + e.message + '</div>';
+  }
+}
+
+function render() {
+  const tier1 = pending.filter(p => p.tier === 1).length;
+  const tier2 = pending.filter(p => p.tier === 2).length;
+  const tier3 = pending.filter(p => p.tier === 3).length;
+  const lastScan = scans[0];
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card tier1"><div class="label">Tier 1 — Critical</div><div class="value">${tier1}</div></div>
+    <div class="stat-card tier2"><div class="label">Tier 2 — High</div><div class="value">${tier2}</div></div>
+    <div class="stat-card tier3"><div class="label">Tier 3 — Review</div><div class="value">${tier3}</div></div>
+    <div class="stat-card safe"><div class="label">Last Scan Status</div><div class="value" style="font-size:16px;">${lastScan ? lastScan.status.toUpperCase() : 'NONE'}</div></div>
+  `;
+  document.getElementById('last-updated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+  showTab(document.querySelector('.tab.active').dataset.tab);
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  const el = document.getElementById('tab-content');
+  if (tab === 'pending') {
+    if (!pending.length) { el.innerHTML = '<div class="empty">No pending flags — all clear.</div>'; return; }
+    el.innerHTML = `<table>
+      <thead><tr>
+        <th>Tier</th><th>Type</th><th>ID</th><th>Owner</th><th>Flags</th><th>Detected</th><th>Actions</th>
+      </tr></thead>
+      <tbody>${pending.map(p => `
+        <tr>
+          <td><span class="tier-badge tier-${p.tier}">T${p.tier}</span></td>
+          <td>${p.model_type}</td>
+          <td>#${p.model_id}</td>
+          <td>${p.owner_email || 'n/a'}</td>
+          <td class="flags-cell">${(p.flags || []).map(f => `<span class="flag-tag">${f}</span>`).join('')}</td>
+          <td>${new Date(p.created_at).toLocaleString()}</td>
+          <td>
+            ${p.tier <= 2 ? `
+              <button class="action-btn" onclick="resolve(${p.id}, 'erased')">Erase Model</button>
+            ` : ''}
+            <button class="action-btn clear" onclick="resolve(${p.id}, 'cleared')">Clear Flag</button>
+          </td>
+        </tr>`).join('')}</tbody>
+    </table>`;
+  } else if (tab === 'scans') {
+    if (!scans.length) { el.innerHTML = '<div class="empty">No scans run yet.</div>'; return; }
+    el.innerHTML = `<table class="scan-table">
+      <thead><tr>
+        <th>Type</th><th>Status</th><th>Started</th><th>Completed</th>
+        <th>Scanned</th><th>Flagged</th><th>T1</th><th>T2</th><th>T3</th><th>Suspended</th>
+      </tr></thead>
+      <tbody>${scans.map(s => `
+        <tr>
+          <td><span class="scan-type ${s.scan_type}">${s.scan_type}</span></td>
+          <td>${s.status}</td>
+          <td>${new Date(s.started_at).toLocaleString()}</td>
+          <td>${s.completed_at ? new Date(s.completed_at).toLocaleString() : '—'}</td>
+          <td>${s.models_scanned}</td>
+          <td>${s.models_flagged}</td>
+          <td style="color:#ef4444">${s.tier1_count}</td>
+          <td style="color:#f97316">${s.tier2_count}</td>
+          <td style="color:#eab308">${s.tier3_count}</td>
+          <td>${s.accounts_suspended}</td>
+        </tr>`).join('')}</tbody>
+    </table>`;
+  } else {
+    if (!actions.length) { el.innerHTML = '<div class="empty">No actions logged yet.</div>'; return; }
+    el.innerHTML = `<table>
+      <thead><tr>
+        <th>When</th><th>Action</th><th>Model Type</th><th>Model ID</th><th>Actor</th><th>Details</th>
+      </tr></thead>
+      <tbody>${actions.map(a => `
+        <tr>
+          <td>${new Date(a.created_at).toLocaleString()}</td>
+          <td>${a.action}</td>
+          <td>${a.model_type || '—'}</td>
+          <td>${a.model_id ? '#'+a.model_id : '—'}</td>
+          <td>${a.actor_email || 'system'}</td>
+          <td style="font-size:11px;color:#94a3b8">${JSON.stringify(a.details || {})}</td>
+        </tr>`).join('')}</tbody>
+    </table>`;
+  }
+}
+
+async function resolve(id, resolution) {
+  if (!confirm(`Confirm: ${resolution} for record #${id}?`)) return;
+  try {
+    const resp = await fetch(`/api/abuse/resolve/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ resolution })
+    });
+    if (resp.ok) { loadData(); }
+    else { alert('Failed: ' + await resp.text()); }
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+document.getElementById('trigger-scan')?.addEventListener('click', async () => {
+  const btn = document.getElementById('trigger-scan');
+  const status = document.getElementById('trigger-status');
+  btn.disabled = true;
+  status.textContent = 'Triggering scan...';
+  try {
+    const resp = await fetch('/api/abuse/scan/trigger', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'deep' })
+    });
+    const data = await resp.json();
+    status.textContent = data.message || 'Done.';
+    setTimeout(loadData, 3000);
+  } catch(e) { status.textContent = 'Error: ' + e.message; }
+  btn.disabled = false;
+});
+
+document.querySelectorAll('.tab').forEach(t => t?.addEventListener('click', () => showTab(t.dataset.tab)));
+
+loadData();
+setInterval(loadData, 60000);
+</script>
+</body>
+</html>

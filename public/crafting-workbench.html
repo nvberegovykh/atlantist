@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crafting Workbench — Atlantist</title>
+  <style>
+    :root {
+      --bg: #090c14;
+      --bg-panel: #0d1120;
+      --bg-raised: #111827;
+      --bg-hover: #1a2338;
+      --border: #1e2a40;
+      --text: #e2e8f0;
+      --text-muted: #64748b;
+      --accent: #a855f7;
+      --accent-2: #6366f1;
+      --green: #22c55e;
+      --yellow: #eab308;
+      --blue: #60a5fa;
+      --red: #ef4444;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; overflow: hidden; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    /* ── App shell ────────────────────────────────────────────────────────────── */
+    #app-header {
+      height: 52px; background: var(--bg-panel); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 20px; gap: 12px; flex-shrink: 0;
+    }
+    #app-header .logo { font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.02em; }
+    #app-header .breadcrumb { font-size: 13px; color: var(--text-muted); }
+    #app-header .breadcrumb span { color: var(--text); }
+    #app-header .spacer { flex: 1; }
+    #app-header button {
+      padding: 6px 14px; background: var(--bg-raised); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text); font-size: 12px; cursor: pointer;
+    }
+    #app-header button:hover { border-color: var(--accent); }
+    #app-header button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    #app-header button.primary:hover { background: #9333ea; }
+
+    /* ── Three-panel layout ──────────────────────────────────────────────────── */
+    #workbench {
+      display: flex; height: calc(100vh - 52px);
+    }
+
+    /* Left: Inventory */
+    #panel-inventory {
+      width: 280px; flex-shrink: 0; background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .panel-header {
+      padding: 12px 16px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .panel-header h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+    .panel-header .badge {
+      padding: 1px 6px; background: var(--accent); color: #fff; border-radius: 10px; font-size: 10px; font-weight: 600;
+    }
+    .panel-header .spacer { flex: 1; }
+    #inventory-search {
+      padding: 10px 12px; border-bottom: 1px solid var(--border);
+    }
+    #inventory-search input {
+      width: 100%; padding: 7px 10px; background: var(--bg-raised); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text); font-size: 12px; outline: none;
+    }
+    #inventory-search input:focus { border-color: var(--accent); }
+    #inventory-list { flex: 1; overflow-y: auto; padding: 8px; }
+    #inventory-list::-webkit-scrollbar { width: 4px; }
+    #inventory-list::-webkit-scrollbar-track { background: transparent; }
+    #inventory-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Inventory tabs */
+    #inventory-tabs { display: flex; border-bottom: 1px solid var(--border); }
+    .inv-tab {
+      flex: 1; padding: 8px 4px; font-size: 11px; text-align: center; cursor: pointer;
+      border: none; background: none; color: var(--text-muted); border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .inv-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .inv-tab:hover { color: var(--text); }
+
+    /* Drop zone hint */
+    #drop-hint {
+      margin: 8px; padding: 20px; border: 2px dashed var(--border); border-radius: 10px;
+      text-align: center; font-size: 12px; color: var(--text-muted); transition: border-color 0.2s;
+    }
+    #drop-hint.drag-over { border-color: var(--accent); background: rgba(168,85,247,0.08); }
+    #drop-hint .icon { font-size: 24px; margin-bottom: 6px; }
+
+    /* Center: Assembly graph */
+    #panel-graph {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg);
+    }
+    #graph-header {
+      padding: 10px 20px; border-bottom: 1px solid var(--border); display: flex;
+      align-items: center; gap: 12px; background: var(--bg-panel);
+    }
+    #graph-header .title { font-size: 13px; font-weight: 600; color: var(--text); }
+    #graph-header .subtitle { font-size: 11px; color: var(--text-muted); }
+    #graph-header .spacer { flex: 1; }
+    #graph-canvas {
+      flex: 1; position: relative; overflow: hidden;
+      background: var(--bg);
+      background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    #graph-nodes { position: absolute; inset: 0; }
+
+    /* Graph node */
+    .graph-node {
+      position: absolute; min-width: 140px; max-width: 200px;
+      background: var(--bg-raised); border: 2px solid var(--border);
+      border-radius: 10px; padding: 10px 12px; cursor: grab; user-select: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: box-shadow 0.15s;
+    }
+    .graph-node:hover { box-shadow: 0 4px 20px rgba(168,85,247,0.3); }
+    .graph-node.status-sourced { border-color: var(--green); }
+    .graph-node.status-needs_sourcing { border-color: var(--yellow); }
+    .graph-node.status-fabricating { border-color: var(--blue); }
+    .graph-node.status-blocked { border-color: var(--red); }
+    .graph-node .node-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+    .graph-node .node-status { font-size: 10px; display: flex; align-items: center; gap: 4px; }
+    .graph-node .node-status .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: currentColor;
+    }
+    .graph-node .node-status.sourced { color: var(--green); }
+    .graph-node .node-status.needs_sourcing { color: var(--yellow); }
+    .graph-node .node-status.fabricating { color: var(--blue); }
+    .graph-node .node-status.blocked { color: var(--red); }
+
+    /* Graph edge */
+    .graph-edge {
+      position: absolute; top: 0; left: 0;
+      pointer-events: none;
+    }
+    .graph-edge line { stroke: var(--accent); stroke-width: 2; opacity: 0.6; }
+    .graph-edge path { fill: none; stroke: var(--accent); stroke-width: 2; opacity: 0.6; }
+    .graph-edge.arrow marker { fill: var(--accent); }
+
+    /* Empty graph state */
+    #graph-empty {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; pointer-events: none;
+    }
+    #graph-empty .icon { font-size: 52px; opacity: 0.15; margin-bottom: 12px; }
+    #graph-empty .msg { font-size: 14px; color: var(--text-muted); opacity: 0.5; text-align: center; }
+
+    /* Right: Recipe browser */
+    #panel-recipes {
+      width: 300px; flex-shrink: 0; background: var(--bg-panel);
+      border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden;
+    }
+    #recipes-content { flex: 1; overflow-y: auto; padding: 12px; }
+    #recipes-content::-webkit-scrollbar { width: 4px; }
+    #recipes-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* Workbench settings in recipes panel */
+    #workbench-settings { padding: 12px; border-bottom: 1px solid var(--border); background: var(--bg-raised); }
+
+    /* Loading state */
+    .loading-overlay {
+      position: absolute; inset: 0; background: rgba(9,12,20,0.7);
+      display: flex; align-items: center; justify-content: center; z-index: 10;
+    }
+    .loading-overlay .spinner {
+      width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Right-click node context */
+    .node-context-menu {
+      position: fixed; background: var(--bg-raised); border: 1px solid var(--accent);
+      border-radius: 8px; padding: 6px; min-width: 160px; z-index: 200;
+      box-shadow: 0 8px 24px rgba(168,85,247,0.3);
+    }
+    .node-context-menu button {
+      display: block; width: 100%; text-align: left; padding: 6px 10px;
+      background: none; border: none; color: var(--text); font-size: 12px;
+      cursor: pointer; border-radius: 4px;
+    }
+    .node-context-menu button:hover { background: rgba(168,85,247,0.15); }
+
+    /* ── Bottom bar ─────────────────────────────────────────────────────────── */
+    #bottom-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 44px;
+      background: var(--bg-panel); border-top: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 20px; gap: 12px; z-index: 50;
+    }
+    #bottom-bar .assembly-info { font-size: 12px; color: var(--text-muted); }
+    #bottom-bar .assembly-info strong { color: var(--text); }
+    #bottom-bar .spacer { flex: 1; }
+    #bottom-bar button {
+      padding: 5px 12px; border-radius: 6px; font-size: 11px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--bg-raised); color: var(--text);
+    }
+    #bottom-bar button.primary {
+      background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600;
+    }
+    #bottom-bar button:hover { border-color: var(--accent); }
+
+    /* ── Toast ──────────────────────────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 60px; right: 20px; padding: 10px 16px;
+      background: var(--bg-raised); border: 1px solid var(--border);
+      border-radius: 8px; font-size: 12px; z-index: 9999; animation: fadeIn 0.2s;
+    }
+    .toast.success { border-color: var(--green); color: var(--green); }
+    .toast.error { border-color: var(--red); color: var(--red); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; } }
+
+    /* ── Recipe path cards ─────────────────────────────────────────────────── */
+    .recipe-card {
+      padding: 12px; margin-bottom: 10px; background: var(--bg-raised);
+      border: 1px solid var(--border); border-radius: 10px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .recipe-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(168,85,247,0.2); }
+    .recipe-card .rank-badge {
+      display: inline-block; padding: 1px 8px; border-radius: 10px;
+      font-size: 10px; font-weight: 700; margin-bottom: 6px;
+    }
+    .recipe-card .meta-row { display: flex; gap: 12px; font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+    .recipe-card .meta-row span { display: flex; align-items: center; gap: 4px; }
+    .recipe-card .ops-list { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5; }
+    .recipe-card .blocked-msg { font-size: 11px; color: var(--red); margin-bottom: 8px; padding: 6px 8px; background: rgba(239,68,68,0.1); border-radius: 4px; }
+    .recipe-card button.lock-btn {
+      width: 100%; padding: 7px; background: var(--accent); color: #fff;
+      border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600;
+    }
+    .recipe-card button.lock-btn:hover { background: #9333ea; }
+    .recipe-card button.lock-btn:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+
+    /* ── Assembly stats ────────────────────────────────────────────────────── */
+    .assembly-stat { display: flex; gap: 16px; }
+    .assembly-stat .stat { text-align: center; }
+    .assembly-stat .stat .val { font-size: 18px; font-weight: 700; color: var(--accent); }
+    .assembly-stat .stat .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── Source/type filter ─────────────────────────────────────────────────── */
+    #inventory-filters { padding: 8px 12px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-chip {
+      padding: 3px 8px; border-radius: 12px; font-size: 10px; cursor: pointer;
+      border: 1px solid var(--border); background: none; color: var(--text-muted);
+      transition: all 0.15s;
+    }
+    .filter-chip.active { border-color: var(--accent); background: rgba(168,85,247,0.15); color: var(--accent); }
+    .filter-chip:hover { border-color: var(--text-muted); color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header id="app-header">
+  <a href="/" style="color:var(--accent);font-weight:700;font-size:15px;text-decoration:none;letter-spacing:-0.02em">Atlantist</a>
+  <span style="color:var(--border);font-size:14px">/</span>
+  <span class="breadcrumb"><span>Crafting Workbench</span></span>
+  <span class="spacer"></span>
+  <button id="btn-import">+ Import Thing</button>
+  <button id="btn-new-assembly">New Assembly</button>
+  <button id="btn-save-assembly" class="primary">💾 Save Assembly</button>
+</header>
+
+<!-- ── Three-panel workbench ───────────────────────────────────────────────── -->
+<div id="workbench">
+
+  <!-- Left: Inventory -->
+  <aside id="panel-inventory">
+    <div class="panel-header">
+      <h2>Inventory</h2>
+      <span class="badge" id="inv-count">0</span>
+      <span class="spacer"></span>
+      <button id="btn-inv-collapse" style="font-size:11px;padding:2px 8px">≡</button>
+    </div>
+
+    <div id="inventory-search">
+      <input type="text" id="inv-search" placeholder="Search by name, material, dimensions…">
+    </div>
+
+    <div id="inventory-tabs">
+      <button class="inv-tab active" data-tab="things">Things</button>
+      <button class="inv-tab" data-tab="bim">BIM Elements</button>
+      <button class="inv-tab" data-tab="assets">Assets</button>
+    </div>
+
+    <div id="inventory-filters">
+      <button class="filter-chip active" data-filter="all">All</button>
+      <button class="filter-chip" data-filter="sourced">Sourced</button>
+      <button class="filter-chip" data-filter="pending">Needs sourcing</button>
+      <button class="filter-chip" data-filter="assembly">In assembly</button>
+    </div>
+
+    <div id="drop-hint">
+      <div class="icon">📦</div>
+      <div>Drop photo, URL, or PDF here to add a Thing</div>
+      <div style="font-size:10px;margin-top:4px;color:var(--text-muted)">Supports JPG, PNG, PDF, URL</div>
+    </div>
+
+    <div id="inventory-list">
+      <!-- rendered by CraftUI -->
+    </div>
+  </aside>
+
+  <!-- Center: Assembly graph -->
+  <section id="panel-graph">
+    <div id="graph-header">
+      <div>
+        <div class="title" id="assembly-name">No assembly</div>
+        <div class="subtitle" id="assembly-subtitle">Drag things from inventory or use Craft → Add to Assembly</div>
+      </div>
+      <div class="spacer"></div>
+      <div class="assembly-stat" id="assembly-stats">
+        <div class="stat"><div class="val" id="stat-nodes">0</div><div class="lbl">Nodes</div></div>
+        <div class="stat"><div class="val" id="stat-recipes">0</div><div class="lbl">Recipes</div></div>
+        <div class="stat"><div class="val" id="stat-cost">$0</div><div class="lbl">Est. Cost</div></div>
+      </div>
+      <button id="btn-preview">🔍 Preview Build</button>
+      <button id="btn-clear-assembly">Clear</button>
+    </div>
+
+    <div id="graph-canvas">
+      <div id="graph-nodes"></div>
+      <svg id="graph-edges" class="graph-edge" style="width:100%;height:100%"></svg>
+
+      <!-- Empty state -->
+      <div id="graph-empty">
+        <div class="icon">⬡</div>
+        <div class="msg">
+          Select things from inventory to add them to the graph.<br>
+          Recipes will connect nodes automatically.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Right: Recipe browser -->
+  <aside id="panel-recipes">
+    <div class="panel-header">
+      <h2>Recipe Browser</h2>
+      <span class="spacer"></span>
+      <button id="btn-wb-toggle" style="font-size:11px;padding:2px 8px;background:none;border:1px solid var(--accent);color:var(--accent);border-radius:4px">⚙</button>
+    </div>
+
+    <!-- Workbench settings (collapsible) -->
+    <div id="workbench-settings" style="display:none">
+      <!-- rendered by CraftUI.renderWorkbenchSettings -->
+    </div>
+
+    <div id="recipes-content">
+      <!-- rendered by CraftUI -->
+      <div style="padding:32px 16px;text-align:center;color:var(--text-muted);font-size:13px">
+        <div style="font-size:28px;margin-bottom:8px">🔧</div>
+        <div>Select a thing from inventory to see viable recipes ranked by your workbench constraints.</div>
+        <div style="font-size:11px;margin-top:8px">Recipes are scored by cost, time, tools, and skill level.</div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- ── Bottom bar ──────────────────────────────────────────────────────────── -->
+<div id="bottom-bar">
+  <div class="assembly-info" id="bottom-assembly-info">
+    0 things · 0 recipes · $0.00 est.
+  </div>
+  <span class="spacer"></span>
+  <button id="btn-save-assembly-bb" class="primary">💾 Save Assembly</button>
+  <button id="btn-shopping-list">📋 Shopping List</button>
+  <button id="btn-assembly-guide">📄 Assembly Guide</button>
+  <button onclick="window.print()">🖨 Print</button>
+</div>
+
+<!-- Import modal -->
+<div id="modal-import" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:16px;padding:24px;min-width:480px">
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Import Thing</h3>
+    <div style="border:2px dashed var(--border);border-radius:10px;padding:32px;text-align:center;margin-bottom:16px;cursor:pointer" id="import-drop-zone">
+      <div style="font-size:28px;margin-bottom:8px">📷</div>
+      <div style="font-size:14px;color:var(--text)">Drop photo, PDF, or enter URL</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">or paste a retail product URL</div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('modal-import').style.display='none'" style="padding:8px 16px;background:none;border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text)">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Save assembly modal -->
+<div id="modal-save" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:16px;padding:24px;min-width:400px">
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:16px">Save Assembly</h3>
+    <input id="save-name" type="text" placeholder="Assembly name (e.g. Steel Connection Detail)"
+      style="width:100%;padding:8px 12px;background:var(--bg-raised);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:16px">
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="document.getElementById('modal-save').style.display='none'" style="padding:8px 16px;background:none;border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text)">Cancel</button>
+      <button id="btn-confirm-save" style="padding:8px 16px;background:var(--accent);border:none;border-radius:6px;cursor:pointer;color:#fff;font-weight:600">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Shopping list modal -->
+<div id="modal-shopping-list" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:var(--bg-panel);border:1px solid var(--border);border-radius:16px;padding:24px;min-width:560px;max-width:640px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <h3 style="font-size:16px;font-weight:700">📋 Shopping List</h3>
+      <button onclick="document.getElementById('modal-shopping-list').style.display='none'" style="background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--text)">✕</button>
+    </div>
+    <pre id="shopping-list-text" style="font-size:12px;color:var(--text);white-space:pre-wrap;line-height:1.7;background:var(--bg-raised);padding:16px;border-radius:8px;max-height:380px;overflow-y:auto"></pre>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button id="btn-copy-list" style="padding:8px 16px;background:var(--accent);border:none;border-radius:6px;cursor:pointer;color:#fff;font-size:12px;font-weight:600">📋 Copy to clipboard</button>
+      <button onclick="window.print()" style="padding:8px 16px;background:var(--bg-raised);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text);font-size:12px">🖨 Print</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Scripts ──────────────────────────────────────────────────────────────── -->
+<script src="/js/boot-safety.js"></script>
+<script src="/js/crafting-ui.js"></script>
+<script>
+(async () => {
+  // ── Parse URL params (craft action from BIM context menu) ───────────────────
+  const params = new URLSearchParams(window.location.search);
+  const initElementId = parseInt(params.get('el')) || null;
+  const initAction = params.get('action') || null;
+
+  // ── Auth guard ──────────────────────────────────────────────────────────────
+  async function requireAuth() {
+    try {
+      const r = await fetch('/api/auth/me', { credentials: 'same-origin' });
+      if (r.status === 401) { window.location.href = '/login'; return null; }
+      return await r.json();
+    } catch { window.location.href = '/login'; return null; }
+  }
+  const me = await requireAuth();
+  if (!me) return;
+
+  // ── Load data ────────────────────────────────────────────────────────────────
+  const projectId = null; // TODO: parse from active project
+  await Promise.all([
+    CraftUI.loadInventory(projectId).catch(() => {}),
+    CraftUI.loadWorkbench().catch(() => {}),
+  ]);
+
+  // Pre-load recipe paths for all things (lazy, on demand)
+  // If there's an init action, find/create the thing from the element
+  if (initElementId && initAction) {
+    // Create a Thing from the BIM element
+    const thing = await window.thingFromBIMElement ? window.thingFromBIMElement(initElementId) : null;
+    if (thing) {
+      await CraftUI.selectThing(thing.id);
+      // Auto-navigate to the action tab
+      if (initAction === 'source') openSourceTab();
+      if (initAction === 'modify') openModifyTab();
+      if (initAction === 'assemble') addThingToAssemblyGraph(thing.id);
+    }
+  }
+
+  // ── Render inventory ────────────────────────────────────────────────────────
+  function renderInventory(filter = 'all') {
+    const list = document.getElementById('inventory-list');
+    const search = document.getElementById('inv-search').value.toLowerCase();
+    let items = CraftUI.inventory;
+    if (search) items = items.filter(t => t.name.toLowerCase().includes(search));
+    if (filter !== 'all') {
+      items = items.filter(t => {
+        if (filter === 'assembly') return CraftUI.assembly?.sub_things?.some(s => s.thing_id === t.id);
+        return true;
+      });
+    }
+    if (!items.length) {
+      list.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:12px">
+        <div style="font-size:28px;margin-bottom:6px">📦</div>
+        <div>No things match.</div>
+      </div>`;
+      return;
+    }
+    document.getElementById('inv-count').textContent = items.length;
+    list.innerHTML = items.map(t => {
+      const lowConf = countLowConf(t.properties_json);
+      const inAssembly = CraftUI.assembly?.sub_things?.some(s => s.thing_id === t.id);
+      const badge = lowConf > 0 ? `<span style="background:#f59e0b;color:#000;font-size:9px;padding:1px 5px;border-radius:3px">${lowConf} ⚠</span>` : '';
+      const asmBadge = inAssembly ? `<span style="color:var(--green);font-size:10px"> ⊞</span>` : '';
+      return `<div class="inv-item" data-id="${t.id}" draggable="true" style="
+        padding:10px 12px;cursor:pointer;border-radius:8px;margin-bottom:4px;
+        background:var(--bg-raised);border:1px solid ${inAssembly ? 'var(--green)' : 'var(--border)'};
+        display:flex;align-items:center;gap:8px;transition:border-color 0.15s">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            ${t.is_assembly ? '⊞ ' : ''}${t.name}${badge}${asmBadge}
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);margin-top:1px">
+            ${t.source_type || 'unknown'} ${t.project_id ? '· project-linked' : ''}
+          </div>
+        </div>
+        <div style="font-size:14px;opacity:0.5">▶</div>
+      </div>`;
+    }).join('');
+
+    list.querySelectorAll('.inv-item').forEach(el => {
+      el?.addEventListener('click', () => selectThingById(parseInt(el.dataset.id)));
+      // Drag to graph
+      el?.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('thingId', el.dataset.id);
+        e.dataTransfer.effectAllowed = 'copy';
+      });
+    });
+  }
+
+  function countLowConf(props) {
+    if (!props?.property_confidences) return 0;
+    return Object.values(props.property_confidences).filter(v => v < 0.7).length;
+  }
+
+  // ── Select thing → load recipes ────────────────────────────────────────────
+  async function selectThingById(thingId) {
+    const { thing, paths } = await CraftUI.selectThing(thingId);
+    if (!thing) return;
+
+    // Highlight in inventory
+    document.querySelectorAll('.inv-item').forEach(el => {
+      el.style.borderColor = parseInt(el.dataset.id) === thingId ? 'var(--accent)' : '';
+    });
+
+    renderRecipes(thing, paths);
+  }
+
+  // ── Render recipes ─────────────────────────────────────────────────────────
+  function renderRecipes(thing, paths) {
+    const content = document.getElementById('recipes-content');
+    if (!paths?.length) {
+      content.innerHTML = `<div style="padding:24px 16px;text-align:center;color:var(--text-muted);font-size:12px">
+        <div style="font-size:24px;margin-bottom:6px">🔧</div>
+        <div>No recipes for <strong>${thing.name}</strong>.</div>
+        <div style="margin-top:8px;font-size:11px">The sourcing engine will generate paths automatically when you open the Workbench view.</div>
+      </div>`;
+      return;
+    }
+
+    content.innerHTML = `<div style="margin-bottom:12px;padding:10px 12px;background:var(--bg-raised);border-radius:8px;border:1px solid var(--accent)">
+      <div style="font-size:13px;font-weight:600;color:var(--text)">${thing.name}</div>
+      <div style="font-size:11px;color:var(--accent);margin-top:2px">${paths.length} path${paths.length !== 1 ? 's' : ''} · scored by workbench</div>
+    </div>` + paths.map((path, i) => {
+      const statusColor = path.viable
+        ? (path.operations?.[0]?.type === 'buy_retail' ? 'var(--green)' : path.operations?.[0]?.type === 'buy_secondary' ? 'var(--yellow)' : 'var(--blue)')
+        : 'var(--red)';
+      const tools = [...new Set((path.operations || []).flatMap(op => op.tools_required || []))];
+      const toolGap = (path.operations || []).flatMap(op => op.tool_gap || []);
+      return `<div class="recipe-card" style="${i === 0 ? 'border-color:var(--accent);box-shadow:0 0 0 1px rgba(168,85,247,0.2)' : ''}">
+        <span class="rank-badge" style="background:${statusColor}22;color:${statusColor}">#${i+1} ${path.viable ? 'Viable' : 'Blocked'}</span>
+        <div class="meta-row">
+          <span>💰 $${(path.total_cost_estimate || 0).toFixed(2)}</span>
+          <span>⏱ ${path.total_time_estimate || 0} min</span>
+          ${tools.length ? `<span>🔧 ${tools.slice(0,2).join(', ')}</span>` : ''}
+        </div>
+        ${(path.operations || []).length ? `<div class="ops-list">${path.operations.map(o => o.type).join(' → ')}</div>` : ''}
+        ${toolGap.length ? `<div style="font-size:10px;color:var(--yellow);margin-bottom:8px">⚠ Missing: ${toolGap.join(', ')}</div>` : ''}
+        ${path.blocked_reason ? `<div class="blocked-msg">⚠ ${path.blocked_reason}</div>` : ''}
+        <button class="lock-btn" data-thing="${thing.id}" data-recipe="${path.recipe_id}"
+          ${!path.viable ? 'disabled' : ''}>
+          ${path.viable ? 'Use this path' : 'Blocked — fix constraints first'}
+        </button>
+      </div>`;
+    }).join('');
+
+    content.querySelectorAll('.lock-btn:not([disabled])').forEach(btn => {
+      btn?.addEventListener('click', async () => {
+        const tid = parseInt(btn.dataset.thing);
+        const rid = parseInt(btn.dataset.recipe);
+        lockRecipeInGraph(tid, rid);
+        toast('Recipe locked — node updated in graph', 'success');
+      });
+    });
+  }
+
+  // ── Assembly graph rendering ────────────────────────────────────────────────
+  const graphNodes = document.getElementById('graph-nodes');
+  const graphEdges = document.getElementById('graph-edges');
+  let nodePositions = {};
+
+  function addThingToAssemblyGraph(thingId) {
+    CraftUI.addThingToAssembly(thingId, 1);
+    renderAssemblyGraph();
+    updateStats();
+  }
+
+  function lockRecipeInGraph(thingId, recipeId) {
+    const { thing, paths } = { thing: CraftUI.inventory.find(t => t.id === thingId), paths: CraftUI.recipes };
+    CraftUI.lockRecipePath(thingId, recipeId);
+    renderAssemblyGraph();
+    updateStats();
+  }
+
+  function renderAssemblyGraph() {
+    const nodes = CraftUI.assembly?.nodes || [];
+    const empty = document.getElementById('graph-empty');
+    if (!nodes.length) {
+      empty.style.display = 'flex';
+      graphNodes.innerHTML = '';
+      graphEdges.innerHTML = '';
+      return;
+    }
+    empty.style.display = 'none';
+
+    // Position nodes in a grid
+    const cols = Math.ceil(Math.sqrt(nodes.length));
+    graphNodes.innerHTML = nodes.map((n, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      const x = 60 + col * 240;
+      const y = 60 + row * 120;
+      nodePositions[n.id] = { x, y };
+
+      const statusIcon = { sourced: '✅', needs_sourcing: '⏳', fabricating: '🔵', blocked: '❌' };
+      const statusLabel = (n.status || 'needs_sourcing').replace('_', ' ');
+
+      return `<div class="graph-node status-${n.status || 'needs_sourcing'}"
+        data-id="${n.id}" draggable="false"
+        style="left:${x}px;top:${y}px">
+        <div class="node-label">${statusIcon[n.status] || '⬡'} ${n.label}</div>
+        <div class="node-status ${n.status || 'needs_sourcing'}">
+          <div class="dot"></div> ${statusLabel}
+        </div>
+      </div>`;
+    }).join('');
+
+    // Draw edges between nodes in sequence
+    graphEdges.innerHTML = '';
+    const nodeEls = {};
+    document.querySelectorAll('.graph-node').forEach(el => { nodeEls[el.dataset.id] = el; });
+    const svgNS = 'http://www.w3.org/2000/svg';
+    if (nodes.length > 1) {
+      for (let i = 0; i < nodes.length - 1; i++) {
+        const from = nodePositions[nodes[i].id];
+        const to = nodePositions[nodes[i + 1].id];
+        if (!from || !to) continue;
+        const line = document.createElementNS(svgNS, 'line');
+        line.setAttribute('x1', from.x + 120);
+        line.setAttribute('y1', from.y + 30);
+        line.setAttribute('x2', to.x);
+        line.setAttribute('y2', to.y + 30);
+        line.setAttribute('stroke', 'var(--accent)');
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('stroke-dasharray', '6,4');
+        line.setAttribute('opacity', '0.5');
+        graphEdges.appendChild(line);
+      }
+    }
+
+    // Make nodes draggable
+    document.querySelectorAll('.graph-node').forEach(el => {
+      let dragging = false, startX, startY, origX, origY;
+      el?.addEventListener('mousedown', (e) => {
+        dragging = true; startX = e.clientX; startY = e.clientY;
+        origX = parseInt(el.style.left); origY = parseInt(el.style.top);
+        e.stopPropagation();
+      });
+      document.addEventListener('mousemove', (e) => {
+        if (!dragging) return;
+        el.style.left = (origX + e.clientX - startX) + 'px';
+        el.style.top = (origY + e.clientY - startY) + 'px';
+        nodePositions[el.dataset.id] = {
+          x: origX + e.clientX - startX, y: origY + e.clientY - startY
+        };
+        renderAssemblyGraph();
+      });
+      document.addEventListener('mouseup', () => { dragging = false; });
+      el?.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        showNodeMenu(e.clientX, e.clientY, el.dataset.id);
+      });
+    });
+  }
+
+  // ── Node context menu ───────────────────────────────────────────────────────
+  function showNodeMenu(x, y, nodeId) {
+    closeNodeMenu();
+    const menu = document.createElement('div');
+    menu.className = 'node-context-menu';
+    menu.innerHTML = `
+      <button data-action="remove">❌ Remove from graph</button>
+      <button data-action="recipes">🔧 View recipes</button>
+      <button data-action="details">📋 View details</button>
+      <div style="height:1px;background:var(--border);margin:4px 0"></div>
+      <button data-action="duplicate">⧉ Duplicate node</button>`;
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+    document.body.appendChild(menu);
+
+    menu.querySelectorAll('button').forEach(btn => {
+      btn?.addEventListener('click', () => {
+        const action = btn.dataset.action;
+        closeNodeMenu();
+        if (action === 'remove') removeNodeFromGraph(nodeId);
+        if (action === 'recipes') {
+          const tid = parseInt(nodeId.replace('thing-', ''));
+          selectThingById(tid);
+        }
+      });
+    });
+  }
+
+  function closeNodeMenu() {
+    document.querySelectorAll('.node-context-menu').forEach(m => m.remove());
+  }
+  document.addEventListener('click', closeNodeMenu);
+
+  function removeNodeFromGraph(nodeId) {
+    const tid = parseInt(nodeId.replace('thing-', ''));
+    if (CraftUI.assembly) {
+      CraftUI.assembly.sub_things = CraftUI.assembly.sub_things.filter(s => s.thing_id !== tid);
+      CraftUI.assembly.nodes = CraftUI.assembly.nodes.filter(n => n.id !== nodeId);
+      renderAssemblyGraph();
+      updateStats();
+    }
+  }
+
+  // ── Stats ───────────────────────────────────────────────────────────────────
+  function updateStats() {
+    const a = CraftUI.assembly;
+    const nodes = a?.nodes?.length || 0;
+    const recipes = a?.recipe_ids?.length || 0;
+    const cost = a?.total_cost || 0;
+    document.getElementById('stat-nodes').textContent = nodes;
+    document.getElementById('stat-recipes').textContent = recipes;
+    document.getElementById('stat-cost').textContent = '$' + cost.toFixed(0);
+    document.getElementById('bottom-assembly-info').innerHTML =
+      `<strong>${nodes}</strong> things · <strong>${recipes}</strong> recipes · <strong>$${cost.toFixed(2)}</strong> est.`;
+
+    const nameEl = document.getElementById('assembly-name');
+    const subEl = document.getElementById('assembly-subtitle');
+    if (a?.name) {
+      nameEl.textContent = a.name;
+      subEl.textContent = `${nodes} nodes · ${recipes} recipes locked`;
+    } else if (nodes > 0) {
+      nameEl.textContent = 'Untitled Assembly';
+      subEl.textContent = `${nodes} nodes · right-click to rename`;
+    }
+  }
+
+  // ── Drag & drop on graph canvas ─────────────────────────────────────────────
+  const graphCanvas = document.getElementById('graph-canvas');
+  graphCanvas?.addEventListener('dragover', (e) => {
+    e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
+  });
+  graphCanvas?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const thingId = parseInt(e.dataTransfer.getData('thingId'));
+    if (thingId) addThingToAssemblyGraph(thingId);
+    // Handle file/URL drops
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleDroppedFile(file, e.clientX, e.clientY);
+    const url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+    if (url && (url.startsWith('http://') || url.startsWith('https://'))) handleDroppedURL(url);
+  });
+
+  async function handleDroppedFile(file, x, y) {
+    try {
+      const thing = await CraftUI.processDroppedItem(file, null);
+      if (thing) {
+        toast(`Added: ${thing.name}`, 'success');
+        renderInventory();
+        addThingToAssemblyGraph(thing.id);
+      }
+    } catch (err) {
+      toast('Recognition failed: ' + err.message, 'error');
+    }
+  }
+
+  async function handleDroppedURL(url) {
+    try {
+      const thing = await CraftUI.recognizeAndCreate('url', { url }, null);
+      if (thing) {
+        toast(`Imported: ${thing.name}`, 'success');
+        renderInventory();
+        addThingToAssemblyGraph(thing.id);
+      }
+    } catch (err) {
+      toast('URL import failed: ' + err.message, 'error');
+    }
+  }
+
+  // ── Header buttons ─────────────────────────────────────────────────────────
+  document.getElementById('btn-new-assembly')?.addEventListener('click', () => {
+    CraftUI.assembly = { sub_things: [], recipe_ids: [], nodes: [], edges: [] };
+    renderAssemblyGraph();
+    updateStats();
+    document.getElementById('assembly-name').textContent = 'New Assembly';
+    document.getElementById('assembly-subtitle').textContent = 'Add things from inventory';
+  });
+
+  document.getElementById('btn-save-assembly')?.addEventListener('click', () => openSaveModal());
+  document.getElementById('btn-save-assembly-bb')?.addEventListener('click', () => openSaveModal());
+
+  document.getElementById('btn-confirm-save')?.addEventListener('click', async () => {
+    const name = document.getElementById('save-name').value.trim() || 'Untitled Assembly';
+    const asm = await CraftUI.saveAssembly(name, null);
+    if (asm) {
+      document.getElementById('modal-save').style.display = 'none';
+      document.getElementById('assembly-name').textContent = asm.name;
+      toast('Assembly saved: ' + asm.name, 'success');
+    } else {
+      toast('Save failed', 'error');
+    }
+  });
+
+  document.getElementById('btn-clear-assembly')?.addEventListener('click', () => {
+    CraftUI.assembly = { sub_things: [], recipe_ids: [], nodes: [], edges: [] };
+    renderAssemblyGraph();
+    updateStats();
+    document.getElementById('assembly-name').textContent = 'No assembly';
+    document.getElementById('assembly-subtitle').textContent = 'Drag things from inventory or use Craft → Add to Assembly';
+  });
+
+  document.getElementById('btn-preview')?.addEventListener('click', async () => {
+    if (!CraftUI.assembly?.recipe_ids?.length) {
+      toast('Add some things and lock recipes first', 'error'); return;
+    }
+    const preview = await CraftUI.buildAssemblyPreview();
+    if (!preview) { toast('Preview failed', 'error'); return; }
+    renderAssemblyGraph();
+    updateStats();
+    const totalCost = preview.shopping_lists?.total_cost || 0;
+    document.getElementById('stat-cost').textContent = '$' + totalCost.toFixed(0);
+    toast('Assembly preview updated', 'success');
+  });
+
+  document.getElementById('btn-shopping-list')?.addEventListener('click', async () => {
+    if (!CraftUI.assembly?.recipe_ids?.length) { toast('No assembly to list', 'error'); return; }
+    const preview = await CraftUI.buildAssemblyPreview();
+    if (!preview?.shopping_lists) { toast('No shopping data', 'error'); return; }
+    const text = CraftUI.generateShoppingListText(preview.shopping_lists);
+    document.getElementById('shopping-list-text').textContent = text;
+    document.getElementById('modal-shopping-list').style.display = 'flex';
+  });
+
+  document.getElementById('btn-copy-list')?.addEventListener('click', () => {
+    const text = document.getElementById('shopping-list-text').textContent;
+    navigator.clipboard.writeText(text).then(() => toast('Copied!', 'success')).catch(() => toast('Copy failed', 'error'));
+  });
+
+  // ── Workbench settings toggle ───────────────────────────────────────────────
+  document.getElementById('btn-wb-toggle')?.addEventListener('click', () => {
+    const panel = document.getElementById('workbench-settings');
+    const visible = panel.style.display === 'block';
+    panel.style.display = visible ? 'none' : 'block';
+    if (!visible) CraftUI.renderWorkbenchSettings(panel);
+  });
+
+  // ── Import modal ────────────────────────────────────────────────────────────
+  const importModal = document.getElementById('modal-import');
+  document.getElementById('btn-import')?.addEventListener('click', () => {
+    importModal.style.display = 'flex';
+  });
+  importModal?.addEventListener('click', (e) => {
+    if (e.target === importModal) importModal.style.display = 'none';
+  });
+
+  const importDropZone = document.getElementById('import-drop-zone');
+  importDropZone?.addEventListener('dragover', (e) => { e.preventDefault(); importDropZone.style.borderColor = 'var(--accent)'; });
+  importDropZone?.addEventListener('dragleave', () => { importDropZone.style.borderColor = ''; });
+  importDropZone?.addEventListener('drop', async (e) => {
+    e.preventDefault(); importDropZone.style.borderColor = '';
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    try {
+      const thing = await CraftUI.processDroppedItem(file, null);
+      if (thing) { toast('Added: ' + thing.name, 'success'); renderInventory(); }
+    } catch (err) { toast('Import failed: ' + err.message, 'error'); }
+    importModal.style.display = 'none';
+  });
+
+  // ── Inventory tabs ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.inv-tab').forEach(tab => {
+    tab?.addEventListener('click', () => {
+      document.querySelectorAll('.inv-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      // Tabs: currently all point to same things list
+      // BIM Elements tab would show elements from the current project
+      renderInventory(currentFilter);
+    });
+  });
+
+  // ── Filter chips ────────────────────────────────────────────────────────────
+  let currentFilter = 'all';
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip?.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.dataset.filter;
+      renderInventory(currentFilter);
+    });
+  });
+
+  // ── Search ─────────────────────────────────────────────────────────────────
+  document.getElementById('inv-search')?.addEventListener('input', () => renderInventory(currentFilter));
+
+  // ── Global drop zone (full page) ───────────────────────────────────────────
+  let dragCounter = 0;
+  document.addEventListener('dragenter', (e) => {
+    if (e.dataTransfer.types.includes('Files') || e.dataTransfer.types.includes('text/uri-list')) {
+      dragCounter++;
+      document.getElementById('drop-hint')?.classList.add('drag-over');
+    }
+  });
+  document.addEventListener('dragleave', () => {
+    dragCounter--;
+    if (dragCounter <= 0) {
+      dragCounter = 0;
+      document.getElementById('drop-hint')?.classList.remove('drag-over');
+    }
+  });
+  document.addEventListener('dragover', (e) => {
+    if (e.dataTransfer.types.includes('Files') || e.dataTransfer.types.includes('text/uri-list')) {
+      e.preventDefault(); e.dataTransfer.dropEffect = 'copy';
+    }
+  });
+  document.addEventListener('drop', async (e) => {
+    dragCounter = 0;
+    document.getElementById('drop-hint')?.classList.remove('drag-over');
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      try {
+        const thing = await CraftUI.processDroppedItem(file, null);
+        if (thing) { toast('Added: ' + thing.name, 'success'); renderInventory(); }
+      } catch (err) { toast('Recognition failed', 'error'); }
+    }
+  });
+
+  // ── Init ────────────────────────────────────────────────────────────────────
+  renderInventory();
+  renderAssemblyGraph();
+  updateStats();
+
+  // Toast helper (from crafting-ui.js exposes it; if not, inline it)
+  function toast(msg, type = 'info') {
+    const colors = { success: 'var(--green)', error: 'var(--red)', info: 'var(--blue)', warning: 'var(--yellow)' };
+    const el = document.createElement('div');
+    el.className = 'toast ' + (type || 'info');
+    el.style.borderColor = colors[type] || colors.info;
+    el.style.color = colors[type] || colors.info;
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+
+})();
+</script>
+</body>
+</html>

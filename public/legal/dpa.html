@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Processing Agreement — Atlantist</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1420">
+<link rel="stylesheet" href="/css/legal.css">
+</head>
+<body>
+<div class="legal-page">
+  <header class="legal-header">
+    <a href="https://atlantist.cloud" class="legal-logo">Atlantist</a>
+    <nav class="legal-nav">
+      <a href="/legal/privacy">Privacy</a>
+      <a href="/legal/terms">Terms</a>
+      <a href="/legal/cookies">Cookies</a>
+      <a href="/legal/dpa">DPA</a>
+      <a href="/legal/sla">SLA</a>
+      <a href="/legal/content-policy">Content Policy</a>
+    </nav>
+  </header>
+
+  <main class="legal-content">
+    <div class="legal-meta">Last updated: May 23, 2026 &nbsp;|&nbsp; Version 1.0</div>
+    <h1>Data Processing Agreement</h1>
+
+    <p>This Data Processing Agreement ("DPA") forms part of the <a href="/legal/terms">Terms of Service</a> between Atlantist ("Data Processor") and you ("Data Controller" or "you") when you process personal data of EU/UK residents through Atlantist.</p>
+
+    <h2>1. Roles and Definitions</h2>
+    <p><strong>Data Controller:</strong> You, the customer using Atlantist to process personal data of your own end users or contacts.</p>
+    <p><strong>Data Processor:</strong> Atlantist, which processes personal data only on your documented instructions as a sub-processor to your use of the service.</p>
+    <p><strong>Personal Data:</strong> Any information relating to an identified or identifiable natural person ("data subject") as defined by GDPR (EU) 2016/679 or UK GDPR.</p>
+    <p><strong>Processing:</strong> Any operation performed on personal data, including collection, storage, use, disclosure, and deletion.</p>
+
+    <h2>2. Subject Matter and Purpose of Processing</h2>
+    <p><strong>Subject matter:</strong> The processing of personal data incidental to your use of the Atlantist BIM platform — primarily account registration data (email, name) and, for enterprise customers, team member data.</p>
+    <p><strong>Purpose:</strong> Provision of the BIM SaaS platform, account management, billing, support, and compliance with legal obligations.</p>
+    <p><strong>Duration:</strong> For the duration of your subscription plus 90 days post-termination.</p>
+
+    <h2>3. Nature and Scope of Processing</h2>
+    <ul>
+      <li><strong>Collection:</strong> Registration data via magic link, support form submissions, team invite acceptances</li>
+      <li><strong>Storage:</strong> In Neon (PostgreSQL) database, hosted in the United States</li>
+      <li><strong>Use:</strong> Authentication, billing, transactional emails, support ticketing</li>
+      <li><strong>Disclosure:</strong> To sub-processors listed in Section 7 for infrastructure and service delivery</li>
+      <li><strong>Deletion:</strong> On account deletion or DPA termination request, within 90 days</li>
+    </ul>
+    <p>Atlantist does not process special categories of data (health, biometric, financial, children's data) as part of standard service operations.</p>
+
+    <h2>4. Data Controller Obligations</h2>
+    <p>You, as Data Controller, are responsible for:</p>
+    <ul>
+      <li>Ensuring you have a lawful basis for processing any personal data you submit through Atlantist</li>
+      <li>Ensuring data subjects have been informed of how their data is used (via your own privacy notice)</li>
+      <li>Responding to data subject rights requests (access, erasure, portability) within the timeframes required by law</li>
+      <li>Not submitting special category data to Atlantist without explicit written agreement</li>
+    </ul>
+
+    <h2>5. Processor Obligations</h2>
+    <p>Atlantist agrees to:</p>
+    <ul>
+      <li>Process personal data only on your documented instructions (as defined in this DPA and our Terms)</li>
+      <li>Ensure persons authorized to process data are bound by confidentiality obligations</li>
+      <li>Implement appropriate technical and organizational measures to ensure a level of security appropriate to the risk (TLS encryption, access controls, audit logging)</li>
+      <li>Not engage another processor without your prior specific written consent; we maintain a list of approved sub-processors (Section 7)</li>
+      <li>Assist you in fulfilling data subject rights requests, taking into account the nature of processing and information available to us</li>
+      <li>Delete or return all personal data upon termination of the DPA, at your choice</li>
+      <li>Make available all information necessary to demonstrate compliance with GDPR Article 28</li>
+      <li>Allow for and contribute to audits, including inspections, conducted by you or an auditor mandated by you, with reasonable notice</li>
+    </ul>
+
+    <h2>6. Data Breach Notification</h2>
+    <p>If Atlantist becomes aware of a personal data breach that is likely to result in risk to the rights and freedoms of data subjects, we will:</p>
+    <ul>
+      <li>Notify you without undue delay, and at the latest within 72 hours of becoming aware</li>
+      <li>Provide: nature of breach, categories and approximate number of data subjects affected, categories and approximate number of personal data records affected, name and contact of DPO (if applicable), likely consequences, measures taken or proposed</li>
+      <li>Document all breaches in our incident log regardless of notification requirement</li>
+    </ul>
+
+    <h2>7. Sub-processors</h2>
+    <p>Atlantist uses the following sub-processors, all operating under written DPA with Atlantist:</p>
+    <table>
+      <thead><tr><th>Sub-processor</th><th>Service Provided</th><th>Data Processed</th><th>Country</th></tr></thead>
+      <tbody>
+        <tr><td>Render</td><td>Cloud hosting and compute</td><td>All application data</td><td>USA</td></tr>
+        <tr><td>Neon (Neon.tech)</td><td>PostgreSQL database</td><td>All application data</td><td>USA</td></tr>
+        <tr><td>Stripe</td><td>Payment processing</td><td>Billing name, email, transaction refs</td><td>USA</td></tr>
+        <tr><td>OpenAI</td><td>AI-assisted render generation</td><td>Viewport images, render prompts (not stored by OpenAI)</td><td>USA</td></tr>
+        <tr><td>PeerJS (PeerServer)</td><td>WebRTC signaling for collaboration</td><td>Session metadata, no message content</td><td>USA</td></tr>
+      </tbody>
+    </table>
+    <p>You authorize Atlantist to use additional sub-processors with 30 days' prior written notice. If you object to a new sub-processor, you may terminate your subscription with no penalty within 30 days of notification.</p>
+
+    <h2>8. International Data Transfers</h2>
+    <p>Personal data of EU/UK residents is processed in the United States. Data transfers from the European Economic Area and United Kingdom to the USA are governed by:</p>
+    <ul>
+      <li><strong>EU Standard Contractual Clauses (SCCs):</strong> EU Commission Decision 2021/914 (Module 2: Controller-to-Processor), incorporated by reference</li>
+      <li><strong>UK International Data Transfer Agreements (IDTA):</strong> Where applicable for UK GDPR transfers</li>
+    </ul>
+    <p>Atlantist maintains transfer records documenting the legal mechanism for each international transfer and makes these available upon request.</p>
+
+    <h2>9. Documentation and Compliance</h2>
+    <p>Atlantist maintains and can provide on request:</p>
+    <ul>
+      <li>Record of processing activities (Article 30 GDPR)</li>
+      <li>DPIA (Data Protection Impact Assessment) for high-risk processing activities</li>
+      <li>Written instructions for processing (this DPA)</li>
+      <li>Sub-processor agreements and list</li>
+      <li>Security policies and incident response procedures</li>
+    </ul>
+
+    <h2>10. Return and Deletion</h2>
+    <p>Upon termination of your subscription:</p>
+    <ul>
+      <li><strong>Export:</strong> You may export BIM models, issues, and account data via the Atlantist interface during the 90-day post-termination retention period</li>
+      <li><strong>Deletion:</strong> Atlantist will delete all personal data within 90 days of termination, except data required for legal compliance (audit logs retained 12 months)</li>
+      <li><strong>Certification:</strong> Upon request, Atlantist will certify in writing that deletion is complete</li>
+    </ul>
+
+    <h2>11. Termination</h2>
+    <p>This DPA terminates automatically upon termination of your Atlantist subscription. The provisions that by their nature should survive termination (data breach notification obligations, return/deletion obligations) survive termination.</p>
+
+    <h2>12. Contact</h2>
+    <p>For GDPR/UK GDPR compliance questions, contact our Data Protection Officer:</p>
+    <p><strong>Email:</strong> dpo@atlantist.cloud<br>
+    <strong>Postal:</strong> Atlantist Data Protection Officer, 123 Architecture Way, New York, NY 10001</p>
+  </main>
+
+  <footer class="legal-footer">
+    <p>&copy; 2026 Atlantist. All rights reserved. &nbsp;|&nbsp; <a href="/legal/privacy">Privacy</a> &nbsp;|&nbsp; <a href="/legal/terms">Terms</a> &nbsp;|&nbsp; <a href="/legal/cookies">Cookies</a></p>
+  </footer>
+</div>
+</body>
+</html>

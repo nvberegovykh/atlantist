@@ -1,0 +1,127 @@
+{
+  "description": "Wallt NYC Zoning Q&A Eval Set — Phase 34C. 15 ground-truth Q&A pairs covering R6-R10 districts, ZR sections, and common architect questions. Each pair has expected answer, required citation (ZR section), and source URL.",
+  "source": "NYC Zoning Resolution (ZR) — zr.planning.nyc.gov",
+  "last_verified": "2026-05-27",
+  "pairs": [
+    {
+      "id": 1,
+      "question": "What's the max FAR for R6A with standard residences?",
+      "expected_answer_contains": ["3.00", "3.0"],
+      "required_zr_section": "23-22",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "R6A standard FAR is 3.00 per ZR §23-22 table"
+    },
+    {
+      "id": 2,
+      "question": "What are the height limits for R6B buildings?",
+      "expected_answer_contains": ["55", "45", "30"],
+      "required_zr_section": "23-432",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "R6B: min base 30 ft, max base 45 ft, max height 55 ft standard per ZR §23-432"
+    },
+    {
+      "id": 3,
+      "question": "What's the max FAR for R6 with qualifying affordable housing?",
+      "expected_answer_contains": ["3.90", "3.9"],
+      "required_zr_section": "23-22",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "R6 qualifying affordable/senior FAR is 3.90 per ZR §23-22"
+    },
+    {
+      "id": 4,
+      "question": "What's the max FAR for R8A standard residences?",
+      "expected_answer_contains": ["6.02", "6.0"],
+      "required_zr_section": "23-22",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "R8A standard FAR is 6.02 per ZR §23-22 table"
+    },
+    {
+      "id": 5,
+      "question": "What's the max FAR for R7A with qualifying affordable housing?",
+      "expected_answer_contains": ["5.01", "5.0"],
+      "required_zr_section": "23-22",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "R7A qualifying FAR is 5.01 per ZR §23-22"
+    },
+    {
+      "id": 6,
+      "question": "What are the required rear yard dimensions in R6 through R12 districts?",
+      "expected_answer_contains": ["30", "30 ft"],
+      "required_zr_section": "23-34",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "Minimum 30 ft depth rear yard required per ZR §23-342"
+    },
+    {
+      "id": 7,
+      "question": "What's the height limit for R10A buildings with qualifying senior housing?",
+      "expected_answer_contains": ["235", "235 ft"],
+      "required_zr_section": "23-432",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "R10A qualifying max building height is 235 ft per ZR §23-432 table"
+    },
+    {
+      "id": 8,
+      "question": "What's the max FAR for C1-2 commercial overlay?",
+      "expected_answer_contains": ["2.0", "2.0"],
+      "required_zr_section": "35-31",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "C1-2 max commercial FAR is 2.0 per ZR §35-31; residential follows R5 equivalent"
+    },
+    {
+      "id": 9,
+      "question": "What's the setback requirement above the max base height in R6A on a wide street?",
+      "expected_answer_contains": ["10", "10 ft"],
+      "required_zr_section": "23-432",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "Wide street setback is 10 ft depth above max base height per ZR §23-432"
+    },
+    {
+      "id": 10,
+      "question": "What use groups are permitted in M1-1 districts?",
+      "expected_answer_contains": ["manufacturing", "Use Group"],
+      "required_zr_section": "42-00",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "M1 districts permit Use Groups 4-10 (light manufacturing, commercial, some community facility) per ZR §42-00"
+    },
+    {
+      "id": 11,
+      "question": "What's the max FAR for R8B standard residences?",
+      "expected_answer_contains": ["4.00", "4.0"],
+      "required_zr_section": "23-22",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "R8B standard FAR is 4.00 per ZR §23-22 table"
+    },
+    {
+      "id": 12,
+      "question": "What does the sky exposure plane do in R6 height factor buildings?",
+      "expected_answer_contains": ["setback", "slope"],
+      "required_zr_section": "23-633",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "Sky exposure plane limits building mass — starts at ~60 ft, slopes 2.5:1 in R6 per ZR §23-731 through §23-736"
+    },
+    {
+      "id": 13,
+      "question": "What's the max base height for R7B standard buildings?",
+      "expected_answer_contains": ["65", "65 ft"],
+      "required_zr_section": "23-432",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "R7B max base height is 65 ft standard per ZR §23-432 table"
+    },
+    {
+      "id": 14,
+      "question": "Is residential use allowed in M1-1 districts?",
+      "expected_answer_contains": ["no", "prohibited", "M1-1D"],
+      "required_zr_section": "42-00",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "Residential generally prohibited in M1-1; M1-1D suffix with authorization permits residential per ZR §42-311"
+    },
+    {
+      "id": 15,
+      "question": "What are the side yard requirements in R6A Quality Housing contextual districts?",
+      "expected_answer_contains": ["none", "no side yard", "not required"],
+      "required_zr_section": "23-335",
+      "required_source": "zr.planning.nyc.gov",
+      "notes": "Quality Housing contextual districts (R6A, R7A, etc.) require no side yard per ZR §23-335"
+    }
+  ]
+}

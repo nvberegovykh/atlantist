@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallt — Atlantist AI Companion</title>
+  <meta name="description" content="Your AI companion for BIM modeling. Ask zoning questions, trigger structural calcs, run energy simulations — Wallt knows your project and your tools.">
+  <meta name="theme-color" content="#060a10">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Wallt">
+  <meta property="og:title" content="Wallt — Atlantist AI Companion">
+  <meta property="og:description" content="Direct AI companion for BIM engineers. Context-aware, architecture-first, always in your project.">
+  <meta property="og:type" content="website">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0f1a; --surface: #111827; --border: #1e2d3d;
+      --text: #cfe3f5; --text-muted: #5b8ab5;
+      --accent: #4a7dbd; --accent-light: #5b9bd5;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-display: 'DM Serif Display', Georgia, serif;
+    }
+    html, body { height: 100%; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.6; }
+    a { color: var(--accent-light); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 40px; border-bottom: 1px solid var(--border); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 18px; color: var(--text); }
+    .nav-logo svg { opacity: .8; }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { font-size: 14px; color: var(--text-muted); }
+    .btn-primary { background: linear-gradient(135deg,#1a3050,#2a4a70); border: 1px solid var(--accent); color: var(--text); padding: 8px 20px; border-radius: 6px; font-size: 14px; cursor: pointer; font-family: var(--font); transition: background .2s; }
+    .btn-primary:hover { background: linear-gradient(135deg,#2a4a70,#3a5a90); text-decoration: none; }
+
+    .hero { max-width: 900px; margin: 0 auto; padding: 80px 40px 60px; text-align: center; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: #1a2535; border: 1px solid var(--border); padding: 5px 14px; border-radius: 20px; font-size: 12px; color: var(--text-muted); margin-bottom: 28px; }
+    .hero-badge span { width: 6px; height: 6px; background: #4caf50; border-radius: 50%; }
+    h1 { font-family: var(--font-display); font-size: clamp(36px,5vw,56px); color: var(--text); line-height: 1.1; margin-bottom: 20px; letter-spacing: -1px; }
+    h1 em { font-style: normal; color: var(--accent-light); }
+    .hero-sub { font-size: 18px; color: var(--text-muted); max-width: 600px; margin: 0 auto 40px; }
+
+    .demo-wrapper { max-width: 780px; margin: 0 auto; padding: 0 40px 80px; }
+    .demo-chat { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,.5); }
+    .demo-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: #0f1620; }
+    .demo-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#2a4a6a,#5b9bd5); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--text); }
+    .demo-header-info h3 { font-size: 14px; font-weight: 600; color: var(--text); }
+    .demo-header-info p { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    .demo-messages { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+    .demo-msg { display: flex; gap: 10px; }
+    .demo-msg.user { flex-direction: row-reverse; }
+    .demo-msg-avatar { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+    .demo-msg.user .demo-msg-avatar { background: #1e3a5a; color: #7aafd5; }
+    .demo-msg.wallt .demo-msg-avatar { background: linear-gradient(135deg,#2a4a6a,#5b9bd5); color: var(--text); }
+    .demo-msg-body { max-width: 75%; padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.5; }
+    .demo-msg.user .demo-msg-body { background: #1e3a5a; border: 1px solid #2a5a8a; border-bottom-right-radius: 4px; color: #cfe3f5; }
+    .demo-msg.wallt .demo-msg-body { background: #1a2535; border: 1px solid #2a3a4a; border-bottom-left-radius: 4px; color: #d0dde8; }
+    .demo-msg-body p { margin: 0 0 6px; }
+    .demo-msg-body p:last-child { margin-bottom: 0; }
+    .demo-msg-body code { background: #0d1a26; padding: 1px 5px; border-radius: 4px; font-family: 'SF Mono','Cascadia Code',monospace; font-size: 12px; color: #5b9bd5; }
+    .demo-msg-body strong { color: #cfe3f5; }
+    .demo-sources { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .demo-source-tag { font-size: 10px; background: #0d1a26; border: 1px solid #1e2e3e; padding: 2px 8px; border-radius: 10px; color: #4a6a8a; }
+
+    .features { max-width: 900px; margin: 0 auto; padding: 0 40px 80px; }
+    .section-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); text-align: center; margin-bottom: 12px; }
+    .section-title { font-family: var(--font-display); font-size: clamp(24px,3vw,34px); text-align: center; margin-bottom: 48px; color: var(--text); }
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 16px; }
+    .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; transition: border-color .2s; }
+    .feature-card:hover { border-color: var(--accent); }
+    .feature-icon { font-size: 20px; margin-bottom: 10px; }
+    .feature-card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .feature-card p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+    .cta-section { text-align: center; padding: 60px 40px; border-top: 1px solid var(--border); }
+    .cta-section h2 { font-family: var(--font-display); font-size: 30px; color: var(--text); margin-bottom: 12px; }
+    .cta-section p { font-size: 15px; color: var(--text-muted); margin-bottom: 28px; }
+    .cta-section .btn-primary { font-size: 15px; padding: 12px 32px; }
+
+    .rect-section { max-width: 900px; margin: 0 auto; padding: 0 40px 80px; }
+    .rect-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; margin-top: 32px; }
+    @media (max-width: 700px) { .rect-grid { grid-template-columns: 1fr; } }
+    .rect-graph-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .rect-graph-wrap canvas { display: block; max-width: 100%; }
+    .rect-meta { display: flex; flex-direction: column; gap: 16px; }
+    .rect-current { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .rect-current-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 6px; }
+    .rect-current-value { font-family: var(--font-display); font-size: 36px; color: var(--accent-light); line-height: 1; }
+    .rect-current-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .rect-formula { background: #0d1a26; border: 1px solid #1e3a5a; border-radius: 8px; padding: 16px 20px; }
+    .rect-formula pre { font-family: 'SF Mono','Cascadia Code','Consolas',monospace; font-size: 12px; color: #7aafd5; margin: 0; white-space: pre-wrap; line-height: 1.9; }
+    .rect-rules { display: flex; flex-direction: column; gap: 8px; }
+    .rect-rule { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--text-muted); }
+    .rect-rule-icon { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+    .rect-rule-icon.floor { background: #1a3a1a; border: 1px solid #2a5a2a; color: #5baf5b; }
+    .rect-rule-icon.ceil { background: #3a1a1a; border: 1px solid #5a2a2a; color: #af5b5b; }
+    .rect-audit { font-size: 11px; color: #4a6a8a; border-top: 1px solid var(--border); padding-top: 12px; margin-top: 4px; line-height: 1.6; }
+    .rect-loading { font-size: 13px; color: var(--text-muted); padding: 40px; text-align: center; }
+
+    footer { border-top: 1px solid var(--border); padding: 20px 40px; text-align: center; font-size: 12px; color: var(--text-muted); }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">
+    <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="14" stroke="#4a7dbd" stroke-width="2"/>
+      <circle cx="16" cy="16" r="8" stroke="#5b9bd5" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="3" fill="#4a7dbd"/>
+    </svg>
+    Atlantist
+  </a>
+  <div class="nav-links">
+    <a href="/#features">Features</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/docs">Docs</a>
+    <a href="/app" class="btn-primary">Open App</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge"><span></span> Available now — install on any device</div>
+  <h1>Meet <em>Wallt</em> — Your<br>BIM AI Companion</h1>
+  <p class="hero-sub">Direct, architecture-first AI living inside Atlantist. Knows your project, your tools, your zoning rules. Asks for clarification when you're vague. Gets it right.</p>
+</section>
+
+<div class="demo-wrapper">
+  <div class="demo-chat">
+    <div class="demo-header">
+      <div class="demo-avatar">W</div>
+      <div class="demo-header-info">
+        <h3>Wallt — AI Companion</h3>
+        <p>Active in project · NYC Midrise Residential</p>
+      </div>
+    </div>
+    <div class="demo-messages">
+      <div class="demo-msg user">
+        <div class="demo-msg-avatar">U</div>
+        <div class="demo-msg-body"><p>What are the setback requirements for R5 zones in NYC?</p></div>
+      </div>
+      <div class="demo-msg wallt">
+        <div class="demo-msg-avatar">W</div>
+        <div class="demo-msg-body">
+          <p>R5 is a <strong>low-density residence district</strong>. Key setbacks from the Zoning Resolution:</p>
+          <p><strong>Front yard:</strong> minimum 10 ft (ZR §23-45)<br>
+          <strong>Rear yard:</strong> minimum 30 ft at grade (ZR §23-52)<br>
+          <strong>Side yard:</strong> 5 ft each side for 1-2 family detached (ZR §23-22)</p>
+          <p><code>Your project: 60 ft wide lot, ZRD-1</code> — I have enough to give you exact numbers. What's the building height per the architect's notes?</p>
+          <div class="demo-sources"><span class="demo-source-tag">ZR §23-45, §23-52</span><span class="demo-source-tag">DOB BIS</span></div>
+        </div>
+      </div>
+      <div class="demo-msg user">
+        <div class="demo-msg-avatar">U</div>
+        <div class="demo-msg-body"><p>50 ft height. Run a structural check on the W14x30 columns on level 2</p></div>
+      </div>
+      <div class="demo-msg wallt">
+        <div class="demo-msg-avatar">W</div>
+        <div class="demo-msg-body">
+          <p>Running AISC 360-22 checks on 4x W14×30 columns at Level 2...</p>
+          <p>✅ <strong>All 4 columns PASS</strong><br>
+          Max demand/capacity ratio: 0.71 (Column C3)<br>
+          Slenderness: KL/r = 48.2 — compact section, no reduction<br>
+          Unbraced length: 12 ft as specified</p>
+          <p>Full report ready in <strong>Structural → Member Checks</strong>. Want the detailed calc sheet exported as PDF?</p>
+          <div class="demo-sources"><span class="demo-source-tag">AISC 360-22 §E2</span><span class="demo-source-tag">Project model</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="features">
+  <div class="section-label">Capabilities</div>
+  <h2 class="section-title">Not a chatbot. A project companion.</h2>
+  <div class="feature-grid">
+    <div class="feature-card"><div class="feature-icon">🏗️</div><h3>Zoning & Code</h3><p>NYC zoning, building codes, fire protection — pulls from your project location and applies the right standards automatically.</p></div>
+    <div class="feature-card"><div class="feature-icon">📐</div><h3>Structural Calcs</h3><p>Run AISC/ACI/NDS member checks directly from your model. Wallt reads your column sizes and runs the full code check.</p></div>
+    <div class="feature-card"><div class="feature-icon">⚡</div><h3>Energy Simulation</h3><p>"Run energy sim for this building" — Wallt kicks off the full analysis pipeline, returns EN-001 through EN-008 compliance.</p></div>
+    <div class="feature-card"><div class="feature-icon">🧱</div><h3>BIM Actions</h3><p>Adds annotations, creates elements, updates properties, runs Dynamo scripts. All actions logged in the event ledger.</p></div>
+    <div class="feature-card"><div class="feature-icon">💬</div><h3>Forum Participation</h3><p>Reads and responds to community threads in your project's discipline. Marked as AI-assisted — no impersonation.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔒</div><h3>Encrypted & Private</h3><p>E2E encrypted conversation trees. No training data usage. Your project data stays yours. User opt-in for context access.</p></div>
+  </div>
+</section>
+
+<section class="rect-section" id="rect-pricing">
+  <div class="section-label">Network Pricing</div>
+  <h2 class="section-title">RECT — Equal-Cost Distribution</h2>
+  <p style="text-align:center;color:var(--text-muted);font-size:14px;max-width:600px;margin:0 auto 0">
+    Wallt runs on RECT: <strong>Reverse Equilibrium Cooperative Trading</strong>. Every user pays the same — the cost of running your workspace, shared equally. No extraction, no tiers.
+  </p>
+  <div class="rect-grid">
+    <div class="rect-graph-wrap">
+      <canvas id="rectCanvas" height="220"></canvas>
+    </div>
+    <div class="rect-meta">
+      <div class="rect-current">
+        <div class="rect-current-label">Current cost per user</div>
+        <div class="rect-current-value" id="rect-current-cost">—</div>
+        <div class="rect-current-sub" id="rect-current-sub">Loading from network...</div>
+      </div>
+      <div class="rect-formula">
+        <pre id="rect-formula-text">C_per_user = (C_fixed + C_marginal × N) / N
+
+C_fixed_ATL = $29/mo (Atlantist: infra, support, compliance)
+C_fixed_POL = $29/mo (Polsia: platform base plan)
+C_marginal  = $0.20/user/mo (API, storage, compute)
+────────────────────────────
+At N=1:   cost = $29.20/mo (ceiling — solo absorbs all fixed)
+At N=1000: cost = $0.23/mo (fixed cost distributed across 1000 users)
+As N grows: cost → $0.20 (marginal cost floor)
+
+No extraction. No markup.
+Everyone pays exactly this.</pre>
+      </div>
+      <div class="rect-rules">
+        <div class="rect-rule"><span class="rect-rule-icon floor">⬇</span><span><strong>$5 floor</strong> — no user pays less (covers dormant accounts)</span></div>
+        <div class="rect-rule"><span class="rect-rule-icon ceil">⬆</span><span><strong>$29.20 ceiling</strong> — max at N=1 (full fixed costs: Atlantist + Polsia)</span></div>
+      </div>
+      <div class="rect-audit">
+        <strong>Formula is public and auditable.</strong> No pricing tiers, no premium versions. Every user is on the same equation. Verify it yourself — the numbers come from the live network count.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <h2>Available inside Atlantist</h2>
+  <p>Wallt ships with every plan. Open your project and look for the floating widget — or install it as an app.</p>
+  <a href="/wallt" class="btn-primary" style="margin-right:8px">Try Wallt now →</a>
+  <a href="/wallt/intro" class="btn-primary" style="background:transparent;border-color:#1e2d3d;color:#5b8ab5">See demo</a>
+</section>
+
+<footer>
+  <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/wallt">Install Wallt</a> · Wallt is an Atlantist feature
+</footer>
+
+<!-- Wallt standalone app -->
+<script src="/js/boot-safety.js"></script>
+<script src="/js/wallt-install.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+<script>
+  window.addEventListener('load', () => {
+    if (window.WalltInstallManager) {
+      window.WalltInstallManager.init({ onInstallClick: () => {}, onIOSDetected: () => {} });
+    }
+    initRectChart();
+  });
+
+  async function initRectChart() {
+    const canvas = document.getElementById('rectCanvas');
+    if (!canvas) return;
+    try {
+      const resp = await fetch('/api/rect/pricing');
+      const data = await resp.json();
+      renderRectChart(canvas, data);
+      updateRectMeta(data);
+    } catch (err) {
+      document.getElementById('rect-current-cost').textContent = '$29.20';
+      document.getElementById('rect-current-sub').textContent = 'Backend unavailable — $29.20 ceiling applies';
+    }
+  }
+
+  function renderRectChart(canvas, data) {
+    const curve = data.curve || [];
+    const labels = curve.map(p => p.users);
+    const values = curve.map(p => parseFloat(p.cost.toFixed(2)));
+
+    // Find current position index
+    const currentN = data.current?.n_users || 1;
+    const currentCost = parseFloat((data.current?.cost_per_user || 29.20).toFixed(2));
+
+    new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: labels.map(n => n === 1 ? '1' : n.toString()),
+        datasets: [
+          {
+            label: 'Cost per user ($/mo)',
+            data: values,
+            borderColor: '#4a7dbd',
+            backgroundColor: 'rgba(74,125,189,0.08)',
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: labels.map(n => n === currentN ? '#5b9bd5' : '#4a7dbd'),
+            pointBorderWidth: 0,
+            fill: true,
+            tension: 0.3,
+          },
+          {
+            label: '$5 Floor',
+            data: labels.map(() => 5),
+            borderColor: '#3a6a3a',
+            borderWidth: 1.5,
+            borderDash: [5, 4],
+            pointRadius: 0,
+            fill: false,
+          },
+          {
+            label: '$29.20 Ceiling',
+            data: labels.map(() => 29.20),
+            borderColor: '#6a3a3a',
+            borderWidth: 1.5,
+            borderDash: [5, 4],
+            pointRadius: 0,
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 1200, easing: 'easeInOutQuart' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (items) => `${items[0].label} users`,
+              label: (item) => {
+                if (item.datasetIndex === 0) return `$${item.raw.toFixed(2)}/mo`;
+                if (item.datasetIndex === 1) return '$5 floor';
+                return '$29.20 ceiling';
+              },
+            },
+            backgroundColor: '#111827',
+            borderColor: '#1e2d3d',
+            borderWidth: 1,
+            padding: 10,
+            titleColor: '#cfe3f5',
+            bodyColor: '#5b8ab5',
+          },
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Network size (users)', color: '#5b8ab5', font: { size: 11 } },
+            ticks: { color: '#5b8ab5', font: { size: 10 } },
+            grid: { color: 'rgba(30,45,61,0.5)' },
+          },
+          y: {
+            min: 0,
+            max: 32,
+            title: { display: true, text: 'Cost per user ($/mo)', color: '#5b8ab5', font: { size: 11 } },
+            ticks: { color: '#5b8ab5', font: { size: 10 }, callback: v => '$' + v },
+            grid: { color: 'rgba(30,45,61,0.5)' },
+          },
+        },
+      },
+    });
+  }
+
+  function updateRectMeta(data) {
+    const cost = data.current?.cost_per_user;
+    const n = data.current?.n_users;
+    const el = document.getElementById('rect-current-cost');
+    const sub = document.getElementById('rect-current-sub');
+    if (el && cost !== undefined) {
+      el.textContent = `$${parseFloat(cost.toFixed(2))}`;
+    }
+    if (sub && n !== undefined) {
+      sub.textContent = `Network: ${n} active user${n === 1 ? '' : 's'} — fixed cost amortized, cost decreases as network grows`;
+    }
+  }
+</script>
+
+</body>
+</html>

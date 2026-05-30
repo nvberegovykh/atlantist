@@ -1,0 +1,2966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlantist Docs</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1420">
+<meta name="description" content="Atlantist BIM documentation — quick start, architecture, energy analysis, MEP, collaboration, API reference.">
+<meta property="og:title" content="Atlantist Docs — BIM Platform Documentation">
+<meta property="og:description" content="Complete documentation for Atlantist BIM: quick start guides, API reference, energy analysis, MEP simulation, and more.">
+<meta property="og:image" content="https://atlantist.cloud/brand/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://atlantist.cloud/docs">
+<meta property="og:site_name" content="Atlantist">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Atlantist Docs — BIM Platform Documentation">
+<meta name="twitter:image" content="https://atlantist.cloud/brand/og-image.png">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0f;--surface:#111118;--surface2:#1a1a24;--border:#222232;
+  --text:#c8cad4;--text-dim:#6b7280;--text-hd:#e2e8f0;
+  --accent:#5b9bd5;--accent-dim:#3a6f9a;--accent-glow:#5b9bd530;
+  --green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--orange:#f97316;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+/* ── Topbar ─────────────────────────────────────────── */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:16px;flex-shrink:0;position:sticky;top:0;z-index:100}
+.topbar-logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--text-hd);text-decoration:none;flex-shrink:0}
+.topbar-logo svg{color:var(--accent)}
+.topbar-search{flex:1;max-width:480px}
+.search-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:7px 12px 7px 36px;font-size:13px;color:var(--text-hd);width:100%;cursor:pointer;transition:border-color .2s;position:relative}
+.search-box::before{content:'⌘K';position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-dim);background:var(--bg);border:1px solid var(--border);padding:1px 6px;border-radius:4px}
+.search-box:hover{border-color:var(--accent-dim)}
+.topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.icon-btn{background:none;border:none;cursor:pointer;color:var(--text-dim);padding:6px;border-radius:6px;font-size:14px;transition:all .15s}
+.icon-btn:hover{color:var(--text-hd);background:var(--surface2)}
+
+/* ── Layout ────────────────────────────────────────── */
+.layout{display:flex;flex:1;min-height:0}
+.sidebar{width:260px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;position:sticky;top:52px;height:calc(100vh - 52px);padding:20px 0}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.nav-section{margin-bottom:24px}
+.nav-section-label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
+.nav-item{display:block;padding:7px 20px;font-size:13px;color:var(--text-dim);cursor:pointer;border-left:2px solid transparent;transition:all .15s;text-decoration:none}
+.nav-item:hover{color:var(--text-hd);background:var(--surface2)}
+.nav-item.active{color:var(--accent);border-left-color:var(--accent);background:var(--accent-glow)}
+.nav-item.nested{padding-left:36px;font-size:12px}
+
+/* ── Content ───────────────────────────────────────── */
+.content{flex:1;max-width:860px;padding:40px 48px;min-width:0}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.breadcrumb{font-size:12px;color:var(--text-dim);margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.breadcrumb span{color:var(--text-dim)}
+.breadcrumb .sep{opacity:.4}
+
+h1{font-size:32px;font-weight:800;color:var(--text-hd);margin-bottom:12px;line-height:1.2}
+h2{font-size:20px;font-weight:700;color:var(--text-hd);margin:40px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:16px;font-weight:600;color:var(--text-hd);margin:28px 0 10px}
+p{line-height:1.75;margin-bottom:14px;color:var(--text)}
+.lead{font-size:16px;color:var(--text-dim);margin-bottom:24px;line-height:1.6}
+strong{color:var(--text-hd);font-weight:600}
+code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:12px;color:var(--accent);font-family:'SFMono-Regular',Consolas,monospace}
+pre{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px;overflow-x:auto;margin:16px 0}
+pre code{background:none;border:none;padding:0;color:var(--text-hd);font-size:12px}
+.endpoint{margin:12px 0}
+.endpoint-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.method{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;flex-shrink:0;font-family:monospace}
+.method-get{background:#14532d;color:#86efac}
+.method-post{background:#1e1b4b;color:#a5b4fc}
+.method-patch{background:#1e3a5f;color:#93c5fd}
+.method-delete{background:#450a0a;color:#fca5a5}
+.endpoint-path{font-size:13px;color:var(--text-hd);font-family:monospace}
+.endpoint-desc{font-size:12px;color:var(--text-dim);margin-left:60px;margin-bottom:8px}
+.endpoint-params{margin-left:60px;font-size:12px;color:var(--text-dim)}
+.endpoint-params strong{color:var(--accent)}
+
+/* ── Cards ──────────────────────────────────────────── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:16px 0}
+.card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;cursor:pointer;transition:all .2s;text-decoration:none;display:block}
+.card:hover{border-color:var(--accent-dim);background:var(--surface)}
+.card-icon{font-size:24px;margin-bottom:10px}
+.card-title{font-size:14px;font-weight:600;color:var(--text-hd);margin-bottom:4px}
+.card-desc{font-size:12px;color:var(--text-dim);line-height:1.5}
+.card-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;margin-top:8px}
+.card-badge.blue{background:var(--accent-glow);color:var(--accent)}
+
+/* ── Checklists ───────────────────────────────────── */
+.checklist{list-style:none;margin:16px 0}
+.checklist li{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.checklist li:last-child{border-bottom:none}
+.checklist .check{width:20px;height:20px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-dim)}
+.checklist .check.done{background:#14532d;border-color:#22c55e;color:var(--green)}
+.checklist .num{font-size:11px;font-weight:700;color:var(--text-dim);min-width:24px}
+.checklist strong{color:var(--text-hd)}
+
+/* ── Tables ────────────────────────────────────────── */
+.table-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 14px;font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;background:var(--surface2);border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:hover td{background:var(--surface2)}
+.status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;display:inline-block}
+.s-ok{background:#14532d;color:#86efac}
+.s-warn{background:#1e3a5f;color:#93c5fd}
+.s-fail{background:#450a0b;color:#fca5a5}
+.s-beta{background:#1e1b4b;color:#a5b4fc}
+
+/* ── Note callouts ─────────────────────────────────── */
+.callout{padding:14px 16px;border-radius:8px;margin:16px 0;border-left:3px solid}
+.callout-info{background:#1e3a5f30;border-color:var(--accent)}
+.callout-warn{background:#1e3a5f20;border-color:var(--yellow)}
+.callout-done{background:#14532d20;border-color:var(--green)}
+.callout-title{font-size:12px;font-weight:700;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.callout-info .callout-title{color:var(--accent)}
+.callout-warn .callout-title{color:var(--yellow)}
+.callout-done .callout-title{color:var(--green)}
+.callout p{margin:0;font-size:13px;line-height:1.6}
+
+/* ── Video embed ────────────────────────────────────── */
+.video-embed{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:20px;margin:16px 0;text-align:center}
+.video-placeholder{background:linear-gradient(135deg,#1a1a24,#111118);border-radius:8px;height:180px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.video-play{width:52px;height:52px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--bg);box-shadow:0 0 0 8px var(--accent-glow);cursor:pointer;transition:transform .2s}
+.video-play:hover{transform:scale(1.08)}
+.video-label{font-size:13px;color:var(--text-dim)}
+
+/* ── Try it button ─────────────────────────────────── */
+.try-bar{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:24px 0}
+.try-bar-text{font-size:13px;color:var(--text-dim)}
+.try-btn{background:var(--accent);color:var(--bg);border:none;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;transition:opacity .2s}
+.try-btn:hover{opacity:.85}
+
+/* ── Search Modal ──────────────────────────────────── */
+#search-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.7);display:none;align-items:flex-start;justify-content:center;padding-top:80px}
+#search-modal.open{display:flex}
+#search-box2{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:100%;max-width:560px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#search-input{width:100%;padding:16px 20px;font-size:15px;background:none;border:none;color:var(--text-hd);outline:none;font-family:inherit}
+#search-results{padding:8px;max-height:400px;overflow-y:auto}
+.sr-item{padding:10px 12px;border-radius:6px;cursor:pointer;transition:background .15s}
+.sr-item:hover,.sr-item.active{background:var(--surface2)}
+.sr-item-title{font-size:13px;font-weight:600;color:var(--text-hd)}
+.sr-item-path{font-size:11px;color:var(--text-dim);margin-top:2px}
+.sr-section-label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;padding:8px 12px 4px}
+
+/* ── Section nav (sticky right) ───────────────────── */
+.toc-wrap{position:fixed;right:24px;top:76px;width:200px;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc-wrap::-webkit-scrollbar{width:3px}
+.toc-wrap::-webkit-scrollbar-thumb{background:var(--border)}
+.toc-title{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.toc-item{display:block;padding:4px 0;font-size:11px;color:var(--text-dim);text-decoration:none;transition:color .15s}
+.toc-item:hover{color:var(--text-hd)}
+.toc-item.active{color:var(--accent)}
+
+/* ── Edit History (admin) ──────────────────────────── */
+.edit-bar{display:flex;align-items:center;justify-content:space-between;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 16px;margin-bottom:24px;font-size:12px;color:var(--text-dim)}
+.edit-bar a{color:var(--accent);text-decoration:none}
+.edit-bar a:hover{text-decoration:underline}
+
+/* ── Footer ────────────────────────────────────────── */
+.docs-footer{border-top:1px solid var(--border);padding:24px 48px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-dim)}
+.docs-footer a{color:var(--accent-dim);text-decoration:none}
+.docs-footer a:hover{text-decoration:underline}
+
+@media(max-width:1100px){.toc-wrap{display:none}}
+@media(max-width:768px){.sidebar{display:none}.content{padding:24px 20px}.docs-footer{padding:16px 20px}}
+@media(max-width:480px){.content{padding:16px 14px}.topbar-search{max-width:100%}}
+@media(max-width:400px){.content{padding:12px 10px}}
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<header class="topbar">
+  <a href="/docs" class="topbar-logo" onclick="navigate('home');return false">
+    <svg width="20" height="20" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="64" height="64" rx="12" fill="#0a0e14"/>
+      <circle cx="32" cy="35" r="26" fill="none" stroke="#c8cdd6" stroke-width="1.0" opacity="0.22"/>
+      <circle cx="32" cy="35" r="21" fill="none" stroke="#c8cdd6" stroke-width="1.1" opacity="0.30"/>
+      <circle cx="32" cy="35" r="16" fill="none" stroke="#c8cdd6" stroke-width="1.3" opacity="0.38"/>
+      <circle cx="32" cy="35" r="11" fill="none" stroke="#c8cdd6" stroke-width="1.5" opacity="0.48"/>
+      <circle cx="32" cy="35" r="6" fill="none" stroke="#c8cdd6" stroke-width="1.6" opacity="0.58"/>
+      <line x1="32" y1="6" x2="18" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="32" y1="6" x2="46" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="23" y1="45" x2="41" y2="45" stroke="#e0e4ea" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="29" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="35" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="32" cy="3" r="1.8" fill="none" stroke="#e0e4ea" stroke-width="1"/>
+      <path d="M 32 30 L 33.5 35 L 32 40 L 30.5 35 Z" fill="#e0e4ea" opacity="0.9"/>
+      <path d="M 27 35 L 32 33.5 L 37 35 L 32 36.5 Z" fill="#e0e4ea" opacity="0.9"/>
+      <circle cx="32" cy="35" r="1.5" fill="#e0e4ea"/>
+    </svg>
+    Atlantist Docs
+  </a>
+  <div class="topbar-search">
+    <div class="search-box" onclick="openSearch()">Search docs… (⌘K)</div>
+  </div>
+  <div class="topbar-actions">
+    <a href="/" class="icon-btn" title="Open App">↗</a>
+  </div>
+</header>
+
+<div class="layout">
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="nav-section">
+    <div class="nav-section-label">Getting Started</div>
+    <a class="nav-item active" data-page="quick-start" onclick="navigate('quick-start')">Quick Start</a>
+    <a class="nav-item" data-page="first-project" onclick="navigate('first-project')">Creating Your First Project</a>
+    <a class="nav-item nested" data-page="video-tutorial" onclick="navigate('video-tutorial')">Video Tutorial</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">BIM Fundamentals</div>
+    <a class="nav-item" data-page="what-is-bim" onclick="navigate('what-is-bim')">What is BIM?</a>
+    <a class="nav-item" data-page="event-ledger" onclick="navigate('event-ledger')">Event Ledger Architecture</a>
+    <a class="nav-item" data-page="dag-solver" onclick="navigate('dag-solver')">DAG Constraint Solver</a>
+    <a class="nav-item" data-page="ifc-import-export" onclick="navigate('ifc-import-export')">IFC Import / Export</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Architecture</div>
+    <a class="nav-item" data-page="walls" onclick="navigate('walls')">Walls</a>
+    <a class="nav-item" data-page="doors-windows" onclick="navigate('doors-windows')">Doors &amp; Windows</a>
+    <a class="nav-item" data-page="columns" onclick="navigate('columns')">Columns</a>
+    <a class="nav-item" data-page="levels" onclick="navigate('levels')">Levels</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Design Guide</div>
+    <a class="nav-item" data-page="design-guide" onclick="navigate('design-guide')">Step-by-Step Modeler</a>
+    <a class="nav-item nested" data-page="design-guide-walls" onclick="navigate('design-guide-walls')">Walls &amp; Types</a>
+    <a class="nav-item nested" data-page="design-guide-doors" onclick="navigate('design-guide-doors')">Doors &amp; Windows</a>
+    <a class="nav-item nested" data-page="design-guide-stairs" onclick="navigate('design-guide-stairs')">Stairs &amp; Railings</a>
+    <a class="nav-item nested" data-page="design-guide-energy" onclick="navigate('design-guide-energy')">Energy Zones</a>
+    <a class="nav-item" data-page="parametric-templates" onclick="navigate('parametric-templates')">Parametric Templates</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Structure</div>
+    <a class="nav-item" data-page="structural-framing" onclick="navigate('structural-framing')">Framing</a>
+    <a class="nav-item" data-page="connections" onclick="navigate('connections')">Connections</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">MEP</div>
+    <a class="nav-item" data-page="mep-hvac" onclick="navigate('mep-hvac')">HVAC &amp; Ducts</a>
+    <a class="nav-item" data-page="mep-plumbing" onclick="navigate('mep-plumbing')">Plumbing &amp; Pipes</a>
+    <a class="nav-item" data-page="mep-electrical" onclick="navigate('mep-electrical')">Electrical</a>
+    <a class="nav-item" data-page="mep-rcp" onclick="navigate('mep-rcp')">Room Ceiling Plans</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Energy Analysis</div>
+    <a class="nav-item" data-page="energy-overview" onclick="navigate('energy-overview')">Energy Simulation Overview</a>
+    <a class="nav-item" data-page="gbxml-export" onclick="navigate('gbxml-export')">gbXML Export</a>
+    <a class="nav-item" data-page="idf-generation" onclick="navigate('idf-generation')">IDF Generation</a>
+    <a class="nav-item" data-page="en1-workflow" onclick="navigate('en1-workflow')">EN-1 Form Guide</a>
+    <a class="nav-item" data-page="dob-filing" onclick="navigate('dob-filing')">DOB Filing Checklist</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Collaboration</div>
+    <a class="nav-item" data-page="realtime-sync" onclick="navigate('realtime-sync')">Real-time Sync</a>
+    <a class="nav-item" data-page="issues" onclick="navigate('issues')">Issues &amp; Comments</a>
+    <a class="nav-item" data-page="presence" onclick="navigate('presence')">Presence &amp; Sharing</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Simulations</div>
+    <a class="nav-item" data-page="structural-analysis" onclick="navigate('structural-analysis')">Structural Analysis</a>
+    <a class="nav-item nested" data-page="structural-opensees" onclick="navigate('structural-opensees')">OpenSees &amp; FEA</a>
+    <a class="nav-item nested" data-page="structural-code-checks" onclick="navigate('structural-code-checks')">Code Checks</a>
+    <a class="nav-item" data-page="fire-protection" onclick="navigate('fire-protection')">Fire Protection</a>
+    <a class="nav-item" data-page="geotechnical" onclick="navigate('geotechnical')">Geotechnical</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Architecture</div>
+    <a class="nav-item" data-page="curved-surfaces" onclick="navigate('curved-surfaces')">Curved Surfaces</a>
+    <a class="nav-item" data-page="grids" onclick="navigate('grids')">Grids &amp; Levels</a>
+    <a class="nav-item" data-page="rooms" onclick="navigate('rooms')">Rooms &amp; Zones</a>
+    <a class="nav-item" data-page="annotations" onclick="navigate('annotations')">Annotations</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Schedules &amp; Docs</div>
+    <a class="nav-item" data-page="schedules" onclick="navigate('schedules')">Schedules</a>
+    <a class="nav-item" data-page="sections" onclick="navigate('sections')">Section Cuts</a>
+    <a class="nav-item" data-page="design-book-docs" onclick="navigate('design-book-docs')">Design Book</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Integrations</div>
+    <a class="nav-item" data-page="integrations" onclick="navigate('integrations')">Integrations Overview</a>
+    <a class="nav-item nested" data-page="rvt-import" onclick="navigate('rvt-import')">.rvt Import</a>
+    <a class="nav-item nested" data-page="integrations-renders" onclick="navigate('integrations-renders')">Veras AI Renders</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Wallt AI</div>
+    <a class="nav-item" data-page="wallt-install" onclick="navigate('wallt-install')">Installing Wallt</a>
+    <a class="nav-item nested" data-page="wallt-zoning" onclick="navigate('wallt-zoning')">NYC Zoning Checks</a>
+    <a class="nav-item nested" data-page="wallt-api" onclick="navigate('wallt-api')">Wallt API</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Account &amp; Billing</div>
+    <a class="nav-item" data-page="account" onclick="navigate('account')">Account &amp; Sessions</a>
+    <a class="nav-item nested" data-page="subscription" onclick="navigate('subscription')">Subscription</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">API Reference</div>
+    <a class="nav-item" data-page="api-auth" onclick="navigate('api-auth')">Authentication</a>
+    <a class="nav-item" data-page="api-endpoints" onclick="navigate('api-endpoints')">Endpoints</a>
+    <a class="nav-item" data-page="api-webhooks" onclick="navigate('api-webhooks')">Webhooks</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Developer Integrations</div>
+    <a class="nav-item" href="/docs/wallt-api">Wallt API</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Troubleshooting</div>
+    <a class="nav-item" data-page="troubleshooting" onclick="navigate('troubleshooting')">Error Codes &amp; Edge Cases</a>
+  </div>
+</nav>
+
+<!-- Content -->
+<main class="content" id="content"></main>
+
+</div>
+
+<!-- Search Modal -->
+<div id="search-modal" onclick="if(event.target===this)closeSearch()">
+  <div id="search-box2">
+    <input id="search-input" placeholder="Search documentation…" oninput="doSearch()" onkeydown="handleSearchKey(event)" autocomplete="off">
+    <div id="search-results"></div>
+  </div>
+</div>
+
+<script src="/js/boot-safety.js"></script>
+<script>
+// ── Search index ──────────────────────────────────────────────────────────
+const searchIndex = [
+  {title:'Quick Start',path:'quick-start',keywords:'start begin install setup account'},
+  {title:'Creating Your First Project',path:'first-project',keywords:'project create new first'},
+  {title:'Video Tutorial',path:'video-tutorial',keywords:'video tutorial watch learn'},
+  {title:'What is BIM?',path:'what-is-bim',keywords:'bim building information modeling explained'},
+  {title:'Event Ledger Architecture',path:'event-ledger',keywords:'event ledger audit change tracking history'},
+  {title:'DAG Constraint Solver',path:'dag-solver',keywords:'dag solver constraint parametric'},
+  {title:'IFC Import Export',path:'ifc-import-export',keywords:'ifc import export IFC'},
+  {title:'Walls',path:'walls',keywords:'wall create draw placement'},
+  {title:'Doors & Windows',path:'doors-windows',keywords:'door window family placement'},
+  {title:'Columns',path:'columns',keywords:'column structural placement'},
+  {title:'Levels',path:'levels',keywords:'level elevation floor'},
+  {title:'Structural Framing',path:'structural-framing',keywords:'framing structural beam'},
+  {title:'Connections',path:'connections',keywords:'connection join structural'},
+  {title:'HVAC & Ducts',path:'mep-hvac',keywords:'hvac duct mep mechanical'},
+  {title:'Plumbing & Pipes',path:'mep-plumbing',keywords:'plumbing pipe mep'},
+  {title:'Electrical',path:'mep-electrical',keywords:'electrical mep conduit'},
+  {title:'Room Ceiling Plans',path:'mep-rcp',keywords:'rcp ceiling plan mep'},
+  {title:'Energy Simulation Overview',path:'energy-overview',keywords:'energy simulation analysis'},
+  {title:'gbXML Export',path:'gbxml-export',keywords:'gbxml export energy'},
+  {title:'IDF Generation',path:'idf-generation',keywords:'idf energyplus energy'},
+  {title:'EN-1 Form Guide',path:'en1-workflow',keywords:'en-1 form nyc dob compliance'},
+  {title:'DOB Filing Checklist',path:'dob-filing',keywords:'dob filing nyc submission'},
+  {title:'Real-time Sync',path:'realtime-sync',keywords:'real-time sync websocket collaboration'},
+  {title:'Issues & Comments',path:'issues',keywords:'issues comments tracking'},
+  {title:'Presence & Sharing',path:'presence',keywords:'presence sharing collaboration'},
+  {title:'Integrations Overview',path:'integrations',keywords:'integrations finch3d twinmotion arcol polycam'},
+  {title:'Authentication',path:'api-auth',keywords:'api auth token jwt'},
+  {title:'API Endpoints',path:'api-endpoints',keywords:'api endpoints rest'},
+  {title:'Webhooks',path:'api-webhooks',keywords:'webhook callback event'},
+  {title:'Troubleshooting',path:'troubleshooting',keywords:'troubleshoot error fix problem'},
+  {title:'Parametric Templates',path:'parametric-templates',keywords:'template scaffold office residential warehouse rebuild recreatable'},
+  {title:'Structural Analysis',path:'structural-analysis',keywords:'structural FEA analysis beam column AISC'},
+  {title:'OpenSees FEA',path:'structural-opensees',keywords:'opensees FEA finite element deflection stress modal'},
+  {title:'Code Checks',path:'structural-code-checks',keywords:'code check AISC ACI ASCE NDS DCR pass fail member'},
+  {title:'Fire Protection',path:'fire-protection',keywords:'fire protection sprinkler NFPA 13 101 egress FDS smoke'},
+  {title:'Geotechnical',path:'geotechnical',keywords:'geotechnical bearing capacity settlement soil slope pile'},
+  {title:'Curved Surfaces',path:'curved-surfaces',keywords:'curved surface NURBS revolution sweep loft hyperboloid paraboloid ruled'},
+  {title:'Grids and Levels',path:'grids',keywords:'grid structural level elevation snap intersection'},
+  {title:'Rooms and Zones',path:'rooms',keywords:'room zone schedule area volume finish energy'},
+  {title:'Annotations',path:'annotations',keywords:'annotation dimension area tag text keynote hatching'},
+  {title:'Section Cuts',path:'sections',keywords:'section cut plan elevation section line draw'},
+  {title:'Schedules',path:'schedules',keywords:'schedule door window room finish material A-400 section line'},
+  {title:'Design Book',path:'design-book-docs',keywords:'design book sheet revision takeoff procurement A-500 placeholder product'},
+  {title:'Revit rvt Import',path:'rvt-import',keywords:'rvt import revit forge model derivative category'},
+  {title:'Veras AI Renders',path:'integrations-renders',keywords:'veras ai render veras render style photorealistic'},
+  {title:'Account and Sessions',path:'account',keywords:'account session anonymous signup sign in magic link'},
+  {title:'Subscription',path:'subscription',keywords:'subscription billing plan monthly yearly stripe'},
+  {title:'Wallt API',path:'wallt-api',keywords:'wallt api external service integration ingest sector enriched response bearer token rate limit'},
+];
+
+let searchActiveIdx = 0;
+
+function openSearch() {
+  document.getElementById('search-modal').classList.add('open');
+  document.getElementById('search-input').focus();
+  searchActiveIdx = 0;
+  renderResults('');
+}
+
+function closeSearch() {
+  document.getElementById('search-modal').classList.remove('open');
+}
+
+function doSearch() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  searchActiveIdx = 0;
+  renderResults(q);
+}
+
+function renderResults(q) {
+  const el = document.getElementById('search-results');
+  if (!q) {
+    el.innerHTML = '<div style="padding:16px 12px;font-size:12px;color:var(--text-dim)">Start typing to search all docs…</div>';
+    return;
+  }
+  const hits = searchIndex.filter(s =>
+    s.title.toLowerCase().includes(q) ||
+    s.keywords.includes(q) ||
+    s.path.includes(q)
+  ).slice(0, 12);
+  if (!hits.length) { el.innerHTML='<div style="padding:16px 12px;font-size:12px;color:var(--text-dim)">No results for "'+q+'"</div>'; return; }
+  el.innerHTML = hits.map((h,i)=>
+    '<div class="sr-item'+(i===searchActiveIdx?' active':'')+'" data-idx="'+i+'" onclick="selectHit('+i+')">'+
+    '<div class="sr-item-title">'+h.title+'</div>'+
+    '<div class="sr-item-path">/'+h.path+'</div></div>'
+  ).join('');
+}
+
+function handleSearchKey(e) {
+  const hits = document.querySelectorAll('.sr-item');
+  if (e.key==='ArrowDown') { searchActiveIdx=Math.min(searchActiveIdx+1,hits.length-1); renderResults(document.getElementById('search-input').value); }
+  else if (e.key==='ArrowUp') { searchActiveIdx=Math.max(searchActiveIdx-1,0); renderResults(document.getElementById('search-input').value); }
+  else if (e.key==='Enter') { selectHit(searchActiveIdx); }
+  else if (e.key==='Escape') closeSearch();
+}
+
+function selectHit(idx) {
+  const items = searchIndex.filter(s=>{
+    const q=document.getElementById('search-input').value.trim().toLowerCase();
+    return s.title.toLowerCase().includes(q)||s.keywords.includes(q)||s.path.includes(q);
+  });
+  if (items[idx]) { closeSearch(); navigate(items[idx].path); }
+}
+
+document.addEventListener('keydown',e=>{
+  if ((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openSearch()}
+  if (e.key==='Escape') closeSearch();
+});
+
+// ── Navigation ─────────────────────────────────────────────────────────────
+const pages = {
+
+// ── HOME ──────────────────────────────────────────────────────────────────
+home: `<div class="breadcrumb"><span>Docs</span></div>
+<h1>Atlantist Documentation</h1>
+<p class="lead">Everything you need to model, simulate, and coordinate building projects in the browser. Browse by topic or use ⌘K to search.</p>
+
+<div class="card-grid">
+  <div class="card" onclick="navigate('quick-start')">
+    <div class="card-icon">⚡</div>
+    <div class="card-title">Getting Started</div>
+    <div class="card-desc">5-minute onboarding checklist. Create your first project and place your first walls.</div>
+  </div>
+  <div class="card" onclick="navigate('what-is-bim')">
+    <div class="card-icon">🏗</div>
+    <div class="card-title">BIM Fundamentals</div>
+    <div class="card-desc">Event ledger, DAG constraint solver, IFC import/export — the engine under the hood.</div>
+  </div>
+  <div class="card" onclick="navigate('energy-overview')">
+    <div class="card-icon">⚡</div>
+    <div class="card-title">Energy Analysis</div>
+    <div class="card-desc">Run gbXML exports, generate EnergyPlus IDF files, complete EN-1 forms and DOB submissions.</div>
+  </div>
+  <div class="card" onclick="navigate('realtime-sync')">
+    <div class="card-icon">🔄</div>
+    <div class="card-title">Collaboration</div>
+    <div class="card-desc">Real-time sync, live presence, issue tracking with camera snapshots and comment threads.</div>
+  </div>
+  <div class="card" onclick="navigate('api-endpoints')">
+    <div class="card-icon">🔌</div>
+    <div class="card-title">API Reference</div>
+    <div class="card-desc">Full REST API reference — auth, endpoints, webhooks, rate limits.</div>
+  </div>
+  <div class="card" onclick="navigate('troubleshooting')">
+    <div class="card-icon">🛠</div>
+    <div class="card-title">Troubleshooting</div>
+    <div class="card-desc">Error codes, edge cases, and how to resolve them.</div>
+  </div>
+</div>
+
+<div class="callout callout-info">
+  <div class="callout-title">Pro tip</div>
+  <p>Press <strong>⌘K</strong> anywhere to open the search modal. You can also use <strong>Ctrl+K</strong> on Windows/Linux.</p>
+</div>`,
+
+// ── QUICK START ────────────────────────────────────────────────────────────
+'quick-start': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Getting Started</span></div>
+<h1>Quick Start</h1>
+<p class="lead">Up and running in 5 minutes. This checklist gets you from zero to first model.</p>
+
+<div class="edit-bar">
+  <span>Last updated: 2026-05-24</span>
+  <a href="#" onclick="return false">Edit this page →</a>
+</div>
+
+<ul class="checklist">
+  <li>
+    <div class="check done">✓</div>
+    <div><strong>Create your account</strong> — Visit <a href="/" style="color:var(--accent)">atlantist.cloud</a> and sign up with email. Email verification unlocks full access. <span style="color:var(--text-dim);font-size:12px"> (~1 min)</span></div>
+  </li>
+  <li>
+    <div class="check done">✓</div>
+    <div><strong>Create a project</strong> — From the dashboard, click <strong>New Project</strong>. Name it, set units (ft or m), and optionally import a site plan image as a background trace. <span style="color:var(--text-dim);font-size:12px"> (~1 min)</span></div>
+  </li>
+  <li>
+    <div class="check done">✓</div>
+    <div><strong>Set up levels</strong> — Define your building floors under <strong>Project Settings → Levels</strong>. Each level has a name and elevation. Changing a level elevation propagates to all elements on that level via the DAG solver. <span style="color:var(--text-dim);font-size:12px"> (~1 min)</span></div>
+  </li>
+  <li>
+    <div class="check done">✓</div>
+    <div><strong>Place walls</strong> — Click <strong>+ Wall</strong> in the topbar, then click in the 3D view to start drawing. Click endpoints to place wall segments. Use the properties panel (right sidebar) to set wall type, height, and layers. <span style="color:var(--text-dim);font-size:12px"> (~2 min)</span></div>
+  </li>
+  <li>
+    <div class="check">5</div>
+    <div><strong>Add doors &amp; windows</strong> — Select a wall, click <strong>+ Door</strong> or <strong>+ Window</strong>. The family instance places at a normalized position along the wall face. Wall geometry auto-cuts to match the family dimensions. <span style="color:var(--text-dim);font-size:12px"> (~2 min)</span></div>
+  </li>
+  <li>
+    <div class="check">6</div>
+    <div><strong>Switch views</strong> — Use the <strong>3D / Plan / Section</strong> toggle in the topbar to see the model from different perspectives. All three views are synchronized — changes in one appear instantly in all. <span style="color:var(--text-dim);font-size:12px"> (~30 sec)</span></div>
+  </li>
+  <li>
+    <div class="check">7</div>
+    <div><strong>Invite teammates</strong> — Click <strong>Share</strong> in the project header. Enter an email address to send a magic link. Collaborators get Owner, Admin, Member, or Viewer roles. <span style="color:var(--text-dim);font-size:12px"> (~1 min)</span></div>
+  </li>
+</ul>
+
+<div class="try-bar">
+  <span class="try-bar-text">Ready to start? Open the app →</span>
+  <a href="/" class="try-btn">Open Atlantist →</a>
+</div>
+
+<h2>Key concepts</h2>
+<table class="table-wrap">
+<thead><tr><th>Concept</th><th>What it means</th></tr></thead>
+<tbody>
+<tr><td><strong>DAG Solver</strong></td><td>Changing any parameter (level elevation, wall height) instantly propagates through a directed acyclic graph. All bound elements update across all views.</td></tr>
+<tr><td><strong>Event Ledger</strong></td><td>Every parameter change is written to an immutable audit trail. Undo is deterministic — replay events from any point.</td></tr>
+<tr><td><strong>Wall Layers</strong></td><td>Walls are multi-layer constructions (stud + sheathing + finish). Each layer has material, thickness, and function.</td></tr>
+<tr><td><strong>Family Instances</strong></td><td>Doors and windows are hosted on walls. Their placement cuts wall geometry automatically.</td></tr>
+</tbody>
+</table>`,
+
+'first-project': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('quick-start');return false">Getting Started</a> <span class="sep">›</span> <span>Creating Your First Project</span></div>
+<h1>Creating Your First Project</h1>
+<p class="lead">A step-by-step walkthrough of the full project creation flow, from blank canvas to placed model.</p>
+
+<h2>1. New Project</h2>
+<p>From the dashboard, click <strong>New Project</strong>. You'll see:</p>
+<ul style="margin:12px 0 16px;line-height:2">
+  <li><strong>Project name</strong> — alphanumeric, no special characters</li>
+  <li><strong>Units</strong> — Imperial (ft/in) or Metric (m/mm)</li>
+  <li><strong>Background image</strong> — optional site plan or floor plan PNG/JPG as a trace layer</li>
+</ul>
+
+<div class="callout callout-info">
+  <div class="callout-title">Background trace</div>
+  <p>Upload a site plan image to trace walls manually. The image is only visible in <strong>Plan view</strong> and is not included in exports or simulations. It's a reference layer — not geometry.</p>
+</div>
+
+<h2>2. Configure Levels</h2>
+<p>Every model starts with at least one level. Go to <strong>Project Settings → Levels</strong>. Add levels for each floor:</p>
+<table class="table-wrap">
+<thead><tr><th>Property</th><th>Description</th><th>Default</th></tr></thead>
+<tbody>
+<tr><td><strong>Name</strong></td><td>Floor name (e.g. "Ground Floor", "Level 2")</td><td>Level 1</td></tr>
+<tr><td><strong>Elevation</strong></td><td>Height above datum in current units</td><td>0</td></tr>
+<tr><td><strong>Height</strong></td><td>Floor-to-floor height (drives wall top elevation)</td><td>10 ft / 3000 mm</td></tr>
+</tbody>
+</table>
+<p style="margin-top:12px">Changing a level's elevation updates all walls and columns on that level instantly.</p>
+
+<h2>3. Define Wall Types</h2>
+<p>Under <strong>Project Settings → Wall Types</strong>, add your wall constructions:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Name</strong> — e.g. "Ext 2×6 Stud R-19"</li>
+  <li><strong>Layers</strong> — each layer: material name, thickness, function (structure/finish/insulation)</li>
+  <li><strong>Total thickness</strong> — auto-computed from layers</li>
+</ul>
+
+<h2>4. Place Elements</h2>
+<p>Use the topbar buttons:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>+ Wall</strong> — click in the 3D or Plan view to start drawing</li>
+  <li><strong>+ Column</strong> — click to place a column; select type from the catalog</li>
+  <li><strong>+ Door / + Window</strong> — select a wall first, then click to place the family instance</li>
+</ul>
+
+<h2>5. Sync Views</h2>
+<p>Toggle between <strong>3D</strong>, <strong>Plan</strong>, and <strong>Section</strong> views. All three stay in sync. The Section view cuts through the model at a configurable Z depth.</p>
+
+<div class="try-bar">
+  <span class="try-bar-text">Create your first project now →</span>
+  <a href="/" class="try-btn">Open Atlantist →</a>
+</div>`,
+
+'video-tutorial': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('quick-start');return false">Getting Started</a> <span class="sep">›</span> <span>Video Tutorial</span></div>
+<h1>Video Tutorial</h1>
+<p class="lead">Watch the full onboarding walkthrough. Covers account setup, first project, and placing your first elements.</p>
+
+<div class="video-embed">
+  <div class="video-placeholder">
+    <div class="video-play">▶</div>
+    <div class="video-label">Full walkthrough — 8 min</div>
+  </div>
+</div>
+
+<h2>Chapters</h2>
+<table class="table-wrap">
+<thead><tr><th>Timestamp</th><th>Topic</th></tr></thead>
+<tbody>
+<tr><td>0:00</td><td>Account setup and dashboard overview</td></tr>
+<tr><td>1:20</td><td>Creating a new project and setting units</td></tr>
+<tr><td>3:00</td><td>Configuring levels and wall types</td></tr>
+<tr><td>4:30</td><td>Placing walls, columns, doors</td></tr>
+<tr><td>6:00</td><td>Using Plan and Section views</td></tr>
+<tr><td>7:10</td><td>Inviting collaborators and real-time sync</td></tr>
+</tbody>
+</table>`,
+
+// ── BIM FUNDAMENTALS ───────────────────────────────────────────────────────
+'what-is-bim': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>BIM Fundamentals</span></div>
+<h1>What is BIM?</h1>
+<p class="lead">BIM (Building Information Modeling) goes beyond 3D geometry. It's a data-rich, parametric model where every element carries properties that drive analysis, scheduling, and coordination.</p>
+
+<h2>Traditional CAD vs. BIM</h2>
+<table class="table-wrap">
+<thead><tr><th></th><th>CAD (2D/3D geometry)</th><th>BIM (parametric model)</th></tr></thead>
+<tbody>
+<tr><td><strong>Geometry</strong></td><td>Fixed lines and shapes</td><td>Parametric — changes propagate</td></tr>
+<tr><td><strong>Data</strong></td><td>Line colors and layers</td><td>Properties, materials, quantities</td></tr>
+<tr><td><strong>Change impact</strong></td><td>Manual updates everywhere</td><td>DAG solver auto-propagates</td></tr>
+<tr><td><strong>Scheduling</strong></td><td>Manual count, error-prone</td><td>A-400 schedules auto-populate</td></tr>
+<tr><td><strong>Energy analysis</strong></td><td>Separate software</td><td>Built-in gbXML export</td></tr>
+<tr><td><strong>Coordination</strong></td><td>PDF markups, email threads</td><td>Live issues with camera pins</td></tr>
+</tbody>
+</table>
+
+<h2>IFC — Industry Foundation Classes</h2>
+<p>IFC is the open standard for BIM data exchange. Atlantist imports and exports IFC files so you can share models with collaborators using Revit, ArchiCAD, Navisworks, or any IFC-compatible tool.</p>
+<p>IFC support covers: walls, columns, doors, windows, floors, roofs, spaces, and MEP elements. See <a href="#" onclick="navigate('ifc-import-export');return false" style="color:var(--accent)">IFC Import/Export</a> for details on format versions and known limitations.</p>
+
+<div class="callout callout-done">
+  <div class="callout-title">Key benefit</div>
+  <p>The event ledger captures every change as an immutable record. Roll back any change, restore deleted elements, or replay the model from any point in time.</p>
+</div>`,
+
+'event-ledger': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('what-is-bim');return false">BIM Fundamentals</a> <span class="sep">›</span> <span>Event Ledger Architecture</span></div>
+<h1>Event Ledger Architecture</h1>
+<p class="lead">The event ledger is an immutable audit trail of every parameter change in your model. It powers undo, redo, version history, and revert-to-point.</p>
+
+<h2>How it works</h2>
+<p>Every element parameter change (wall height, column location, level elevation) writes a record to the <code>event_ledger</code> table:</p>
+<pre><code>{
+  event_id: "uuid",
+  project_id: 42,
+  user_id: 7,
+  element_id: 103,
+  element_type: "wall",
+  action: "parameter_changed",
+  parameter_name: "elevation",
+  old_value: 0,
+  new_value: 120,
+  timestamp: "2026-05-24T19:00:00Z",
+  session_id: "abc123",
+  element_snapshot: { /* full element JSON at this moment */ }
+}</code></pre>
+
+<h2>Key properties</h2>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Immutable</strong> — No UPDATE or DELETE on event records. The ledger is append-only.</li>
+  <li><strong>Element snapshots</strong> — Each event stores the full element JSON at change time. Revert replays from snapshot.</li>
+  <li><strong>User attribution</strong> — Every event tagged to the user who made the change (including anonymous).</li>
+  <li><strong>Session grouping</strong> — Events within a 5-minute window share a session_id for version history grouping.</li>
+</ul>
+
+<h2>Admin version history</h2>
+<p>Admins see a <strong>History</strong> button in the model topbar. This opens a version history panel:</p>
+<ul style="margin:12px 0 16px;line-height:1.8">
+  <li>Events grouped by 5-minute sessions</li>
+  <li>Filter by event type (parameter_changed, element_created, element_deleted, model.reverted)</li>
+  <li>Expandable JSON debug view of each event</li>
+  <li>Confirm → revert to any point in time</li>
+</ul>
+
+<h2>Revert flow</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Admin clicks <strong>History</strong> → selects a point</li>
+  <li>Diff summary shows what changed between current state and that point</li>
+  <li>Admin confirms → new <code>model.reverted</code> event written</li>
+  <li><code>model.snapshot.replaced</code> WebSocket broadcast fires</li>
+  <li>All connected clients reload the scene from the snapshot</li>
+</ol>
+
+<h2>API endpoints</h2>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-get">GET</span><span class="endpoint-path">/api/events/models/:id/history</span></div>
+  <div class="endpoint-desc">Returns all model events joined with user info, grouped by session.</div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-get">GET</span><span class="endpoint-path">/api/events/models/:id/revert/diff?since=eventId</span></div>
+  <div class="endpoint-desc">Returns the diff summary for the revert confirmation modal.</div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-post">POST</span><span class="endpoint-path">/api/events/models/:id/revert?scope=element&element_id=103</span></div>
+  <div class="endpoint-desc">Reverts a single element (scope=element) or the full model snapshot (default). Writes a model.reverted event.</div>
+</div>`,
+
+'dag-solver': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('what-is-bim');return false">BIM Fundamentals</a> <span class="sep">›</span> <span>DAG Constraint Solver</span></div>
+<h1>DAG Constraint Solver</h1>
+<p class="lead">Parametric change propagation — when you change one parameter, the DAG solver instantly updates all bound element geometry across all views.</p>
+
+<h2>The dependency graph</h2>
+<p>Every element in the model is a node. Edges represent constraints:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Level → Element</strong>: A wall on Level 1 is constrained to that level's elevation. Changing Level 1's elevation moves all walls on it.</li>
+  <li><strong>Wall → Family Instance</strong>: A door hosted on a wall is constrained to the wall's plane. Moving the wall moves the door.</li>
+  <li><strong>Wall Type → Wall Layer</strong>: The wall type defines layer order and thickness. Changing a layer thickness updates the wall's total thickness.</li>
+</ul>
+
+<h2>Solver behavior</h2>
+<table class="table-wrap">
+<thead><tr><th>Trigger</th><th>Propagation</th></tr></thead>
+<tbody>
+<tr><td>Level elevation changes</td><td>All walls + columns on that level update height. All family instances on those walls update position.</td></tr>
+<tr><td>Wall type layer changes</td><td>All walls using that type update total thickness. 3D geometry recomputes.</td></tr>
+<tr><td>Wall location changes</td><td>All hosted family instances (doors/windows) update host_face_u position.</td></tr>
+<tr><td>Family instance insert</td><td>Wall geometry auto-cuts to match family dimensions (width, height, reveal depth).</td></tr>
+<tr><td>Column type changes</td><td>All columns using that type recompute cross-section geometry.</td></tr>
+</tbody>
+</table>
+
+<h2>Cycle detection</h2>
+<p>The solver uses topological sort. If a user creates a circular constraint (A depends on B, B depends on C, C depends on A), the solver detects it and rejects the change with an error message rather than entering an infinite loop.</p>
+
+<h2>Performance</h2>
+<p>The solver runs synchronously in the browser for local changes. For large models (1000+ elements), the solver batches updates in a microtask queue to avoid blocking the main thread. WebSocket broadcasts ensure all collaborators see the same propagated state within ~100ms.</p>
+
+<div class="callout callout-info">
+  <div class="callout-title">No manual reconciliation</div>
+  <p>Unlike traditional CAD where you must manually update every view after a change, the DAG solver handles it automatically. If two collaborators change the same level simultaneously, the last-write-wins event is deterministic — no conflicts.</p>
+</div>`,
+
+'ifc-import-export': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('what-is-bim');return false">BIM Fundamentals</a> <span class="sep">›</span> <span>IFC Import / Export</span></div>
+<h1>IFC Import &amp; Export</h1>
+<p class="lead">Atlantist reads and writes IFC files for interoperability with Revit, ArchiCAD, Navisworks, Tekla, and all major BIM platforms.</p>
+
+<h2>Supported IFC versions</h2>
+<table class="table-wrap">
+<thead><tr><th>Version</th><th>Status</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><strong>IFC 2x3</strong></td><td><span class="status s-ok">Supported</span></td><td>Most legacy files; full coverage</td></tr>
+<tr><td><strong>IFC 4</strong></td><td><span class="status s-ok">Supported</span></td><td>Current standard; full coverage</td></tr>
+<tr><td><strong>IFC 4x1 / 4x2</strong></td><td><span class="status s-beta">Beta</span></td><td>Most features supported; edge cases in review</td></tr>
+</tbody>
+</table>
+
+<h2>Import coverage</h2>
+<table class="table-wrap">
+<thead><tr><th>IFC Entity</th><th>Atlantist Element</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>IfcWallStandardCase</td><td>Wall (multi-layer)</td><td>Layer properties read from IfcMaterialLayerSet</td></tr>
+<tr><td>IfcColumn</td><td>Column (structural)</td><td>Column type from IfcColumnType</td></tr>
+<tr><td>IfcDoor</td><td>Door family instance</td><td>Width, height, fire rating from type</td></tr>
+<tr><td>IfcWindow</td><td>Window family instance</td><td>Glazing type, sill height from type</td></tr>
+<tr><td>IfcBuildingElementProxy</td><td>Generic element</td><td>Used for MEP and custom families</td></tr>
+<tr><td>IfcSpace</td><td>Space / Room boundary</td><td>Used in energy simulation</td></tr>
+</tbody>
+</table>
+
+<h2>Export process</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Select <strong>File → Export → IFC</strong> from the model topbar</li>
+  <li>Choose IFC version (2x3 or 4)</li>
+  <li>Select element types to include (Architecture, Structure, MEP)</li>
+  <li>Click <strong>Export</strong> — file downloads as <code>project-name.ifc</code></li>
+</ol>
+
+<h2>Limitations</h2>
+<ul style="margin:12px 0;line-height:2">
+  <li>Complex curved geometry may simplify on export</li>
+  <li>MEP duct/pipe runs are exported as IfcBuildingElementProxy (not full system semantics)</li>
+  <li>Custom parametric relationships not preserved in IFC — flat parametric constraints only</li>
+</ul>`,
+
+// ── ARCHITECTURE ────────────────────────────────────────────────────────────
+'walls': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Architecture</span></div>
+<h1>Walls</h1>
+<p class="lead">Walls are the primary building block. They are multi-layer constructions with parametric constraints that propagate to all bound elements.</p>
+
+<h2>Creating walls</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Click <strong>+ Wall</strong> in the topbar</li>
+  <li>Click in the 3D or Plan view to set the start point</li>
+  <li>Click again to set the end point — the wall segment is created</li>
+  <li>Continue clicking to chain segments (polyline)</li>
+  <li>Press <strong>Esc</strong> or click elsewhere to finish</li>
+</ol>
+
+<h2>Wall properties</h2>
+<table class="table-wrap">
+<thead><tr><th>Property</th><th>Description</th><th>Default</th></tr></thead>
+<tbody>
+<tr><td><strong>Wall Type</strong></td><td>Named construction (e.g. "Ext 2×6 Stud"). Determines layers.</td><td>Inherited from project</td></tr>
+<tr><td><strong>Level</strong></td><td>Host floor. Changing this moves the wall.</td><td>Current level</td></tr>
+<tr><td><strong>Base Elevation</strong></td><td>Bottom of wall relative to level (for splines, ramps)</td><td>0</td></tr>
+<tr><td><strong>Height</strong></td><td>Top of wall relative to base elevation</td><td>Floor-to-floor from level</td></tr>
+<tr><td><strong>Location Line</strong></td><td>Wall faces: Center, Face Interior, Face Exterior</td><td>Center</td></tr>
+</tbody>
+</table>
+
+<h2>Wall layers</h2>
+<p>Each wall type has one or more layers. Layers are rendered in the 3D view as distinct materials:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Structure</strong> — structural framing, sheathing</li>
+  <li><strong>Finish</strong> — interior/exterior cladding</li>
+  <li><strong>Insulation</strong> — cavity or continuous insulation</li>
+  <li><strong>Membrane</strong> — vapor barrier, air barrier</li>
+</ul>
+
+<div class="callout callout-warn">
+  <div class="callout-title">Layer editing</div>
+  <p>Changing a wall type's layers affects ALL walls of that type in the project. This is by design — it's a global type change. To vary construction, create a new wall type.</p>
+</div>`,
+
+'doors-windows': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('walls');return false">Architecture</a> <span class="sep">›</span> <span>Doors &amp; Windows</span></div>
+<h1>Doors &amp; Windows</h1>
+<p class="lead">Family instances hosted on walls. Placement auto-cuts wall geometry to match the family dimensions.</p>
+
+<h2>Placing a door</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Select a wall by clicking it in any view</li>
+  <li>Click <strong>+ Door</strong> in the topbar</li>
+  <li>Click on the wall face — the door places at that normalized position</li>
+  <li>Adjust properties in the right sidebar: type, width, height, fire rating</li>
+</ol>
+
+<h2>Wall auto-cut</h2>
+<p>When you place a door or window, the wall geometry cuts to match the family dimensions:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Width</strong> — wall opening width matches family frame width</li>
+  <li><strong>Height</strong> — opening height matches family height (for windows, sill height also honored)</li>
+  <li><strong>Reveal depth</strong> — the wall opening depth matches the frame thickness</li>
+</ul>
+<p>If you change the family type (wider door), the wall cut updates automatically. If you delete the family instance, the wall geometry repairs to solid.</p>
+
+<h2>Door types</h2>
+<table class="table-wrap">
+<thead><tr><th>Property</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Width</strong></td><td>Standard: 3'0", 3'6", 4'0" (or metric equivalents)</td></tr>
+<tr><td><strong>Height</strong></td><td>Standard: 6'8", 7'0", 8'0"</td></tr>
+<tr><td><strong>Fire Rating</strong></td><td>20min, 45min, 60min, 90min, 3hr (affects wall cut geometry)</td></tr>
+<tr><td><strong>Material</strong></td><td>Wood, Steel, Aluminum, PVC</td></tr>
+</tbody>
+</table>
+
+<h2>A-400 Schedule</h2>
+<p>Door and window family instances automatically populate the <strong>A-400 Opening Schedule</strong> in the Design Book. Columns: mark, type, width, height, quantity, material, fire rating, remarks. The schedule is live — it updates as you place or modify elements.</p>`,
+
+'columns': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('walls');return false">Architecture</a> <span class="sep">›</span> <span>Columns</span></div>
+<h1>Columns</h1>
+<p class="lead">Structural columns with section type definitions. Hosted to levels, constrained by elevation changes.</p>
+
+<h2>Placing a column</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Click <strong>+ Column</strong> in the topbar</li>
+  <li>Click in the Plan or 3D view to set location</li>
+  <li>Select a column type from the catalog (W14×90, HSS 6×6×3/8, etc.)</li>
+  <li>The column places at full floor-to-floor height by default</li>
+</ol>
+
+<h2>Column types (section definitions)</h2>
+<table class="table-wrap">
+<thead><tr><th>Type</th><th>Section</th><th>Properties</th></tr></thead>
+<tbody>
+<tr><td><strong>Wide Flange (W)</strong></td><td>I-shape, steel</td><td>Depth, flange width, web thickness, weight/ft</td></tr>
+<tr><td><strong>HSS (RHS)</strong></td><td>Rectangular hollow section</td><td>Depth, width, wall thickness</td></tr>
+<tr><td><strong>Round HSS</strong></td><td>Circular hollow section</td><td>Outside diameter, wall thickness</td></tr>
+<tr><td><strong>Built-up</strong></td><td>Custom multi-plate</td><td>Plates, cover plates</td></tr>
+</tbody>
+</table>`,
+
+'levels': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('walls');return false">Architecture</a> <span class="sep">›</span> <span>Levels</span></div>
+<h1>Levels</h1>
+<p class="lead">Building floors with elevation. Levels drive DAG constraint propagation — changing elevation updates all bound elements.</p>
+
+<h2>Level properties</h2>
+<table class="table-wrap">
+<thead><tr><th>Property</th><th>Description</th><th>Default</th></tr></thead>
+<tbody>
+<tr><td><strong>Name</strong></td><td>Floor name displayed in view</td><td>Level N</td></tr>
+<tr><td><strong>Elevation</strong></td><td>Height above datum in project units</td><td>0 for first level</td></tr>
+<tr><td><strong>Floor Height</strong></td><td>Distance to next level (drives wall top elevation)</td><td>10 ft / 3000 mm</td></tr>
+<tr><td><strong>Color</strong></td><td>View label color for this level</td><td>Auto-assigned</td></tr>
+</tbody>
+</table>
+
+<h2>Elevation change propagation</h2>
+<p>When you change a level's elevation:</p>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>All walls on that level update base elevation → wall height stays constant, top elevation changes</li>
+  <li>All columns on that level update top and bottom elevation</li>
+  <li>All family instances (doors, windows) hosted on those walls update position</li>
+  <li>WebSocket broadcasts to all connected collaborators</li>
+</ol>`,
+
+// ── STRUCTURE ──────────────────────────────────────────────────────────────
+'structural-framing': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Structure</span></div>
+<h1>Framing</h1>
+<p class="lead">Structural framing members — beams, joists, purlins — with steel section definitions and connection types.</p>
+<p>Structural framing is currently in Phase 21. Beam placement, section type catalog, and connection modeling are available. Full connection design (bolt patterns, plate design) is planned.</p>
+
+<h2>Available elements</h2>
+<table class="table-wrap">
+<thead><tr><th>Element</th><th>Status</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Beams</strong></td><td><span class="status s-ok">Available</span></td><td>Steel / composite beams with section types</td></tr>
+<tr><td><strong>Joists</strong></td><td><span class="status s-ok">Available</span></td><td>Floor joists, I-joists, open-web</td></tr>
+<tr><td><strong>Purlins / Girts</strong></td><td><span class="status s-ok">Available</span></td><td>Roof and wall secondary members</td></tr>
+<tr><td><strong>Bracing</strong></td><td><span class="status s-beta">Beta</span></td><td>X-bracing, K-bracing, chevron</td></tr>
+</tbody>
+</table>`,
+
+'connections': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('structural-framing');return false">Structure</a> <span class="sep">›</span> <span>Connections</span></div>
+<h1>Connections</h1>
+<p class="lead">Steel connection design with bolt patterns, plate dimensions, and weld specifications.</p>
+<p>Connection modeling is available. Full connection design calculations (AISC LRFD) are planned for a future phase. Currently connections are modeled visually — structural calculations are not yet automated.</p>`,
+
+// ── MEP ─────────────────────────────────────────────────────────────────────
+'mep-hvac': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>MEP</span></div>
+<h1>HVAC &amp; Ducts</h1>
+<p class="lead">Mechanical HVAC duct runs with sizing, pressure drop calculations, and system balancing.</p>
+<p>HVAC simulation uses the built-in MEP runner. Supply, return, and exhaust duct networks can be traced in Plan view and validated against load calculations.</p>
+
+<h2>Duct sizing</h2>
+<p>Duct size is auto-computed based on flow rate (CFM) and velocity constraints:</p>
+<table class="table-wrap">
+<thead><tr><th>Duct type</th><th>Max velocity (FPM)</th><th>Typical use</th></tr></thead>
+<tbody>
+<tr><td>Main trunk</td><td>2,000</td><td>Primary supply/return</td></tr>
+<tr><td>Branch</td><td>1,500</td><td>Secondary runs</td></tr>
+<tr><td>Runout</td><td>1,000</td><td>Terminal connections</td></tr>
+</tbody>
+</table>`,
+
+'mep-plumbing': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('mep-hvac');return false">MEP</a> <span class="sep">›</span> <span>Plumbing &amp; Pipes</span></div>
+<h1>Plumbing &amp; Pipes</h1>
+<p class="lead">Piping systems — supply, drainage, and fire suppression — with pipe sizing and fixture counts.</p>
+<p>Plumbing runs are traced in Plan view. Pipe sizing uses Hunter's Curve for fixture units. Drainage sizing uses DWV tables. Fixture count drives service water heating sizing.</p>
+
+<h2>Pipe sizing</h2>
+<p>Pipe diameter is computed from fixture units using the Hunter curve. The system automatically sizes mains and branches to maintain velocity within code limits (typically 5–8 fps for drainage).</p>`,
+
+'mep-electrical': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('mep-hvac');return false">MEP</a> <span class="sep">›</span> <span>Electrical</span></div>
+<h1>Electrical</h1>
+<p class="lead">Electrical distribution — panel schedules, conduit runs, and load calculations.</p>
+<p>Electrical systems include panel board scheduling, branch circuit routing, and conduit sizing based on ampacity. Load calculations use NEC demand factors.</p>`,
+
+'mep-rcp': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('mep-hvac');return false">MEP</a> <span class="sep">›</span> <span>Room Ceiling Plans</span></div>
+<h1>Room Ceiling Plans</h1>
+<p class="lead">Reflected ceiling plans showing ceiling grid, light fixtures, diffusers, and sprinkler heads.</p>
+<p>RCP view is a ceiling-level plan view that overlays HVAC, electrical, and fire protection elements. All MEP elements in the model contribute to the RCP.</p>`,
+
+// ── ENERGY ANALYSIS ─────────────────────────────────────────────────────────
+'energy-overview': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Energy Analysis</span></div>
+<h1>Energy Simulation Overview</h1>
+<p class="lead">Built-in energy analysis — from gbXML export to full ASHRAE 90.1 compliance checks and NYC DOB filing.</p>
+
+<h2>Workflow</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li><strong>Model → gbXML export</strong> — Atlantist converts the BIM model to the industry-standard gbXML format</li>
+  <li><strong>gbXML → IDF generation</strong> — EnergyPlus input file generated from gbXML with ASHRAE climate data</li>
+  <li><strong>Simulation run</strong> — ASHRAE 90.1 JS simulation engine computes energy use and compliance</li>
+  <li><strong>EN-1 to EN-8 compliance</strong> — All eight compliance forms auto-populate from simulation results</li>
+  <li><strong>DOB package (NYC)</strong> — All nine required PDF forms bundle into a single ZIP for DOB submission</li>
+</ol>
+
+<h2>Compliance forms</h2>
+<table class="table-wrap">
+<thead><tr><th>Form</th><th>Description</th><th>Jurisdiction</th></tr></thead>
+<tbody>
+<tr><td><strong>EN-1</strong></td><td>Building energy analysis summary</td><td>NYC DOB (required)</td></tr>
+<tr><td><strong>EN-2</strong></td><td>Simulation input summary</td><td>NYC DOB</td></tr>
+<tr><td><strong>EN-3</strong></td><td>Simulation output summary</td><td>NYC DOB</td></tr>
+<tr><td><strong>EN-4</strong></td><td>Space conditioning report</td><td>NYC DOB</td></tr>
+<tr><td><strong>EN-5</strong></td><td>Energy consumption by end use</td><td>NYC DOB</td></tr>
+<tr><td><strong>EN-6</strong></td><td>Annual energy utility data</td><td>NYC DOB</td></tr>
+<tr><td><strong>EN-7</strong></td><td>Energy cost summary</td><td>NYC DOB</td></tr>
+<tr><td><strong>EN-8</strong></td><td>Schedule summary</td><td>NYC DOB</td></tr>
+</tbody>
+</table>`,
+
+'gbxml-export': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('energy-overview');return false">Energy Analysis</a> <span class="sep">›</span> <span>gbXML Export</span></div>
+<h1>gbXML Export</h1>
+<p class="lead">The gbXML (Green Building XML) format is the industry standard for energy model exchange between BIM and simulation tools.</p>
+
+<h2>What Atlantist exports</h2>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Spaces / Rooms</strong> — thermal zones with boundaries from walls, floors, roofs</li>
+  <li><strong>Shell geometry</strong> — wall/floor/roof areas, orientations, U-values from wall layers</li>
+  <li><strong>Openings</strong> — doors and windows with area, glazing ratio, frame conductance</li>
+  <li><strong>Level/zone mapping</strong> — each space assigned to a thermal zone</li>
+</ul>
+
+<h2>U-value calculation</h2>
+<p>Wall layer U-values are computed from the wall type's layer stack. The solver sums thermal resistance (R = thickness / conductivity) for each layer, adds surface film resistances (Rsi, Rse), and inverts: U = 1 / Rtotal.</p>
+
+<h2>Exporting gbXML</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Go to <strong>Energy → Export gbXML</strong></li>
+  <li>Verify thermal zones are assigned (check spaces panel)</li>
+  <li>Click <strong>Generate</strong> — file downloads as <code>project-gbxml.xml</code></li>
+</ol>`,
+
+'idf-generation': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('energy-overview');return false">Energy Analysis</a> <span class="sep">›</span> <span>IDF Generation</span></div>
+<h1>IDF Generation</h1>
+<p class="lead">EnergyPlus Input Data File (IDF) generated from gbXML. Contains site climate data, building construction, loads, and schedules.</p>
+
+<h2>IDF contents</h2>
+<table class="table-wrap">
+<thead><tr><th>Section</th><th>Content</th></tr></thead>
+<tbody>
+<tr><td><strong>Site</strong></td><td>Location, climate zone, design day data</td></tr>
+<tr><td><strong>Building</strong></td><td>Geometry, zones, fenestration</td></tr>
+<tr><td><strong>Construction</strong></td><td>Layer assemblies from wall types (U-values)</td></tr>
+<tr><td><strong>Internal Gains</strong></td><td>Occupancy, lighting, equipment schedules</td></tr>
+<tr><td><strong>Systems</strong></td><td>HVAC system type, plant loop, setpoints</td></tr>
+<tr><td><strong>Output</strong></td><td>Requested reporting variables (EUI, EUI breakdown)</td></tr>
+</tbody>
+</table>`,
+
+'en1-workflow': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('energy-overview');return false">Energy Analysis</a> <span class="sep">›</span> <span>EN-1 Form Guide</span></div>
+<h1>EN-1 Form Guide</h1>
+<p class="lead">Step-by-step guide to completing the NYC DOB EN-1 Building Energy Analysis Report using Atlantist.</p>
+
+<h2>EN-1 structure</h2>
+<p>The EN-1 form summarizes the proposed building's energy use versus the ASHRAE 90.1 baseline. It requires:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li>Building area and occupancy type</li>
+  <li>Proposed vs. baseline EUI (Energy Use Intensity)</li>
+  <li>Envelope performance summary (U-factors, SHGC)</li>
+  <li>Lighting power density</li>
+  <li>HVAC system type and efficiency</li>
+  <li>Renewable energy contributions</li>
+</ul>
+
+<h2>Step-by-step</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li><strong>Export gbXML</strong> from your model (see <a href="#" onclick="navigate('gbxml-export');return false" style="color:var(--accent)">gbXML Export</a>)</li>
+  <li><strong>Run energy simulation</strong> — the solver computes proposed and baseline energy use</li>
+  <li><strong>Review EN-1 pre-fill</strong> — Atlantist auto-populates the form from simulation results</li>
+  <li><strong>Adjust parameters</strong> — update occupancy, HVAC efficiency, lighting density as needed</li>
+  <li><strong>Export to .xlsm</strong> — SheetJS generates the EN-1 Excel macro-enabled form for DOB upload</li>
+</ol>`,
+
+'dob-filing': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('energy-overview');return false">Energy Analysis</a> <span class="sep">›</span> <span>DOB Filing Checklist</span></div>
+<h1>DOB Filing Checklist Walkthrough</h1>
+<p class="lead">NYC Department of Buildings requires an energy analysis submission for most new buildings and major renovations.</p>
+
+<h2>Required documents</h2>
+<table class="table-wrap">
+<thead><tr><th>Document</th><th>Source</th><th>Format</th></tr></thead>
+<tbody>
+<tr><td>EN-1</td><td>Auto-generated</td><td>PDF + .xlsm</td></tr>
+<tr><td>EN-2 through EN-8</td><td>Auto-generated</td><td>PDF (bundled)</td></tr>
+<tr><td>Energy Analysis Report</td><td>Auto-generated</td><td>PDF</td></tr>
+<tr><td>Supporting calc notes</td><td>User-supplied</td><td>PDF</td></tr>
+</tbody>
+</table>
+
+<h2>DOB package generation</h2>
+<p>Atlantist generates all nine required forms and bundles them into a single ZIP file via the <code>energy-dob-package.js</code> service (pdf-lib + archiver):</p>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Go to <strong>Energy → DOB Package</strong></li>
+  <li>Enter project details: name, address, BIN (if known), borough</li>
+  <li>Click <strong>Generate Package</strong></li>
+  <li>Download the ZIP — contains all 9 PDFs + cover letter</li>
+  <li>Upload to DOB NOW under the Energy Analysis application type</li>
+</ol>
+
+<div class="callout callout-warn">
+  <div class="callout-title">BIN lookup</div>
+  <p>If you don't know the BIN (Building Identification Number), use the NYC Geosupport API or search by address at <a href="https://zola.planning.nyc.gov" style="color:var(--accent)">zola.planning.nyc.gov</a>. Atlantist can pre-fill BIN from the address if you provide it in the project settings.</p>
+</div>`,
+
+// ── COLLABORATION ──────────────────────────────────────────────────────────
+'realtime-sync': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Collaboration</span></div>
+<h1>Real-time Sync</h1>
+<p class="lead">All model changes propagate to all connected collaborators within ~100ms via WebSocket. No refresh needed.</p>
+
+<h2>What's synchronized</h2>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Element creation, modification, deletion</strong></li>
+  <li><strong>Parameter changes</strong> (wall height, level elevation, family type)</li>
+  <li><strong>DAG solver updates</strong> — propagated constraint changes</li>
+  <li><strong>Camera position</strong> — peer-to-peer via WebRTC (PeerJS)</li>
+  <li><strong>Presence indicators</strong> — who's online, avatar dots</li>
+  <li><strong>Issue creation and comments</strong></li>
+</ul>
+
+<h2>WebSocket channels</h2>
+<table class="table-wrap">
+<thead><tr><th>Event</th><th>Direction</th><th>Payload</th></tr></thead>
+<tbody>
+<tr><td><code>element.created</code></td><td>Server → All clients</td><td>element JSON</td></tr>
+<tr><td><code>element.updated</code></td><td>Server → All clients</td><td>element_id, changed_params</td></tr>
+<tr><td><code>element.deleted</code></td><td>Server → All clients</td><td>element_id</td></tr>
+<tr><td><code>model.snapshot.replaced</code></td><td>Server → All clients</td><td>revision_id (triggers scene reload)</td></tr>
+<tr><td><code>camera.shared</code></td><td>PeerJS (P2P)</td><td>camera position/rotation</td></tr>
+<tr><td><code>presence.update</code></td><td>Server → All clients</td><td>user list with colors</td></tr>
+</tbody>
+</table>`,
+
+'issues': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('realtime-sync');return false">Collaboration</a> <span class="sep">›</span> <span>Issues &amp; Comments</span></div>
+<h1>Issues &amp; Comments</h1>
+<p class="lead">Issue tickets anchored to model elements with camera snapshots, comment threads, and priority tracking.</p>
+
+<h2>Creating an issue</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Navigate to the relevant camera position in 3D view</li>
+  <li>Click <strong>+ Issue</strong> (or press <strong>I</strong>)</li>
+  <li>The system captures a base64 PNG snapshot of the current camera</li>
+  <li>Fill in: title, description, priority (Low / Medium / High / Critical)</li>
+  <li>Optionally pin to an element by clicking the element first</li>
+</ol>
+
+<h2>Issue properties</h2>
+<table class="table-wrap">
+<thead><tr><th>Field</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Title</strong></td><td>Short description of the issue</td></tr>
+<tr><td><strong>Description</strong></td><td>Detailed explanation and proposed resolution</td></tr>
+<tr><td><strong>Priority</strong></td><td>Low / Medium / High / Critical — color-coded</td></tr>
+<tr><td><strong>Status</strong></td><td>Open / In Progress / Resolved / Closed</td></tr>
+<tr><td><strong>Pinned element</strong></td><td>Anchor element (wall, column, etc.) — issue moves with element</td></tr>
+<tr><td><strong>Snapshot</strong></td><td>Camera PNG captured at issue creation</td></tr>
+<tr><td><strong>Comments</strong></td><td>Threaded discussion on the issue</td></tr>
+</tbody>
+</table>`,
+
+'presence': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('realtime-sync');return false">Collaboration</a> <span class="sep">›</span> <span>Presence &amp; Sharing</span></div>
+<h1>Presence &amp; Sharing</h1>
+<p class="lead">See who's online, share your camera view, and invite collaborators to your project room.</p>
+
+<h2>Presence bar</h2>
+<p>The presence bar (top-right of the topbar) shows colored dots for each connected collaborator. Hover to see names. Your own dot is highlighted.</p>
+
+<h2>Camera sharing (WebRTC)</h2>
+<p>Click the camera share icon to broadcast your camera position to collaborators in the same room via PeerJS WebRTC. Other users see your camera move in real-time.</p>
+
+<h2>Sharing a project</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Click <strong>Share</strong> in the project header</li>
+  <li>Enter collaborator email address</li>
+  <li>Select role: <strong>Owner</strong> / <strong>Admin</strong> / <strong>Member</strong> / <strong>Viewer</strong></li>
+  <li>A magic link is sent — valid 7 days, single-use</li>
+</ol>
+
+<table class="table-wrap">
+<thead><tr><th>Role</th><th>Can edit</th><th>Can delete</th><th>Can manage team</th><th>Can export</th></tr></thead>
+<tbody>
+<tr><td>Owner</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>Admin</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+<tr><td>Member</td><td>✓</td><td>—</td><td>—</td><td>✓</td></tr>
+<tr><td>Viewer</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+</tbody>
+</table>`,
+
+// ── INTEGRATIONS ───────────────────────────────────────────────────────────
+'integrations': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Integrations</span></div>
+<h1>Integrations</h1>
+<p class="lead">Atlantist connects with third-party tools for rendering, scanning, and design coordination.</p>
+
+<h2>Current integrations</h2>
+<table class="table-wrap">
+<thead><tr><th>Tool</th><th>Type</th><th>Description</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td><strong>Finch3D</strong></td><td>Design optimization</td><td>Push Atlantist model to Finch3D for automated layout optimization, then sync back</td><td><span class="status s-beta">Beta</span></td></tr>
+<tr><td><strong>Twinmotion</strong></td><td>Rendering</td><td>Export model to Twinmotion for photorealistic rendering with environment and materials</td><td><span class="status s-ok">Available</span></td></tr>
+<tr><td><strong>Arcol</strong></td><td>Structural analysis</td><td>Push structural model to Arcol for code compliance checking and optimization</td><td><span class="status s-beta">Beta</span></td></tr>
+<tr><td><strong>Polycam</strong></td><td>Scan capture</td><td>Import Polycam LiDAR scans as background geometry reference</td><td><span class="status s-beta">Beta</span></td></tr>
+<tr><td><strong>Autodesk Revit</strong></td><td>IFC exchange</td><td>Export IFC from Atlantist → import into Revit; import IFC from Revit → Atlantist</td><td><span class="status s-ok">Available</span></td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-info">
+  <div class="callout-title">.rvt Import (Phase 22)</div>
+  <p>Direct .rvt file import is available via the Autodesk Forge Model Derivative API. Upload a .rvt file — the system converts it to Atlantist elements. See <code>docs/rvt-import-compatibility.md</code> for the full Revit category coverage table.</p>
+</div>`,
+
+// ── API REFERENCE ───────────────────────────────────────────────────────────
+'api-auth': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>API Reference</span></div>
+<h1>Authentication</h1>
+<p class="lead">All API requests require authentication via a session cookie or Bearer token.</p>
+
+<h2>Cookie auth (recommended)</h2>
+<p>Browser clients use HTTP-only cookies. On login, the server sets <code>atlantist_session</code> with a 30-day expiry. The cookie is automatically sent with all same-origin requests.</p>
+
+<h2>Magic link auth</h2>
+<p>Magic link tokens are single-use, 15-minute TTL. Request a magic link via <code>POST /api/auth/magic-link</code> with <code>{"email": "..."}</code>. The link redirects to <code>/auth/verify?token=...</code> which exchanges the token for a session cookie.</p>
+
+<h2>Bearer token</h2>
+<p>For API clients and integrations, use a Bearer token in the Authorization header:</p>
+<pre><code>Authorization: Bearer &lt;session_token&gt;</code></pre>
+
+<h2>Auth endpoints</h2>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-post">POST</span><span class="endpoint-path">/api/auth/magic-link</span></div>
+  <div class="endpoint-desc">Request a magic link. Body: <code>{"email": "user@example.com"}</code></div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-get">GET</span><span class="endpoint-path">/api/auth/verify?token=...</span></div>
+  <div class="endpoint-desc">Exchange magic link token for session cookie. Redirects to app on success.</div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-get">GET</span><span class="endpoint-path">/api/auth/me</span></div>
+  <div class="endpoint-desc">Returns current user info: id, email, role, account_status.</div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-post">POST</span><span class="endpoint-path">/api/auth/logout</span></div>
+  <div class="endpoint-desc">Invalidates the current session. Clears the session cookie.</div>
+</div>`,
+
+'api-endpoints': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>API Reference</span></div>
+<h1>API Endpoints</h1>
+<p class="lead">Full REST API reference. Base URL: <code>https://atlantist.cloud/api</code></p>
+
+<h2>Levels</h2>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-get">GET</span><span class="endpoint-path">/api/levels?project_id=:id</span></div>
+  <div class="endpoint-desc">List all levels for a project, ordered by elevation.</div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-post">POST</span><span class="endpoint-path">/api/levels</span></div>
+  <div class="endpoint-desc">Create a level. Body: <code>{"project_id", "name", "elevation", "height"}</code></div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-patch">PATCH</span><span class="endpoint-path">/api/levels/:id</span></div>
+  <div class="endpoint-desc">Update level. Changing elevation triggers DAG recalc and WebSocket broadcast.</div>
+</div>
+
+<h2>Elements</h2>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-get">GET</span><span class="endpoint-path">/api/elements?project_id=:id&type=wall</span></div>
+  <div class="endpoint-desc">List elements. Filter by type (wall, column), level, wall_type_id.</div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-post">POST</span><span class="endpoint-path">/api/elements</span></div>
+  <div class="endpoint-desc">Create element. Body: <code>{"project_id", "type", "params": {...}}</code></div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-patch">PATCH</span><span class="endpoint-path">/api/elements/:id</span></div>
+  <div class="endpoint-desc">Update element params. Triggers event ledger write and DAG propagation.</div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-delete">DELETE</span><span class="endpoint-path">/api/elements/:id</span></div>
+  <div class="endpoint-desc">Delete element. Cascades delete to hosted family instances. Writes event_ledger record.</div>
+</div>
+
+<h2>Family instances</h2>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-get">GET</span><span class="endpoint-path">/api/families/instances?project_id=:id</span></div>
+  <div class="endpoint-desc">List all door/window family instances for a project.</div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-post">POST</span><span class="endpoint-path">/api/families/instances</span></div>
+  <div class="endpoint-desc">Create family instance. Auto-cuts host wall geometry. Body: <code>{"host_element_id", "family_type", "host_face_u", "level_id"}</code></div>
+</div>
+
+<h2>Issues</h2>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-get">GET</span><span class="endpoint-path">/api/issues?project_id=:id</span></div>
+  <div class="endpoint-desc">List issues for a project, ordered by created_at desc.</div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-post">POST</span><span class="endpoint-path">/api/issues</span></div>
+  <div class="endpoint-desc">Create issue. Body: <code>{"project_id", "element_id", "title", "description", "priority"}</code></div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-patch">PATCH</span><span class="endpoint-path">/api/issues/:id/status</span></div>
+  <div class="endpoint-desc">Update status. Body: <code>{"status": "open|in_progress|resolved|closed"}</code></div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-post">POST</span><span class="endpoint-path">/api/issues/:id/comments</span></div>
+  <div class="endpoint-desc">Add comment. Body: <code>{"text"}</code></div>
+</div>
+
+<h2>Energy simulation</h2>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-post">POST</span><span class="endpoint-path">/api/energy/simulate</span></div>
+  <div class="endpoint-desc">Run energy simulation. Returns simulation ID, status, and results when complete.</div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-get">GET</span><span class="endpoint-path">/api/energy/simulations/:id</span></div>
+  <div class="endpoint-desc">Get simulation results including EN-1 to EN-8 compliance JSON.</div>
+</div>
+<div class="endpoint">
+  <div class="endpoint-bar"><span class="method method-get">GET</span><span class="endpoint-path">/api/energy/simulations/:id/gbxml</span></div>
+  <div class="endpoint-desc">Download the generated gbXML file.</div>
+</div>
+
+<h2>Rate limits</h2>
+<table class="table-wrap">
+<thead><tr><th>Endpoint group</th><th>Limit</th></tr></thead>
+<tbody>
+<tr><td>Read endpoints (GET)</td><td>120 req/min per session</td></tr>
+<tr><td>Write endpoints (POST/PATCH/DELETE)</td><td>60 req/min per session</td></tr>
+<tr><td>Energy simulation</td><td>5 runs/hour per project</td></tr>
+<tr><td>Large file uploads (.rvt)</td><td>10/day per account</td></tr>
+</tbody>
+</table>`,
+
+'api-webhooks': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>API Reference</span></div>
+<h1>Webhooks</h1>
+<p class="lead">Receive real-time event notifications via HTTP POST to your endpoint when model events occur.</p>
+
+<h2>Webhook events</h2>
+<table class="table-wrap">
+<thead><tr><th>Event</th><th>Trigger</th><th>Payload</th></tr></thead>
+<tbody>
+<tr><td><code>element.created</code></td><td>New wall, column, etc. placed</td><td><code>{"element": {...}}</code></td></tr>
+<tr><td><code>element.updated</code></td><td>Parameter changed</td><td><code>{"element_id", "params": {...}}</code></td></tr>
+<tr><td><code>element.deleted</code></td><td>Element removed</td><td><code>{"element_id", "type"}</code></td></tr>
+<tr><td><code>issue.created</code></td><td>New issue ticket</td><td><code>{"issue": {...}}</code></td></tr>
+<tr><td><code>issue.resolved</code></td><td>Issue status → resolved</td><td><code>{"issue_id", "resolved_by"}</code></td></tr>
+<tr><td><code>simulation.complete</code></td><td>Energy sim finished</td><td><code>{"simulation_id", "status"}</code></td></tr>
+</tbody>
+</table>
+
+<h2>Webhook format</h2>
+<pre><code>POST https://your-endpoint.com/webhook
+Content-Type: application/json
+X-Atlantist-Signature: &lt;hmac-sha256 of body&gt;
+
+{
+  "event": "element.created",
+  "project_id": 42,
+  "timestamp": "2026-05-24T19:00:00Z",
+  "data": { ... }
+}</code></pre>
+
+<h2>Signature verification</h2>
+<p>Each webhook request includes <code>X-Atlantist-Signature</code> — HMAC-SHA256 of the raw request body using your webhook secret. Verify this to ensure requests are from Atlantist.</p>
+
+<div class="callout callout-warn">
+  <div class="callout-title">Retry policy</div>
+  <p>Failed webhook deliveries (non-2xx response or timeout) are retried with exponential backoff: 1 min, 5 min, 30 min, 2 hr, 24 hr. After 5 failures, the webhook is paused and you receive an admin notification.</p>
+</div>`,
+
+// ── TROUBLESHOOTING ─────────────────────────────────────────────────────────
+'troubleshooting': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Troubleshooting</span></div>
+<h1>Troubleshooting</h1>
+<p class="lead">Error codes, common issues, and how to resolve them.</p>
+
+<h2>Error codes</h2>
+<table class="table-wrap">
+<thead><tr><th>Code</th><th>Message</th><th>Resolution</th></tr></thead>
+<tbody>
+<tr><td><code>E001</code></td><td>Level not found</td><td>The element references a level ID that doesn't exist. Create the level or reassign the element.</td></tr>
+<tr><td><code>E002</code></td><td>Wall type not found</td><td>Wall references a wall_type_id that doesn't exist in the project catalog. Assign a valid type.</td></tr>
+<tr><td><code>E003</code></td><td>Circular constraint detected</td><td>The DAG solver detected a cycle. Check wall-layer or element-element constraints.</td></tr>
+<tr><td><code>E004</code></td><td>Family host not found</td><td>Door/window references a wall that no longer exists. Delete the orphan family instance.</td></tr>
+<tr><td><code>E005</code></td><td>Project locked (under review)</td><td>The project is locked due to an active abuse report. Contact support@atlantist.cloud.</td></tr>
+<tr><td><code>E006</code></td><td>Import failed — IFC version unsupported</td><td>The uploaded IFC uses an unsupported version. Convert to IFC 2x3 or IFC 4 in your source application.</td></tr>
+<tr><td><code>E007</code></td><td>Simulation quota exceeded</td><td>Energy simulation limit reached (5/hour/project). Wait or upgrade your plan.</td></tr>
+<tr><td><code>E008</code></td><td>DOB package generation failed</td><td>Missing required fields (address, BIN, borough). Fill in project settings and retry.</td></tr>
+<tr><td><code>E101</code></td><td>Authentication required</td><td>No valid session. Request a magic link or re-authenticate.</td></tr>
+<tr><td><code>E102</code></td><td>Permission denied</td><td>Your role (Viewer) does not allow this action. Ask an Owner/Admin to change your role.</td></tr>
+<tr><td><code>E103</code></td><td>Magic link expired</td><td>Magic link tokens expire after 15 minutes. Request a new one.</td></tr>
+</tbody>
+</table>
+
+<h2>Common issues</h2>
+<h3>Wall not updating when I change level elevation</h3>
+<p>Check that the wall is actually hosted on the level you're changing. Select the wall and look at the <strong>Level</strong> property in the right sidebar. If it's on a different level, use the dropdown to reassign.</p>
+
+<h3>Door not cutting wall geometry</h3>
+<p>Ensure the wall is selected first (highlighted in the view), then place the door. If the wall is a single unbroken segment and the door is placed outside the wall bounds, it won't cut. Check the <code>host_face_u</code> value — it must be between 0 and 1.</p>
+
+<h3>Real-time sync not working for collaborators</h3>
+<p>Check that all collaborators are on the same project (same project_id in the URL). WebSocket connection requires an active session. If sync is still broken, try a page refresh — this reinitializes the ws-client connection.</p>
+
+<h3>Energy simulation returns zero results</h3>
+<p>Ensure the model has spaces/zones defined. An empty model (no walls, no rooms) produces zero thermal load. Also check that the model has at least one level with walls enclosing a space.</p>
+
+<h3>IFC export produces no geometry</h3>
+<p>Check that the model has elements on a level with the right IFC type mapping. All elements must be assigned to a level. Orphan elements (no level) are skipped during IFC export.</p>
+
+<div class="callout callout-done">
+  <div class="callout-title">Still stuck?</div>
+  <p>Email <a href="mailto:support@atlantist.cloud" style="color:var(--accent)">support@atlantist.cloud</a> with the error code, project ID, and a description of what you were doing when it happened. Typical response time: 1 business day.</p>
+</div>`,
+
+// ── DESIGN GUIDE ────────────────────────────────────────────────────────────
+'design-guide': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Design Guide</span></div>
+<h1>Step-by-Step: Build a Comparable Model in 3–6 Hours</h1>
+<p class="lead">This guide walks you through building a complete architectural model — from blank project to design book sheets — without reverse-engineering the code. If you know BIM, this will take 3–6 hours. If you&apos;re new, budget 8–10 hours on your first project.</p>
+
+<div class="edit-bar">
+  <span>Last updated: 2026-05-26</span>
+  <a href="#" onclick="return false">Edit this page →</a>
+</div>
+
+<div class="callout callout-info">
+  <div class="callout-title">Start from a template</div>
+  <p>Don&apos;t start from scratch. Click <strong>Templates</strong> in the sidebar → choose <strong>Office Building</strong>, <strong>Residential</strong>, or <strong>Warehouse</strong>. Each template includes pre-placed levels, walls, columns, doors, windows, rooms, and structural grids — with correct typologies, section sizes, and fire ratings. You can fork any template and customize it.</p>
+</div>
+
+<h2>What you&apos;ll build</h2>
+<p>This guide produces a complete BIM model with:</p>
+<ul>
+  <li>Multi-story level structure with correct inter-floor heights</li>
+  <li>Walls with multi-layer assemblies (structure/insulation/finish)</li>
+  <li>Doors and windows auto-cutting wall geometry</li>
+  <li>Structural columns and beams</li>
+  <li>Stairs with IBC-compliant riser/tread dimensions</li>
+  <li>Railings bound to stair geometry</li>
+  <li>Rooms auto-populating schedules (A-400 door schedule, finish schedule)</li>
+  <li>Energy zones and a complete energy simulation</li>
+  <li>Design book sheets auto-generated from the model</li>
+</ul>
+
+<h2>Phase 1 — Set up levels (30 min)</h2>
+<p>Start in the <strong>Levels panel</strong> (topbar → Levels). Every element in the model is bound to a level via <code>base_level_id</code> and <code>top_level_id</code>. When you change a level elevation, the DAG solver propagates that change to every element hosted on that level.</p>
+
+<ol>
+  <li><strong>Define building levels.</strong> Click <strong>+ Add Level</strong>. Common inter-floor heights: <code>3.0m</code> (residential), <code>3.658m / 12ft</code> (commercial), <code>4.0m</code> (office). Mark the ground floor and roof as non-building-storey if needed.</li>
+  <li><strong>Name them clearly.</strong> &quot;Ground Floor&quot;, &quot;Level 2&quot;, &quot;Level 3&quot;, &quot;Roof&quot;. Names appear in schedules and section cuts.</li>
+  <li><strong>Set the correct elevation.</strong> Ground = <code>0.0</code>. Level 2 = <code>3.0</code>. Roof = <code>12.0</code> (for a 4-story building with 3.0m floors).</li>
+</ol>
+
+<div class="callout callout-warn">
+  <div class="callout-title">Constraint tip</div>
+  <p>If you need to change floor-to-floor height later, just edit the elevation of a level — all walls, columns, doors, windows, and stairs bound to that level will recalculate automatically. No manual editing required.</p>
+</div>
+
+<h2>Phase 2 — Draw exterior walls (45 min)</h2>
+<p>Click <strong>+ Wall</strong> in the toolbar. Click in the 3D view to place wall endpoints. Use the properties panel on the right to configure:</p>
+
+<ul>
+  <li><strong>Wall Type</strong> — Choose from the catalog. For exterior: <code>Exterior Brick 8&quot;</code>, <code>CMU 8&quot;</code>, or <code>Curtain Wall Aluminum</code>. For interior: <code>Interior Gypsum 4&quot;</code>.</li>
+  <li><strong>Constraint levels</strong> — Set <code>Base Level</code> and <code>Top Level</code>. The wall height equals the elevation difference between these two levels.</li>
+  <li><strong>Wall layers</strong> — Each type ships with pre-configured layers (brick → insulation → gypsum, or steel stud → drywall). Click the layer name to edit thickness or material.</li>
+</ul>
+
+<div class="callout callout-info">
+  <div class="callout-title">Curtain wall tip</div>
+  <p>For a full glass facade, select the <code>Curtain Wall Aluminum</code> type. It has a 3-layer construction: glazing → aluminum mullion → air gap → finish. The mullion spacing is configurable in the properties panel as <code>mullion_spacing_m</code>.</p>
+</div>
+
+<h2>Phase 3 — Place structural columns (20 min)</h2>
+<p>Click <strong>+ Column</strong> in the toolbar. Place at grid intersections. Use the properties panel to set:</p>
+<ul>
+  <li><strong>Column Type</strong> — Choose from <code>W12x26</code>, <code>W14x48</code>, <code>HSS 6x6x3/8</code>, or <code>Concrete Column 300x300</code>.</li>
+  <li><strong>Base and Top Level</strong> — Columns span full building height by default (level 1 to roof).</li>
+</ul>
+
+<h2>Phase 4 — Add doors and windows (45 min)</h2>
+<p><strong>Select a wall first</strong> (it turns highlighted), then click <strong>+ Door</strong> or <strong>+ Window</strong>. The family instance places at the midpoint of the wall by default. Drag the position handle along the wall face to reposition.</p>
+
+<ul>
+  <li><strong>Door types</strong> — <code>Single Door 3&apos;&apos;x80&quot;</code> (residential), <code>Hollow Metal Single</code> (fire-rated 90min), <code>Double Door 5&apos;&apos;x80&quot;</code> (entry). Fire-rated doors auto-cut the wall with a wider opening.</li>
+  <li><strong>Window types</strong> — <code>Double Hung 48&quot;x60&quot;</code> (operable), <code>Fixed 60&quot;x48&quot;</code> (non-operable, more energy efficient), <code>Casement 36&quot;x48&quot;</code> (hinged).</li>
+  <li><strong>Auto-cut geometry</strong> — Atlantist automatically cuts the wall opening to match the family dimensions. No manual Boolean operations required.</li>
+</ul>
+
+<div class="callout callout-warn">
+  <div class="callout-title">Opening direction</div>
+  <p>Use the <code>hand</code> property (left/right) to set door swing direction. The hinge side determines which way the door opens. In 3D view, a left-hand door swings to the left when viewed from the push side.</p>
+</div>
+
+<h2>Phase 5 — Add stairs (30 min)</h2>
+<p>Click <strong>+ Stair</strong> in the toolbar. The stair type picker shows all IBC-compliant configurations:</p>
+
+<ul>
+  <li><strong>Residential 7&quot;/11&quot;</strong> — 14 risers, 11&quot; tread. Standard in single-family homes.</li>
+  <li><strong>Commercial 7&quot;/10&quot;</strong> — 15 risers, 10&quot; tread. Required in most commercial occupancies.</li>
+  <li><strong>L-Shaped with Landing</strong> — 90° turn with intermediate landing (min 60×60&quot; per IBC 1011.6.6).</li>
+  <li><strong>Spiral 7&quot;</strong> — 12 risers, 7.5&quot; min tread at 30&quot; from center. Use for secondary access only.</li>
+</ul>
+
+<p>The DAG solver auto-binds stair geometry to the base and top level. Change the level elevation and the stair flight length and number of risers recalculate.</p>
+
+<p>After placing the stair, click <strong>+ Railing</strong>. Choose <code>IBC Guardrail 42&quot;</code> for public stairs, <code>IBC Handrail 34&quot;-38&quot;</code> for accessible routes. The railing binds to the stair host and auto-positions along the nosing line.</p>
+
+<h2>Phase 6 — Configure MEP stubs (20 min)</h2>
+<p>Open the MEP panel from the toolbar. Place stub elements for:</p>
+<ul>
+  <li><strong>HVAC VAV boxes</strong> — VAV boxes at each zone, sized for the zone&apos;s CFM demand</li>
+  <li><strong>Diffusers and grilles</strong> — Diffuser placement at ceiling grid points; each diffuser has a CFM rating</li>
+  <li><strong>Sprinkler heads</strong> — NFPA 13 coverage area per head; place at spacing per hazard classification</li>
+  <li><strong>Electrical panels</strong> — Panel boards at each floor, with circuit allocations</li>
+</ul>
+
+<h2>Phase 7 — Energy zones and simulation (30 min)</h2>
+<p>Open the Energy panel. The model auto-zones based on room geometry and inter-floor level spans. Each zone gets a <code>zone_type</code> (Office, Residential, Storage) and HVAC setpoint schedule.</p>
+
+<ol>
+  <li>Review zone boundaries in the 3D view — zones are color-coded by type.</li>
+  <li>Click <strong>Run Simulation</strong>. The solver computes heating/cooling loads per zone using the ASHRAE 90.1 methodology.</li>
+  <li>After simulation completes, view EUI (kBtu/sqft/yr) in the results panel. Compare against NYC EN-001 targets.</li>
+  <li>Export gbXML for use in EnergyPro, DesignBuilder, or TraneTRACE.</li>
+</ol>
+
+<h2>Phase 8 — Generate schedules (10 min)</h2>
+<p>Open the <strong>Schedules panel</strong> (tab: Doors A-400, Windows A-400, Rooms, Finishes, Material Takeoff). All schedules auto-populate from the model data — no manual entry required.</p>
+
+<ul>
+  <li><strong>Door schedule (A-400)</strong> — Mark, type, width, height, material, fire rating. Filter by level.</li>
+  <li><strong>Window schedule</strong> — Mark, type, width, height, glazing, material.</li>
+  <li><strong>Room schedule</strong> — Number, name, level, area (sqm), floor/wall/ceiling finish, department.</li>
+  <li><strong>Finish schedule</strong> — Pulled from wall layer materials. Auto-counts material quantities.</li>
+</ol>
+
+<p>Export any schedule as CSV for coordination or cost estimation.</p>
+
+<h2>Phase 9 — Design book sheets (15 min)</h2>
+<p>Open the <strong>Design Book</strong> panel. Atlantist auto-generates sheets from the model:</p>
+
+<ol>
+  <li>Click <strong>New Sheet</strong> → choose <strong>Floor Plan</strong>. The plan auto-populates with walls, doors, windows, and room names.</li>
+  <li>Add a section cut: use the section line tool to draw a cut plane on the plan. The section view auto-opens at the correct elevation.</li>
+  <li>Add elevation views: <strong>N↑ S↑ E→ W←</strong> toolbar buttons switch the section canvas to fixed orthographic elevation views.</li>
+  <li>Place dimension annotations, area tags, and keynote markers.</li>
+</ol>
+
+<h2>Phase 10 — Export (5 min)</h2>
+<p>Click <strong>IFC Export</strong> in the toolbar. The exporter writes <code>IfcWallStandardCase</code>, <code>IfcColumn</code>, <code>IfcDoor</code>, <code>IfcWindow</code>, and <code>IfcBuildingStorey</code> entities to an IFC 2x3 STEP file. Curved surfaces export as <code>IfcBSplineSurfaceWithKnots</code>.</p>
+
+<p>The resulting .ifc file opens in Revit, ArchiCAD, Navisworks, or Solibri without any translation plugins.</p>
+
+<div class="callout callout-done">
+  <div class="callout-title">Done!</div>
+  <p>You&apos;ve built a complete BIM model from scratch in 3–6 hours — including all parametric bindings, auto-cut openings, IBC-compliant stairs, energy simulation, schedules, and design book sheets. Every element is parametric: change a level elevation, wall type, or family instance and the entire model updates automatically.</p>
+</div>`,
+
+'design-guide-walls': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('design-guide');return false">Design Guide</a> <span class="sep">›</span> <span>Walls &amp; Types</span></div>
+<h1>Walls &amp; Type Catalogs</h1>
+<p class="lead">Every wall in Atlantist is a reusable type instance. Changing a wall type updates all instances instantly.</p>
+
+<div class="edit-bar">
+  <span>Last updated: 2026-05-26</span>
+</div>
+
+<h2>Wall type catalog</h2>
+<p>Browse all available wall types at <code>GET /api/catalog/wall-types</code>:</p>
+
+<table>
+<thead><tr><th>Type ID</th><th>Name</th><th>Thickness</th><th>Layers</th><th>Use for</th></tr></thead>
+<tbody>
+<tr><td><code>wt-exterior-brick</code></td><td>Exterior Brick 8&quot;</td><td>200mm</td><td>Brick 100mm → Mineral Wool 50mm → Gypsum 13mm</td><td>Load-bearing masonry, mid-rise residential</td></tr>
+<tr><td><code>wt-interior-gypsum</code></td><td>Interior Gypsum 4&quot;</td><td>100mm</td><td>Gypsum 13mm → Metal Stud 74mm → Gypsum 13mm</td><td>Partition walls, non-load-bearing</td></tr>
+<tr><td><code>wt-concrete</code></td><td>Concrete 200mm</td><td>200mm</td><td>Poured Concrete 200mm</td><td>Basement, core walls, heavy load conditions</td></tr>
+</tbody>
+</table>
+
+<h2>Adding a custom wall type</h2>
+<p>Wall types are seeded in the database. To add a new type, a BIM admin would insert a row into the <code>wall_types</code> table via direct DB access or a future admin UI. Each type definition includes a <code>layers</code> JSONB array of {material, thickness, function}.</p>
+
+<h2>Wall layer functions</h2>
+<ul>
+  <li><code>structure</code> — Primary structural layer (brick, concrete, steel stud)</li>
+  <li><code>finish</code> — Interior/exterior face finish (drywall, plaster, stucco)</li>
+  <li><code>insulation</code> — Thermal insulation layer (mineral wool, XPS, spray foam)</li>
+  <li><code>air</code> — Air gap for curtain wall assemblies</li>
+</ul>
+
+<h2>Constraint binding</h2>
+<p>Walls bind to levels via <code>base_level_id</code> and <code>top_level_id</code>. The computed height = <code>top_level_elevation - base_level_elevation</code>. If either level moves, the wall height updates and all door/window openings on that wall recalculate their head heights.</p>
+
+<h2>Multi-story walls</h2>
+<p>A wall spanning two floors uses the lower level as <code>base_level_id</code> and the upper level as <code>top_level_id</code>. The wall extends from floor to floor with no intermediate interruption. Interior partition walls on each floor are separate elements.</p>`,
+
+'design-guide-doors': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('design-guide');return false">Design Guide</a> <span class="sep">›</span> <span>Doors &amp; Windows</span></div>
+<h1>Doors &amp; Windows — Auto-Cut Geometry</h1>
+<p class="lead">Doors and windows are hosted elements — they ride on a wall and auto-cut the wall&apos;s geometry to match their family dimensions.</p>
+
+<div class="edit-bar">
+  <span>Last updated: 2026-05-26</span>
+</div>
+
+<h2>Placing a door</h2>
+<ol>
+  <li>Select a wall (it highlights)</li>
+  <li>Click <strong>+ Door</strong> in the toolbar</li>
+  <li>The door appears at the midpoint of the wall (<code>host_face_u = 0.5</code>)</li>
+  <li>Drag the position handle along the wall to reposition (range: 0.0 to 1.0)</li>
+  <li>Set the door type and fire rating in the properties panel</li>
+</ol>
+
+<h2>Door type catalog</h2>
+<table>
+<thead><tr><th>Type</th><th>Width</th><th>Height</th><th>Fire Rating</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>Single Door 3&apos;&apos;x80&quot;</td><td>914mm</td><td>2032mm</td><td>20min</td><td>Residential interior, passage</td></tr>
+<tr><td>Single Door 32&quot;x80&quot;</td><td>813mm</td><td>2032mm</td><td>20min</td><td>Narrow passage, closet</td></tr>
+<tr><td>Double Door 5&apos;&apos;x80&quot;</td><td>1524mm</td><td>2032mm</td><td>45min</td><td>Entry, unit separation</td></tr>
+<tr><td>Paired Doors 6&apos;&apos;x80&quot;</td><td>1829mm</td><td>2032mm</td><td>45min</td><td>Large opening, bifold pair</td></tr>
+<tr><td>Hollow Metal Single</td><td>914mm</td><td>2134mm</td><td>90min</td><td>Stairwell, exit corridor, rated assembly</td></tr>
+<tr><td>Hollow Metal Double</td><td>1524mm</td><td>2134mm</td><td>90min</td><td>Stairwell pair, rated pair</td></tr>
+</tbody>
+</table>
+
+<h2>Window placement</h2>
+<p>Windows use the same host-wall mechanism as doors. Select a wall → <strong>+ Window</strong>. Windows have a <code>sill_height</code> property measured from the floor. Common sill heights: <code>900mm</code> (seat height), <code>1200mm</code> (standing sill), <code>1800mm</code> (high transom).</p>
+
+<h2>Auto-cut behavior</h2>
+<p>When a door or window is placed on a wall, Atlantist computes the opening rectangle in XZ space based on the wall&apos;s start/end coordinates and the <code>host_face_u</code> position. The wall mesh is split at the opening bounds. Moving the family instance repositions the cut; changing the family dimensions changes the cut size.</p>`,
+
+'design-guide-stairs': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('design-guide');return false">Design Guide</a> <span class="sep">›</span> <span>Stairs &amp; Railings</span></div>
+<h1>Stairs &amp; Railings — IBC Compliance</h1>
+<p class="lead">Stairs in Atlantist are parametric. Change the level elevation and the stair geometry recalculates automatically.</p>
+
+<div class="edit-bar">
+  <span>Last updated: 2026-05-26</span>
+</div>
+
+<h2>IBC Table 1011.2 — Rise and Tread</h2>
+<table>
+<thead><tr><th>Config</th><th>Max Rise</th><th>Min Tread</th><th>Handrail Height</th><th>Guard Height</th></tr></thead>
+<tbody>
+<tr><td>Residential</td><td>7¾&quot; (197mm)</td><td>10&quot; (254mm)</td><td>34&quot;-38&quot;</td><td>42&quot;</td></tr>
+<tr><td>Assembly / Mercantile</td><td>7&quot; (178mm)</td><td>11&quot; (279mm)</td><td>34&quot;-38&quot;</td><td>42&quot;</td></tr>
+<tr><td>Institutional (accessible)</td><td>5&quot; (127mm)</td><td>15&quot; (381mm)</td><td>34&quot;-38&quot;</td><td>42&quot;</td></tr>
+<tr><td>Spiral</td><td>9½&quot; (241mm)</td><td>7½&quot; (191mm) at 30&quot;</td><td>34&quot;-38&quot;</td><td>42&quot;</td></tr>
+</tbody>
+</table>
+
+<h2>Pre-configured stair types</h2>
+<ul>
+  <li><strong>Residential Straight 7&quot;/11&quot;</strong> — 14 risers at 7&quot; = 98&quot; total rise ≈ 2.49m. 13 treads at 11&quot; = 3.58m horizontal run. For 2.5m inter-floor height.</li>
+  <li><strong>Commercial Straight 7&quot;/10&quot;</strong> — 15 risers at 7&quot; = 105&quot; ≈ 2.67m. 14 treads at 10&quot; = 3.56m run. For 2.7m inter-floor height.</li>
+  <li><strong>L-Shaped w/ Landing</strong> — 90° turn with 60×60&quot; minimum landing. Total run = two flight runs + landing depth.</li>
+  <li><strong>Spiral 7&quot;</strong> — 12 risers at 7&quot; = 84&quot; total rise. 12 treads at 7.5&quot; min at 30&quot; radius.</li>
+</ul>
+
+<h2>Adding railings</h2>
+<p>After placing a stair, click <strong>+ Railing</strong> and choose a type:</p>
+<ul>
+  <li><strong>IBC Guardrail 42&quot;</strong> — Baluster spacing ≤ 100mm (4&quot; max sphere pass-through per IBC 1013.3)</li>
+  <li><strong>IBC Handrail 34&quot;-38&quot;</strong> — Continuous handrail, 1.5&quot; clearance from wall. Required on both sides of accessible stairs.</li>
+  <li><strong>Glass Panel Guard 42&quot;</strong> — Tempered glass infill panels with top rail. Top rail required.</li>
+</ul>
+
+<h2>DAG binding</h2>
+<p>The stair <code>base_level_id</code> and <code>top_level_id</code> determine total rise. The number of risers = <code>ceil((top_elevation - base_elevation) / riser_height)</code>. The number of treads = <code>riser_count - 1</code>. Changing the level elevation updates riser count, tread count, and total run length automatically.</p>`,
+
+'design-guide-energy': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('design-guide');return false">Design Guide</a> <span class="sep">›</span> <span>Energy Zones</span></div>
+<h1>Energy Zones — Setup and Simulation</h1>
+<p class="lead">Every room in Atlantist is an energy zone. Set zone type, HVAC setpoints, and run a simulation in under 5 minutes.</p>
+
+<div class="edit-bar">
+  <span>Last updated: 2026-05-26</span>
+</div>
+
+<h2>Zone types</h2>
+<p>Assign each room a zone type in the Room properties panel:</p>
+<ul>
+  <li><strong>Office</strong> — 68°F cooling, 70°F heating, 8am–6pm occupancy schedule</li>
+  <li><strong>Residential</strong> — 72°F cooling, 68°F heating, continuous occupancy</li>
+  <li><strong>Storage</strong> — 75°F cooling, 60°F heating, minimal occupancy</li>
+  <li><strong>Corridor</strong> — 75°F cooling, 65°F heating, 24h occupancy</li>
+</ul>
+
+<h2>Running an energy simulation</h2>
+<ol>
+  <li>Open the <strong>Energy</strong> panel from the topbar</li>
+  <li>Review zone boundaries (color-coded in 3D view)</li>
+  <li>Click <strong>Run Simulation</strong></li>
+  <li>Results show: heating load (Btu/h), cooling load (Btu/h), EUI (kBtu/sqft/yr), peak demand (kW)</li>
+  <li>Compare EUI against ASHRAE 90.1 baseline and NYC EN-001 thresholds</li>
+</ol>
+
+<h2>gbXML export</h2>
+<p>Click <strong>Export gbXML</strong> to download a gbXML file compatible with EnergyPro, DesignBuilder, Sefaira, and TraneTRACE 700. The export includes all zone geometry, constructions, and HVAC schedules.</p>
+
+<h2>NYC DOB filing</h2>
+<p>For NYC projects, the DOB package generator produces a 9-PDF submission bundle including:</p>
+<ul>
+  <li>Energy analysis summary (EN-1 form)</li>
+  <li>Equipment schedules and capacities</li>
+  <li>Envelope assembly U-factors</li>
+  <li>ASHRAE 90.1 compliance checklist (EN-008)</li>
+</ul>
+
+`,
+
+'parametric-templates': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('design-guide');return false">Design Guide</a> <span class="sep">›</span> <span>Parametric Templates</span></div>
+<h1>Parametric Element Templates</h1>
+<p class="lead">Every element in Atlantist is a reusable type instance — not a one-off object. Changing a type definition updates every instance in the model instantly via the DAG constraint solver.</p>
+
+<div class="edit-bar">
+  <span>Last updated: 2026-05-26</span>
+</div>
+
+<div class="callout callout-info">
+  <div class="callout-title">Starting point</div>
+  <p>Don&apos;t build from scratch. Choose a template project (Office, Residential, or Warehouse) and customize it. Every template ships with correct level structures, type definitions, wall layers, door/window families, structural grids, rooms, and stairs — IBC-compliant and ready to modify.</p>
+</div>
+
+<h2>Wall type catalog</h2>
+<p>GET <code>/api/catalog/wall-types</code></p>
+
+<table>
+<thead><tr><th>Type</th><th>Thickness</th><th>Layers (structure → insulation → finish)</th><th>Best for</th></tr></thead>
+<tbody>
+<tr><td><strong>Curtain Wall Aluminum</strong></td><td>250mm</td><td>Tempered Double Glazing → Aluminum Mullion 150mm → Air Gap 50mm → Gypsum Board</td><td>Commercial office, high-rise facades</td></tr>
+<tr><td><strong>Exterior Brick 8"</strong></td><td>200mm</td><td>Masonry Brick 100mm → Mineral Wool 50mm → Gypsum Plaster</td><td>Load-bearing masonry, mid-rise residential</td></tr>
+<tr><td><strong>CMU 8" Load-Bearing</strong></td><td>200mm</td><td>CMU 200mm → Mortar Joint</td><td>Masonry cores, stair/elevator shafts</td></tr>
+<tr><td><strong>Concrete 300mm</strong></td><td>300mm</td><td>Poured Concrete 300mm → Damp-Proof Course</td><td>Basement, core walls, heavy load</td></tr>
+<tr><td><strong>Interior Gypsum 4"</strong></td><td>100mm</td><td>Gypsum Plaster 13mm → Metal Stud 74mm → Gypsum Plaster</td><td>Non-load-bearing partitions</td></tr>
+<tr><td><strong>Wood Frame 2x6 Exterior</strong></td><td>150mm</td><td>Fiber Cement → Housewrap → Wood Stud 2x6 → Mineral Wool 140mm → Gypsum</td><td>Wood-frame residential</td></tr>
+<tr><td><strong>Fire-Rated Gypsum 2-Hour</strong></td><td>100mm</td><td>Type X Gypsum 25mm → Metal Stud 74mm → Type X Gypsum 25mm</td><td>Stairwell enclosures, rated assemblies</td></tr>
+</tbody>
+</table>
+
+<h2>Column type catalog</h2>
+<p>GET <code>/api/catalog/column-types</code></p>
+
+<table>
+<thead><tr><th>Section</th><th>Material</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>W14x48</td><td>Structural Steel</td><td>Primary girder columns, 4-story+ commercial</td></tr>
+<tr><td>W14x30</td><td>Structural Steel</td><td>Light column, 2–3 story commercial</td></tr>
+<tr><td>W16x31</td><td>Structural Steel</td><td>Long-span roof beams</td></tr>
+<tr><td>HSS 6x6x3/8</td><td>Structural Steel</td><td>Architectural exposed columns, moment frames</td></tr>
+<tr><td>HSS 4x4x1/4</td><td>Structural Steel</td><td>Light brace members</td></tr>
+<tr><td>Pipe Column 6" STD</td><td>Structural Steel</td><td>Industrial columns, round sections</td></tr>
+<tr><td>Concrete Column 400x400</td><td>Reinforced Concrete</td><td>Concrete frame construction</td></tr>
+</tbody>
+</table>
+
+<h2>Door type catalog</h2>
+<p>GET <code>/api/catalog/door-types</code></p>
+
+<table>
+<thead><tr><th>Type</th><th>Size</th><th>Fire Rating</th><th>Material</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>Single Door 3&apos;&apos;x80"</td><td>914 × 2032mm</td><td>20min</td><td>Wood Flush</td><td>Residential, passage</td></tr>
+<tr><td>Hollow Metal Single</td><td>914 × 2134mm</td><td>90min</td><td>Hollow Metal</td><td>Stairwell, exit corridor</td></tr>
+<tr><td>Double Door 5&apos;&apos;x80"</td><td>1524 × 2032mm</td><td>45min</td><td>Hollow Metal</td><td>Entry, unit separation</td></tr>
+<tr><td>Fire-Rated 45min Double</td><td>1524 × 2134mm</td><td>45min</td><td>Hollow Metal</td><td>Rated pairs</td></tr>
+<tr><td>Automatic Sliding 72"x84"</td><td>1829 × 2134mm</td><td>20min</td><td>Aluminum Frame</td><td>ADA-compliant, motion sensor</td></tr>
+<tr><td>Overhead Door 10&apos;&apos;x12&apos;&apos;</td><td>3048 × 3658mm</td><td>—</td><td>Steel</td><td>Loading dock</td></tr>
+</tbody>
+</table>
+
+<h2>Window type catalog</h2>
+<p>GET <code>/api/catalog/window-types</code></p>
+
+<table>
+<thead><tr><th>Type</th><th>Size</th><th>Glazing</th><th>Material</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>Curtain Wall 72"x60"</td><td>1829 × 1524mm</td><td>Double</td><td>Aluminum</td><td>Commercial curtain wall</td></tr>
+<tr><td>Double Hung 36"x72"</td><td>914 × 1829mm</td><td>Double</td><td>Wood Clad</td><td>Residential operable</td></tr>
+<tr><td>Storefront 10&apos;&apos;x96"</td><td>3048 × 2438mm</td><td>Double</td><td>Aluminum</td><td>Ground floor retail</td></tr>
+<tr><td>Fixed 60"x48"</td><td>1524 × 1219mm</td><td>Double</td><td>Aluminum</td><td>Non-operable, better U-value</td></tr>
+<tr><td>High-Rise Fixed 48"x72"</td><td>1219 × 1829mm</td><td>Triple</td><td>Aluminum</td><td>High-rise, wind load rated</td></tr>
+<tr><td>Clerestory 60"x36"</td><td>1524 × 914mm</td><td>Double</td><td>Aluminum</td><td>High sill (9m+), warehouse clerestory</td></tr>
+</tbody>
+</table>
+
+<h2>Stair type catalog</h2>
+<p>GET <code>/api/catalog/stair-types</code></p>
+
+<table>
+<thead><tr><th>Type</th><th>Config</th><th>Width</th><th>Risers</th><th>Tread</th><th>Code</th></tr></thead>
+<tbody>
+<tr><td>Residential Straight 7"/11"</td><td>Straight</td><td>914mm</td><td>14</td><td>279mm</td><td>IBC 1011.2</td></tr>
+<tr><td>Commercial Straight 7"/10"</td><td>Straight</td><td>1220mm</td><td>15</td><td>254mm</td><td>IBC 1011.2</td></tr>
+<tr><td>L-Shaped 7"/11" w/ Landing</td><td>L-shaped</td><td>1120mm</td><td>14</td><td>279mm</td><td>IBC 1011.6.6</td></tr>
+<tr><td>Spiral 7" Rise</td><td>Spiral</td><td>1520mm</td><td>12</td><td>203mm</td><td>IBC 1011.10</td></tr>
+</tbody>
+</table>
+
+<h2>Beam type catalog</h2>
+<p>GET <code>/api/catalog/beam-types</code></p>
+
+<table>
+<thead><tr><th>Section</th><th>Material</th><th>Depth</th><th>Weight</th><th>Common use</th></tr></thead>
+<tbody>
+<tr><td>W12x26</td><td>Structural Steel</td><td>303mm</td><td>38.7 kg/m</td><td>Floor beam, 8m span</td></tr>
+<tr><td>W14x48</td><td>Structural Steel</td><td>368mm</td><td>71.5 kg/m</td><td>Girder, heavy loads</td></tr>
+<tr><td>W16x31</td><td>Structural Steel</td><td>399mm</td><td>46.2 kg/m</td><td>Roof beam, 40ft+ span</td></tr>
+<tr><td>HSS 6x6x3/8</td><td>Structural Steel</td><td>152mm</td><td>57.4 kg/m</td><td>Architectural exposed</td></tr>
+<tr><td>Double LVL 2x10</td><td>Laminated Veneer Lumber</td><td>254mm</td><td>5.1 kg/m</td><td>Residential floor, 24" OC</td></tr>
+</tbody>
+</table>
+
+<h2>Floor type catalog</h2>
+<p>GET <code>/api/catalog/floor-types</code></p>
+
+<table>
+<thead><tr><th>Type</th><th>Thickness</th><th>Layers</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>Generic 300mm</td><td>300mm</td><td>Concrete 200mm → Insulation 80mm → Membrane</td><td>Standard commercial</td></tr>
+<tr><td>Suspended Metal Deck</td><td>150mm</td><td>Steel Deck 75mm → Concrete 75mm</td><td>Steel frame, light weight</td></tr>
+<tr><td>Waffle Slab</td><td>400mm</td><td>Waffle rib 400mm → Topping 75mm</td><td>Long span, reduced self-weight</td></tr>
+</tbody>
+</table>
+
+<h2>Ceiling type catalog</h2>
+<p>GET <code>/api/catalog/ceiling-types</code></p>
+
+<table>
+<thead><tr><th>Type</th><th>Style</th><th>Default offset</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>Flat Gypsum Board</td><td>flat</td><td>2.7m</td><td>Residential, office</td></tr>
+<tr><td>Acoustic Tile</td><td>flat</td><td>2.7m</td><td>Open office, classroom</td></tr>
+<tr><td>Coffered</td><td>coffered</td><td>3.0m</td><td>Architectural, lobby</td></tr>
+<tr><td>Exposed Structure</td><td>exposed_structure</td><td>8.0m</td><td>Industrial, warehouse</td></tr>
+</tbody>
+</table>
+
+<h2>MEP fixture types</h2>
+<p>GET <code>/api/catalog/mep-fixture-types</code></p>
+
+<table>
+<thead><tr><th>Fixture</th><th>Discipline</th><th>Key parameters</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td>VAV Terminal 3x3</td><td>HVAC</td><td>500–1500 CFM, reheat coil</td><td>Office VAV systems</td></tr>
+<tr><td>4-Pipe Fan Coil Unit</td><td>HVAC</td><td>6000 Btu cooling, 8000 Btu heating</td><td>Hotel, residential</td></tr>
+<tr><td>Ceiling Diffuser 24x24"</td><td>HVAC</td><td>400 CFM supply</td><td> ceiling supply air</td></tr>
+<tr><td>ESFR Sprinkler Head</td><td>Fire</td><td>k14, 286°F rating</td><td>Warehouse high bay</td></tr>
+<tr><td>Pendent Sprinkler</td><td>Fire</td><td>k8, 155°F rating</td><td>Office, residential</td></tr>
+<tr><td>Panel Board 100A</td><td>Electrical</td><td>100A, 208Y/120V, 42 circuits</td><td>Typical office floor</td></tr>
+</tbody>
+</table>
+
+<h2>Template projects</h2>
+
+<p>Three pre-built project scaffolds are available from the entry screen — click <strong>Templates</strong> in the sidebar:</p>
+
+<table>
+<thead><tr><th>Template</th><th>Type</th><th>Levels</th><th>Inter-floor height</th><th>Construction</th><th>HVAC</th></tr></thead>
+<tbody>
+<tr><td><strong>Office Building 5-Story</strong></td><td>Commercial</td><td>6 (5 floors + roof)</td><td>4.0m</td><td>Steel frame, curtain wall</td><td>VAV</td></tr>
+<tr><td><strong>Residential Multi-Unit 4-Story</strong></td><td>Residential</td><td>5 (4 floors + roof)</td><td>3.0m</td><td>Wood frame + CMU core</td><td>Fan coil</td></tr>
+<tr><td><strong>Warehouse / Industrial</strong></td><td>Industrial</td><td>3 (warehouse + mezzanine + roof)</td><td>12.0m clear</td><td>Tilt-up concrete</td><td>Make-up air</td></tr>
+</tbody>
+</table>
+
+<p>When you <strong>Use Template</strong>, Atlantist forks the template into a new user-owned project — all levels, walls, columns, floors, stairs, doors, windows, rooms, and structural grids are cloned. Stairs come with IBC-compliant riser/tread dimensions already set.</p>
+
+<h2>DAG constraint binding</h2>
+<p>Every template element is bound to the DAG solver. Key bindings:</p>
+<ul>
+  <li><strong>Level elevation → wall/column/stair height</strong>: Changing a level elevation updates all hosted element heights</li>
+  <li><strong>Wall type → all wall instances</strong>: Changing a wall type definition updates all wall instances in the model</li>
+  <li><strong>Stair base/top level → geometry</strong>: Riser count and tread count auto-recalculate when base or top level changes</li>
+  <li><strong>Family host wall → opening position</strong>: Door/window position (host_face_u) is normalized 0–1 along wall length</li>
+</ul>
+
+<div class="try-bar">
+  <span class="try-bar-text">Ready to start from a template?</span>
+  <a href="/app" class="try-btn">Open Atlantist →</a>
+</div>`,
+
+// ── STRUCTURAL ANALYSIS ─────────────────────────────────────────────────────
+'structural-analysis': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Simulations</span></div>
+<h1>Structural Analysis</h1>
+<p class="lead">Integrated finite element analysis powered by OpenSees. Run linear static, modal, and response spectrum analysis on your BIM model — results render directly in 3D with animated deflection and stress color maps.</p>
+
+<div class="callout callout-warn">
+  <div class="callout-title">Disclaimer</div>
+  <p>Atlantist's structural analysis implements ASCE 7-22, AISC 360-22, ACI 318-22, and NDS 2018 for member code checks. Results require review by a licensed structural engineer. This tool assists analysis — it does not replace professional judgment.</p>
+</div>
+
+<h2>Analysis types</h2>
+<table class="table-wrap">
+<thead><tr><th>Type</th><th>Description</th><th>Use case</th></tr></thead>
+<tbody>
+<tr><td><strong>Linear Static</strong></td><td>Direct stiffness method. Gravity + lateral loads. Computes deflection, shear, moment, axial force.</td><td>Design verification, drift check</td></tr>
+<tr><td><strong>Modal Analysis</strong></td><td>Inverse iteration eigenvalue solver. Returns mode shapes and periods.</td><td>Seismic period, vibration assessment</td></tr>
+<tr><td><strong>Response Spectrum</strong></td><td>Modal superposition with ASCE 7-22 design spectrum. Returns base shear and member forces.</td><td>Seismic design per code</td></tr>
+<tr><td><strong>Member Code Checks</strong></td><td>AISC 360-22 (steel), ACI 318-22 (concrete), NDS 2018 (wood). DCR = demand/capacity.</td><td>Pass/Fail per member</td></tr>
+</tbody>
+</table>
+
+<h2>Opening the panel</h2>
+<p>Click <strong>Simulations → Structural</strong> in the toolbar. The panel opens with 4 tabs:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Setup</strong> — load cases, boundary conditions, analysis parameters</li>
+  <li><strong>Members</strong> — view structural member catalog (columns, beams, shear walls)</li>
+  <li><strong>Results</strong> — deflection, axial, shear, moment tables with DCR values</li>
+  <li><strong>Viz</strong> — animated 3D color map (deflection/axial/shear/moment/DCR/modal modes)</li>
+</ul>
+
+<h2>DAG extraction</h2>
+<p>The <code>GET /api/structural/dag-extract</code> endpoint walks all elements in the project and auto-creates <code>structural_members</code> records:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li>Columns → vertical members (base_level_id → top_level_id)</li>
+  <li>Walls with <code>loadBearing: true</code> → shear wall elements</li>
+  <li>Floors with structural function → slab members</li>
+  <li>Explicit beam elements → horizontal span members</li>
+</ul>
+
+<h2>Results interpretation</h2>
+<table class="table-wrap">
+<thead><tr><th>Metric</th><th>Green</th><th>Yellow</th><th>Red</th></tr></thead>
+<tbody>
+<tr><td>DCR (Demand/Capacity Ratio)</td><td>&lt; 0.8 (pass)</td><td>0.8–1.0 (review)</td><td>&gt; 1.0 (FAIL)</td></tr>
+<tr><td>Deflection (L/360)</td><td>≤ L/360 (pass)</td><td>L/360–L/240 (review)</td><td>&gt; L/240 (excessive)</td></tr>
+<tr><td>Drift (Δa per ASCE 7-22)</td><td>≤ 0.020 × height</td><td>0.020–0.030 × height</td><td>&gt; 0.030 × height</td></tr>
+</tbody>
+</table>
+
+<div class="try-bar">
+  <span class="try-bar-text">Run a structural analysis on your model →</span>
+  <a href="/app" class="try-btn">Open Atlantist →</a>
+</div>`,
+
+'structural-opensees': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('structural-analysis');return false">Simulations</a> <span class="sep">›</span> <span>OpenSees &amp; FEA</span></div>
+<h1>OpenSees FEA — Engine Reference</h1>
+<p class="lead">Atlantist's structural solver uses OpenSees .tcl input generation for advanced custom analysis and verification. The internal JS solver handles linear static and modal analysis directly.</p>
+
+<h2>Analysis methodology</h2>
+
+<h3>Linear static analysis — direct stiffness method</h3>
+<p>The solver assembles the global stiffness matrix <code>K</code> from element stiffness matrices. Loads are assembled into vector <code>F</code>. The system <code>[K]{u} = {F}</code> is solved by LDL factorization. Displacements <code>u</code> are back-substituted to compute member forces.</p>
+
+<h3>Modal analysis — inverse iteration</h3>
+<p>Eigenvalues (periods) and eigenvectors (mode shapes) are computed using inverse iteration with Rayleigh quotient acceleration. The first 6 modes are always computed; higher modes can be requested.</p>
+
+<h3>Response spectrum (ASCE 7-22)</h3>
+<p>For each mode, the spectral acceleration <code>S_a</code> is read from the design spectrum at the modal period. Base shear is computed via modal participation factors. Member forces are recovered by modal superposition (CQC for closely-spaced modes).</p>
+
+<h2>OpenSees .tcl export</h2>
+<p>The <code>GET /api/structural/opensees-export</code> endpoint generates a complete OpenSees .tcl input file. This enables advanced analysis in the OpenSees interpreter or external tools:</p>
+<pre><code># Model dimensions
+model basic -ndm 3 -ndf 6
+
+# Node creation (from BIM elements)
+node 1 0.0 0.0 0.0
+node 2 0.0 0.0 3.658
+
+# Material definitions (steel A992)
+uniaxialMaterial Steel01 1 42000 200000 0.01
+
+# Section properties (W14x48)
+section WSection 1 1 48.0 314.0 8.84 14.6 1520.0
+
+# Element creation (beam column)
+element dispBeamColumn 1 1 2 5 1 1
+
+# Boundary conditions
+fix 1 1 1 1 1 1 1
+
+# Gravity load pattern
+pattern Plain 1 Linear {
+  load 2 0 -48.0 0 0 0 0
+}
+</code></pre>
+
+<h2>Viz tab — animated stress maps</h2>
+<p>The <strong>Viz</strong> tab renders member results as a color gradient in 3D:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Deflection</strong> — maximum deflection under load case (mm/in)</li>
+  <li><strong>Axial</strong> — axial force (kN/kip) compression negative, tension positive</li>
+  <li><strong>Shear</strong> — shear force (kN/kip) at both ends</li>
+  <li><strong>Moment</strong> — bending moment (kN·m/kip·ft) at both ends and midspan</li>
+  <li><strong>DCR</strong> — demand/capacity ratio, green→red gradient</li>
+  <li><strong>Modal modes</strong> — animation of each mode shape with period labels</li>
+</ul>
+
+<p>Playback controls: play/pause, step through modes, speed slider. The color legend shows the current metric range. Hover any member to see its computed values in a tooltip.</p>`,
+
+'structural-code-checks': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('structural-analysis');return false">Simulations</a> <span class="sep">›</span> <span>Code Checks</span></div>
+<h1>Member Code Checks</h1>
+<p class="lead">Automated code check of every structural member against AISC 360-22, ACI 318-22, and NDS 2018. Results show PASS/FAIL with DCR for each member.</p>
+
+<h2>Steel members (AISC 360-22)</h2>
+
+<h3>Axial tension (Chapter D)</h3>
+<p>φ_t P_n where P_n = F_y A_g for yielding, P_n = F_u A_e for rupture. Available slenderness: KL/r ≤ 300 per AISC B4.</p>
+
+<h3>Axial compression (Chapter E)</h3>
+<p>φ_c P_n using the column curve. For compact sections: P_n = F_y A_g. For noncompact: iterative slenderness reduction. Effective length K from alignment charts or fixed/hinged assumptions.</p>
+
+<h3>Flexure (Chapter F)</h3>
+<p>For W-shapes in strong-axis bending: φ_b M_n where M_n = C_b × min(F_y S_x, 0.9 F_y Z_x). C_b is the lateral-torsional buckling modification factor. Local buckling check: λ ≤ λ_p for full plastic capacity.</p>
+
+<h3>Shear (Chapter G)</h3>
+<p>φ_v V_n where V_n = 0.6 F_y A_w C_v. Web shear buckling check: h/t_w ≤ 260 for unstiffened webs.</p>
+
+<h2>Concrete members (ACI 318-22)</h2>
+
+<h3>Axial compression with flexure</h3>
+<p>Interaction diagram check: P_u ≤ φ P_n. Column interaction surface for biaxial bending. Slenderness effects: slenderness ratio kLu/r &gt; 22 requires moment amplification (βdns method).</p>
+
+<h3>Shear design</h3>
+<p>V_c = 2√(f'_c) b_w d. Stirrups required when V_u &gt; φ V_c/2. Stirrup spacing: ≤ d/2, ≤ 600mm, ≤ 0.5 φ V_s/max.</p>
+
+<h3>Torsion</h3>
+<p>Check T_u ≤ φ T_th where T_th = 0.0 for non-integral members, T_th = 0.42√(f'_c)(A^2_o/P_h) for integral.</p>
+
+<h2>Wood members (NDS 2018)</h2>
+<p>Axial: F_c / (1 + c F_c / (F_cE)) ≤ 1.0. Bending: f_b / F_b' ≤ 1.0 where F_b' = F_b C_D C_M C_t C_L C_F C_V. Shear: f_v / F_v' ≤ 1.0.</p>
+
+<h2>Results table</h2>
+<table class="table-wrap">
+<thead><tr><th>Member</th><th>Section</th><th>Load case</th><th>Check</th><th>DCR</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Col-A3</td><td>W14x48</td><td>Gravity + Seismic</td><td>Axial Compression + Bending</td><td>0.67</td><td><span class="status s-ok">PASS</span></td></tr>
+<tr><td>B-G2</td><td>W16x31</td><td>Gravity</td><td>Flexure</td><td>0.91</td><td><span class="status s-warn">REVIEW</span></td></tr>
+<tr><td>Col-B1</td><td>W12x26</td><td>Seismic</td><td>Axial Tension</td><td>1.08</td><td><span class="status s-fail">FAIL</span></td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-info">
+  <div class="callout-title">Fixing failures</div>
+  <p>A DCR &gt; 1.0 means demand exceeds capacity. Options: (1) increase section size, (2) change to higher strength material, (3) add intermediate bracing to reduce unbraced length, (4) reduce load demand via load path changes.</p>
+</div>`,
+
+// ── FIRE PROTECTION ──────────────────────────────────────────────────────────
+'fire-protection': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Simulations</span></div>
+<h1>Fire Protection Engineering</h1>
+<p class="lead">NFPA 13, NFPA 101, NFPA 92, and FDNY compliance calculations with FDS smoke simulation input generation. Everything from sprinkler layout to egress width and smoke control.</p>
+
+<div class="callout callout-warn">
+  <div class="callout-title">Disclaimer</div>
+  <p>Atlantist's fire protection module generates design parameters and FDS input files. All results require review and approval by a licensed fire protection engineer. This tool does not replace professional engineering judgment.</p>
+</div>
+
+<h2>What you can compute</h2>
+<table class="table-wrap">
+<thead><tr><th>Module</th><th>Standards</th><th>Output</th></tr></thead>
+<tbody>
+<tr><td><strong>Sprinkler Design</strong></td><td>NFPA 13, NFPA 13R, NFPA 13D</td><td>Coverage area, pipe sizing, hangers,standpipe</td></tr>
+<tr><td><strong>Egress Analysis</strong></td><td>NFPA 101, IBC Chapter 10</td><td>Occupant load, required egress width, exit capacity</td></tr>
+<tr><td><strong>Smoke Control</strong></td><td>NFPA 92</td><td>Stairwell pressurization, smoke control fan sizing</td></tr>
+<tr><td><strong>FDNY Filing</strong></td><td>NYC FC, NYC BC</td><td> sprinkler calculations, egress summary</td></tr>
+<tr><td><strong>FDS Simulation</strong></td><td>NIST Fire Dynamics Simulator</td><td>FDS .fds input file for smoke/temperature/visibility simulation</td></tr>
+</tbody>
+</table>
+
+<h2>Sprinkler design (NFPA 13)</h2>
+<p>The sprinkler calculator accepts:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Hazard classification</strong> — Light Hazard (office), Ordinary (warehouse), Extra (paint booth)</li>
+  <li><strong>Ceiling height</strong> — affects coverage area per sprinkler</li>
+  <li><strong>System type</strong> — Wet pipe, dry pipe, pre-action, deluge</li>
+</ul>
+
+<p>Outputs: number of sprinklers, pipe network (mains + branches), gpm demand at the fire pump, hose stream allowance, water supply check. ESFR sprinklers use K14.4 or K25.2 heads with reduced spacing in high-clearance warehouses.</p>
+
+<h3>Coverage area per sprinkler</h3>
+<table class="table-wrap">
+<thead><tr><th>System</th><th>Max Coverage</th><th>Max Spacing</th></tr></thead>
+<tbody>
+<tr><td>Standard pendant/upright</td><td>130 sq ft (12m²)</td><td>15 ft (4.6m)</td></tr>
+<tr><td>Extended coverage standard</td><td>196 sq ft (18m²)</td><td>16 ft (4.9m)</td></tr>
+<tr><td>ESFR (high bay)</td><td>Up to 400 sq ft</td><td>Up to 20 ft (6.1m)</td></tr>
+</tbody>
+</table>
+
+<h2>Egress analysis (NFPA 101)</h2>
+<p>Occupant load factor by occupancy type ( IBC Table 1004.5):</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Business</strong> — 100 sq ft/person (assembly floor), 150 sq ft/person (offices)</li>
+  <li><strong>Assembly</strong> — 15 sq ft/person (standing), 15 sq ft/person (fixed seating)</li>
+  <li><strong>Storage</strong> — 300 sq ft/person (ordinary), 500 sq ft/person (high-bay)</li>
+  <li><strong>Educational</strong> — 20 sq ft/person (classroom), 50 sq ft/person (lab)</li>
+</ul>
+
+<p>Egress width: minimum 0.3 in/person (stair), 0.2 in/person (corridor). Door width minimum 32" for egress components. Door swing must be in direction of egress for occupancy &gt; 50.</p>
+
+<h2>FDNY smoke control (NFPA 92)</h2>
+<p>Stairwell pressurization: supply fan capacity ≥ 0.001 × stairwell volume + 0.05 × total door area. For zoned smoke control: exhaust rate ≥ 2.5 × floor area × ceiling height for the smoke zone. FDS simulation generates the temperature layer and visibility predictions.</p>
+
+<h2>FDS input generation</h2>
+<p>Atlantist generates a complete FDS .fds file from the BIM model geometry:</p>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Extraction of room volumes, door openings, ceiling heights</li>
+  <li>Fire location and HRR (heat release rate) curve parameterization</li>
+  <li>Vent openings (doors, windows) with opening schedules</li>
+  <li>Sprinkler activation time computation from ceiling temperature</li>
+  <li>Mesh generation with appropriate cell size for target phenomena</li>
+</ol>
+
+<p>The output .fds file can be run in FDS 6.7+ or Smokeview for visualization of smoke layer, temperature gradient, and tenability criteria (ASET vs RSET).</p>
+
+<div class="try-bar">
+  <span class="try-bar-text">Run a fire protection analysis →</span>
+  <a href="/app" class="try-btn">Open Atlantist →</a>
+</div>`,
+
+// ── GEOTECHNICAL ────────────────────────────────────────────────────────────
+'geotechnical': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Simulations</span></div>
+<h1>Geotechnical Engineering</h1>
+<p class="lead">Bearing capacity, elastic/consolidation settlement, lateral earth pressure, pile capacity, and slope stability — all with soil profile builder and OpenSees .tcl generation for advanced analysis.</p>
+
+<div class="callout callout-warn">
+  <div class="callout-title">Disclaimer</div>
+  <p>Geotechnical results are based on user-supplied soil parameters and generalized methods. Results must be reviewed by a licensed geotechnical engineer. Actual soil behavior may differ from simplified analytical methods.</p>
+</div>
+
+<h2>Analysis modules</h2>
+<table class="table-wrap">
+<thead><tr><th>Module</th><th>Method</th><th>Output</th></tr></thead>
+<tbody>
+<tr><td><strong>Bearing Capacity</strong></td><td>Terzaghi, Meyerhof, Hansen, Brinch-Hansen</td><td>q_ult, q_all, Factor of Safety</td></tr>
+<tr><td><strong>Elastic Settlement</strong></td><td>Schmertmann, Mayne &amp; Poulos</td><td>S_e (immediate), isochrone plot</td></tr>
+<tr><td><strong>Consolidation Settlement</strong></td><td>1-D consolidation theory (Terzaghi)</td><td>S_c, time to 90% consolidation, OCR</td></tr>
+<tr><td><strong>Lateral Earth Pressure</strong></td><td>Rankine, Coulomb, Log-spiral</td><td>K_a, K_o, K_p, resultant force</td></tr>
+<tr><td><strong>Pile Capacity</strong></td><td>API RP2A (steel), Meyerhof (cohesionless), alpha (cohesive)</td><td>Q_allow, skin friction + tip resistance</td></tr>
+<tr><td><strong>Slope Stability</strong></td><td>Ordinary method of slices, Bishop simplified</td><td>FoS, critical failure surface, piezometric line</td></tr>
+</tbody>
+</table>
+
+<h2>Soil profile builder</h2>
+<p>Define layered soil stratigraphy per borehole under <strong>Projects → Geotechnical</strong>. Each layer has:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Name, type</strong> — clay, silt, sand, gravel, rock</li>
+  <li><strong>depthTop / depthBottom</strong> — layer boundaries (m or ft)</li>
+  <li><strong>unitWeight</strong> — total unit weight γ (kN/m³ or pcf)</li>
+  <li><strong>cohesion c</strong> — undrained (clay) or effective (sand)</li>
+  <li><strong>frictionAngle φ</strong> — effective friction angle (degrees)</li>
+  <li><strong>modulusE</strong> — elastic modulus (MPa or ksf)</li>
+</ul>
+
+<p>You can also attach SPT blow counts, CPT tip resistance (q_c), or laboratory test data per layer. The profile drives all calculations — change a layer and all results update.</p>
+
+<h2>Bearing capacity formulas</h2>
+
+<h3>Terzaghi (general bearing failure)</h3>
+<pre><code>q_ult = c N_c + q N_q + 0.5 γ B N_γ
+
+Where:
+  N_c = 5.7 (φ=0), N_c = cot(φ) × (N_q - 1)
+  N_q = e^(2π tan φ) / (2 cos²(45° + φ/2))
+  N_γ = 2(N_q + 1) tan φ
+
+  q = γ D_f  (overburden pressure)
+  B = footing width
+  γ = soil unit weight
+  c = cohesion
+  φ = friction angle
+</code></pre>
+
+<h3>Settlement — Schmertmann (sandy soils)</h3>
+<pre><code>S_e = C_1 C_2 q Δz / E_s
+
+Where:
+  C_1 = 1 - 0.5(z/B) / (1 - 0.5) ≥ 0.5
+  C_2 = 1 + 0.2 log(t / 0.1)   (time effect, t in years)
+  q = net applied pressure
+  Δz = influence zone layer thickness
+  E_s = soil modulus (from SPT or lab)
+</code></pre>
+
+<h2>OpenSees .tcl geotech export</h2>
+<p>For complex problems, Atlantist generates an OpenSees .tcl file that models:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li>Soil domain as a 2D plane strain mesh (quad elements)</li>
+  <li>Foundation elements with contact interface</li>
+  <li>Soil springs (p-y for lateral, t-z for pile shaft, q-z for tip)</li>
+  <li>Initial stress field from overburden</li>
+  <li>Staged construction and excavation sequences</li>
+</ul>
+
+<p>Three.js visualization shows soil strata, bearing pressure bulbs, settlement contours, and lateral pressure diagrams — overlaid directly on the BIM model.</p>`,
+
+// ── CURVED SURFACES ──────────────────────────────────────────────────────────
+'curved-surfaces': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Architecture</span></div>
+<h1>Curved Surfaces</h1>
+<p class="lead">Parametric curved surface primitives — hyperboloid, paraboloid, NURBS, ruled, revolution, sweep, loft, conic arc. All export to IFC as standard surface entities.</p>
+
+<h2>Surface types</h2>
+<table class="table-wrap">
+<thead><tr><th>Type</th><th>Parameters</th><th>Use case</th><th>IFC entity</th></tr></thead>
+<tbody>
+<tr><td><strong>Hyperboloid</strong></td><td>Base radius, top radius, height, waist radius</td><td>Cooling towers, nuclear containment, stadium</td><td>IfcSurfaceOfRevolution</td></tr>
+<tr><td><strong>Paraboloid</strong></td><td>Focus point, directrix plane, height</td><td>Solar collector, acoustic reflector</td><td>IfcBSplineSurfaceWithKnots</td></tr>
+<tr><td><strong>NURBS</strong></td><td>Control points (2D/3D array), degree, knot vector</td><td>Free-form architectural surfaces</td><td>IfcBSplineSurfaceWithKnots</td></tr>
+<tr><td><strong>Ruled</strong></td><td>Profile curve, direction vector</td><td>Conoid roofs, shell edges</td><td>IfcSurfaceOfLinearExtrusion</td></tr>
+<tr><td><strong>Revolution</strong></td><td>Profile curve, axis start/end, sweep angle</td><td>Domes, silos, tanks, domes</td><td>IfcSurfaceOfRevolution</td></tr>
+<tr><td><strong>Sweep</strong></td><td>Profile curve, path curve (rail)</td><td>Curved pipes, twisted columns</td><td>IfcSurfaceOfRevolution</td></tr>
+<tr><td><strong>Loft</strong></td><td>Array of cross-section curves</td><td>Transitional shapes, ship hulls</td><td>IfcBSplineSurfaceWithKnots</td></tr>
+<tr><td><strong>Conic Arc</strong></td><td>Start point, end point, minor axis, major axis ratio</td><td>Arches, domes, barrel vaults</td><td>IfcConic</td></tr>
+</tbody>
+</table>
+
+<h2>Adding a curved surface</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Click <strong>+ Curved</strong> in the toolbar</li>
+  <li>Select the surface type from the picker</li>
+  <li>Enter the geometric parameters (radius, height, control points)</li>
+  <li>The mesh is generated parametrically — adjust any parameter and the surface updates</li>
+  <li>Bind to levels (base and top elevation) for accurate placement</li>
+</ol>
+
+<h2>Control point editing (NURBS)</h2>
+<p>For NURBS surfaces, click <strong>Edit Points</strong> to enter control point mode. The 2D/3D control point array is shown in a table editor. Each point has X, Y, Z coordinates. Adjust degree or edit control points to shape the surface.</p>
+
+<h2>IFC export for curved surfaces</h2>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>IfcSurfaceOfRevolution</strong> — used for surfaces of constant cross-section rotated around an axis (domes, tanks, silos). Revolved profile curve.</li>
+  <li><strong>IfcBSplineSurfaceWithKnots</strong> — used for free-form surfaces, lofted sections, and NURBS. Control points are written directly.</li>
+  <li><strong>IfcConic</strong> — used for conic arcs (ellipse, parabola, hyperbola) defined by two points and semi-axes.</li>
+</ul>
+
+<div class="callout callout-info">
+  <div class="callout-title">Revit compatibility</div>
+  <p>Revit reads IfcBSplineSurfaceWithKnots natively as "Adaptive Component" geometry. ArchiCAD converts NURBS to mesh objects. Navisworks and Solibri display both natively.</p>
+</div>`,
+
+// ── GRIDS ────────────────────────────────────────────────────────────────────
+'grids': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Architecture</span></div>
+<h1>Grids &amp; Levels</h1>
+<p class="lead">Structural grid systems define column placement and planning grids. Levels set elevation references that drive the entire DAG constraint system.</p>
+
+<h2>Structural grids</h2>
+<p>Grids define the structural reference system. Create one per direction (X-axis and Z-axis lines). Each grid has:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Name</strong> — e.g. "Grid A", "Grid 1"</li>
+  <li><strong>Axis</strong> — X or Z (horizontal in plan view)</li>
+  <li><strong>Label</strong> — e.g. "1", "2", "A", "B"</li>
+  <li><strong>Coordinate</strong> — position along the perpendicular axis</li>
+  <li><strong>Bubble visible</strong> — show/hide the grid bubble in plan view</li>
+</ul>
+
+<p>Grids are shown as labeled lines in plan view. Grid bubbles appear at the intersection points — these are the snap targets for column placement.</p>
+
+<h2>Grid snap</h2>
+<p>When placing columns or drawing walls, hold <strong>Shift</strong> or enable <strong>Grid Snap</strong> to lock to grid intersections. This ensures columns align to the structural grid without manual coordinate entry.</p>
+
+<h2>Solving grid intersections</h2>
+<p>The <code>GET /api/grids/snap</code> endpoint returns the closest grid intersection to a given XY point:</p>
+<pre><code>GET /api/grids/snap?project_id=42&x=12000&z=8000
+Returns: { grid_x_id: 5, grid_z_id: 3, intersection_x: 12000, intersection_z: 8000 }
+</code></pre>
+
+<h2>Levels deep-dive</h2>
+<p>Each level has:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>name</strong> — display name in views and schedules</li>
+  <li><strong>elevation</strong> — Z coordinate of the level plane (m or ft)</li>
+  <li><strong>height</strong> — floor-to-floor distance (drives wall top for rooms)</li>
+  <li><strong>color</strong> — view label color</li>
+  <li><strong>is_building_storey</strong> — if false, excluded from room area calculations</li>
+</ul>
+
+<p>Levels are ordered by elevation. Changing a level's elevation automatically updates all elements bound to that level. Levels at consistent inter-floor heights (e.g. 4.0m) make parametric changes clean.</p>
+
+<div class="callout callout-info">
+  <div class="callout-title">Multi-story walls</div>
+  <p>A wall bound to Level 1 (elevation 0) as base and Level 5 (elevation 16.0m) as top spans floors 1–5 with no interruption. To model single-floor partitions, create separate wall elements on each level.</p>
+</div>`,
+
+// ── ROOMS ────────────────────────────────────────────────────────────────────
+'rooms': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Architecture</span></div>
+<h1>Rooms &amp; Zones</h1>
+<p class="lead">Room elements drive the BIM schedule output, energy simulation zones, and finish schedule generation. Every room has area, volume, finish, and department data.</p>
+
+<h2>Room properties</h2>
+<table class="table-wrap">
+<thead><tr><th>Property</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Number</strong></td><td>Room identifier (e.g. "101", "101A")</td></tr>
+<tr><td><strong>Name</strong></td><td>Room name (e.g. "Office", "Conference Room", "Storage")</td></tr>
+<tr><td><strong>Level</strong></td><td>Host level. Room exists at that elevation.</td></tr>
+<tr><td><strong>area_sqm / area_sqft</strong></td><td>Auto-computed from boundary polygon. Powers schedules and energy simulation.</td></tr>
+<tr><td><strong>volume_cum</strong></td><td>Auto-computed: area × level height.</td></tr>
+<tr><td><strong>floor_finish</strong></td><td>Floor finish material — drives finish schedule and acoustic model.</td></tr>
+<tr><td><strong>wall_finish</strong></td><td>Wall finish material — drives material takeoff.</td></tr>
+<tr><td><strong>ceiling_finish</strong></td><td>Ceiling finish — drives finish schedule.</td></tr>
+<tr><td><strong>department</strong></td><td>Department classification — used in schedule grouping.</td></tr>
+<tr><td><strong>zone_type</strong></td><td>Office / Residential / Storage / Corridor — drives energy simulation.</td></tr>
+</tbody>
+</table>
+
+<h2>Boundary polygon</h2>
+<p>Room boundaries are defined by a closed polygon in plan view. The polygon follows wall centerlines by default. Areas are computed automatically from the polygon — there's no manual area entry.</p>
+
+<p>For rooms that span multiple levels (atrium), use separate room elements per level. Atrium spaces contribute to energy simulation with double-height solar gain.</p>
+
+<h2>Room separator lines</h2>
+<p>Inside a room, draw separator lines to subdivide without placing walls. Separator lines create sub-room areas within a single room element — useful for open floor plans that need area breakdowns for scheduling but no physical walls.</p>
+
+<h2>Energy zones</h2>
+<p>Each room contributes to an energy zone. Zones are aggregated by level and zone_type. The energy simulation engine computes zone loads per room: heating Btu/h, cooling Btu/h, lighting gain, equipment gain, occupancy gain.</p>
+
+<div class="try-bar">
+  <span class="try-bar-text">Add rooms to your model →</span>
+  <a href="/app" class="try-btn">Open Atlantist →</a>
+</div>`,
+
+// ── ANNOTATIONS ──────────────────────────────────────────────────────────────
+'annotations': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Architecture</span></div>
+<h1>Annotations</h1>
+<p class="lead">Dimensions, area tags, text labels, keynote markers, and hatching patterns. All annotation elements are linked to elements or rooms and update when the model changes.</p>
+
+<h2>Annotation types</h2>
+<table class="table-wrap">
+<thead><tr><th>Type</th><th>Description</th><th>Parameters</th></tr></thead>
+<tbody>
+<tr><td><strong>Dimension</strong></td><td>Linear measurement between two points</td><td>start XY, end XY, leader extension, text offset, precision</td></tr>
+<tr><td><strong>Area Tag</strong></td><td>Room number + area callout</td><td>room_id FK, position, prefix (e.g. "Rm ")</td></tr>
+<tr><td><strong>Text</strong></td><td>Free-standing text label</td><td>position, content, font size, bold/italic</td></tr>
+<tr><td><strong>Keynote</strong></td><td>Leader line + keynote code + description</td><td>target element_id, keynote code, position</td></tr>
+<tr><td><strong>Hatching</strong></td><td>Area fill pattern (cut hatch) inside a region</td><td>region polygon, pattern name, angle, scale</td></tr>
+</tbody>
+</table>
+
+<h2>Keynote table</h2>
+<p>Each project has a keynote table (linked to <code>keynote_table</code> table in the DB). Keynote codes follow the MasterFormat or UniFormat standard:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li>1.00 — Structural</li>
+  <li>2.00 — Architectural</li>
+  <li>3.00 — Mechanical</li>
+  <li>4.00 — Electrical</li>
+  <li>5.00 — Plumbing</li>
+</ul>
+
+<p>Keynote markers in the model reference the keynote table by code. When exported to IFC, keynote annotations are embedded as <code>IfcAnnotation</code> entities.</p>
+
+<h2>Hatching patterns</h2>
+<p>Pre-defined hatching patterns available:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Solid</strong> — full fill</li>
+  <li><strong>Diagonal</strong> — 45° or 135° lines, configurable spacing</li>
+  <li><strong>Cross</strong> — 90° crosshatch</li>
+  <li><strong>Dot</strong> — dot grid pattern</li>
+  <li><strong>Brick</strong> — offset brick pattern</li>
+</ul>
+
+<p>Custom patterns can be defined in the project settings. Hatch is associated with a room or a drawing region — hatch is not parametric with model elements (it's a 2D annotation).</p>`,
+
+// ── SECTIONS ─────────────────────────────────────────────────────────────────
+'sections': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Schedules &amp; Docs</span></div>
+<h1>Section Cuts</h1>
+<p class="lead">Draw section lines on plan to define cut planes. Each section line generates an elevation view showing model geometry at that cut. Export sections to PDF or include them in the Design Book.</p>
+
+<h2>Drawing a section line</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Click <strong>Section</strong> in the toolbar</li>
+  <li>Click the plan view to set the start point</li>
+  <li>Click again to set the end point</li>
+  <li>The section line appears — drag end grips to adjust position</li>
+  <li>Set the <strong>depth</strong> (how deep into the model to show)</li>
+  <li>Click the section line to open the section view</li>
+</ol>
+
+<h2>Section properties</h2>
+<table class="table-wrap">
+<thead><tr><th>Property</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Start / End XY</strong></td><td>Section line endpoints in plan coordinates</td></tr>
+<tr><td><strong>depth_y</strong></td><td>How far into the model the section shows (depth axis perpendicular to line)</td></tr>
+<tr><td><strong>camera_direction</strong></td><td>Perpendicular to the line in the direction the view looks</td></tr>
+<tr><td><strong>clip_start / clip_end</strong></td><td>Frustum clip bounds along the section line</td></tr>
+</tbody>
+</table>
+
+<h2>Section line representation</h2>
+<p>Section lines show a double arrow in plan view with a label (e.g. "A-1"). Toggle section line visibility from the <strong>View</strong> menu. Section line colors indicate: blue for architectural, red for structural.</p>
+
+<h2>Fixed orthographic elevations</h2>
+<p>Use the <strong>N↑ S↑ E→ W←</strong> buttons in the toolbar to switch to fixed orthographic elevation views. These are not tied to section lines — they show the entire building from a fixed compass direction.</p>
+
+<h2>Section in IFC export</h2>
+<p>Section cut geometry is exported as <code>Ifc GeometricRepresentationContext</code> in the IFC file. Opening the IFC in Revit/ArchiCAD shows the same section planes. Note: section annotations themselves are not part of the standard IFC export — use the Design Book for annotated section sheets.</p>`,
+
+// ── SCHEDULES ────────────────────────────────────────────────────────────────
+'schedules': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Schedules &amp; Docs</span></div>
+<h1>Schedules</h1>
+<p class="lead">A-400 door and window schedules, room schedules, finish schedules, and material takeoffs — all auto-populated from placed elements and wall layers. Export to CSV or include in the Design Book.</p>
+
+<h2>Schedule types</h2>
+<table class="table-wrap">
+<thead><tr><th>Schedule</th><th>Source</th><th>Columns</th></tr></thead>
+<tbody>
+<tr><td><strong>Door Schedule A-400</strong></td><td>family_instances (type=door)</td><td>Mark, Type, Width, Height, Material, Fire Rating, Hardware Set</td></tr>
+<tr><td><strong>Window Schedule</strong></td><td>family_instances (type=window)</td><td>Mark, Type, Width, Height, Sill Height, Glazing, Material</td></tr>
+<tr><td><strong>Room Schedule</strong></td><td>rooms table</td><td>Number, Name, Level, Area, Volume, Floor/Wall/Ceiling Finish, Dept</td></tr>
+<tr><td><strong>Finish Schedule</strong></td><td>wall_layers (by material)</td><td>Material, Function, Thickness, Total Area, Total Volume</td></tr>
+<tr><td><strong>Material Takeoff</strong></td><td>wall_layers + floor_layers</td><td>Material, Layer, Thickness, Count, Unit Area, Total Volume</td></tr>
+</tbody>
+</table>
+
+<h2>Auto-population</h2>
+<p>All schedules are live — they update automatically when you place, modify, or delete elements. Changing a door type updates the schedule. Adding a wall layer adds a row to the finish schedule. There's no manual data entry after the model is built.</p>
+
+<h2>CSV export</h2>
+<p>Click <strong>Export CSV</strong> on any schedule tab. The CSV includes all visible columns, filtered by the current view. Use CSV for:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li>Coordination with consultants (send door schedule to door hardware supplier)</li>
+  <li>Cost estimation (import finish schedule into Excel for material pricing)</li>
+  <li>BIM coordination (verify schedule counts match coordination model)</li>
+</ul>
+
+<h2>Section line management</h2>
+<p>The <strong>Section Lines</strong> tab in the schedules panel lists all section lines in the project. Each entry shows the line label, start/end coordinates, and depth. Click any row to navigate to that section line in the plan view.</p>`,
+
+// ── DESIGN BOOK ────────────────────────────────────────────────────────────────
+'design-book-docs': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Schedules &amp; Docs</span></div>
+<h1>Design Book</h1>
+<p class="lead">Project document management with revision tracking, sheet ordering, and team management. Auto-populated A-500 material takeoff and placeholder-driven product selection workflow.</p>
+
+<h2>Sheet management</h2>
+<p>The design book contains sheets in a user-defined order. Each sheet has:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Title</strong> — e.g. "A-101 Floor Plan Level 1", "A-201 Exterior Elevations"</li>
+  <li><strong>Revision</strong> — alphanumeric revision code (e.g. "Rev 2", "CO-01")</li>
+  <li><strong>Type</strong> — Floor Plan, Elevation, Section, Detail, Schedule</li>
+  <li><strong>Sheet order</strong> — drag to reorder sheets</li>
+</ul>
+
+<p>Sheets auto-populate with model data (floor plans from element geometry, schedules from model elements). Add annotations, dimensions, and keynote markers directly on sheets.</p>
+
+<h2>Placeholders — product selection workflow</h2>
+<p>Placeholders on sheets represent undecided design elements. Each placeholder has:</p>
+<table class="table-wrap">
+<thead><tr><th>Property</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Type</strong></td><td>door / window / finish / HVAC / structural / custom</td></tr>
+<tr><td><strong>Title</strong></td><td>Short descriptor (e.g. "Main Entry Door")</td></tr>
+<tr><td><strong>Required Spec</strong></td><td>Performance requirements (e.g. "90-min fire rated, hollow metal")</td></tr>
+<tr><td><strong>Reference Std</strong></td><td>Spec section or MasterFormat number</td></tr>
+<tr><td><strong>Status</strong></td><td>open → pending_approval → approved / rejected</td></tr>
+</tbody>
+</table>
+
+<p>When a product is selected and linked to a placeholder, the placeholder shows manufacturer, product name, code, specs, estimated cost, lead time, and order status. Approved placeholders freeze the design; rejected placeholders return to open.</p>
+
+<h2>A-500 Material Takeoff</h2>
+<p>The <strong>Material Takeoff</strong> tab in the design book aggregates all wall layer, floor layer, and ceiling layer materials. Totals by material and function:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Structural concrete</strong> — total volume (m³) from structural floor layers</li>
+  <li><strong>Insulation</strong> — total area (m²) from insulation layers in all wall types</li>
+  <li><strong>Finish material</strong> — total area by room finish assignment</li>
+  <li><strong> MEP routing</strong> — linear meter totals for duct, pipe, conduit by size</li>
+</ul>`,
+
+// ── RVT IMPORT ───────────────────────────────────────────────────────────────
+'rvt-import': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('integrations');return false">Integrations</a> <span class="sep">›</span> <span>.rvt Import</span></div>
+<h1>.rvt Import via Autodesk Forge</h1>
+<p class="lead">Upload a .rvt (Revit) file and Atlantist converts it to native BIM elements using the Autodesk Model Derivative API. Progress tracks from upload through extraction to mapping.</p>
+
+<h2>Supported Revit categories</h2>
+<table class="table-wrap">
+<thead><tr><th>Revit Category</th><th>Atlantist Element</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Walls</td><td>Walls with multi-layer wall_layers</td><td>Layer properties read from wall type compound structure</td></tr>
+<tr><td>Doors</td><td>Family instances (type=door)</td><td>Width, height, fire rating from door type</td></tr>
+<tr><td>Windows</td><td>Family instances (type=window)</td><td>Width, height, glazing from window type</td></tr>
+<tr><td>Columns (Structural)</td><td>Structural columns</td><td>Column type from family name pattern (W14x48 etc.)</td></tr>
+<tr><td>Levels</td><td>levels table</td><td>Elevation from level</td></tr>
+<tr><td>Floors</td><td>floor elements</td><td>Multi-layer floor_layers</td></tr>
+<tr><td>Roofs</td><td>Floor or curved surface element</td><td>Flat roofs as floor; sloped as extrusion or surface</td></tr>
+<tr><td>Stairs</td><td>Stair + Railing elements</td><td>IBC-compliant riser/tread computed from flight geometry</td></tr>
+<tr><td>Railings</td><td>Railing elements</td><td>Height, baluster spacing, type</td></tr>
+<tr><td>Curtain Walls</td><td>Walls with curtain wall type</td><td>Auto-mullion grid pattern</td></tr>
+</tbody>
+</table>
+
+<p>See <code>docs/rvt-import-compatibility.md</code> for the full category coverage table including MEP categories.</p>
+
+<h2>Import workflow</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Go to <strong>File → Import → Revit (.rvt)</strong></li>
+  <li>Upload the .rvt file (up to 500MB)</li>
+  <li>Forge Model Derivative converts to IFC intermediate format</li>
+  <li>Atlantist parses IFC and maps to element types</li>
+  <li>Wall layers are recreated; family instances are placed on host walls</li>
+  <li>Review in the Import Results panel — any failed elements listed</li>
+</ol>
+
+<h2>Job status tracking</h2>
+<table class="table-wrap">
+<thead><tr><th>Status</th><th>What happens</th></tr></thead>
+<tbody>
+<tr><td>pending</td><td>File uploaded, awaiting Forge processing</td></tr>
+<tr><td>uploading</td><td>Transfer to Forge storage</td></tr>
+<tr><td>converting</td><td>Forge Model Derivative processing</td></tr>
+<tr><td>extracting</td><td>IFC → Atlantist element parsing</td></tr>
+<tr><td>mapping</td><td>Category to element type mapping</td></tr>
+<tr><td>completed</td><td>All elements created in project</td></tr>
+<tr><td>failed</td><td>Error — check error_log field</td></tr>
+</tbody>
+</table>`,
+
+// ── INTEGRATIONS / RENDERS ───────────────────────────────────────────────────
+'integrations-renders': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('integrations');return false">Integrations</a> <span class="sep">›</span> <span>Veras AI Renders</span></div>
+<h1>Veras AI Renders</h1>
+<p class="lead">AI-powered rendering via Veras. Generate photorealistic architectural visualizations directly from the current camera view — styles include Photorealistic, Architectural, Sketch, Watercolor, and more.</p>
+
+<h2>Generating a render</h2>
+<ol style="margin:12px 0;line-height:2;padding-left:20px">
+  <li>Navigate to the camera position you want to render</li>
+  <li>Click <strong>Simulations → Render</strong> in the toolbar</li>
+  <li>Select a render style from the picker</li>
+  <li>Optionally add a descriptive prompt (e.g. "golden hour lighting", "overcast sky")</li>
+  <li>Click <strong>Generate Render</strong></li>
+  <li>The render appears in the results panel — click to expand full size</li>
+</ol>
+
+<h2>Render styles</h2>
+<table class="table-wrap">
+<thead><tr><th>Style</th><th>Description</th><th>Use case</th></tr></thead>
+<tbody>
+<tr><td><strong>Photorealistic</strong></td><td>Physically-based lighting, accurate materials</td><td>Client presentations, DOB submissions, marketing</td></tr>
+<tr><td><strong>Architectural</strong></td><td>Clean lines, neutral materials, even lighting</td><td>Design development, scheme comparison</td></tr>
+<tr><td><strong>Sketch</strong></td><td>Pencil/pen illustration style</td><td>Early concept, client brainstorming</td></tr>
+<tr><td><strong>Watercolor</strong></td><td>Soft washes, hand-painted feel</td><td>Board presentations, early design</td></tr>
+<tr><td><strong>Night</strong></td><td>Artificial lighting, interior illumination</td><td>Lighting design, facade at night</td></tr>
+</tbody>
+</table>
+
+<h2>Render records</h2>
+<p>Each render is stored as a <code>renders</code> record with: style, image URL (R2), viewpoint name, camera data (position, target, FOV), and prompt. Renders are associated with the project — revisit the renders panel to see all generated images.</p>`,
+
+// ── WALLT INSTALL ────────────────────────────────────────────────────────────
+'wallt-install': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Wallt AI</span></div>
+<h1>Installing Wallt</h1>
+<p class="lead">Wallt is an installable PWA — it lives on your home screen and works offline, just like a native app. This guide covers every platform and browser.</p>
+
+<h2>Desktop (Chrome, Edge, Firefox)</h2>
+<p>Chrome and Edge on Windows, macOS, and Linux support the full PWA install flow.</p>
+<ol>
+<li>Visit <strong>/wallt</strong> in Chrome or Edge.</li>
+<li>You will see a dismissible install banner at the bottom-right of the screen.</li>
+<li>Click <strong>Install now</strong> — the browser's native install dialog will appear.</li>
+<li>Confirm. Wallt will open as a standalone window, separate from the browser tab.</li>
+</ol>
+<p>The install banner reappears after 30 days if you dismissed it. To reinstall manually, click the install icon in Chrome's address bar (look for the download/install arrow).</p>
+
+<h2>macOS Safari</h2>
+<p>Safari on macOS supports Web App Manifest but the install UX is less prominent.</p>
+<ol>
+<li>Visit <strong>/wallt</strong> in Safari.</li>
+<li>Click <strong>Safari → File → Add to Dock</strong> (or press Cmd+D).</li>
+<li>Alternatively, look for the Share button → <strong>Add to Home Screen</strong>.</li>
+</ol>
+
+<h2>iOS (Safari on iPhone/iPad)</h2>
+<p>iOS does not support the browser <code>beforeinstallprompt</code> event. Wallt detects iOS automatically and shows step-by-step instructions on first visit.</p>
+<ol>
+<li>Open <strong>/wallt</strong> in Safari.</li>
+<li>Tap the <strong>Share</strong> button at the bottom of the screen.</li>
+<li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
+<li>Tap <strong>Add</strong> — Wallt appears as an icon on your home screen.</li>
+</ol>
+<p>The first time you open Wallt from your home screen, it runs in full-screen standalone mode with no browser chrome.</p>
+
+<h2>Android (Chrome)</h2>
+<ol>
+<li>Open <strong>/wallt</strong> in Chrome on Android.</li>
+<li>The install banner appears automatically.</li>
+<li>Tap <strong>Install</strong> — Wallt is added to your home screen and app drawer.</li>
+<li>It runs as a standalone app with full offline capability.</li>
+</ol>
+
+<h2>Offline Capability</h2>
+<p>Once installed, Wallt caches its UI shell and can launch without a network connection. API calls (chat, conversation history) require connectivity. Queued messages are stored locally and synced when connection is restored.</p>
+
+<h2>Push Notifications (Opt-in)</h2>
+<p>Wallt supports optional push notifications for async events (e.g., "Your zoning check is complete"). To enable:</p>
+<ol>
+<li>Open Wallt and go to Settings.</li>
+<li>Toggle <strong>Push Notifications</strong> on.</li>
+<li>Grant browser notification permission when prompted.</li>
+</ol>
+<p>You can revoke this at any time through browser site settings.</p>
+
+<h2>Removing the App</h2>
+<p>On iOS: long-press the Wallt icon, tap <strong>Remove App</strong>. On Android/Chrome: open the app menu (three-dot menu) and tap <strong>Uninstall</strong>. On desktop: right-click the app in your app list and choose <strong>Remove</strong>.</p>
+
+<h2>Troubleshooting Install</h2>
+<table>
+<thead><tr><th>Problem</th><th>Solution</th></tr></thead>
+<tbody>
+<tr><td>Install banner not appearing</td><td>Ensure you are on <strong>/wallt</strong> and have not dismissed the banner in the last 30 days. Open Chrome DevTools → Application tab to check SW status.</td></tr>
+<tr><td>"App is already installed" message</td><td>Wallt is already on your device. Open it from the app launcher instead of the browser.</td></tr>
+<tr><td>iOS Add to Home Screen missing</td><td>Ensure you are using Safari — Chrome and other browsers do not expose this option on iOS.</td></tr>
+<tr><td>App icon shows generic browser icon</td><td>Wallt uses the Atlantist icon set (192px and 512px). Clear browser cache and reinstall if icons look wrong.</td></tr>
+</tbody>
+</table>`,
+
+// ── WALLT ZONING ─────────────────────────────────────────────────────────────
+'wallt-zoning': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('wallt-install');return false">Wallt AI</a> <span class="sep">›</span> <span>NYC Zoning Checks</span></div>
+<h1>NYC Zoning Checks via Wallt</h1>
+<p class="lead">Wallt integrates NYC Zoning Resolution knowledge — ask about FAR, setbacks, height limits, use groups, and DOB filing requirements and get cited, accurate answers.</p>
+
+<h2>How It Works</h2>
+<p>When you ask a zoning question, Wallt runs a retrieval-augmented generation (RAG) pipeline against a curated corpus of NYC Zoning Resolution text files. The relevant sections are injected into the AI context before generating a response. Every response that pulls from the RAG corpus includes clickable source citations pointing to the specific ZR section.</p>
+
+<h2>Triggering Zoning RAG</h2>
+<p>Wallt detects zoning questions automatically. Triggers include:</p>
+<ul>
+<li>Zoning district references: R5, R6A, R7B, R8A, R9A, R10, M1-1, C1-5, C6, etc.</li>
+<li>Zoning terms: FAR, floor area ratio, setback, setbacks, height limit, building height, yard, yards, rear yard, side yard, use group.</li>
+<li>DOB references: DOB filing, department of buildings, NYC zoning.</li>
+<li>ZR section codes: §23, §24, §33, §35.</li>
+</ul>
+<p>You do not need to prefix your question — just ask naturally.</p>
+
+<h2>Example Questions</h2>
+<ul>
+<li>"What's the minimum front yard setback in R5 zones?"</li>
+<li>"Can I build a 10-story building in R7A? What FAR applies?"</li>
+<li>"What's the difference between R6A and R6B for Quality Housing?"</li>
+<li>"Do I need a variance for a penthouse in R9X?"</li>
+<li>"What's the use group for a clinical laboratory in an M1-1 district?"</li>
+</ul>
+
+<h2>Context-Aware Zoning</h2>
+<p>If Wallt knows your project location (via the Project Pill in the widget header), it will automatically apply the correct zoning district and reference it in responses. To set project context:</p>
+<ol>
+<li>Open the Wallt widget in the BIM app.</li>
+<li>Select or open a project — Wallt reads the project location and zoning district from the model.</li>
+<li>The Project Pill in Wallt's header confirms the active context.</li>
+</ol>
+
+<h2>Citation Format</h2>
+<p>When Wallt cites a ZR section, the source appears as a clickable tag below the response, e.g. <code>Source: ZR §23-45</code> or <code>Source: NYC DOB BIS</code>. Citations are clickable and open the relevant nyc.gov page.</p>
+
+<h2>Limitations</h2>
+<ul>
+<li>Wallt's zoning knowledge covers R, M, and C districts in NYC. Other cities require separate knowledge integration.</li>
+<li>Zoning answers are based on the text of the ZR and DOB BIS — site-specific variances, BSA approvals, or recent rezoning may not be reflected. Always verify with the DOB and a licensed architect.</li>
+<li>RAG chunks are limited to ~1500 characters per section. Complex multi-section calculations may require manual verification.</li>
+</ul>`,
+
+// ── ACCOUNT ──────────────────────────────────────────────────────────────────
+'account': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <span>Account &amp; Billing</span></div>
+<h1>Account &amp; Sessions</h1>
+<p class="lead">Anonymous sessions, email verification, magic link auth, and account management.</p>
+
+<h2>Anonymous sessions</h2>
+<p>Anyone can open <a href="/" style="color:var(--accent)">atlantist.cloud/app</a> and start modeling immediately. An anonymous session is created with a <code>session_uuid</code> stored in a cookie. Projects are saved to that session — they're accessible as long as the cookie is present.</p>
+
+<p>Anonymous users can:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li>Create and save projects</li>
+  <li>Use all BIM modeling tools</li>
+  <li>Run energy and MEP simulations</li>
+  <li>Invite collaborators (invitees need to sign up)</li>
+</ul>
+
+<p>Anonymous users cannot: export IFC, generate DOB packages, or use integrations that require API keys.</p>
+
+<h2>Email verification</h2>
+<p>Sign up by entering your email. A magic link is sent — click it to verify and unlock full access. <code>email_verified = true</code> in the <code>app_users</code> table enables all features.</p>
+
+<h2>Magic link auth</h2>
+<table class="table-wrap">
+<thead><tr><th>Step</th><th>What happens</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>User enters email → <code>POST /api/auth/magic-link</code></td></tr>
+<tr><td>2</td><td>Server creates <code>magic_tokens</code> record (15-min TTL)</td></tr>
+<tr><td>3</td><td>Email sent with magic link (<code>/auth/verify?token=...</code>)</td></tr>
+<tr><td>4</td><td>User clicks link → server validates token, sets session cookie</td></tr>
+<tr><td>5</td><td>Anonymous projects are now owned by the verified account</td></tr>
+</tbody>
+</table>
+
+<h2>Account states</h2>
+<table class="table-wrap">
+<thead><tr><th>Status</th><th>What it means</th></tr></thead>
+<tbody>
+<tr><td><strong>normal</strong></td><td>Full access</td></tr>
+<tr><td><strong>grace_export_only</strong></td><td>Model export allowed; simulation restricted (pending subscription or abuse review)</td></tr>
+<tr><td><strong>suspended</strong></td><td>Access denied. 30-day grace period after hard project delete.</td></tr>
+</tbody>
+</table>`,
+
+// ── SUBSCRIPTION ────────────────────────────────────────────────────────────
+'subscription': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('account');return false">Account &amp; Billing</a> <span class="sep">›</span> <span>Subscription</span></div>
+<h1>Subscription &amp; Billing</h1>
+<p class="lead">Billing via Stripe. Monthly and annual plans with automatic compute cost tracking and transparent infrastructure billing.</p>
+
+<h2>Billing model</h2>
+<p>Atlantist uses a cost-plus model: bill = max($5, actual_infrastructure_cost × 2). Your subscription covers:</p>
+<ul style="margin:12px 0;line-height:2">
+  <li><strong>Compute</strong> — Node.js server time on Render (~$0.01/hr)</li>
+  <li><strong>Storage</strong> — Neon PostgreSQL database + R2 file storage</li>
+  <li><strong>Bandwidth</strong> — CDN-served assets and API responses</li>
+  <li><strong>API</strong> — OpenAI and third-party API calls</li>
+  <li><strong>Hosting amortization</strong> — monthly amortization of fixed costs</li>
+</ul>
+
+<h2>Plans</h2>
+<table class="table-wrap">
+<thead><tr><th>Plan</th><th>Price</th><th>Billing</th></tr></thead>
+<tbody>
+<tr><td><strong>Monthly</strong></td><td>Base + 2× infrastructure cost</td><td>Billed monthly</td></tr>
+<tr><td><strong>Annual</strong></td><td>Base + 2× infrastructure cost (discounted)</td><td>Billed once per year</td></tr>
+</tbody>
+</table>
+
+<h2>Invoice and billing portal</h2>
+<p>Access your billing history and update payment methods at the <strong>Stripe Customer Portal</strong> (link in the account settings). Invoices are generated by Stripe and emailed to your account address.</p>
+
+<h2>Cost monitoring</h2>
+<p>Track your daily cost snapshots via <code>GET /api/cost/user</code>. The cost ledger shows compute, storage, bandwidth, API, and hosting amortization broken down per day. Cost optimization triggers fire automatically at $150/month — the system generates tasks to reduce consumption.</p>
+
+<div class="callout callout-info">
+  <div class="callout-title">Cost optimization</div>
+  <p>At $150/mo threshold, the system generates a 5-10× reduction plan with specific tasks (compress models, archive inactive projects, batch simulation requests). No action needed from you — the system handles it autonomously.</p>
+</div>`,
+
+// ── WALLT API ─────────────────────────────────────────────────────────────────
+'wallt-api': `<div class="breadcrumb"><a href="#" onclick="navigate('home');return false">Docs</a> <span class="sep">›</span> <a href="#" onclick="navigate('wallt-install');return false">Wallt AI</a> <span class="sep">›</span> <span>Wallt API</span></div>
+<h1>Wallt API</h1>
+<p class="lead">Integrate external services with Wallt sector intelligence. Send any BIM or AEC text payload — get back which Wallt sectors are relevant with scores.</p>
+
+<div class="callout callout-done">
+  <div class="callout-title">Ephemeral &amp; read-only</div>
+  <p>Wallt API is stateless — no message content is stored. Responses are computed from sector pre-filter logic only.</p>
+</div>
+
+<h2>Architecture</h2>
+<p>The API is a thin pre-filter layer between your service and Wallt sector agents:</p>
+<div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;margin:16px 0;font-size:13px;line-height:2.4;font-family:monospace">
+  <span style="color:var(--accent)">Your Service</span>
+  <span style="color:var(--text-dim)"> → </span>
+  <span style="color:#a5b4fc">POST /api/wallt-api/ingest</span>
+  <span style="color:var(--text-dim)"> → </span>
+  <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:2px 10px;color:var(--yellow)">Sector Pre-filter</span>
+  <span style="color:var(--text-dim)"> → </span>
+  <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:2px 10px;color:#86efac">Sector Agents</span>
+  <span style="color:var(--text-dim)"> → </span>
+  <span style="color:var(--accent)">Enriched Response</span>
+</div>
+<p>Six sector agents: <strong>Structural</strong>, <strong>MEP</strong>, <strong>Thermal/Energy</strong>, <strong>DOB/Zoning</strong>, <strong>Materials</strong>, <strong>Fire Protection</strong>.</p>
+
+<h2>Authentication</h2>
+<p>All endpoints require a Bearer token. Contact the Atlantist team to receive a <code>WALLT_API_TOKEN</code>.</p>
+<pre><code>Authorization: Bearer YOUR_WALLT_API_TOKEN</code></pre>
+<div class="callout callout-warn">
+  <div class="callout-title">Token request</div>
+  <p>Email <strong>support@atlantist.cloud</strong> with your use case to receive a token. Tokens are scoped per integration.</p>
+</div>
+
+<h2>Rate Limits</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Limit</th><th>Value</th><th>Window</th></tr></thead>
+  <tbody>
+    <tr><td>Requests per token</td><td><strong>100</strong></td><td>Per hour</td></tr>
+    <tr><td>Text payload max</td><td><strong>10,000 chars</strong></td><td>Per request</td></tr>
+    <tr><td>On 429</td><td><code>Retry-After</code> header</td><td>Seconds until reset</td></tr>
+  </tbody>
+</table></div>
+
+<h2>POST /api/wallt-api/ingest</h2>
+<p>Send a text payload from your external service — Wallt returns which sectors are relevant and their relevance scores.</p>
+
+<h3>Request</h3>
+<pre><code>POST /api/wallt-api/ingest
+Authorization: Bearer YOUR_WALLT_API_TOKEN
+Content-Type: application/json
+
+{
+  "text": "The W14x48 beam has a span of 24ft and carries a uniform load of 2.4 kip/ft. Check AISC 360-22 code compliance."
+}</code></pre>
+
+<h3>Success Response — 200 OK</h3>
+<pre><code>{
+  "ok": true,
+  "sector_count": 2,
+  "sectors": {
+    "structural": {
+      "relevance": 0.84,
+      "status": "available",
+      "note": "Wallt Structural sector — detailed analysis available via Wallt AI Companion"
+    },
+    "fire": {
+      "relevance": 0.18,
+      "status": "available",
+      "note": "Wallt Fire Protection sector"
+    }
+  },
+  "soft_links": "Cross-sector analysis: Structural × Fire Protection",
+  "timestamp": "2026-05-29T05:32:00.000Z",
+  "request_id": "wtapi-1748506320000-a3f7k9"
+}</code></pre>
+
+<h3>Error Responses</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>Code</th><th>Status</th><th>Body</th></tr></thead>
+  <tbody>
+    <tr><td>401</td><td>Unauthorized</td><td><code>{ "error": "Missing Bearer token", "code": "UNAUTHORIZED" }</code></td></tr>
+    <tr><td>403</td><td>Forbidden</td><td><code>{ "error": "Invalid token", "code": "FORBIDDEN" }</code></td></tr>
+    <tr><td>400</td><td>Bad Request</td><td><code>{ "error": "Missing or empty text field", "code": "BAD_REQUEST" }</code></td></tr>
+    <tr><td>429</td><td>Rate Limit</td><td><code>{ "error": "Rate limit exceeded", "code": "RATE_LIMIT_EXCEEDED", "retry_after": 2841 }</code></td></tr>
+    <tr><td>500</td><td>Server Error</td><td><code>{ "error": "Internal error", "code": "INTERNAL_ERROR" }</code></td></tr>
+    <tr><td>504</td><td>Timeout</td><td><code>{ "ok": false, "timeout": true, "partial": {...}, "error": "..." }</code></td></tr>
+  </tbody>
+</table></div>
+
+<h2>GET /api/wallt-api/health</h2>
+<p>Check global health and per-sector status. No authentication required.</p>
+<pre><code>GET /api/wallt-api/health
+
+{
+  "ok": true,
+  "status": "operational",
+  "sectors": {
+    "structural": { "label": "Structural",       "status": "operational" },
+    "mep":         { "label": "MEP",               "status": "operational" },
+    "thermal":     { "label": "Thermal / Energy",  "status": "operational" },
+    "dob":         { "label": "DOB / Zoning",      "status": "operational" },
+    "materials":   { "label": "Materials",         "status": "operational" },
+    "fire":        { "label": "Fire Protection",  "status": "operational" }
+  },
+  "read_only": true,
+  "ephemeral": true,
+  "no_data_retention": true,
+  "version": "1.0",
+  "rate_limit": { "requests": 100, "window": "1 hour", "remaining": 98 },
+  "timestamp": "2026-05-29T05:32:00.000Z"
+}</code></pre>
+
+<h2>Integration Examples</h2>
+
+<h3>WhatsApp scanner (Node.js)</h3>
+<pre><code>// liber-whatsapp-monitor → Wallt API enrichment
+async function processWhatsAppMessage(text, apiToken) {
+  const response = await fetch('https://nexaxis.polsia.app/api/wallt-api/ingest', {
+    method: 'POST',
+    headers: {
+      'Authorization': \u0060Bearer \u0024{apiToken}\u0060`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ text }),
+  });
+
+  if (!response.ok) {
+    if (response.status === 429) {
+      const retryAfter = response.headers.get('Retry-After');
+      throw new Error(\u0060Rate limited — retry in \u0024{retryAfter}s\u0060);
+    }
+    throw new Error(\u0060Wallt API error: \u0024{response.status}\u0060);
+  }
+
+  const result = await response.json();
+
+  if (result.sectors?.structural?.relevance > 0.6) {
+    console.log('Structural issue detected — opening Wallt session');
+  }
+
+  return result;
+}</code></pre>
+
+<h3>Email monitor (Python)</h3>
+<pre><code>import requests
+
+def enrich_email_for_wallt(email_body: str, token: str) -> dict | None:
+    resp = requests.post(
+        'https://nexaxis.polsia.app/api/wallt-api/ingest',
+        headers={
+            'Authorization': f'Bearer {token}',
+            'Content-Type': 'application/json',
+        },
+        json={'text': email_body},
+        timeout=30,
+    )
+    if resp.status_code == 429:
+        retry_after = int(resp.headers.get('Retry-After', 3600))
+        print(f'Rate limited — retry in {retry_after}s')
+        return None
+    resp.raise_for_status()
+    return resp.json()</code></pre>
+
+<h3>cURL</h3>
+<pre><code>curl -X POST https://nexaxis.polsia.app/api/wallt-api/ingest \\
+  -H "Authorization: Bearer YOUR_WALLT_API_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{"text": "CMU bearing wall at level 2 shows 8-inch nominal width — check IBC Table 722.1 for allowable stress."}'</code></pre>
+
+<h2>Sector Reference</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Sector</th><th>Covers</th><th>Trigger keywords</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Structural</strong></td><td>Beam spans, column loads, foundation bearing, AISC/ACI/NDS code checks, lateral systems</td><td>beam, column, load, span, foundation, footing, steel, moment, shear</td></tr>
+    <tr><td><strong>MEP</strong></td><td>HVAC duct sizing, plumbing pressure drop, electrical panel load, sprinkler coverage</td><td>duct, pipe, hvac, plumbing, electrical, panel, sprinkler, diffuser</td></tr>
+    <tr><td><strong>Thermal/Energy</strong></td><td>U-values, R-values, HVAC load, envelope analysis, EN-001 compliance, DOB energy filing</td><td>thermal, energy, u-value, r-value, hvac load, envelope, insulation</td></tr>
+    <tr><td><strong>DOB/Zoning</strong></td><td>NYC building code, zoning resolution, FAR, setbacks, egress width, fire rating</td><td>dob, zoning, far, setback, egress, fire rating, nyc bc, zoning resolution</td></tr>
+    <tr><td><strong>Materials</strong></td><td>CSI MasterFormat specs, finish schedules, door/window types, CMU properties</td><td>cmU, concrete, masonry, finish, door type, window type, schedule</td></tr>
+    <tr><td><strong>Fire Protection</strong></td><td>NFPA 13/101 sprinkler layout, egress path analysis, occupancy classification, smoke control</td><td>nfpa, sprinkler, egress, fire, smoke, occupancy, exit, fire protection</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Cross-sector soft links</h3>
+<p>When a payload triggers multiple sectors, the response includes a <code>soft_links</code> string showing combined analysis. Example:</p>
+<pre><code>"soft_links": "Cross-sector analysis: Structural × Fire Protection"</code></pre>
+<p>External services can use this to prompt the Wallt AI Companion with the right combined context for multi-domain queries.</p>
+
+<h2>Security</h2>
+<div class="table-wrap"><table>
+  <thead><tr><th>Property</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td>Read-only</td><td>No write operations. No data retained.</td></tr>
+    <tr><td>No message content in logs</td><td>Only sector scores and request IDs are logged.</td></tr>
+    <tr><td>CORS</td><td>Configured per integration. Contact Atlantist team.</td></tr>
+    <tr><td>Token scope</td><td>Per-integration tokens. Revoke on demand.</td></tr>
+  </tbody>
+</table></div>
+
+<h2>Timeout Handling</h2>
+<p>If a sector agent fails to respond within 30 seconds, the endpoint returns partial results with <code>timeout: true</code>:</p>
+<pre><code>{
+  "ok": false,
+  "timeout": true,
+  "partial": {
+    "structural": { "relevance": 0.72, "status": "available" },
+    "mep":        { "relevance": 0.21, "status": "available" }
+  },
+  "error": "Thermal/Energy sector timed out after 30s",
+  "timestamp": "2026-05-29T05:32:00.000Z"
+}</code></pre>
+<p>Check for the <code>timeout</code> field in your integration and retry the <code>/ingest</code> call if full results are needed.</p>
+
+<div class="try-bar">
+  <span class="try-bar-text">Ready to integrate? Request a token at support@atlantist.cloud</span>
+  <a href="mailto:support@atlantist.cloud" class="try-btn">Contact Atlantist Team</a>
+</div>`,
+
+};
+
+// ── Render engine ──────────────────────────────────────────────────────────
+function navigate(page) {
+  const content = document.getElementById('content');
+  const pageData = pages[page] || pages.home;
+  content.innerHTML = pageData;
+
+  // Update active nav
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+
+  // Update breadcrumb for home
+  if (page === 'home') {
+    document.querySelector('.breadcrumb')?.remove();
+  }
+
+  window.scrollTo(0, 0);
+  // Update URL hash without triggering scroll
+  history.pushState(null, '', '#' + page);
+}
+
+// Handle hash on load
+const initPage = location.hash.slice(1) || 'home';
+navigate(initPage);
+
+// Handle back/forward
+window.addEventListener('popstate', () => {
+  const page = location.hash.slice(1) || 'home';
+  navigate(page);
+});
+</script>
+</body>
+</html>

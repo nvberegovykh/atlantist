@@ -1,0 +1,58 @@
+{
+  "district": "R6",
+  "description": "Medium-density residential district (non-contextual designation without letter suffix). Governed by Quality Housing optional regulations OR Height Factor regulations. Two street configurations apply.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "source_url_height": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22", "23-432", "23-731", "23-732", "23-34"],
+  "bulk": {
+    "far_standard_wide_st": 3.00,
+    "far_standard_narrow_st": 2.20,
+    "far_qualifying_wide_st": 3.90,
+    "far_qualifying_narrow_st": 3.90,
+    "far_note": "Wide street = within 100 ft of wide street. Narrow street = beyond 100 ft of wide street or only wide street frontage beyond 100 ft. Non-contextual so two options exist.",
+    "lot_coverage_max": 80,
+    "quality_housing_optional": true
+  },
+  "height_setback": {
+    "regulation_type": "Quality Housing (optional) OR Height Factor (alternative)",
+    "quality_housing": {
+      "min_base_height_ft": 40,
+      "max_base_height_ft": 65,
+      "max_building_height_ft": 75,
+      "notes": "Same as R6A when Quality Housing opted. Base height 40-65 ft; max building 75 ft."
+    },
+    "height_factor": {
+      "sky_exposure_plane": "Governs Height Factor buildings. Base plane measured from street. Setback slope determined by district.",
+      "notes": "Sky exposure plane starts at approx 60 ft in R6 per §23-731. Height factor = building floor area / lot coverage."
+    },
+    "street_wall_setback_wide_st": "10 ft depth above max base height",
+    "street_wall_setback_narrow_st": "15 ft depth above max base height",
+    "tower_permitted": "Only per §23-435 tower regulations (non-contextual R6 through R9)"
+  },
+  "yards": {
+    "front": {
+      "requirement": "Per §23-322",
+      "note": "No front yard required in R6 through R12 per §23-342 exception"
+    },
+    "side": {
+      "requirement": "Per §23-335",
+      "note": "No rear yard required at lot line coinciding with adjoining side lot line"
+    },
+    "rear": {
+      "requirement": "30 ft min depth per §23-342",
+      "through_lot_alternative": "Rear yard equivalent per §23-343 on through lots ≥180 ft"
+    }
+  },
+  "permitted_uses": {
+    "residential": "Dwelling units per §22-11",
+    "community_facility": "Per ZR §24-11",
+    "parking": "50% of dwelling units off-street; not permitted in front yard"
+  },
+  "dob_filing_notes": [
+    "Determine street configuration first (wide vs narrow) — affects FAR and height limits",
+    "Quality Housing Option vs Height Factor Option requires analysis of lot and building program",
+    "NYC DOB: file Alt1 or NB. Height Factor buildings require open space ratio (OSR) calculations"
+  ]
+}

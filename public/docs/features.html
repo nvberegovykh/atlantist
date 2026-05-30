@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Features — Atlantist BIM Platform</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1420">
+<meta name="description" content="Complete feature tour of Atlantist BIM — parametric modeling, structural analysis, MEP simulation, energy analysis, fire protection, and BIM collaboration.">
+<meta property="og:title" content="Features — Atlantist BIM Platform">
+<meta property="og:description" content="Every tool Atlantist ships for structural engineers, architects, and MEP consultants.">
+<meta property="og:image" content="https://atlantist.cloud/brand/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://atlantist.cloud/docs/features">
+<meta property="og:site_name" content="Atlantist">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Features — Atlantist BIM Platform">
+
+<!-- Schema.org Product markup for SEO -->
+<script src="/js/boot-safety.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "Atlantist BIM Platform",
+  "description": "Browser-based BIM platform for structural engineers, architects, and MEP consultants.",
+  "brand": { "@type": "Brand", "name": "Atlantist" },
+  "url": "https://atlantist.cloud",
+  "image": "https://atlantist.cloud/brand/og-image.png",
+  "featureList": [
+    "Parametric wall, door, window placement with auto-cut geometry",
+    "DAG constraint solver propagates level changes instantly across all views",
+    "Structural analysis via OpenSees with deflection, stress, DCR color maps",
+    "HVAC, plumbing, electrical MEP simulation runners",
+    "EnergyPlus energy simulation with EN-001/008 NYC compliance",
+    "Fire protection NFPA 13/101/92/FDNY calculations and FDS smoke simulation",
+    "Geotechnical bearing capacity, settlement, earth pressure, slope stability",
+    "Revit .rvt import via Autodesk Model Derivative API",
+    "IFC 2x3/4 export for ArchiCAD/Revit round-trip",
+    "gbXML export for energy simulation software",
+    "DXF R14/2000 CAD export",
+    "Real-time WebSocket collaboration with ghost cursors",
+    "Integrated issue tracking with camera snapshots and comment threads",
+    "A-400 door/window schedules auto-populated from placed families",
+    "NYC DOB 9-PDF submission bundle generator",
+    "Design Book with material takeoff (A-500) and procurement tracking",
+    "Parametric template projects (Office, Residential, Warehouse)"
+  ]
+}
+</script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0f;--surface:#111118;--surface2:#1a1a24;--border:#222232;
+  --text:#c8cad4;--text-dim:#6b7280;--text-hd:#e2e8f0;
+  --accent:#5b9bd5;--accent-dim:#3a6f9a;--accent-glow:#5b9bd530;
+  --green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--orange:#f97316;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:16px;flex-shrink:0;position:sticky;top:0;z-index:100}
+.topbar-logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--text-hd);text-decoration:none;flex-shrink:0}
+.topbar-logo svg{color:var(--accent)}
+.topbar-nav{display:flex;gap:4px}
+.nav-link{padding:6px 12px;font-size:13px;color:var(--text-dim);text-decoration:none;border-radius:6px;transition:all .15s}
+.nav-link:hover{color:var(--text-hd);background:var(--surface2)}
+.nav-link.active{color:var(--accent);background:var(--accent-glow)}
+.topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.btn-primary{background:var(--accent);color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:13px;cursor:pointer;text-decoration:none;font-weight:500;transition:background .15s}
+.btn-primary:hover{background:var(--accent-dim)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);padding:7px 16px;border-radius:6px;font-size:13px;cursor:pointer;text-decoration:none;transition:all .15s}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+
+.hero{padding:72px 48px 56px;text-align:center;background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 100%);border-bottom:1px solid var(--border)}
+.hero-eyebrow{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}
+.hero h1{font-size:40px;font-weight:700;color:var(--text-hd);line-height:1.15;margin-bottom:16px;letter-spacing:-.5px}
+.hero p{max-width:640px;margin:0 auto 28px;font-size:17px;color:var(--text-dim);line-height:1.65}
+.hero-actions{display:flex;gap:12px;justify-content:center}
+
+.categories{padding:0 48px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:0;overflow-x:auto;flex-shrink:0}
+.cat-btn{padding:14px 20px;font-size:13px;font-weight:500;color:var(--text-dim);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
+.cat-btn:hover{color:var(--text-hd)}
+.cat-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+.features{padding:40px 48px;max-width:1200px;margin:0 auto;width:100%}
+.cat-section{margin-bottom:56px;scroll-margin-top:120px}
+.cat-label{font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px}
+.cat-title{font-size:22px;font-weight:700;color:var(--text-hd);margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(480px,1fr));gap:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s}
+.card:hover{border-color:var(--accent-dim)}
+.card-img-wrap{position:relative;overflow:hidden;aspect-ratio:16/9;background:var(--bg)}
+.card-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}
+.card:hover .card-img-wrap img{transform:scale(1.02)}
+.card-badge{position:absolute;top:10px;left:10px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.08em}
+.card-body{padding:16px 20px}
+.card-name{font-size:15px;font-weight:600;color:var(--text-hd);margin-bottom:6px}
+.card-desc{font-size:13px;color:var(--text-dim);line-height:1.6}
+.card-tag{display:inline-block;margin-top:10px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px;background:var(--surface2);color:var(--text-dim)}
+
+.cta-strip{padding:56px 48px;text-align:center;background:var(--surface);border-top:1px solid var(--border);margin-top:24px}
+.cta-strip h2{font-size:28px;font-weight:700;color:var(--text-hd);margin-bottom:10px}
+.cta-strip p{color:var(--text-dim);margin-bottom:24px;font-size:16px}
+.cta-strip .hero-actions{justify-content:center}
+
+footer{padding:20px 48px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-dim)}
+footer a{color:var(--text-dim);text-decoration:none}
+footer a:hover{color:var(--text-hd)}
+
+@media(max-width:768px){
+  .hero,.categories,.features,.cta-strip,footer{padding-left:20px;padding-right:20px}
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="/" class="topbar-logo">
+    <svg width="20" height="20" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="12" fill="#0a0e14"/>
+      <circle cx="32" cy="35" r="26" fill="none" stroke="#c8cdd6" stroke-width="1.0" opacity="0.22"/>
+      <circle cx="32" cy="35" r="21" fill="none" stroke="#c8cdd6" stroke-width="1.1" opacity="0.30"/>
+      <circle cx="32" cy="35" r="16" fill="none" stroke="#c8cdd6" stroke-width="1.3" opacity="0.38"/>
+      <circle cx="32" cy="35" r="11" fill="none" stroke="#c8cdd6" stroke-width="1.5" opacity="0.48"/>
+      <circle cx="32" cy="35" r="6" fill="none" stroke="#c8cdd6" stroke-width="1.6" opacity="0.58"/>
+      <line x1="32" y1="6" x2="18" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="32" y1="6" x2="46" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="23" y1="45" x2="41" y2="45" stroke="#e0e4ea" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="29" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="35" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="32" cy="3" r="1.8" fill="none" stroke="#e0e4ea" stroke-width="1"/>
+      <path d="M 32 30 L 33.5 35 L 32 40 L 30.5 35 Z" fill="#e0e4ea" opacity="0.9"/>
+      <path d="M 27 35 L 32 33.5 L 37 35 L 32 36.5 Z" fill="#e0e4ea" opacity="0.9"/>
+      <circle cx="32" cy="35" r="1.5" fill="#e0e4ea"/>
+    </svg>
+    Atlantist
+  </a>
+  <nav class="topbar-nav">
+    <a href="/docs" class="nav-link">Docs</a>
+    <a href="/docs/features" class="nav-link active">Features</a>
+    <a href="/pricing" class="nav-link">Pricing</a>
+    <a href="/blog" class="nav-link">Blog</a>
+  </nav>
+  <div class="topbar-actions">
+    <a href="/app" class="btn-primary">Open App</a>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="hero-eyebrow">Feature Tour · May 2026</p>
+  <h1>Everything Atlantist Builds</h1>
+  <p>A complete tour of every tool shipped in the Atlantist BIM platform — from parametric walls to NYC DOB compliance in one browser tab.</p>
+  <div class="hero-actions">
+    <a href="/app?demo=nyc-midrise" class="btn-primary">Try Free →</a>
+    <a href="/docs" class="btn-outline">Read the Docs</a>
+  </div>
+</section>
+
+<nav class="categories">
+  <button class="cat-btn active" data-cat="all">All Features</button>
+  <button class="cat-btn" data-cat="architecture">Architecture</button>
+  <button class="cat-btn" data-cat="simulation">Simulation</button>
+  <button class="cat-btn" data-cat="collaboration">Collaboration</button>
+  <button class="cat-btn" data-cat="import-export">Import/Export</button>
+  <button class="cat-btn" data-cat="documentation">Documentation</button>
+  <button class="cat-btn" data-cat="more">More</button>
+</nav>
+
+<main class="features">
+
+  <!-- ── Architecture ──────────────────────────────────── -->
+  <section class="cat-section" id="architecture">
+    <p class="cat-label">Architecture</p>
+    <h2 class="cat-title">Modeling Tools</h2>
+    <div class="grid">
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/b104a926-4b15-4cff-9ecf-e086c5be4198-atlantist.cloud.png" alt="Atlantist landing page — hero, features, pricing">
+          <a href="https://atlantist.cloud/" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Landing Page &amp; App Entry</h3>
+          <p class="card-desc">Browser-based entry screen with project launcher. Anonymous users get instant access; registered users land in their project dashboard. Full hero, features grid, integrations, and pricing visible to all visitors.</p>
+          <span class="card-tag">Entry point</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/5658962c-a13e-4d49-9760-584835c9fcf7-nexaxis.polsia.app.png" alt="BIM app entry — project launcher">
+          <a href="https://atlantist.cloud/app" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">BIM App — Project Launcher</h3>
+          <p class="card-desc">The BIM application entry screen with project dashboard, template instantiation, and demo project access. Start from scratch, clone the 10-story Manhattan mid-rise demo, or instantiate Office/Residential/Warehouse templates.</p>
+          <span class="card-tag">App Entry</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/c4470371-b9d6-4e83-81d5-9fcddaf4842f-nexaxis.polsia.app.png" alt="NYC mid-rise demo — live BIM model in browser">
+          <a href="https://atlantist.cloud/app?demo=nyc-midrise" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">NYC Mid-Rise Demo — Live BIM</h3>
+          <p class="card-desc">10-story Manhattan mid-rise demo pre-loaded with walls, floors, doors, windows, and all simulation results. Fork it to your own account and start editing immediately.</p>
+          <span class="card-tag">Demo</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/b323e644-1bfd-46a2-a85a-954ea92573c4-nexaxis.polsia.app.png" alt="Parametric template projects: Office, Residential, Warehouse">
+          <a href="https://atlantist.cloud/templates" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Parametric Template Projects</h3>
+          <p class="card-desc">Office, Residential, and Warehouse templates pre-seeded with multi-layer walls, floor slabs at every level, curtain glass, standing seam roofs, ADA-compliant stairs, and IBC-compliant railings. One-click instantiation with full element cloning.</p>
+          <span class="card-tag">Templates</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/72eeb293-1e9d-4389-8b70-22210f64cacb-atlantist.cloud.png" alt="Cost-based pricing page with live calculator">
+          <a href="https://atlantist.cloud/pricing" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Cost-Based Pricing — Live Calculator</h3>
+          <p class="card-desc">Autonomous pricing engine showing compute, storage, bandwidth, API, and hosting amortization in real-time. Formula: bill = max($5, actual_cost × 2). Monthly and annual plans with transparent cost breakdowns.</p>
+          <span class="card-tag">Pricing</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ── Simulation ────────────────────────────────────── -->
+  <section class="cat-section" id="simulation">
+    <p class="cat-label">Simulation</p>
+    <h2 class="cat-title">Analysis Engines</h2>
+    <div class="grid">
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/7335ada9-6025-47aa-b10b-f4c48b38d3a4-nexaxis.polsia.app.png" alt="OpenSees structural analysis — deflection and stress viz">
+          <a href="https://atlantist.cloud/structural" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Structural Analysis — OpenSees</h3>
+          <p class="card-desc">OpenSees-powered finite element analysis. Animated deflection and stress viz in 3D. DCR (Demand-to-Capacity Ratio) color map from green to red. Code check results show PASS/FAIL per member. Beam types include AISC W-shapes, HSS, LVL. Stairs and railings built to IBC 1013/1014 compliance.</p>
+          <span class="card-tag">OpenSees</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/a2b27b50-655e-40ae-bc53-5be9ae0fe596-nexaxis.polsia.app.png" alt="EnergyPlus simulation — 8,760-hour timeline and EN-001/008 compliance">
+          <a href="https://atlantist.cloud/energy" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Energy Simulation — EnergyPlus</h3>
+          <p class="card-desc">ASHRAE JS simulation engine with gbXML export and IDF generation. 8,760-hour annual timeline with interactive player. EN-001 (energy use intensity) and EN-008 (outdoor air) NYC compliance checks. EN-1 Workbook tab exports .xlsm with actual building geometry baked in. Year Viz charts and heatmap for solar/cooling analysis.</p>
+          <span class="card-tag">EnergyPlus</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/fda75df0-7069-44f3-aac8-1de51a06b55a-nexaxis.polsia.app.png" alt="MEP simulation — HVAC, plumbing, electrical panels">
+          <a href="https://atlantist.cloud/mep" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">MEP Simulation — HVAC, Plumbing, Electrical</h3>
+          <p class="card-desc">Three discipline-specific simulation runners. HVAC: VAV terminals, fan coils, diffusers, duct routing. Plumbing: water supply, waste, fixture counts. Electrical: panel boards, conduit sizing, load calculations. Disclaimer gate required before results. MEP fixture catalog pre-loaded by type.</p>
+          <span class="card-tag">MEP</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/b0568e7f-c7da-4201-b4d6-099447368a6c-nexaxis.polsia.app.png" alt="Fire protection — NFPA 13/101/92/FDNY calculations and FDS smoke simulation">
+          <a href="https://atlantist.cloud/fire-protection" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Fire Protection — NFPA &amp; FDS Simulation</h3>
+          <p class="card-desc">NFPA 13 (sprinkler), NFPA 101 (egress), NFPA 92 (smoke), and FDNY compliance calculations. FDS (Fire Dynamics Simulator) input generation with smoke, temperature, and pressure visualization modes. NIST fire formula simulation. Occupancy type drives occupant load and egress width calculations.</p>
+          <span class="card-tag">NFPA</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/16891215-a7c8-484a-b911-49d9d24f7bef-nexaxis.polsia.app.png" alt="Geotechnical — bearing capacity, settlement, slope stability">
+          <a href="https://atlantist.cloud/geotechnical" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Geotechnical Engineering</h3>
+          <p class="card-desc">Bearing capacity (Terzaghi, Meyerhof, Hansen), elastic and consolidation settlement, lateral earth pressure (Rankine, Coulomb), pile capacity (API, Meyerhof), slope stability. OpenSees .tcl input generation for custom runs. Soil profile builder with layered stratigraphy per borehole. Three.js visualization of soil strata and bearing zones.</p>
+          <span class="card-tag">Geotech</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ── Collaboration ────────────────────────────────── -->
+  <section class="cat-section" id="collaboration">
+    <p class="cat-label">Collaboration</p>
+    <h2 class="cat-title">Team &amp; Communication</h2>
+    <div class="grid">
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/249ca3d1-9d7d-43f8-b541-ce3883bb8b00-nexaxis.polsia.app.png" alt="Design Book — schedules, procurement, A-500 material takeoff">
+          <a href="https://atlantist.cloud/design-book" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Design Book — Schedules &amp; Procurement</h3>
+          <p class="card-desc">Design Book document system with revision tracking, sheet ordering, and team management. Auto-populated A-500 Material Takeoff sheet from placed elements. Placeholder system for design decisions with pending/approved/rejected status. Product selection linked to manufacturer, code, specs, lead time, and order status.</p>
+          <span class="card-tag">A-500</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/a5ed682f-e163-4b8e-814b-6bd4439534b5-nexaxis.polsia.app.png" alt="A-400 door/window schedules and section line management">
+          <a href="https://atlantist.cloud/schedules" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">A-400 Door &amp; Window Schedules</h3>
+          <p class="card-desc">Door and window schedules auto-populate from placed family instances. Includes fire rating, material, dimensions, hardware set. Room, finish, and material schedules also available. CSV export for downstream coordination. Section line management for plan cuts.</p>
+          <span class="card-tag">A-400</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ── Import/Export ─────────────────────────────────── -->
+  <section class="cat-section" id="import-export">
+    <p class="cat-label">Import / Export</p>
+    <h2 class="cat-title">File Interoperability</h2>
+    <div class="grid">
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/95199428-1042-44ee-9fd0-25d448be1959-nexaxis.polsia.app.png" alt="IFC 2x3/4 export and .rvt import">
+          <a href="https://atlantist.cloud/import-export" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">IFC Import/Export &amp; .rvt Import</h3>
+          <p class="card-desc">IFC 2X3 and IFC4 round-trip via IFC STEP parser and exporter for ArchiCAD/Revit interchange. .rvt import pipeline via Autodesk Forge Model Derivative API — category mapping, wall layer recreation, family instance placement. Progress tracking from pending through extraction to mapping.</p>
+          <span class="card-tag">IFC / Revit</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/d564a5d7-b739-4bc6-b942-e18b6fe105a7-nexaxis.polsia.app.png" alt="NYC DOB 9-PDF submission bundle generator">
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">NYC DOB 9-PDF Submission Bundle</h3>
+          <p class="card-desc">Nine-PDF DOB filing package generator using pdf-lib and archiver. Includes energy analysis, EN-001/008 compliance forms, building geometry snapshots, and required affidavits. BIN lookup by address. Borough selection. Status tracking from generated to filed.</p>
+          <span class="card-tag">DOB</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ── Documentation ────────────────────────────────── -->
+  <section class="cat-section" id="documentation">
+    <p class="cat-label">Documentation</p>
+    <h2 class="cat-title">Deliverables &amp; Schedules</h2>
+    <div class="grid">
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/8e4e4041-5b73-4ad7-acf7-de46ef80b80d-nexaxis.polsia.app.png" alt="Docs site — 30+ pages covering BIM workflows">
+          <a href="https://atlantist.cloud/docs" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Documentation Site — 30+ Pages</h3>
+          <p class="card-desc">Full documentation site covering BIM workflows, API reference, energy analysis, MEP simulation, troubleshooting. Admin-only inline editor for content team. Guides learning hub with difficulty ratings and step-by-step walkthroughs.</p>
+          <span class="card-tag">Docs</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/eb63df7b-75c1-4746-98ea-13ef6b0cd656-nexaxis.polsia.app.png" alt="Learning hub guides">
+          <a href="https://atlantist.cloud/guides" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Learning Hub — Guided Walkthroughs</h3>
+          <p class="card-desc">Step-by-step guides with difficulty ratings and time estimates. Community submissions with review queue. Progress tracking per user. Categories cover modeling, simulation, and BIM workflows.</p>
+          <span class="card-tag">Guides</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ── More ─────────────────────────────────────────────── -->
+<section class="cat-section" id="more" style="padding:0 48px;max-width:1200px;margin:0 auto 56px">
+    <p class="cat-label">More</p>
+    <h2 class="cat-title" style="font-size:22px;font-weight:700;color:var(--text-hd);margin-bottom:24px">Contact, Onboarding &amp; Blog</h2>
+    <div class="grid">
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/4b2f4d36-7f1e-4913-8e22-2726bf61802c-nexaxis.polsia.app.png" alt="Contact page — reach the Atlantist team">
+          <a href="https://atlantist.cloud/contact" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Contact &amp; Support</h3>
+          <p class="card-desc">Reach the Atlantist team directly. Product questions, enterprise pricing, DOB filing support, and integration consulting. Response typically within 24 hours on business days.</p>
+          <span class="card-tag">Contact</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/73867a21-331d-4ad8-a002-93eeb7e4b124-nexaxis.polsia.app.png" alt="Subscribe acknowledge — onboarding flow">
+          <a href="https://atlantist.cloud/subscribe-acknowledge" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Subscribe &amp; Onboarding Flow</h3>
+          <p class="card-desc">Clean onboarding page for new subscribers. 30-day free trial with Stripe Checkout integration. Annual rate locked at $330. DOB filing package and Design Book included in annual plan.</p>
+          <span class="card-tag">Onboarding</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-img-wrap">
+          <span class="card-badge">Live</span>
+          <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/f360d40e-8021-47ea-b59e-07bb6301ec74-nexaxis.polsia.app.png" alt="Feature showcase blog post">
+          <a href="https://atlantist.cloud/blog" target="_blank" style="position:absolute;inset:0"></a>
+        </div>
+        <div class="card-body">
+          <h3 class="card-name">Feature Showcase Blog Post</h3>
+          <p class="card-desc">"Everything Atlantist Builds" — the complete visual tour published on the blog. Organizes all screenshots by category (Architecture, Simulation, Collaboration, Import/Export) with Schema.org Article markup for SEO.</p>
+          <span class="card-tag">Blog</span>
+        </div>
+      </article>
+
+    </div>
+</section>
+
+<section class="cta-strip">
+  <h2>See it in your browser</h2>
+  <p>No downloads. No plugins. Full BIM in a tab.</p>
+  <div class="hero-actions">
+    <a href="/app?demo=nyc-midrise" class="btn-primary">Launch Atlantist →</a>
+    <a href="/pricing" class="btn-outline">View Pricing</a>
+  </div>
+</section>
+
+<footer>
+  <span>&copy; 2026 Atlantist. Built for structural engineers and architects.</span>
+  <nav style="display:flex;gap:16px">
+    <a href="/docs">Docs</a>
+    <a href="/docs/features">Features</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/terms">Terms</a>
+    <a href="/privacy">Privacy</a>
+  </nav>
+</footer>
+
+<script>
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn?.addEventListener('click', () => {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    document.querySelectorAll('.cat-section').forEach(sec => {
+      if (cat === 'all') {
+        sec.style.display = '';
+      } else {
+        sec.style.display = sec.id === cat ? '' : 'none';
+      }
+    });
+  });
+});
+</script>
+
+</body>
+</html>

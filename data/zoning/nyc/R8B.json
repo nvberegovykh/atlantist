@@ -1,0 +1,46 @@
+{
+  "district": "R8B",
+  "description": "Contextual high-density residential district. Quality Housing mandatory. Produces 6-story brownstone-scale buildings with lower height than R8A. Brownstone row house character.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "source_url_height": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22", "23-432", "23-34"],
+  "bulk": {
+    "far_standard": 4.00,
+    "far_qualifying": 4.80,
+    "far_note": "UAP standard. Lower FAR than R8A but higher than R7A. Community facility FAR per ZR §24-11.",
+    "lot_coverage_max": 80,
+    "quality_housing_mandatory": true
+  },
+  "height_setback": {
+    "regulation_type": "Quality Housing (mandatory)",
+    "min_base_height_ft": 55,
+    "max_base_height_ft": 65,
+    "max_building_height_ft": 75,
+    "affordable_max_base_height_ft": 85,
+    "affordable_max_building_height_ft": 95,
+    "street_wall_setback_wide_st": "10 ft depth above max base height",
+    "street_wall_setback_narrow_st": "15 ft depth above max base height",
+    "street_wall_location": "No closer than buildings within 150 ft on same block",
+    "tower_permitted": false,
+    "notes": "Per ZR §23-432 table (R8B row). Six-story buildings typical. Max building height 75 ft standard; 95 ft qualifying. R8B excluded from certain §23-44 alternative location allowances."
+  },
+  "yards": {
+    "front": { "requirement": "Per §23-322" },
+    "side": { "requirement": "Per §23-335: none required for Quality Housing contextual" },
+    "rear": {
+      "requirement": "30 ft min depth per §23-342",
+      "through_lot_alternative": "Rear yard equivalent per §23-343 on through lots ≥180 ft"
+    }
+  },
+  "permitted_uses": {
+    "residential": ["Dwelling units per §22-11", "Quality Housing required"],
+    "community_facility": "Per ZR §24-11"
+  },
+  "dob_filing_notes": [
+    "Quality Housing Program certification required",
+    "R8B produces lower buildings than R8A — confirm district vs R8A",
+    "Six-story brownstone character — verify neighborhood context"
+  ]
+}

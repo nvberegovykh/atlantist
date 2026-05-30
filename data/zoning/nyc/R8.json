@@ -1,0 +1,55 @@
+{
+  "district": "R8 (no suffix)",
+  "description": "High-density residential district (non-contextual, without letter suffix). Either Quality Housing optional or Height Factor regulations apply. Wide street vs narrow street configurations affect FAR. Tower regulations per §23-435.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "source_url_height": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22", "23-432", "23-731", "23-732", "23-733", "23-735", "23-736", "23-34"],
+  "bulk": {
+    "far_standard_wide_st": 7.20,
+    "far_standard_narrow_st": 6.02,
+    "far_qualifying_wide_st": 8.64,
+    "far_qualifying_narrow_st": 7.20,
+    "far_note": "Within 100 ft of wide street: FAR 7.20 standard / 8.64 qualifying. Beyond 100 ft (narrow street): FAR 6.02 standard / 7.20 qualifying. Height Factor alternative available.",
+    "lot_coverage_max": 80,
+    "quality_housing_optional": true
+  },
+  "height_setback": {
+    "regulation_type": "Quality Housing (optional) OR Height Factor / Sky Exposure Plane (alternative)",
+    "quality_housing": {
+      "min_base_height_ft": 60,
+      "max_base_height_ft": 95,
+      "max_building_height_ft": 125,
+      "affordable_max_building_height_ft": 145
+    },
+    "height_factor_sky_exposure": {
+      "regulation": "Sky exposure plane per §23-731 through §23-737",
+      "notes": "Height Factor buildings: height factor = floor area / lot coverage. Sky exposure plane slope: 2.5:1 in R8. Tower permitted per §23-435 in non-contextual R8."
+    },
+    "street_wall_setback_wide_st": "10 ft depth above max base height",
+    "street_wall_setback_narrow_st": "15 ft depth above max base height",
+    "tower_permitted": "Yes, per §23-435 in non-contextual R8",
+    "notes": "Non-contextual R8 — most flexible district. Quality Housing or Height Factor options available. Tower regulations apply."
+  },
+  "yards": {
+    "front": { "requirement": "Per §23-322" },
+    "side": { "requirement": "Per §23-335" },
+    "rear": {
+      "requirement": "30 ft min depth per §23-342",
+      "through_lot_alternative": "Rear yard equivalent per §23-343 on through lots ≥180 ft"
+    }
+  },
+  "permitted_uses": {
+    "residential": "Dwelling units per §22-11",
+    "community_facility": "Per ZR §24-11",
+    "parking": "Parking not permitted in front yard"
+  },
+  "dob_filing_notes": [
+    "First determine street configuration (wide vs narrow) — affects FAR and height",
+    "Quality Housing vs Height Factor analysis required for building envelope",
+    "Tower regulations §23-435 available in non-contextual R8 — enables tall slender towers",
+    "If in Manhattan CD9 (north of W 125th St): special provisions per §23-442 apply",
+    "DOB NOW: NB or Alt1. Height Factor requires OSR calculation"
+  ]
+}

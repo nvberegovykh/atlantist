@@ -1,0 +1,38 @@
+{
+  "district": "C1-5",
+  "description": "Commercial overlay district mapped within higher-density Residence Districts (typically R6-R10). Allows moderate-density commercial uses. Residential equivalent varies by underlying district.",
+  "source_url": "https://zr.planning.nyc.gov/article-iii/chapter-4",
+  "source_url_height": "https://zr.planning.nyc.gov/article-iii/chapter-5/35-31",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-iii/chapter-5/35-31",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["35-00", "35-31", "35-32", "35-33", "35-34", "35-61", "35-63"],
+  "bulk": {
+    "residential_equivalent": "R5 to R6 depending on map location",
+    "max_commercial_far": "Varies per underlying district — up to 2.0 in some, higher in others",
+    "max_residential_far": "Per underlying R district",
+    "far_note": "Mixed buildings: commercial FAR + residential FAR (each limited separately). Total may exceed single-use FAR. Per §35-33: total of all FARs shall not exceed greatest single-use FAR — this limits combined FAR to the higher of the two, not both.",
+    "verify_far": true
+  },
+  "height_setback": {
+    "regulation_type": "Per §35-62 (R1-R5 equivalent) or §35-63 (R6-R12 equivalent) depending on residential equivalent",
+    "notes": "Verify whether C1-5 overlay is in R1-R5 or R6-R12 equivalent area. Height/setback follow the applicable section accordingly.",
+    "building_height_note": "Commercial portion per §33-43; residential per §23-42 or §23-43"
+  },
+  "yards": {
+    "front": { "requirement": "Per applicable R district regulations" },
+    "side": { "requirement": "Per §24-35 for commercial portions" },
+    "rear": { "requirement": "Per applicable R district" }
+  },
+  "permitted_uses": {
+    "commercial": ["Retail, services, restaurants, offices", "Use Groups 1-10 as permitted per §32-00"],
+    "residential": ["Residential permitted above commercial in mixed building", "Conversions per §35-31"],
+    "community_facility": "Per §33-20"
+  },
+  "dob_filing_notes": [
+    "Identify underlying residential equivalent on zoning map — determines FAR and height",
+    "Check if in R6-R12 area: §35-63 applies; R1-R5: §35-62 applies",
+    "Mixed buildings: verify total FAR does not exceed greatest single-use FAR per §35-33(d)",
+    "Conversions: existing pre-1961 buildings exempt from FAR limits per §35-31",
+    "DOB: mixed-use analysis required for commercial and residential separately"
+  ]
+}

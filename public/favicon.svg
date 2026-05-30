@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Atlantist">
+  <title>Atlantist</title>
+  <!-- 32px favicon — compass-A with rings, optimized for 16px-48px -->
+  <rect width="32" height="32" rx="6" fill="#0a0e14"/>
+
+  <!-- Concentric rings -->
+  <circle cx="16" cy="17" r="12" fill="none" stroke="#c8cdd4" stroke-width="1" opacity="0.3"/>
+  <circle cx="16" cy="17" r="9" fill="none" stroke="#c8cdd4" stroke-width="1.1" opacity="0.4"/>
+  <circle cx="16" cy="17" r="6" fill="none" stroke="#c8cdd4" stroke-width="1.2" opacity="0.52"/>
+
+  <!-- Four-pointed star -->
+  <path d="M 16 14.5 L 17 17 L 16 19.5 L 15 17 Z" fill="#e2e6ec"/>
+  <path d="M 13.5 17 L 16 16 L 18.5 17 L 16 18 Z" fill="#e2e6ec"/>
+
+  <!-- Compass legs -->
+  <line x1="16" y1="3" x2="9.5" y2="29" stroke="#e2e6ec" stroke-width="2" stroke-linecap="round"/>
+  <line x1="16" y1="3" x2="22.5" y2="29" stroke="#e2e6ec" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- Crossbar -->
+  <line x1="11.5" y1="22" x2="20.5" y2="22" stroke="#e2e6ec" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Compass head -->
+  <circle cx="16" cy="3" r="1.2" fill="#e2e6ec"/>
+</svg>

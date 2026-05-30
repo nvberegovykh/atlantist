@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Level Agreement — Atlantist</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1420">
+<link rel="stylesheet" href="/css/legal.css">
+</head>
+<body>
+<div class="legal-page">
+  <header class="legal-header">
+    <a href="https://atlantist.cloud" class="legal-logo">Atlantist</a>
+    <nav class="legal-nav">
+      <a href="/legal/privacy">Privacy</a>
+      <a href="/legal/terms">Terms</a>
+      <a href="/legal/cookies">Cookies</a>
+      <a href="/legal/dpa">DPA</a>
+      <a href="/legal/sla">SLA</a>
+      <a href="/legal/content-policy">Content Policy</a>
+    </nav>
+  </header>
+
+  <main class="legal-content">
+    <div class="legal-meta">Last updated: May 23, 2026 &nbsp;|&nbsp; Version 1.0</div>
+    <h1>Service Level Agreement</h1>
+
+    <p>This SLA is incorporated into the <a href="/legal/terms">Terms of Service</a> and applies to all paying subscribers of Atlantist. "Uptime" means the service is reachable and functional for authenticated users.</p>
+
+    <h2>1. Uptime Commitment</h2>
+    <table>
+      <thead><tr><th>Plan</th><th>Uptime Commitment</th><th>Monthly Downtime Budget</th></tr></thead>
+      <tbody>
+        <tr><td>Free</td><td>No commitment</td><td>—</td></tr>
+        <tr><td>Pro</td><td>99.5%</td><td>3h 39m</td></tr>
+        <tr><td>Team</td><td>99.5%</td><td>3h 39m</td></tr>
+      </tbody>
+    </table>
+    <p>Uptime is measured monthly on a calendar-month basis. It is calculated as:</p>
+    <p style="text-align:center; font-family: monospace; background: var(--bg-secondary); padding: 12px; border-radius: 6px;">
+      Uptime % = ((Total Minutes in Month − Downtime Minutes) ÷ Total Minutes in Month) × 100
+    </p>
+    <p>Excluded from downtime calculations: scheduled maintenance (Section 5), force majeure events (Section 6), and downtime caused by your infrastructure, third-party integrations, or code errors in your custom configurations.</p>
+
+    <h2>2. Incident Classification and Response</h2>
+    <table>
+      <thead><tr><th>Priority</th><th>Definition</th><th>Response Time</th><th>Resolution Target</th></tr></thead>
+      <tbody>
+        <tr><td><strong>P1 — Critical</strong></td><td>Service completely unavailable or all users locked out</td><td>&lt; 4 hours</td><td>Restore within 4 hours</td></tr>
+        <tr><td><strong>P2 — High</strong></td><td>Major feature broken, large subset of users affected, data integrity risk</td><td>&lt; 8 hours</td><td>Restore within 8 hours</td></tr>
+        <tr><td><strong>P3 — Medium</strong></td><td>Minor feature broken, workaround exists, single user or small subset affected</td><td>&lt; 48 hours</td><td>Resolve within 48 hours</td></tr>
+        <tr><td><strong>P4 — Low</strong></td><td>Cosmetic issues, minor performance degradation, feature requests</td><td>&lt; 72 hours</td><td>Best-effort next sprint</td></tr>
+      </tbody>
+    </table>
+    <p>Response time is measured from when you submit a ticket to <strong>support@atlantist.cloud</strong> and receive an initial acknowledgment. Business hours: Monday–Friday 9 AM–6 PM Eastern Time (ET). P1 incidents are handled 24/7.</p>
+
+    <h2>3. Incident Communication</h2>
+    <p>For P1 and P2 incidents:</p>
+    <ul>
+      <li><strong>Initial status:</strong> Acknowledgment within response time, including current assessment</li>
+      <li><strong>Hourly updates:</strong> Every 60 minutes while the incident is active, with ETA for resolution</li>
+      <li><strong>Post-incident report:</strong> Within 5 business days, documenting root cause, timeline, and remediation steps</li>
+    </ul>
+
+    <h2>4. Compensation</h2>
+    <p>If Atlantist fails to meet the 99.5% uptime commitment in a calendar month, you are eligible for service credits:</p>
+    <table>
+      <thead><tr><th>Downtime (measured)</th><th>Credit</th><th>Maximum Monthly Credit</th></tr></thead>
+      <tbody>
+        <tr><td>Per each full hour of downtime</td><td>1 day of service credit</td><td>7 days per month</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Credit calculation example:</strong> If uptime in a 30-day month is 98.2% (2.16 hours of downtime), credit = 2 days of service (2 full hours × 1 day credit per hour, rounding down).</p>
+    <p>Credits are applied to your next invoice as a line-item reduction. Credits expire if unused after 12 months. Credits are the sole and exclusive remedy for uptime failures — there are no cash refunds for downtime.</p>
+    <p><strong>Claim process:</strong> Submit a credit request to <strong>billing@atlantist.cloud</strong> within 30 days of the affected month with your account details and the downtime period. Credits are issued within 2 billing cycles of approval.</p>
+
+    <h2>5. Scheduled Maintenance</h2>
+    <p>Atlantist may perform scheduled maintenance with at least <strong>48 hours advance notice</strong> delivered via email and the status page at <a href="https://atlantist.cloud/status">atlantist.cloud/status</a>. Maintenance windows are scheduled during off-peak hours (weekends or 2 AM–6 AM ET on weekdays).</p>
+    <p>Downtime during scheduled maintenance windows does not count against uptime or trigger SLA credits.</p>
+    <p>Emergency maintenance (security patches, critical fixes) may be performed without advance notice; you will be notified as soon as reasonably possible.</p>
+
+    <h2>6. Exclusions</h2>
+    <p>This SLA does not cover downtime caused by:</p>
+    <ul>
+      <li><strong>Force majeure:</strong> Natural disasters, war, terrorism, government action, ISP failures, third-party DDoS attacks</li>
+      <li><strong>Your actions:</strong> Misconfiguration, excessive API usage, intentional load testing without prior notice</li>
+      <li><strong>Third-party service failures:</strong> Stripe, OpenAI, or PeerJS outages that are not within our control</li>
+      <li><strong>Scheduled maintenance:</strong> As defined in Section 5</li>
+      <li><strong>Beta features:</strong> Features explicitly marked as "Beta" or "Preview"</li>
+      <li><strong>Free tier users:</strong> No SLA applies to Free plan subscribers</li>
+    </ul>
+
+    <h2>7. Service Credits Cap</h2>
+    <p>Maximum compensation for any calendar month is capped at <strong>7 days of service credit</strong>, regardless of the magnitude of downtime. Credits do not roll over to the next month if unused.</p>
+
+    <h2>8. Service Monitoring</h2>
+    <p>Atlantist monitors uptime via automated probes from multiple geographic regions. Our monitoring infrastructure is separate from production and does not affect service availability. Measured uptime figures are available upon request.</p>
+
+    <h2>9. Changes to This SLA</h2>
+    <p>Material changes to this SLA (reduced uptime commitment, changed credit rates) will be communicated at least 30 days before taking effect. Changes apply only to future billing periods; past performance is not retroactively affected.</p>
+
+    <h2>10. Contact</h2>
+    <p><strong>Support:</strong> support@atlantist.cloud (response within SLA timeframes)<br>
+    <strong>Billing/Credits:</strong> billing@atlantist.cloud<br>
+    <strong>Status Page:</strong> <a href="https://atlantist.cloud/status">atlantist.cloud/status</a></p>
+  </main>
+
+  <footer class="legal-footer">
+    <p>&copy; 2026 Atlantist. All rights reserved. &nbsp;|&nbsp; <a href="/legal/privacy">Privacy</a> &nbsp;|&nbsp; <a href="/legal/terms">Terms</a> &nbsp;|&nbsp; <a href="/legal/cookies">Cookies</a></p>
+  </footer>
+</div>
+</body>
+</html>

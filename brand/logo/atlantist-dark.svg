@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 56" width="280" height="56" role="img" aria-label="Atlantist">
+  <title>Atlantist</title>
+  <defs>
+    <linearGradient id="accentGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3479c4"/>
+      <stop offset="100%" stop-color="#7fb3de"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background (transparent — for dark surface use) -->
+
+  <!-- ── Monogram mark ──────────────────────────────────── -->
+  <circle cx="26" cy="28" r="22" fill="none" stroke="#7fb3de" stroke-width="1.5" opacity="0.2"/>
+  <circle cx="26" cy="28" r="16" fill="none" stroke="#7fb3de" stroke-width="1.5" opacity="0.4"/>
+  <circle cx="26" cy="28" r="10" fill="none" stroke="#7fb3de" stroke-width="1.5" opacity="0.65"/>
+  <circle cx="26" cy="28" r="4.5" fill="url(#accentGradDark)"/>
+
+  <!-- A letterform -->
+  <line x1="15" y1="40" x2="26" y2="12" stroke="#cfe3f5" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="37" y1="40" x2="26" y2="12" stroke="#cfe3f5" stroke-width="2.2" stroke-linecap="round"/>
+  <line x1="18.5" y1="31" x2="33.5" y2="31" stroke="#cfe3f5" stroke-width="2.2" stroke-linecap="round"/>
+
+  <!-- ── Wordmark ───────────────────────────────────────── -->
+  <text
+    x="60"
+    y="37"
+    font-family="'DM Serif Display', Georgia, serif"
+    font-size="26"
+    font-weight="400"
+    letter-spacing="-0.5"
+    fill="#f7f6f3"
+  >Atlantist</text>
+
+  <!-- Micro rule -->
+  <line x1="60" y1="42" x2="248" y2="42" stroke="#7fb3de" stroke-width="1" opacity="0.3"/>
+</svg>

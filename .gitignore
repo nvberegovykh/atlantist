@@ -1,0 +1,69 @@
+# ── Dependencies ──────────────────────────────────────────────────────────
+node_modules/
+
+# ── Environment & secrets ──────────────────────────────────────────────────
+.env
+.env.local
+.env.production
+.env.development
+.env.*.local
+
+# ── OS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── IDE ───────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+*.sublime-*
+
+# ── Build artifacts ────────────────────────────────────────────────────────
+dist/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── Test coverage ───────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ── Agent work artifacts (never commit these) ──────────────────────────────
+.tmp/
+debug/
+shell-snapshots/
+statsig/
+todos/
+agent-work-*
+*.jsonl
+
+# ── Internal Polsia config ─────────────────────────────────────────────────
+.claude/
+.claude.json*
+session-env/
+
+# ── Misc ───────────────────────────────────────────────────────────────────
+*.pem
+*.key
+secrets/
+credentials/
+*.orig
+*.bak
+*.scratch
+
+# Polsia safety (auto-injected)
+.env
+.env.*
+.claude/
+.claude.json*
+.tmp/
+debug/
+projects/
+shell-snapshots/
+statsig/
+todos/
+*.jsonl

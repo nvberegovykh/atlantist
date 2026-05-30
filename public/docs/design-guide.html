@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Build a Complete BIM Model in 3–6 Hours — Atlantist Design Guide</title>
+  <meta name="description" content="Step-by-step guide to recreating a full architectural BIM model in Atlantist — walls, floors, doors, windows, stairs, MEP stubs, energy zones, and design book output.">
+  <link rel="canonical" href="https://atlantist.cloud/docs/features/recreatable-model">
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e14;
+      --surface: #141820;
+      --border: #1e2535;
+      --accent: #e07b39;
+      --accent-dim: rgba(224,123,57,0.12);
+      --accent-glow: rgba(224,123,57,0.25);
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --tag-bg: #1a2235;
+      --tag-text: #93b4d4;
+      --success: #4ade80;
+      --warning: #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 13px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+    }
+    code { padding: 2px 6px; }
+    pre { padding: 14px 18px; overflow-x: auto; }
+    .container { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+    .toc {
+      position: sticky;
+      top: 24px;
+      float: right;
+      width: 220px;
+      margin-left: 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      font-size: 13px;
+    }
+    .toc h4 { color: var(--muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
+    .toc ul { list-style: none; }
+    .toc li { margin-bottom: 5px; }
+    .toc a { color: var(--muted); font-weight: 500; }
+    .toc a:hover, .toc a.active { color: var(--accent); }
+    .toc .sub { padding-left: 14px; font-size: 12px; }
+    .header-hero {
+      background: linear-gradient(135deg, #0c0e14 0%, #111827 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 56px 0 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header-hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .header-hero .breadcrumb { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+    .header-hero .breadcrumb a { color: var(--muted); }
+    .header-hero h1 { font-size: 34px; font-weight: 800; line-height: 1.2; margin-bottom: 14px; color: #fff; }
+    .header-hero .subtitle { font-size: 17px; color: var(--muted); max-width: 600px; line-height: 1.6; margin-bottom: 24px; }
+    .header-meta { display: flex; gap: 24px; font-size: 13px; color: var(--muted); }
+    .header-meta span { display: flex; align-items: center; gap: 6px; }
+    .header-meta .badge { background: var(--accent-dim); color: var(--accent); padding: 3px 10px; border-radius: 20px; font-weight: 600; font-size: 12px; }
+    .cta-row { display: flex; gap: 12px; margin: 28px 0 0; flex-wrap: wrap; }
+    .cta-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #fff; font-weight: 700; font-size: 14px;
+      padding: 11px 22px; border-radius: 9px; border: none; cursor: pointer;
+      text-decoration: none;
+    }
+    .cta-primary:hover { background: #c86d2e; text-decoration: none; }
+    .cta-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--text); font-weight: 600; font-size: 14px;
+      padding: 11px 22px; border-radius: 9px; border: 1px solid var(--border);
+      text-decoration: none;
+    }
+    .cta-secondary:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+    .content { padding: 48px 0 80px; }
+    .section { margin-bottom: 64px; }
+    .section-number { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .05em; margin-bottom: 8px; text-transform: uppercase; }
+    h2 { font-size: 24px; font-weight: 700; margin-bottom: 12px; color: #fff; scroll-margin-top: 80px; }
+    h3 { font-size: 18px; font-weight: 700; margin: 28px 0 10px; color: var(--text); scroll-margin-top: 80px; }
+    p { margin-bottom: 14px; color: #b0b8c9; }
+    .lead { font-size: 16px; color: #8892a4; }
+    .note {
+      background: var(--accent-dim);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin: 18px 0;
+      font-size: 14px;
+      color: #d4a87a;
+    }
+    .gotcha {
+      background: rgba(251,191,36,0.08);
+      border-left: 3px solid var(--warning);
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin: 18px 0;
+      font-size: 14px;
+    }
+    .gotcha strong { color: var(--warning); }
+    .step { margin: 32px 0; }
+    .step-header { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
+    .step-num {
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-title { font-size: 16px; font-weight: 700; color: var(--text); padding-top: 4px; }
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 13px;
+    }
+    .param-table th { text-align: left; padding: 9px 14px; background: var(--surface); color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--border); }
+    .param-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .param-table tr:last-child td { border-bottom: none; }
+    .param-table td code { font-size: 12px; }
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .type-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .type-card h4 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .type-card p { font-size: 12px; color: var(--muted); margin-bottom: 0; }
+    .type-card .tag { display: inline-block; background: var(--tag-bg); color: var(--tag-text); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-top: 6px; }
+    .workflow-diagram {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 18px 0;
+    }
+    .workflow-diagram h4 { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 14px; text-transform: uppercase; letter-spacing: .05em; }
+    .workflow-step {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .workflow-step.phase { background: var(--accent-dim); color: var(--accent); font-weight: 700; }
+    .workflow-step.task { background: var(--surface); color: var(--text); }
+    .workflow-step.sub { padding-left: 44px; font-size: 13px; color: var(--muted); }
+    .workflow-arrow { color: var(--border); font-size: 18px; text-align: center; padding: 2px 0; }
+    .time-badge { display: inline-block; background: var(--success); color: #000; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 4px; }
+    .time-estimate { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; margin: 18px 0; }
+    .time-estimate .big { font-size: 32px; font-weight: 800; color: var(--accent); line-height: 1; }
+    .time-estimate .label { font-size: 13px; color: var(--muted); }
+    .search-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 18px;
+      display: flex; align-items: center; gap: 10px;
+      margin: 32px 0 40px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .search-bar kbd { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+    .end-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 56px; padding-top: 28px; border-top: 1px solid var(--border); }
+    .end-nav a { font-size: 14px; font-weight: 600; }
+    @media (max-width: 900px) { .toc { display: none; } }
+    @media (max-width: 600px) { h1 { font-size: 26px; } .container { padding: 0 16px; } }
+  </style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav style="background:var(--surface);border-bottom:1px solid var(--border);padding:0">
+  <div class="container" style="display:flex;align-items:center;gap:20px;padding-top:12px;padding-bottom:12px">
+    <a href="/docs" style="display:flex;align-items:center;gap:8px;color:#fff;font-weight:700;font-size:15px;text-decoration:none">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="9" stroke="#e07b39" stroke-width="2"/><circle cx="11" cy="11" r="4" fill="#e07b39"/><line x1="11" y1="2" x2="11" y2="20" stroke="#e07b39" stroke-width="1.5"/><line x1="2" y1="11" x2="20" y2="11" stroke="#e07b39" stroke-width="1.5"/></svg>
+      Atlantist Docs
+    </a>
+    <span style="color:var(--border);font-size:20px">›</span>
+    <a href="/docs" style="color:var(--muted);font-size:14px;text-decoration:none">Architecture</a>
+    <span style="color:var(--border);font-size:20px">›</span>
+    <span style="color:var(--text);font-size:14px">Recreatable Model Guide</span>
+    <a href="/app" style="margin-left:auto;background:var(--accent);color:#fff;font-weight:700;font-size:13px;padding:7px 16px;border-radius:7px;text-decoration:none">Open App →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="header-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="/docs">Docs</a> › <a href="/docs#architecture">Architecture</a> › Recreatable Model Guide</div>
+    <h1>Build a Complete BIM Model in 3–6 Hours</h1>
+    <p class="subtitle">From blank canvas to full architectural model with design book output — no prior Atlantist knowledge required. Uses real building typologies: office, residential, warehouse.</p>
+    <div class="header-meta">
+      <span class="badge">BIM Walkthrough</span>
+      <span><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--muted)" stroke-width="1.5"/><path d="M7 4.5v3l2 1.5" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round"/></svg> 3–6 hours</span>
+      <span><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="2" width="11" height="10" rx="1.5" stroke="var(--muted)" stroke-width="1.5"/><path d="M4.5 5.5h5M4.5 8h3.5" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round"/></svg> All element types</span>
+      <span><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l3 3 7-7" stroke="var(--success)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> DAG-validated</span>
+    </div>
+    <div class="cta-row">
+      <a href="/app" class="cta-primary">→ Try It Now — Open the App</a>
+      <a href="/app?demo=nyc-midrise" class="cta-secondary">← Fork the Demo Project</a>
+    </div>
+  </div>
+</header>
+
+<!-- BODY -->
+<div class="container" style="padding-top:0">
+  <div class="content" style="position:relative">
+
+    <!-- TOC (sticky right) -->
+    <div class="toc">
+      <h4>On This Page</h4>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#levels">1. Levels &amp; Elevations</a></li>
+        <li><a href="#walls">2. Walls</a></li>
+        <li><a href="#floors">3. Floors &amp; Roofs</a></li>
+        <li><a href="#doors-windows">4. Doors &amp; Windows</a></li>
+        <li><a href="#stairs">5. Stairs &amp; Railings</a></li>
+        <li><a href="#structural">6. Structural Members</a></li>
+        <li><a href="#mep">7. MEP Stubs</a></li>
+        <li><a href="#energy">8. Energy Zones</a></li>
+        <li><a href="#design-book">9. Design Book Output</a></li>
+        <li><a href="#parametric">10. Parametric Constraints</a></li>
+        <li><a href="#export">11. Export (IFC / DWG)</a></li>
+        <li><a href="#templates">Template Quick-Start</a></li>
+        <li><a href="#gotchas">Gotchas</a></li>
+      </ul>
+    </div>
+
+    <!-- ─── SECTION 0: OVERVIEW ───────────────────────────────────────────── -->
+    <section id="overview" class="section">
+      <p class="section-number">Introduction</p>
+      <h2>What you will build</h2>
+      <p class="lead">By following this guide, you'll produce a complete BIM model comparable to what a junior architect would build in 3–6 hours — including the design decisions, constraints, schedules, and design book sheets. No reverse-engineering required.</p>
+
+      <p>This guide uses the <strong>Office Building template</strong> as the reference project (5-story, 40×25m footprint, curtain wall facade). The same workflow applies to all three template typologies.</p>
+
+      <div class="time-estimate">
+        <div>
+          <div class="big">3–6h</div>
+          <div class="label">Total human time</div>
+        </div>
+        <div style="font-size:14px;color:var(--muted)">
+          <strong style="color:var(--text)">Breakdown:</strong> Levels 15min · Walls 45min · Floors 30min · Doors/Windows 30min · Stairs 20min · Structural 20min · MEP stubs 30min · Energy 20min · Design book 30min · Review 30min
+        </div>
+      </div>
+
+      <div class="workflow-diagram">
+        <h4>Your workflow</h4>
+        <div class="workflow-step phase">① Set up levels (binding reference)</div>
+        <div class="workflow-step phase">② Place walls + layers</div>
+        <div class="workflow-step phase">③ Add floors + roofs</div>
+        <div class="workflow-step phase">④ Place doors + windows (auto-cut)</div>
+        <div class="workflow-step phase">⑤ Add stairs + railings</div>
+        <div class="workflow-step phase">⑥ Bind structural members</div>
+        <div class="workflow-step phase">⑦ Add MEP stubs</div>
+        <div class="workflow-step phase">⑧ Run energy simulation</div>
+        <div class="workflow-step phase">⑨ Generate design book sheets</div>
+        <div class="workflow-step phase">⑩ Export IFC / DWG</div>
+      </div>
+
+      <h3>Prerequisites</h3>
+      <ul style="margin:12px 0 18px 22px;color:#b0b8c9;font-size:14px">
+        <li>Browser-based — no install required</li>
+        <li>Basic BIM knowledge (what a wall, column, level means)</li>
+        <li>No Atlantist-specific training needed</li>
+      </ul>
+    </section>
+
+    <!-- ─── SECTION 1: LEVELS ─────────────────────────────────────────────── -->
+    <section id="levels" class="section">
+      <p class="section-number">Step 1</p>
+      <h2>Levels &amp; Elevations</h2>
+      <p>Levels are the <strong>binding reference</strong> for every other element. Change a level elevation → the DAG recalculates all hosted elements. Spend time getting this right upfront.</p>
+
+      <h3>How to add a level</h3>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-title">Click <code>+ Level</code> in the toolbar</div>
+        </div>
+        <p>In the Level modal, enter the <strong>Name</strong> (e.g., "Level 2") and <strong>Elevation</strong> in meters above ground floor.</p>
+      </div>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-title">Set inter-floor height consistently</div>
+        </div>
+        <p>For a typical office building, use <strong>4.0m</strong> between levels. For residential, <strong>3.0m</strong>. Document your standard in the project settings.</p>
+      </div>
+
+      <h3>Level bindings explained</h3>
+      <table class="param-table">
+        <thead><tr><th>Element</th><th>Level Binding</th><th>What happens on elevation change</th></tr></thead>
+        <tbody>
+          <tr><td>Walls</td><td><code>base_level_id</code> + <code>top_level_id</code></td><td>Wall height recalculates. Top follows upper level if bound.</td></tr>
+          <tr><td>Doors / Windows</td><td>Host wall's levels</td><td>Openings stay at same relative position on wall face.</td></tr>
+          <tr><td>Floors</td><td><code>base_level_id</code> (bottom face)</td><td>Floor slab elevation moves with the level.</td></tr>
+          <tr><td>Stairs</td><td><code>base_level_id</code> + <code>top_level_id</code></td><td>Riser count and tread geometry recalculate.</td></tr>
+          <tr><td>Columns</td><td><code>base_level_id</code> + <code>top_level_id</code></td><td>Column height adjusts — all 3D views update instantly.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <strong>Tip:</strong> Use the NYC Mid-Rise demo project (click <code>?</code> → <em>Load Demo</em>) to see how 10 building levels with consistent inter-floor heights bind to walls and stairs.
+      </div>
+    </section>
+
+    <!-- ─── SECTION 2: WALLS ──────────────────────────────────────────────── -->
+    <section id="walls" class="section">
+      <p class="section-number">Step 2</p>
+      <h2>Walls</h2>
+      <p>Walls are placed by defining two XY coordinates in the plan view. Each wall type has a <strong>multi-layer construction</strong> — changing the type propagates through all instances via the DAG.</p>
+
+      <h3>How to place a wall</h3>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-title">Select a wall type from the catalog</div>
+        </div>
+        <p>Open <strong>Projects → Templates → Office Building</strong> and inspect the pre-configured curtain wall. Or choose from these types:</p>
+      </div>
+
+      <div class="type-grid">
+        <div class="type-card">
+          <h4>Curtain Wall Aluminum 250mm</h4>
+          <p>Double-glazed, thermal break. Standard for commercial facades. Aluminum mullion structure.</p>
+          <span class="tag">Commercial</span>
+        </div>
+        <div class="type-card">
+          <h4>Exterior Brick 8"</h4>
+          <p>100mm brick + 50mm mineral wool insulation. Load-bearing, typically 200mm CMU backup.</p>
+          <span class="tag">Residential</span>
+        </div>
+        <div class="type-card">
+          <h4>CMU 8" Load-Bearing</h4>
+          <p>Concrete masonry unit. Used for cores, shear walls, stair/elevator shafts.</p>
+          <span class="tag">Multi-Unit</span>
+        </div>
+        <div class="type-card">
+          <h4>Tilt-Up Concrete Panel 200mm</h4>
+          <p>Single-layer tilt-up panel. Fast erection, common in warehouse/industrial.</p>
+          <span class="tag">Industrial</span>
+        </div>
+        <div class="type-card">
+          <h4>Wood Frame 2×6 Exterior</h4>
+          <p>Fiber cement cladding, 140mm mineral wool. Standard for residential light-frame.</p>
+          <span class="tag">Residential</span>
+        </div>
+        <div class="type-card">
+          <h4>Fire-Rated Gypsum 2-Hour</h4>
+          <p>Dual Type X 25mm gypsum board on metal stud. Used for stairwell enclosures.</p>
+          <span class="tag">Life Safety</span>
+        </div>
+      </div>
+
+      <h3>Wall layer system</h3>
+      <p>Every wall is built from <strong>ordered layers</strong>. The layer system drives the wall assembly in the design book output (finish schedule):</p>
+
+      <table class="param-table">
+        <thead><tr><th>Layer Function</th><th>Examples</th><th>Display in 3D</th></tr></thead>
+        <tbody>
+          <tr><td><code>structure</code></td><td>Concrete, CMU, Wood Stud, Aluminum Mullion</td><td>Structural core — full height</td></tr>
+          <tr><td><code>finish</code></td><td>Gypsum Board, Brick, Stucco, Tile</td><td>Interior face only</td></tr>
+          <tr><td><code>insulation</code></td><td>Mineral Wool, XPS Board</td><td>Hidden (energy model)</td></tr>
+          <tr><td><code>air</code></td><td>Air Gap 50mm</td><td>Hidden (thermal)</td></tr>
+          <tr><td><code>membrane</code></td><td>Housewrap, Damp-Proof Course</td><td>Hidden</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Wall parameter reference</h3>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>Description</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>startCoord</code></td><td>XY plan coordinates for wall start point</td><td><code>{"x":0,"y":25}</code></td></tr>
+          <tr><td><code>endCoord</code></td><td>XY plan coordinates for wall end point</td><td><code>{"x":40,"y":25}</code></td></tr>
+          <tr><td><code>thickness</code></td><td>Total wall thickness (meters)</td><td><code>0.250</code></td></tr>
+          <tr><td><code>loadBearing</code></td><td>Whether wall carries structural loads</td><td><code>true</code> / <code>false</code></td></tr>
+          <tr><td><code>glazing</code></td><td>For curtain walls: single / double / triple</td><td><code>"double"</code></td></tr>
+          <tr><td><code>thermalBreak</code></td><td>Polyamide thermal break in mullion</td><td><code>true</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="gotcha">
+        <strong>Gotcha:</strong> If you change a wall type after placing 30 instances, ALL 30 instances update simultaneously via the DAG. Make sure that's what you want — use <em>Detach from Type</em> in the Properties panel if you need a one-off variation.
+      </div>
+    </section>
+
+    <!-- ─── SECTION 3: FLOORS & ROOFS ────────────────────────────────────── -->
+    <section id="floors" class="section">
+      <p class="section-number">Step 3</p>
+      <h2>Floors &amp; Roofs</h2>
+      <p>Floors are horizontal elements bound to a <code>base_level_id</code>. They have multi-layer construction (structure/finish/insulation). Roofs are flat floors at the top level.</p>
+
+      <h3>Floor type catalog</h3>
+      <div class="type-grid">
+        <div class="type-card">
+          <h4>Composite Steel Deck 130mm</h4>
+          <p>Steel deck + concrete topping. Standard for commercial steel-frame. 4" deck + 2.5" concrete.</p>
+          <span class="tag">Commercial / Steel</span>
+        </div>
+        <div class="type-card">
+          <h4>Flat Plate Concrete 200mm</h4>
+          <p>Two-way flat plate. No beams. Typical for residential with drop panels at columns.</p>
+          <span class="tag">Residential</span>
+        </div>
+        <div class="type-card">
+          <h4>Waffle Slab 300mm</h4>
+          <p>Two-way joist system. 300mm total with 75mm topping. Used for long-span commercial.</p>
+          <span class="tag">Commercial</span>
+        </div>
+        <div class="type-card">
+          <h4>TPO Flat Roof</h4>
+          <p>Single-ply TPO membrane, tapered insulation to drains. Standard low-slope roof.</p>
+          <span class="tag">All Types</span>
+        </div>
+        <div class="type-card">
+          <h4>Green Roof</h4>
+          <p>Vegetated roof assembly. Structural slab + waterproofing + growing medium + vegetation.</p>
+          <span class="tag">Sustainable</span>
+        </div>
+        <div class="type-card">
+          <h4>Wood Frame Floor 300mm</h4>
+          <p>2×10 or 2×12 LVL beams at 16" OC. Standard residential floor. Deflection governs span.</p>
+          <span class="tag">Residential / Wood</span>
+        </div>
+      </div>
+
+      <h3>How to add a floor</h3>
+      <p>In the <strong>3D View</strong>, click <code>+ Floor</code> in the toolbar. The floor inherits its elevation from the <code>base_level_id</code>. The boundary polygon is drawn in plan view.</p>
+
+      <div class="note">
+        <strong>DAG binding:</strong> When you change a level's elevation, all floors with <code>base_level_id</code> pointing to that level update their Z position instantly across all three views. No manual repositioning needed.
+      </div>
+
+      <h3>Roof types</h3>
+      <p>Roofs use the same floor system but are marked as the <strong>top level</strong> (no <code>top_level_id</code> binding). Curved roof surfaces (barrel vault, hip, gambrel) are created using the <strong>Curved Surfaces</strong> primitive system (Phase 22).</p>
+
+      <h4>Adding a curved roof</h4>
+      <ol style="margin:12px 0 18px 22px;color:#b0b8c9;font-size:14px">
+        <li>Click <strong>+ Curved</strong> in the toolbar</li>
+        <li>Select surface type: Barrel Vault, Hip, Gambrel, Hyperboloid, etc.</li>
+        <li>Set the base elevation and profile parameters (rise, span, radius)</li>
+        <li>The roof mesh is generated parametrically — change the rise, the roof updates</li>
+        <li>IFC export: revolution surfaces become <code>IfcBuildingElementProxy</code>, NURBS become <code>IfcBSplineSurfaceWithKnots</code></li>
+      </ol>
+    </section>
+
+    <!-- ─── SECTION 4: DOORS & WINDOWS ────────────────────────────────────── -->
+    <section id="doors-windows" class="section">
+      <p class="section-number">Step 4</p>
+      <h2>Doors &amp; Windows</h2>
+      <p>Doors and windows are <strong>family instances</strong> hosted on wall faces. Placement auto-cuts wall geometry to match the family dimensions — no manual cutting required.</p>
+
+      <h3>How to place a door</h3>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-title">Select the hosting wall</div>
+        </div>
+        <p>Click a wall in plan view to select it. The wall highlights in yellow.</p>
+      </div>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-title">Click <code>+ Door</code> in the toolbar</div>
+        </div>
+        <p>The Door modal opens. Choose a type and set <code>host_face_u</code> (0.0 = start of wall, 1.0 = end of wall). The opening appears at that normalized position.</p>
+      </div>
+
+      <h3>Door type catalog</h3>
+      <table class="param-table">
+        <thead><tr><th>Type</th><th>Width</th><th>Height</th><th>Fire Rating</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td>Hollow Metal Single</td><td>36" (914mm)</td><td>84" (2134mm)</td><td>90 min</td><td>Stairwell, corridor</td></tr>
+          <tr><td>Hollow Metal Double</td><td>60" (1524mm)</td><td>80" (2032mm)</td><td>90 min</td><td>Entry, suite entry</td></tr>
+          <tr><td>Wood Flush Single</td><td>36" (914mm)</td><td>80" (2032mm)</td><td>20 min</td><td>Interior, residential</td></tr>
+          <tr><td>Fire-Rated 45min Single</td><td>36" (914mm)</td><td>84" (2134mm)</td><td>45 min</td><td>Mechanical room</td></tr>
+          <tr><td>Overhead Door 10'×12'</td><td>3048mm</td><td>3658mm</td><td>None</td><td>Loading dock</td></tr>
+          <tr><td>Automatic Sliding 72"×84"</td><td>1829mm</td><td>2134mm</td><td>20 min</td><td>ADA main entry</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Window type catalog</h3>
+      <table class="param-table">
+        <thead><tr><th>Type</th><th>Width</th><th>Height</th><th>Sill Height</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td>Curtain Wall 72"×60"</td><td>1829mm</td><td>1524mm</td><td>900mm</td><td>Commercial facade</td></tr>
+          <tr><td>Storefront 10'×96"</td><td>3048mm</td><td>2438mm</td><td>0</td><td>Ground floor retail</td></tr>
+          <tr><td>Double Hung 36"×72"</td><td>914mm</td><td>1829mm</td><td>900mm</td><td>Residential</td></tr>
+          <tr><td>Sliding 72"×48"</td><td>1829mm</td><td>1219mm</td><td>900mm</td><td>Balcony door, patio</td></tr>
+          <tr><td>Clerestory 60"×36"</td><td>1524mm</td><td>914mm</td><td>9000mm</td><td>Warehouse high sills</td></tr>
+          <tr><td>Fixed 48"×72" High-Rise</td><td>1219mm</td><td>1829mm</td><td>1000mm</td><td>High-rise triple-glazed</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Auto-cut geometry</h3>
+      <p>When you place a door or window, the wall's <code>parameters.cutOpenings</code> JSON records the opening dimensions. The Three.js mesh builder subtracts this geometry from the wall mesh, leaving a clean rectangular void with a frame.</p>
+
+      <div class="note">
+        <strong>Wall type propagation:</strong> If you change the wall's type (e.g., from Gypsum to Curtain Wall), all hosted doors and windows remain. The opening dimensions are preserved; only the wall material updates.
+      </div>
+    </section>
+
+    <!-- ─── SECTION 5: STAIRS & RAILINGS ──────────────────────────────────── -->
+    <section id="stairs" class="section">
+      <p class="section-number">Step 5</p>
+      <h2>Stairs &amp; Railings</h2>
+      <p>Stairs are <strong>parametric elements</strong> — you set base/top levels and the DAG computes riser height, tread depth, and total run. All values are IBC 1011-compliant by default.</p>
+
+      <h3>How to add a stair</h3>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-title">Select stair type from catalog</div>
+        </div>
+        <p>Choose from: <strong>Straight</strong>, <strong>L-Shaped</strong> (90° with landing), <strong>U-Shaped</strong> (180° switchback), <strong>Spiral</strong>, <strong>Circular</strong>.</p>
+      </div>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-title">Set base and top level</div>
+        </div>
+        <p>The stair auto-computes: <code>riser_height = total_rise / number_of_risers</code>. IBC max 7" (178mm) for commercial, 7.87" (200mm) for industrial.</p>
+      </div>
+
+      <h3>Stair type catalog (IBC Table 1011.2)</h3>
+      <table class="param-table">
+        <thead><tr><th>Type</th><th>Rise</th><th>Run</th><th>Width</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td>Residential Straight 7"/11"</td><td>≤178mm (7")</td><td>≥279mm (11")</td><td>914mm</td><td>Single-family, duplex</td></tr>
+          <tr><td>Commercial Straight 7"/10"</td><td>≤178mm (7")</td><td>≥254mm (10")</td><td>1120mm</td><td>Office, multifamily</td></tr>
+          <tr><td>L-Shaped 7"/11" w/ Landing</td><td>≤178mm (7")</td><td>≥279mm (11")</td><td>1120mm</td><td>Multifamily, common area</td></tr>
+          <tr><td>U-Shaped 7"/11" w/ Landing</td><td>≤178mm (7")</td><td>≥279mm (11")</td><td>1120mm</td><td>Commercial, dense</td></tr>
+          <tr><td>Spiral 7" Rise</td><td>≤178mm (7")</td><td>≥191mm at 30"</td><td>1520mm min</td><td>Secondary egress, tight</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Railings</h3>
+      <p>Railings are created after the stair. They bind to the stair via <code>host_stair_id</code> and are placed on the left/right side. IBC requires 42" guards on open sides, 34"–38" handrails.</p>
+
+      <h4>Railing type catalog</h4>
+      <table class="param-table">
+        <thead><tr><th>Type</th><th>Height</th><th>Baluster Spacing</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td>IBC Guardrail 42" Aluminum</td><td>1067mm</td><td>100mm (4" max sphere)</td><td>Commercial open floor</td></tr>
+          <tr><td>IBC Guardrail 42" Steel</td><td>1067mm</td><td>100mm</td><td>Industrial, heavy duty</td></tr>
+          <tr><td>Glass Panel Guard 42"</td><td>1067mm</td><td>N/A (full panel)</td><td>Modern, architectural</td></tr>
+          <tr><td>IBC Handrail 34"–38" Aluminum</td><td>864mm</td><td>N/A</td><td>Per IBC 1014.1</td></tr>
+          <tr><td>Wood Handrail 34"–38"</td><td>864mm</td><td>N/A</td><td>Residential</td></tr>
+          <tr><td>Monolithic Concrete 42"</td><td>1067mm</td><td>N/A</td><td>Parking garage, exterior</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <strong>Level elevation change → Stair recalculates:</strong> Change a level's elevation, and all stairs referencing that level recalculate their riser count and tread geometry. The 3D stepped mesh rebuilds automatically.
+      </div>
+    </section>
+
+    <!-- ─── SECTION 6: STRUCTURAL ──────────────────────────────────────────── -->
+    <section id="structural" class="section">
+      <p class="section-number">Step 6</p>
+      <h2>Structural Members</h2>
+      <p>Columns are placed at grid intersections. Beams run between columns. Both are bound to levels — changing a level height updates all connected structural members.</p>
+
+      <h3>Column types</h3>
+      <div class="type-grid">
+        <div class="type-card"><h4>W14x48</h4><p>AISC wide-flange. 14" nominal depth. Primary structural column for multi-story office.</p><span class="tag">Steel / Commercial</span></div>
+        <div class="type-card"><h4>W12x26</h4><p>Light wide-flange. 12" nominal depth. Secondary columns, shorter spans.</p><span class="tag">Steel</span></div>
+        <div class="type-card"><h4>HSS 6×6×3/8</h4><p>Square hollow structural section. Architectural exposed columns. Fire-rated when required.</p><span class="tag">Steel / Exposed</span></div>
+        <div class="type-card"><h4>Pipe Column 6" STD</h4><p>Standard weight pipe column. Compact, used where HSS isn't available.</p><span class="tag">Steel</span></div>
+        <div class="type-card"><h4>Concrete Column 500×500</h4><p>500mm square reinforced concrete column. Used in concrete frame buildings.</p><span class="tag">Concrete</span></div>
+      </div>
+
+      <h3>Structural grids</h3>
+      <p>The grid system places columns at defined spacing. For the office template, the grid is 8m × 5m. Columns are bound to the grid intersection coordinates — move a grid line and all columns update.</p>
+
+      <h3>Beam types (AISC W-shapes)</h3>
+      <table class="param-table">
+        <thead><tr><th>Section</th><th>Depth</th><th>Weight</th><th>Typical Use</th></tr></thead>
+        <tbody>
+          <tr><td><code>W16x31</code></td><td>16"</td><td>31 lb/ft</td><td>Long-span roof beam, 40ft+ clear</td></tr>
+          <tr><td><code>W14x30</code></td><td>14"</td><td>30 lb/ft</td><td>Primary girder in multi-story</td></tr>
+          <tr><td><code>W12x26</code></td><td>12"</td><td>26 lb/ft</td><td>Floor beam, 20–30ft spans</td></tr>
+          <tr><td><code>W8x18</code></td><td>8"</td><td>18 lb/ft</td><td>Roof purlin, short spans</td></tr>
+          <tr><td><code>Double LVL 2×10</code></td><td>10"</td><td>5.1 kg/m</td><td>Residential floor beam, 24" OC</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ─── SECTION 7: MEP STUBS ───────────────────────────────────────────── -->
+    <section id="mep" class="section">
+      <p class="section-number">Step 7</p>
+      <h2>MEP Stubs</h2>
+      <p>Place MEP fixture stubs (VAV boxes, diffusers, sprinkler heads, electrical panels) to enable HVAC, plumbing, and electrical simulation. Stubs are bound to levels and rooms.</p>
+
+      <h3>MEP fixture catalog</h3>
+      <table class="param-table">
+        <thead><tr><th>Fixture</th><th>Discipline</th><th>Default Size</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td>VAV Terminal 3×3</td><td>HVAC</td><td>900×450×450mm</td><td>Variable Air Volume — office zones</td></tr>
+          <tr><td>4-Pipe Fan Coil Unit</td><td>HVAC</td><td>600×250×200mm</td><td>Bedroom or perimeter zone</td></tr>
+          <tr><td>Ceiling Diffuser 24×24"</td><td>HVAC</td><td>600×50×600mm</td><td>Supply air diffuser, 400 CFM</td></tr>
+          <tr><td>ESFR Sprinkler Head</td><td>Fire Protection</td><td>100×150×100mm</td><td>Warehouse ceiling — high challenge</td></tr>
+          <tr><td>Pendent Sprinkler</td><td>Fire Protection</td><td>75×100×75mm</td><td>Office / residential standard</td></tr>
+          <tr><td>Panel Board 200A</td><td>Electrical</td><td>600×1200×150mm</td><td>Service entrance panel</td></tr>
+          <tr><td>6" Pipe Sch 40</td><td>Plumbing</td><td>168mm OD</td><td>Main riser</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Running HVAC simulation</h3>
+      <p>After placing VAV stubs and diffusers, open <strong>MEP → HVAC Run</strong>. The simulation computes:
+      <ul style="margin:10px 0 16px 22px;color:#b0b8c9;font-size:14px">
+        <li>Zone loads from wall geometry + level spans</li>
+        <li>1 zone per ~1500m² of floor area</li>
+        <li>CFM from cooling Btu/h (1 ton = 12000 Btu/h, 400 CFM/ton)</li>
+        <li>Duct sizing from zone peak CFM</li>
+        <li>Airflow particles for visualization</li>
+      </ul>
+      Results appear in the MEP timeline player with zone-by-zone breakdown.
+      </p>
+    </section>
+
+    <!-- ─── SECTION 8: ENERGY ZONES ─────────────────────────────────────────── -->
+    <section id="energy" class="section">
+      <p class="section-number">Step 8</p>
+      <h2>Energy Zones &amp; Simulation</h2>
+      <p>Rooms become energy zones. Assign room boundary polygons and run a simulation to generate gbXML + EN-001 to EN-008 compliance output.</p>
+
+      <h3>How to set up energy simulation</h3>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">1</div>
+          <div class="step-title">Populate room data</div>
+        </div>
+        <p>Each room needs: <code>area_sqm</code>, <code>volume_cum</code>, <code>floor_finish</code>, <code>wall_finish</code>, <code>ceiling_finish</code>. These drive the energy model envelope properties.</p>
+      </div>
+      <div class="step">
+        <div class="step-header">
+          <div class="step-num">2</div>
+          <div class="step-title">Run Energy Simulation</div>
+        </div>
+        <p>Go to <strong>MEP → Energy</strong>. The engine uses ASHRAE 90.1 baseline. Output includes:
+        <ul style="margin:8px 0 14px 22px;color:#b0b8c9;font-size:14px">
+          <li><strong>gbXML</strong> — for EnergyPlus, Trane TRACE, IES VE</li>
+          <li><strong>IDF text</strong> — direct EnergyPlus input</li>
+          <li><strong>EN-001 to EN-008</strong> — NYC DOB compliance forms (auto-populated from model geometry)</li>
+          <li><strong>Year Viz</strong> — hourly energy chart + heatmap (12 months, hourly granularity)</li>
+        </ul>
+        </p>
+      </div>
+
+      <div class="gotcha">
+        <strong>Gotcha:</strong> Energy zones are computed from room boundaries. If a room is missing or has <code>area_sqm = 0</code>, it won't appear in the simulation. Check the <em>Room Schedule</em> tab to verify all rooms have area data before running.
+      </div>
+    </section>
+
+    <!-- ─── SECTION 9: DESIGN BOOK ─────────────────────────────────────────── -->
+    <section id="design-book" class="section">
+      <p class="section-number">Step 9</p>
+      <h2>Design Book Output</h2>
+      <p>The design book auto-generates sheets from model data. No manual annotation required post-modeling.</p>
+
+      <h3>What auto-populates</h3>
+      <ul style="margin:12px 0 18px 22px;color:#b0b8c9;font-size:14px">
+        <li><strong>Floor Plans</strong> — from element geometry + structural grid</li>
+        <li><strong>Elevations</strong> — N↑ S↑ E→ W← orthographic views (A-200 / A-201 / A-202 / A-203)</li>
+        <li><strong>Door Schedule (A-400)</strong> — from family_instance parametric data: mark, type, width, height, fire rating, material</li>
+        <li><strong>Window Schedule (A-400)</strong> — from family_instance: mark, type, width, height, sill height, glazing</li>
+        <li><strong>Room Schedule</strong> — from rooms table: number, name, area_sqm, floor/ceiling finish</li>
+        <li><strong>Finish Schedule</strong> — from wall_layers: material, function, thickness</li>
+        <li><strong>Material Takeoff</strong> — aggregate wall layer volumes</li>
+        <li><strong>Section Cuts</strong> — draw section lines on plan → elevation view auto-generates</li>
+      </ul>
+
+      <h3>Creating section cuts</h3>
+      <ol style="margin:12px 0 18px 22px;color:#b0b8c9;font-size:14px">
+        <li>Click <strong>Section</strong> in the toolbar</li>
+        <li>Click two points on the plan view to define the cut plane</li>
+        <li>The section camera moves perpendicular to the line, showing the elevation at that cut</li>
+        <li>Use elevation buttons (N↑ S↑ E→ W←) to switch to fixed orthographic views</li>
+        <li>Export any sheet as PDF or CSV</li>
+      </ol>
+
+      <div class="note">
+        <strong>Design book workflow:</strong> Open <strong>Design Book</strong> panel → click <em>New Sheet</em> → choose template → place floor plan → auto-populate schedules → export PDF. The entire workflow is model-driven: change the model, the schedules update.
+      </div>
+    </section>
+
+    <!-- ─── SECTION 10: PARAMETRIC CONSTRAINTS ─────────────────────────────── -->
+    <section id="parametric" class="section">
+      <p class="section-number">Step 10</p>
+      <h2>Parametric Constraints &amp; DAG</h2>
+      <p>The DAG (Directed Acyclic Graph) constraint solver propagates every parameter change instantly across all bound elements. This is what makes Atlantist parametric — not just a 3D viewer.</p>
+
+      <h3>Constraint chain example</h3>
+      <div class="workflow-diagram">
+        <div class="workflow-step task">① Change Level 3 elevation: 8.0m → 8.5m</div>
+        <div class="workflow-arrow">↓</div>
+        <div class="workflow-step task">② DAG resolves: Level 3 now 8.5m</div>
+        <div class="workflow-arrow">↓</div>
+        <div class="workflow-step task">③ Walls with top_level_id = Level 3 → height increases by 0.5m</div>
+        <div class="workflow-arrow">↓</div>
+        <div class="workflow-step task">④ Stairs with top_level_id = Level 3 → riser count recalculates</div>
+        <div class="workflow-arrow">↓</div>
+        <div class="workflow-step task">⑤ Columns spanning Level 3 → length adjusts</div>
+        <div class="workflow-arrow">↓</div>
+        <div class="workflow-step task">⑥ Rooms referencing Level 3 → volume updates</div>
+        <div class="workflow-arrow">↓</div>
+        <div class="workflow-step task">⑦ Energy simulation → zone loads recalculate</div>
+        <div class="workflow-arrow">↓</div>
+        <div class="workflow-step task">⑧ Schedules → area and material quantities update</div>
+        <div class="workflow-arrow">↓</div>
+        <div class="workflow-step task">⑨ All 3 views update (Plan / Elevation / 3D)</div>
+        <div class="workflow-arrow">↓</div>
+        <div class="workflow-step task">⑩ WebSocket broadcasts to all collaborators in real-time</div>
+      </div>
+
+      <h3>Event Ledger (audit trail)</h3>
+      <p>Every parameter change is recorded in the <code>event_ledger</code> with: actor, timestamp, before/after values. This enables per-element revert: open the <strong>History</strong> panel, find the event, click <em>Revert</em>. A new shadow page event is written and the scene reloads for all collaborators.</p>
+
+      <h3>Group rotation</h3>
+      <p>Select multiple elements (Ctrl+click) and press <strong>Space</strong> or click <code>↻ Rotate 45°</code>. All selected elements rotate 45° CW around the selection barycenter in a single atomic undo. Live sync to collaborators via WebSocket.</p>
+    </section>
+
+    <!-- ─── SECTION 11: EXPORT ─────────────────────────────────────────────── -->
+    <section id="export" class="section">
+      <p class="section-number">Step 11</p>
+      <h2>Export (IFC / DWG)</h2>
+      <p>Atlantist exports industry-standard BIM formats that open in Revit, ArchiCAD, and other tools.</p>
+
+      <h3>IFC Export (IFC 2x3)</h3>
+      <p>Click <strong>IFC Export</strong> in the toolbar. The exporter generates a valid IFC 2x3 STEP file with:
+      <ul style="margin:10px 0 16px 22px;color:#b0b8c9;font-size:14px">
+        <li><code>IfcWallStandardCase</code> with ExtrudedAreaSolid geometry</li>
+        <li><code>IfcColumn</code> with structural section profile</li>
+        <li><code>IfcDoor</code> and <code>IfcWindow</code> with hosted opening geometry</li>
+        <li><code>IfcBuildingStorey</code> (levels) as IfcBuildingElementDecomposition</li>
+        <li><code>IfcBSplineSurfaceWithKnots</code> for NURBS curved surfaces</li>
+        <li><code>IfcBuildingElementProxy</code> for revolution/sweep surfaces</li>
+      </ul>
+      </p>
+
+      <h3>IFC Import</h3>
+      <p>Click <strong>IFC Import</strong> → drag-and-drop a STEP file. The parser extracts <code>IfcWallStandardCase</code>, <code>IfcColumn</code>, <code>IfcDoor</code>, <code>IfcWindow</code>, <code>IfcBuildingStorey</code> entities and maps them to Atlantist elements. Progress shown in real time.</p>
+
+      <h3>DWG Export</h3>
+      <p>Click <strong>DWG Export</strong> for AutoCAD-compatible output. Generates DXF R14/2000 text with:
+      <ul style="margin:10px 0 16px 22px;color:#b0b8c9;font-size:14px">
+        <li>Wall polylines with layer naming (A-WALL, A-DOOR, A-WINDOW)</li>
+        <li>Grid lines on dedicated layer (A-GRID)</li>
+        <li>Room boundary polygons (A-AREA)</li>
+        <li>Dimension text (A-DIMS)</li>
+      </ul>
+      </p>
+
+      <div class="note">
+        <strong>.rvt Import:</strong> For Revit files, use the <em>IFC Import</em> workflow. Autodesk Forge Model Derivative API converts .rvt to IFC format first — supported categories include Walls, Doors, Windows, Columns, Levels, Floors, Roofs, Stairs, Railings, and Curtain Walls. See the <a href="/docs/integrations/rvt-import">Revit compatibility guide</a> for full category coverage.
+      </div>
+    </section>
+
+    <!-- ─── TEMPLATE QUICK-START ────────────────────────────────────────────── -->
+    <section id="templates" class="section">
+      <p class="section-number">Quick-Start</p>
+      <h2>Template Projects</h2>
+      <p>Don't start from scratch. The template projects are pre-built scaffolds — levels, walls, floors, stairs, MEP stubs, and energy zones already configured. Instantiate one and modify it.</p>
+
+      <div class="type-grid" style="margin-top:18px">
+        <div class="type-card">
+          <h4>🏢 Office Building 5-Story</h4>
+          <p>5-story, 40×25m footprint, curtain wall facade, composite steel framing, VAV HVAC. 6 levels (Ground + 4 typical + Roof).</p>
+          <span class="tag">Commercial</span>
+        </div>
+        <div class="type-card">
+          <h4>🏠 Residential Multi-Unit 4-Story</h4>
+          <p>4-story, wood-frame + CMU core, 3 apartments per floor (12 total). Sprinklered per NFPA 13R.</p>
+          <span class="tag">Residential</span>
+        </div>
+        <div class="type-card">
+          <h4>🏭 Warehouse / Industrial</h4>
+          <p>Single-story, 60×50m, tilt-up concrete, 12m clear height. 2 loading docks, mezzanine office.</p>
+          <span class="tag">Industrial</span>
+        </div>
+      </div>
+
+      <h3>How to use a template</h3>
+      <ol style="margin:12px 0 18px 22px;color:#b0b8c9;font-size:14px">
+        <li>Open <strong>Projects</strong> → click the <strong>Templates</strong> tab</li>
+        <li>Click a template card to preview: level count, element count, construction type, floor height</li>
+        <li>Enter a project name and click <strong>Use This Template</strong></li>
+        <li>A new project is created — modify, extend, delete anything</li>
+        <li>All elements are live-parametric — no lock-in</li>
+      </ol>
+    </section>
+
+    <!-- ─── GOTCHAS ─────────────────────────────────────────────────────────── -->
+    <section id="gotchas" class="section">
+      <p class="section-number">Reference</p>
+      <h2>Gotchas &amp; Known Issues</h2>
+
+      <div class="gotcha"><strong>Revit compatibility:</strong> Door/window family geometry is auto-cut, which is standard BIM behavior. When importing into Revit via IFC, verify the opening depth matches the wall thickness.</div>
+
+      <div class="gotcha"><strong>Level elevation:</strong> Changing a level does NOT move existing element coordinates — it changes the <em>binding reference</em>. Elements already placed retain their XYZ; only the `base_level_id`/`top_level_id` determines height interpretation.</div>
+
+      <div class="gotcha"><strong>Curved surfaces + IFC:</strong> NURBS surfaces export as <code>IfcBSplineSurfaceWithKnots</code>. Revit reads these natively. ArchiCAD reads them as mesh objects.</div>
+
+      <div class="gotcha"><strong>Stair IBC compliance:</strong> The catalog stair types are pre-validated against IBC Table 1011.2. If you manually enter a riser height > 178mm, the properties palette shows a warning. Change the <code>number_of_risers</code> until the computed riser height is ≤ 178mm.</div>
+
+      <div class="gotcha"><strong>Room area = 0:</strong> Rooms with missing area data don't appear in energy simulations. Always check the Room Schedule tab before running energy analysis.</div>
+
+      <div class="gotcha"><strong>Detaching from type:</strong> If you need a one-off wall variation, use the Properties panel → <em>Detach from Type</em>. The wall becomes a custom instance — future type changes won't affect it.</div>
+
+      <div class="gotcha"><strong>Group rotation undo:</strong> Group rotation is atomic — a single Ctrl+Z reverts the entire group, not individual elements. This is by design for coordinated moves.</div>
+    </section>
+
+    <!-- FOOTER NAV -->
+    <div class="end-nav">
+      <a href="/docs#architecture">← Architecture Documentation</a>
+      <a href="/app">Open the App →</a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/boot-safety.js"></script>
+<script>
+  // Highlight active TOC item on scroll
+  const sections = document.querySelectorAll('h2[id], h3[id]');
+  const tocLinks = document.querySelectorAll('.toc a');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        tocLinks.forEach(a => a.classList.remove('active'));
+        const active = document.querySelector('.toc a[href="#' + entry.target.id + '"]');
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-80px 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

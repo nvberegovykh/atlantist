@@ -1,0 +1,2427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atlantist — Browser-Based BIM for Architects & Engineers</title>
+  <meta name="description" content="Browser-based Building Information Modeling. Parametric walls, real-time collaboration, energy analysis, fire protection, geotechnical — everything an architect needs, nothing they don't.">
+  <meta property="og:title" content="Atlantist — Browser-Based BIM">
+  <meta property="og:description" content="Professional BIM in your browser. No installs. No licenses. Just precision.">
+  <meta property="og:image" content="https://atlantist.cloud/brand/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://atlantist.cloud/">
+  <meta property="og:site_name" content="Atlantist">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Atlantist — Browser-Based BIM">
+  <meta name="twitter:description" content="Professional BIM in your browser. No installs. No licenses. Just precision.">
+  <meta name="twitter:image" content="https://atlantist.cloud/brand/og-image.png">
+  <link rel="canonical" href="https://atlantist.cloud/">
+  <meta name="theme-color" content="#060a10">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ─── Skip to content ──────────────────────────────── */
+    .skip-link {
+      position: absolute;
+      top: -48px; left: 16px;
+      padding: 10px 20px;
+      background: var(--accent); color: #fff;
+      font-size: 14px; font-weight: 600;
+      border-radius: 0 0 8px 8px;
+      z-index: 9999;
+      transition: top 0.2s;
+      text-decoration: none;
+    }
+    .skip-link:focus { top: 0; outline: 3px solid #fff; outline-offset: 2px; }
+
+    /* ─── Focus-visible global ─────────────────────────── */
+    :focus-visible {
+      outline: 2px solid var(--accent-l);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+    /* Remove default outline only when focus-visible is not needed */
+    :focus:not(:focus-visible) { outline: none; }
+
+    :root {
+      --bg:         #060a10;
+      --bg-2:       #0b1018;
+      --bg-card:    #0e1524;
+      --bg-card-h:  #131e34;
+      --accent:     #1d5fa6;
+      --accent-l:   #3479c4;
+      --accent-glow: rgba(29,95,166,0.15);
+      --gold:       #c9a84c;
+      --gold-dim:   rgba(201,168,76,0.12);
+      --text:       #e8eaf0;
+      --text-2:     #8898b0;
+      --text-3:     #697d94;
+      --border:     rgba(255,255,255,0.06);
+      --border-2:   rgba(255,255,255,0.10);
+      --serif:      'DM Serif Display', Georgia, serif;
+      --sans:       'DM Sans', -apple-system, sans-serif;
+      --ease:       cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    ::selection { background: var(--accent); color: #fff; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── Animations ─────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    @keyframes glow-pulse { 0%,100%{opacity:0.3} 50%{opacity:0.7} }
+    @keyframes ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes ring-counter { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes count-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes grid-fade { from { opacity: 0; } to { opacity: 0.04; } }
+    @keyframes particle-drift { 0%{transform:translateY(0) translateX(0);opacity:0} 15%{opacity:0.6} 85%{opacity:0.6} 100%{transform:translateY(-120vh) translateX(40px);opacity:0} }
+    @keyframes glow-orbit { from{transform:rotate(0deg) translateX(200px) rotate(0deg)} to{transform:rotate(360deg) translateX(200px) rotate(-360deg)} }
+
+    /* ─── Reduced-motion: disable all decorative animations ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .hero-particles, .hero-orb { display: none; }
+      html { scroll-behavior: auto; }
+    }
+
+    /* Ambient floating particles — subtle depth cue */
+    .hero-particles {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1;
+    }
+    .hero-particles span {
+      position: absolute;
+      bottom: -20px;
+      width: 2px; height: 2px;
+      border-radius: 50%;
+      background: rgba(52,121,196,0.5);
+      animation: particle-drift linear infinite;
+    }
+    .hero-particles span:nth-child(1){left:10%;animation-duration:18s;animation-delay:0s}
+    .hero-particles span:nth-child(2){left:25%;animation-duration:22s;animation-delay:3s;width:3px;height:3px;background:rgba(29,95,166,0.4)}
+    .hero-particles span:nth-child(3){left:45%;animation-duration:16s;animation-delay:7s}
+    .hero-particles span:nth-child(4){left:65%;animation-duration:24s;animation-delay:2s;width:1.5px;height:1.5px}
+    .hero-particles span:nth-child(5){left:80%;animation-duration:20s;animation-delay:5s;background:rgba(107,163,214,0.35)}
+    .hero-particles span:nth-child(6){left:92%;animation-duration:26s;animation-delay:1s;width:2.5px;height:2.5px}
+
+    /* Gradient accent orb — floating light source */
+    .hero-orb {
+      position: absolute;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(29,95,166,0.12) 0%, transparent 70%);
+      filter: blur(60px);
+      pointer-events: none;
+      z-index: 0;
+      animation: glow-orbit 40s linear infinite;
+      top: 30%;
+      left: 50%;
+    }
+
+    /* Scroll-reveal base */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .anim-up { animation: fadeUp 0.8s var(--ease) both; }
+    .anim-up-d1 { animation-delay: 0.12s; }
+    .anim-up-d2 { animation-delay: 0.24s; }
+    .anim-up-d3 { animation-delay: 0.36s; }
+    .anim-up-d4 { animation-delay: 0.48s; }
+
+    /* ─── Nav ──────────────────────────────────────────── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+      height: 64px;
+      background: rgba(6,10,16,0.8);
+      backdrop-filter: blur(24px) saturate(1.6);
+      -webkit-backdrop-filter: blur(24px) saturate(1.6);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s var(--ease);
+    }
+    .nav.scrolled {
+      background: rgba(6,10,16,0.95);
+      box-shadow: 0 4px 32px rgba(0,0,0,0.4);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .nav-logo img {
+      width: 32px; height: 32px; border-radius: 6px;
+      transition: transform 0.3s var(--ease);
+    }
+    .nav-logo:hover img { transform: scale(1.08); }
+    .nav-logo span {
+      font-family: var(--serif);
+      font-size: 18px;
+      letter-spacing: -0.3px;
+      color: var(--text);
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links a {
+      padding: 7px 16px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; color: var(--text-2);
+      transition: color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: var(--accent-l);
+      border-radius: 1px;
+      transition: width 0.2s var(--ease), left 0.2s var(--ease);
+    }
+    .nav-links a:hover::after {
+      width: 24px;
+      left: calc(50% - 12px);
+    }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+    .btn-ghost {
+      padding: 8px 18px; border: 1px solid var(--border-2); border-radius: 8px;
+      background: transparent; color: var(--text-2); font-family: var(--sans);
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all 0.2s var(--ease);
+    }
+    .btn-ghost:hover { border-color: var(--text-3); color: var(--text); background: rgba(255,255,255,0.04); }
+
+    .btn-solid {
+      padding: 8px 20px; background: var(--accent); border: none; border-radius: 8px;
+      color: #fff; font-family: var(--sans); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s var(--ease);
+      box-shadow: 0 2px 12px rgba(29,95,166,0.3);
+    }
+    .btn-solid:hover { background: var(--accent-l); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(29,95,166,0.4); }
+
+    /* ─── Mobile menu ─────────────────────────────────── */
+    .nav-mobile-toggle {
+      display: none;
+      background: none; border: none; color: var(--text-2);
+      cursor: pointer; padding: 8px;
+      z-index: 101;
+    }
+    .nav-mobile-menu {
+      display: none;
+      position: fixed; top: 64px; left: 0; right: 0;
+      background: rgba(6,10,16,0.97);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px 24px;
+      flex-direction: column; gap: 4px;
+      z-index: 99;
+      animation: mobileMenuIn 0.25s var(--ease) both;
+    }
+    .nav-mobile-menu.open { display: flex; }
+    @keyframes mobileMenuIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .nav-mobile-menu a {
+      padding: 12px 16px; border-radius: 10px;
+      font-size: 15px; font-weight: 500; color: var(--text-2);
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav-mobile-menu a:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+    /* ─── Hero ─────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 140px 24px 100px;
+      overflow: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Ambient grid background */
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(29,95,166,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(29,95,166,0.06) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 70% 50% at 50% 40%, black, transparent);
+      -webkit-mask-image: radial-gradient(ellipse 70% 50% at 50% 40%, black, transparent);
+      animation: grid-fade 2s ease both;
+    }
+
+    /* Radial glow behind hero */
+    .hero::before {
+      content: '';
+      position: absolute; top: -300px; left: 50%; transform: translateX(-50%);
+      width: 1200px; height: 800px;
+      background: radial-gradient(ellipse at center, rgba(29,95,166,0.18) 0%, rgba(52,121,196,0.06) 35%, transparent 65%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Cinematic architectural BIM background — subtle depth layer */
+    .hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: url('https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_138239/a652c95a-9e98-4c1a-b94c-0eb4b176252a.jpg') center 30%/cover no-repeat;
+      opacity: 0.08;
+      mask-image: radial-gradient(ellipse 90% 70% at 50% 45%, black 20%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 45%, black 20%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+      animation: heroImgIn 2s ease-out both;
+    }
+    @keyframes heroImgIn { from { opacity: 0; transform: scale(1.05); } to { opacity: 0.08; transform: scale(1); } }
+
+    /* Concentric ring animation behind logo mark */
+    .hero-mark {
+      position: relative;
+      width: 160px; height: 160px;
+      margin: 0 auto 48px;
+      animation: float 8s ease-in-out infinite;
+      z-index: 2;
+    }
+    .hero-mark img {
+      width: 160px; height: 160px;
+      border-radius: 24px;
+      position: relative; z-index: 3;
+      filter: drop-shadow(0 0 80px rgba(29,95,166,0.5)) drop-shadow(0 0 120px rgba(29,95,166,0.2));
+      transition: transform 0.4s var(--ease);
+    }
+    .hero-mark:hover img {
+      transform: scale(1.06) rotate(2deg);
+    }
+    .hero-mark .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid;
+      pointer-events: none;
+    }
+    .hero-mark .ring-1 {
+      inset: -24px;
+      border-color: rgba(29,95,166,0.18);
+      animation: ring-spin 30s linear infinite, glow-pulse 4s ease-in-out infinite;
+    }
+    .hero-mark .ring-2 {
+      inset: -52px;
+      border-color: rgba(29,95,166,0.10);
+      animation: ring-counter 45s linear infinite, glow-pulse 6s ease-in-out infinite 1s;
+    }
+    .hero-mark .ring-3 {
+      inset: -84px;
+      border-color: rgba(29,95,166,0.05);
+      animation: ring-spin 60s linear infinite, glow-pulse 8s ease-in-out infinite 2s;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 18px; border-radius: 999px;
+      background: var(--gold-dim); border: 1px solid rgba(201,168,76,0.22);
+      font-size: 12px; font-weight: 600; color: var(--gold);
+      letter-spacing: 0.05em; margin-bottom: 40px;
+      position: relative; z-index: 2;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      text-transform: uppercase;
+    }
+    .hero-badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold); animation: pulse 2s ease infinite;
+    }
+
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(2.6rem, 6vw, 4.6rem);
+      line-height: 1.06;
+      letter-spacing: -0.035em;
+      max-width: 820px;
+      margin: 0 auto 28px;
+      position: relative; z-index: 2;
+      text-shadow: 0 2px 40px rgba(0,0,0,0.3);
+    }
+    .hero h1 em {
+      font-style: italic;
+      background: linear-gradient(135deg, var(--accent-l) 0%, #6ba3d6 50%, #a0c8ee 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: clamp(1.05rem, 2vw, 1.2rem);
+      color: var(--text-2); font-weight: 300;
+      max-width: 600px; margin: 0 auto 52px;
+      line-height: 1.8;
+      position: relative; z-index: 2;
+    }
+
+    .hero-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 3; }
+
+    .btn-hero {
+      padding: 16px 36px; border-radius: 12px;
+      font-family: var(--sans); font-size: 15px; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+      transition: all 0.3s var(--ease);
+    }
+    .btn-hero:hover { transform: translateY(-2px); }
+
+    .btn-hero-primary {
+      background: linear-gradient(135deg, var(--accent), #2872bd, #4a90d9);
+      background-size: 200% 200%;
+      color: #fff; border: none;
+      box-shadow: 0 4px 24px rgba(29,95,166,0.45), inset 0 1px 0 rgba(255,255,255,0.15);
+      animation: btnGradientShift 6s ease infinite;
+    }
+    .btn-hero-primary:hover {
+      box-shadow: 0 8px 44px rgba(29,95,166,0.55), inset 0 1px 0 rgba(255,255,255,0.15), 0 0 0 2px rgba(52,121,196,0.2);
+    }
+    @keyframes btnGradientShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+
+    .btn-hero-secondary {
+      background: transparent; color: var(--text-2);
+      border: 1.5px solid var(--border-2);
+    }
+    .btn-hero-secondary:hover { border-color: var(--text-3); color: var(--text); background: rgba(255,255,255,0.03); }
+
+    /* Scroll indicator */
+    .hero-scroll {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-3);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      animation: fadeIn 1.5s ease 1.5s both;
+    }
+    .hero-scroll-line {
+      width: 1px;
+      height: 32px;
+      background: linear-gradient(to bottom, var(--text-3), transparent);
+      animation: pulse 2s ease infinite;
+    }
+
+    /* ─── Stats strip ────────────────────────────────────── */
+    .stats-strip {
+      display: flex; justify-content: center; gap: 56px;
+      padding: 56px 24px; flex-wrap: wrap;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(11,16,24,0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .stat {
+      text-align: center;
+      transition: transform 0.3s var(--ease);
+    }
+    .stat:hover { transform: translateY(-4px); }
+    .stat-num {
+      font-family: var(--serif); font-size: 44px;
+      color: var(--text); line-height: 1;
+      background: linear-gradient(135deg, var(--text), var(--accent-l));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 13px; color: var(--text-3); margin-top: 10px; font-weight: 500; letter-spacing: 0.02em; }
+
+    /* ─── Section ──────────────────────────────────────── */
+    .section { padding: 100px 24px; max-width: 1200px; margin: 0 auto; }
+    .section-header { text-align: center; margin-bottom: 64px; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--accent-l); margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+    }
+    .section-label::before,
+    .section-label::after {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--accent);
+      opacity: 0.4;
+    }
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      letter-spacing: -0.02em; margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 15px; color: var(--text-2); font-weight: 300;
+      max-width: 560px; margin: 0 auto; line-height: 1.7;
+    }
+
+    /* ─── Feature Grid ────────────────────────────────── */
+    .feat-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    }
+    .feat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px 24px;
+      transition: all 0.35s var(--ease);
+      position: relative; overflow: hidden;
+      cursor: default;
+    }
+    .feat-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(120% 120% at 20% 0%, var(--accent-glow) 0%, transparent 60%);
+      opacity: 0; transition: opacity 0.35s;
+    }
+    .feat-card:hover {
+      border-color: rgba(29,95,166,0.35);
+      transform: translateY(-8px);
+      box-shadow: 0 24px 48px rgba(0,0,0,0.25), 0 0 0 1px rgba(29,95,166,0.12), 0 0 60px rgba(29,95,166,0.06);
+    }
+    .feat-card:hover::before { opacity: 1; }
+    .feat-card:active { transform: translateY(-2px); transition-duration: 0.1s; }
+
+    .feat-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 18px;
+      position: relative; z-index: 1;
+      transition: transform 0.3s var(--ease);
+    }
+    .feat-card:hover .feat-icon { transform: scale(1.1); }
+    .feat-icon-blue   { background: rgba(29,95,166,0.15); }
+    .feat-icon-orange  { background: rgba(245,158,11,0.12); }
+    .feat-icon-red     { background: rgba(239,68,68,0.12); }
+    .feat-icon-green   { background: rgba(34,197,94,0.12); }
+    .feat-icon-purple  { background: rgba(168,85,247,0.12); }
+    .feat-icon-teal    { background: rgba(20,184,166,0.12); }
+    .feat-icon-yellow  { background: rgba(234,179,8,0.12); }
+    .feat-icon-pink    { background: rgba(236,72,153,0.12); }
+
+    .feat-name {
+      font-weight: 600; font-size: 15px; margin-bottom: 8px;
+      letter-spacing: -0.01em; position: relative; z-index: 1;
+    }
+    .feat-desc {
+      font-size: 13px; color: var(--text-2); font-weight: 300;
+      line-height: 1.65; margin-bottom: 16px;
+      position: relative; z-index: 1;
+    }
+    .feat-tags {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      position: relative; z-index: 1;
+    }
+    .feat-tag {
+      padding: 3px 10px; border-radius: 6px;
+      background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+      font-size: 11px; color: var(--text-3); font-weight: 500;
+      transition: all 0.2s;
+    }
+    .feat-card:hover .feat-tag { border-color: var(--border-2); color: var(--text-2); }
+
+    /* ─── Workflow section ────────────────────────────────── */
+    .workflow-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+      position: relative;
+    }
+    /* Connecting line */
+    .workflow-grid::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 15%;
+      width: 70%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(29,95,166,0.2) 20%, rgba(29,95,166,0.2) 80%, transparent);
+      z-index: 0;
+    }
+    .workflow-step {
+      text-align: center; padding: 40px 24px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: all 0.35s var(--ease);
+      position: relative;
+      z-index: 1;
+    }
+    .workflow-step:hover { border-color: rgba(29,95,166,0.25); transform: translateY(-4px); box-shadow: 0 16px 32px rgba(0,0,0,0.15); }
+    .workflow-num {
+      font-family: var(--serif); font-size: 52px;
+      background: linear-gradient(135deg, var(--accent-l), rgba(29,95,166,0.3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1; margin-bottom: 16px;
+      filter: drop-shadow(0 0 20px rgba(29,95,166,0.2));
+    }
+    .workflow-step h3 {
+      font-size: 17px; font-weight: 600; margin-bottom: 10px;
+      letter-spacing: -0.01em;
+    }
+    .workflow-step p { font-size: 13px; color: var(--text-2); line-height: 1.65; }
+
+    /* ─── App Showcase (Phase 28) ─────────────────────── */
+    .app-showcase {
+      padding: 80px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .app-showcase-inner {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 48px;
+      align-items: center;
+    }
+    .app-showcase-text {
+      padding-right: 24px;
+    }
+    .app-showcase-text .section-label { justify-content: flex-start; }
+    .app-showcase-text .section-label::before { display: none; }
+    .app-showcase-text h2 {
+      font-family: var(--serif);
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .app-showcase-text p {
+      font-size: 14px;
+      color: var(--text-2);
+      font-weight: 300;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+    .app-showcase-points { list-style: none; }
+    .app-showcase-points li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-2);
+      font-weight: 400;
+      padding: 6px 0;
+    }
+    .app-showcase-points li::before {
+      content: '';
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(29,95,166,0.2), rgba(29,95,166,0.1));
+      border: 1px solid rgba(29,95,166,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .app-showcase-points li span.check::before {
+      content: '\u2713';
+      font-size: 11px;
+      color: var(--accent-l);
+    }
+    .app-showcase-points li span.check::before { content: ''; }
+    .app-showcase-points li span {
+      color: var(--accent-l);
+      font-size: 14px;
+    }
+
+    .browser-frame {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-2);
+      background: #0a0f1a;
+      box-shadow:
+        0 0 0 1px rgba(29,95,166,0.1),
+        0 24px 64px rgba(0,0,0,0.4),
+        0 8px 24px rgba(0,0,0,0.3);
+      transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease);
+    }
+    .browser-frame:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow:
+        0 0 0 1px rgba(29,95,166,0.2),
+        0 32px 80px rgba(0,0,0,0.5),
+        0 12px 32px rgba(0,0,0,0.35);
+    }
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .browser-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .browser-dot-red    { background: #ff5f57; }
+    .browser-dot-yellow { background: #febc2e; }
+    .browser-dot-green  { background: #28c840; }
+    .browser-url {
+      flex: 1;
+      height: 22px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 4px;
+      margin-left: 8px;
+      font-size: 11px;
+      color: var(--text-3);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      font-family: 'DM Mono', monospace;
+      font-weight: 400;
+    }
+    .browser-img {
+      width: 100%;
+      display: block;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+    }
+
+    /* ─── Integrations ────────────────────────────────── */
+    .integrations {
+      display: flex; align-items: center; justify-content: center;
+      gap: 40px; flex-wrap: wrap; padding: 52px 24px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(11,16,24,0.3);
+    }
+    .int-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--text-3); font-weight: 500;
+      transition: color 0.2s;
+    }
+    .int-item:hover { color: var(--text-2); }
+    .int-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); opacity: 0.3;
+      transition: all 0.3s;
+    }
+    .int-item:hover .int-dot { opacity: 0.8; transform: scale(1.3); }
+
+    /* ─── Pricing ─────────────────────────────────────── */
+    .pricing-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px; max-width: 720px; margin: 0 auto;
+    }
+    .price-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px 32px;
+      text-align: center; position: relative;
+      transition: all 0.35s var(--ease);
+    }
+    .price-card:hover { transform: translateY(-6px); box-shadow: 0 20px 48px rgba(0,0,0,0.2); }
+    .price-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 80px rgba(29,95,166,0.12), 0 0 0 1px rgba(29,95,166,0.2);
+    }
+    .price-card.featured::before {
+      content: 'Best Value';
+      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+      padding: 5px 18px; border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), #2872bd);
+      color: #fff;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    }
+
+    .price-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 20px;
+    }
+    .price-amount {
+      font-family: var(--serif); font-size: 52px; line-height: 1; margin-bottom: 4px;
+    }
+    .price-period { font-size: 15px; color: var(--text-3); font-weight: 300; margin-bottom: 8px; }
+    .price-savings { font-size: 13px; color: var(--accent-l); font-weight: 600; margin-bottom: 28px; }
+
+    .price-list { list-style: none; text-align: left; margin-bottom: 32px; }
+    .price-list li {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; color: var(--text-2); font-weight: 300; padding: 7px 0;
+    }
+    .price-list li::before {
+      content: ''; width: 16px; height: 16px; border-radius: 50%;
+      flex-shrink: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='8' cy='8' r='8' fill='rgba(29,95,166,0.15)'/%3E%3Cpath d='M5 8.2l2 2 4-4' stroke='%233479c4' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-size: contain;
+    }
+
+    .btn-price {
+      display: block; width: 100%; padding: 14px;
+      border-radius: 12px; font-family: var(--sans);
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      border: none; text-align: center;
+      transition: all 0.25s var(--ease);
+    }
+    .btn-price:hover { transform: translateY(-1px); }
+    .btn-price-solid {
+      background: linear-gradient(135deg, var(--accent), #2872bd);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(29,95,166,0.3);
+    }
+    .btn-price-solid:hover { box-shadow: 0 4px 20px rgba(29,95,166,0.4); }
+    .btn-price-outline { background: transparent; border: 1.5px solid var(--border-2); color: var(--text-2); }
+    .btn-price-outline:hover { border-color: var(--text-3); color: var(--text); background: rgba(255,255,255,0.03); }
+
+    .price-note {
+      margin-top: 24px; font-size: 12px; color: var(--text-3);
+      text-align: center;
+    }
+    .price-note a { color: var(--accent-l); text-decoration: underline; text-underline-offset: 2px; }
+
+    .price-trial { margin-top: 16px; font-size: 12px; color: var(--text-3); }
+
+    /* ─── Smart pricing message ─────────────────────── */
+    .smart-pricing {
+      max-width: 600px; margin: 40px auto 0; text-align: center;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px 32px;
+      transition: all 0.35s var(--ease);
+    }
+    .smart-pricing:hover { border-color: rgba(29,95,166,0.2); }
+    .smart-pricing-icon { margin-bottom: 20px; opacity: 0.7; }
+    .smart-pricing-title {
+      font-family: var(--serif); font-size: 22px; line-height: 1.3;
+      color: var(--text); margin-bottom: 12px;
+    }
+    .smart-pricing-desc {
+      font-size: 14px; line-height: 1.7; color: var(--text-2);
+      max-width: 480px; margin: 0 auto 24px;
+    }
+    .smart-pricing-points {
+      display: flex; flex-direction: column; gap: 10px;
+      align-items: center; margin-bottom: 24px;
+    }
+    .smart-pricing-point {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: var(--text-2);
+    }
+    .smart-pricing-check {
+      color: var(--accent-l); font-size: 14px; font-weight: 700;
+    }
+    .smart-pricing-formula {
+      display: inline-block; padding: 8px 20px; border-radius: 999px;
+      background: rgba(29,95,166,0.1); border: 1px solid rgba(29,95,166,0.2);
+      font-size: 12px; color: var(--accent-l); font-weight: 600;
+      letter-spacing: 0.02em; text-decoration: none;
+      transition: all 0.2s var(--ease);
+    }
+    .smart-pricing-formula:hover {
+      background: rgba(29,95,166,0.18); border-color: rgba(29,95,166,0.35);
+    }
+
+    /* ─── CTA Section (Phase 28) ───────────────────────── */
+    .cta-section {
+      text-align: center; padding: 140px 24px;
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(29,95,166,0.12) 0%, transparent 70%);
+    }
+    .cta-section::after {
+      content: '';
+      position: absolute;
+      inset: 40px;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      pointer-events: none;
+    }
+    .cta-section h2 {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      margin-bottom: 20px; position: relative; z-index: 1;
+      letter-spacing: -0.02em;
+    }
+    .cta-section p {
+      font-size: 16px; color: var(--text-2); max-width: 500px;
+      margin: 0 auto 44px; position: relative; z-index: 1;
+      line-height: 1.7;
+    }
+    .cta-section .hero-cta {
+      position: relative; z-index: 1;
+    }
+
+    /* ─── Footer ──────────────────────────────────────── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 56px 40px 32px;
+      background: rgba(6,10,16,0.8);
+    }
+    .footer-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-wrap: wrap; gap: 40px;
+    }
+    .footer-brand { display: flex; align-items: center; gap: 10px; }
+    .footer-brand img { width: 28px; height: 28px; border-radius: 6px; }
+    .footer-brand span { font-family: var(--serif); font-size: 16px; }
+    .footer-tagline { font-size: 12px; color: var(--text-3); margin-top: 8px; max-width: 240px; line-height: 1.6; }
+
+    .footer-cols { display: flex; gap: 56px; }
+    .footer-col h4 {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 14px;
+    }
+    .footer-col a {
+      display: block; font-size: 13px; color: var(--text-2);
+      padding: 3px 0; transition: color 0.15s;
+    }
+    .footer-col a:hover { color: var(--text); }
+
+    .footer-bottom {
+      max-width: 1200px; margin: 36px auto 0;
+      padding-top: 24px; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 12px; color: var(--text-3);
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-bottom a { color: var(--accent-l); transition: color 0.15s; }
+    .footer-bottom a:hover { color: var(--text); }
+
+    /* ─── Responsive ──────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .feat-grid { grid-template-columns: repeat(2, 1fr); }
+      .workflow-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+      .workflow-grid::before { display: none; }
+      .app-showcase-inner { grid-template-columns: 1fr; gap: 36px; }
+      .app-showcase-text { padding-right: 0; }
+    }
+
+    @media (max-width: 768px) {
+      .nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .nav-mobile-toggle { display: block; }
+      .hero { padding: 120px 20px 60px; min-height: auto; }
+      .hero-mark { width: 110px; height: 110px; margin-bottom: 36px; }
+      .hero-mark img { width: 110px; height: 110px; }
+      .hero-mark .ring-3 { display: none; }
+      .feat-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+      .section { padding: 72px 20px; }
+      .stats-strip { gap: 24px; padding: 40px 20px; }
+      .integrations { gap: 20px; }
+      .footer-inner { flex-direction: column; }
+      .footer-cols { flex-wrap: wrap; gap: 32px; }
+      .footer { padding: 40px 20px 24px; }
+      .hero-scroll { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .nav { padding: 0 16px; height: 56px; }
+      .nav-actions .btn-ghost { display: none; }
+      .hero h1 { font-size: 1.8rem; }
+      .hero-cta { flex-direction: column; align-items: center; }
+      .btn-hero { width: 100%; max-width: 320px; justify-content: center; }
+    }
+
+    /* ─── Skip link (WCAG 2.1 AA) ─────────────────────────── */
+    .skip-link {
+      position: absolute; top: -100px; left: 16px;
+      background: var(--accent); color: #fff;
+      padding: 10px 20px; border-radius: 0 0 8px 8px;
+      font-size: 14px; font-weight: 600;
+      z-index: 9999;
+      transition: top 0.2s;
+    }
+    .skip-link:focus { top: 0; }
+
+    /* ─── Carousel ────────────────────────────────────────── */
+    .carousel-nav {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      justify-content: center; margin-bottom: 32px;
+    }
+    .carousel-tab {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 10px 20px; border-radius: 10px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text-2); font-family: var(--sans);
+      font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s var(--ease);
+    }
+    .carousel-tab:hover { border-color: var(--border-2); color: var(--text); background: var(--bg-card-h); }
+    .carousel-tab.active {
+      background: var(--bg-card-h); border-color: var(--accent);
+      color: var(--text);
+      box-shadow: 0 0 0 1px rgba(29,95,166,0.15), 0 4px 16px rgba(29,95,166,0.1);
+    }
+    .carousel-tab:focus-visible {
+      outline: 2px solid var(--accent-l); outline-offset: 2px;
+    }
+    .carousel-tab-icon { font-size: 14px; }
+
+    .carousel-track { position: relative; min-height: 380px; }
+
+    .carousel-panel {
+      animation: carouselIn 0.4s var(--ease) both;
+    }
+    .carousel-panel[hidden] { display: none; }
+    @keyframes carouselIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .carousel-content {
+      display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px;
+      align-items: center;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 48px;
+      transition: border-color 0.3s;
+    }
+    .carousel-content:hover { border-color: rgba(29,95,166,0.2); }
+
+    .carousel-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent-l);
+      margin-bottom: 12px;
+    }
+    .carousel-title {
+      font-family: var(--serif);
+      font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+      letter-spacing: -0.02em; margin-bottom: 14px;
+      line-height: 1.2;
+    }
+    .carousel-desc {
+      font-size: 14px; color: var(--text-2); font-weight: 300;
+      line-height: 1.75; margin-bottom: 24px;
+    }
+
+    .carousel-metrics {
+      display: flex; gap: 24px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .carousel-metric { text-align: center; }
+    .carousel-metric-val {
+      font-family: var(--serif); font-size: 28px;
+      background: linear-gradient(135deg, var(--text), var(--accent-l));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; display: block; line-height: 1;
+    }
+    .carousel-metric-lbl { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+
+    .carousel-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .carousel-demo { position: relative; }
+    .carousel-demo-screen {
+      background: linear-gradient(135deg, #060e1a, #0b1525);
+      border: 1px solid rgba(29,95,166,0.15);
+      border-radius: 14px; padding: 24px;
+      min-height: 260px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+
+    /* DAG viz */
+    .dag-viz {
+      width: 100%; height: 220px; position: relative;
+    }
+    .dag-node {
+      position: absolute; transform: translate(-50%, -50%);
+      background: var(--bg-card-h); border: 1px solid rgba(29,95,166,0.3);
+      border-radius: 10px; padding: 8px 14px; text-align: center;
+      font-size: 12px; font-weight: 600;
+      transition: all 0.3s;
+    }
+    .dag-node small { display: block; font-size: 10px; color: var(--accent-l); font-weight: 400; margin-top: 2px; }
+    .dag-node-level { border-color: rgba(29,95,166,0.6); box-shadow: 0 0 20px rgba(29,95,166,0.15); }
+    .dag-node-pulse {
+      position: absolute; inset: -4px; border-radius: 14px;
+      border: 1px solid rgba(29,95,166,0.4);
+      animation: dagPulse 2s ease-in-out infinite;
+    }
+    @keyframes dagPulse {
+      0%,100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.04); }
+    }
+    .dag-arrows {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      pointer-events: none;
+    }
+    .dag-arrow {
+      stroke: rgba(52,121,196,0.5); stroke-width: 1.5;
+      stroke-dasharray: 6 4;
+      animation: dashMove 1.5s linear infinite;
+    }
+    .dag-arrow-1 { animation-delay: 0s; }
+    .dag-arrow-2 { animation-delay: 0.3s; }
+    .dag-arrow-3 { animation-delay: 0.6s; }
+    @keyframes dashMove { to { stroke-dashoffset: -20; } }
+    .dag-badge {
+      position: absolute; bottom: 12px; right: 12px;
+      font-size: 10px; color: var(--gold); font-weight: 600;
+      padding: 4px 10px; border-radius: 999px;
+      background: var(--gold-dim); border: 1px solid rgba(201,168,76,0.2);
+      animation: pulse 1.8s ease infinite;
+    }
+
+    /* MEP viz */
+    .mep-viz { width: 100%; }
+    .mep-duct-grid { position: relative; height: 160px; }
+    .mep-duct {
+      position: absolute; background: rgba(20,184,166,0.2);
+      border: 1px solid rgba(20,184,166,0.4); border-radius: 3px;
+      overflow: hidden;
+    }
+    .mep-airflow {
+      position: absolute; top: 0; left: -100%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(20,184,166,0.4), transparent);
+      animation: airflowMove 2s linear infinite;
+    }
+    @keyframes airflowMove { to { left: 200%; } }
+    .mep-diffuser {
+      position: absolute; transform: translate(-50%, -50%);
+      color: rgba(20,184,166,0.8); font-size: 16px;
+    }
+    .mep-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+    .mep-legend-item { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 500; }
+    .mep-hvac { background: rgba(20,184,166,0.1); color: rgba(20,184,166,0.9); border: 1px solid rgba(20,184,166,0.2); }
+    .mep-elec { background: rgba(234,179,8,0.1); color: rgba(234,179,8,0.9); border: 1px solid rgba(234,179,8,0.2); }
+
+    /* Energy heatmap viz */
+    .energy-viz { width: 100%; }
+    .energy-heatmap { margin-bottom: 12px; }
+    .energy-heatmap-labels {
+      display: flex; justify-content: space-between;
+      font-size: 10px; color: var(--text-3); margin-bottom: 4px;
+    }
+    .energy-heatmap-grid {
+      display: grid; grid-template-columns: repeat(52, 1fr); gap: 1px;
+      height: 80px;
+    }
+    .energy-cell {
+      border-radius: 1px;
+      transition: transform 0.2s;
+    }
+    .energy-cell:hover { transform: scale(1.5); z-index: 1; }
+    .energy-legend {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 10px; color: var(--text-3);
+    }
+    .energy-legend-bar {
+      flex: 1; height: 6px; border-radius: 3px;
+      background: linear-gradient(90deg, #1e4070, #1d5fa6, #f59e0b, #ef4444);
+    }
+    .energy-compliance { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .energy-badge {
+      font-size: 11px; padding: 3px 10px; border-radius: 6px;
+      font-weight: 600;
+    }
+    .energy-pass { background: rgba(34,197,94,0.1); color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
+    .energy-warn { background: rgba(245,158,11,0.1); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+
+    /* Fire viz */
+    .fire-viz { width: 100%; }
+    .fire-floorplan {
+      position: relative; height: 140px;
+      background: rgba(239,68,68,0.04); border: 1px solid rgba(239,68,68,0.1);
+      border-radius: 8px; margin-bottom: 12px; overflow: hidden;
+    }
+    .fire-sprinkler {
+      position: absolute; transform: translate(-50%, -50%);
+      font-size: 14px; color: rgba(239,68,68,0.7); cursor: default;
+    }
+    .fire-coverage {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 70px; height: 70px; border-radius: 50%;
+      background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.15);
+      animation: coveragePulse 3s ease-in-out infinite;
+    }
+    @keyframes coveragePulse { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.05)} }
+    .fire-egress-path {
+      position: absolute; bottom: 12px; left: 10%; width: 80%; height: 2px;
+      background: linear-gradient(90deg, rgba(34,197,94,0.6), rgba(34,197,94,0.2));
+      border-radius: 1px;
+    }
+    .fire-results { display: flex; flex-direction: column; gap: 4px; }
+    .fire-result { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 500; }
+    .fire-ok { background: rgba(34,197,94,0.08); color: #4ade80; border: 1px solid rgba(34,197,94,0.15); }
+
+    /* Collab viz */
+    .collab-viz { width: 100%; }
+    .collab-viewport {
+      position: relative; height: 200px;
+      background: rgba(11,16,24,0.8); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+    }
+    .ghost-cursor { position: absolute; }
+    .ghost-cursor-1 { animation: ghostDrift1 6s ease-in-out infinite; }
+    .ghost-cursor-2 { animation: ghostDrift2 8s ease-in-out infinite; }
+    @keyframes ghostDrift1 { 0%,100%{transform:translate(0,0)} 30%{transform:translate(20px,-10px)} 70%{transform:translate(-8px,15px)} }
+    @keyframes ghostDrift2 { 0%,100%{transform:translate(0,0)} 40%{transform:translate(-15px,8px)} 80%{transform:translate(10px,-6px)} }
+    .ghost-label {
+      display: inline-block; margin-left: 18px;
+      font-size: 10px; font-weight: 600; color: #3479c4;
+      background: rgba(6,10,16,0.9); padding: 2px 6px; border-radius: 4px;
+      border: 1px solid rgba(52,121,196,0.3);
+    }
+    .ghost-label-gold { color: #c9a84c; border-color: rgba(201,168,76,0.3); }
+    .issue-pin { position: absolute; }
+    .issue-pin-dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(245,158,11,0.9); color: #000;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800;
+      animation: pulse 2s ease infinite;
+    }
+    .issue-pin-tooltip {
+      position: absolute; left: 24px; top: 0;
+      white-space: nowrap; font-size: 10px; color: var(--text-2);
+      background: var(--bg-card); padding: 4px 8px; border-radius: 6px;
+      border: 1px solid var(--border); max-width: 180px; white-space: normal;
+    }
+    .collab-presence {
+      position: absolute; top: 10px; right: 10px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .presence-avatar {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.2);
+    }
+    .presence-count { font-size: 10px; color: var(--text-3); margin-left: 4px; }
+
+    /* Export viz */
+    .export-viz { width: 100%; }
+    .export-flow { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .export-source {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .export-icon { font-size: 28px; }
+    .export-source span { font-size: 12px; color: var(--text-2); font-weight: 600; }
+    .export-arrows-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    }
+    .export-target {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .export-fmt {
+      width: 48px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 800; letter-spacing: 0.04em;
+      transition: transform 0.2s;
+    }
+    .export-target:hover .export-fmt { transform: translateY(-3px); }
+    .export-rvt { background: rgba(29,95,166,0.2); color: #6ba3d6; border: 1px solid rgba(29,95,166,0.3); }
+    .export-ifc { background: rgba(20,184,166,0.15); color: #5eead4; border: 1px solid rgba(20,184,166,0.25); }
+    .export-dxf { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.25); }
+    .export-dob { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+    .export-target span { font-size: 10px; color: var(--text-3); }
+
+    /* Carousel dots */
+    .carousel-dots {
+      display: flex; justify-content: center; gap: 4px; margin-top: 24px;
+    }
+    .carousel-dot {
+      /* 44×44 minimum touch target (WCAG 2.5.5) via padding trick */
+      width: 44px; height: 44px; border-radius: 50%;
+      background: transparent; border: none; cursor: pointer;
+      transition: all 0.2s var(--ease); padding: 0;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .carousel-dot::after {
+      content: ''; display: block;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border-2);
+      transition: all 0.2s var(--ease);
+    }
+    .carousel-dot.active::after { background: var(--accent-l); transform: scale(1.4); }
+    .carousel-dot:focus-visible { outline: 2px solid var(--accent-l); outline-offset: 3px; border-radius: 50%; }
+
+    /* ─── Social Proof ─────────────────────────────────────── */
+    .social-proof-section {
+      padding: 64px 24px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(11,16,24,0.4);
+    }
+    .social-proof-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+    .social-proof-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--text-3); margin-bottom: 28px;
+    }
+    .social-proof-logos {
+      display: flex; justify-content: center; flex-wrap: wrap; gap: 16px;
+      margin-bottom: 40px;
+    }
+    .sp-logo-item { flex: 0 0 auto; }
+    .sp-logo-placeholder {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 22px; border-radius: 12px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text-3); font-size: 13px; font-weight: 500;
+      transition: all 0.2s var(--ease);
+    }
+    .sp-logo-placeholder:hover { border-color: var(--border-2); color: var(--text-2); }
+    .sp-logo-icon { font-size: 18px; }
+    .sp-logo-placeholder-cta {
+      border-style: dashed;
+      color: var(--accent-l);
+    }
+    .sp-logo-beta .sp-logo-placeholder { border-color: rgba(29,95,166,0.3); color: var(--accent-l); }
+
+    .sp-quote {
+      max-width: 620px; margin: 0 auto;
+      padding: 32px; border-radius: 16px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      position: relative;
+    }
+    .sp-quote::before {
+      content: '"';
+      position: absolute; top: 12px; left: 24px;
+      font-family: var(--serif); font-size: 64px; line-height: 1;
+      color: var(--accent); opacity: 0.2;
+    }
+    .sp-quote-text {
+      font-family: var(--serif); font-size: 17px; line-height: 1.7;
+      color: var(--text); font-style: normal;
+      quotes: none; position: relative; z-index: 1;
+      margin-bottom: 14px;
+    }
+    .sp-quote-cite {
+      font-size: 12px; color: var(--text-3); font-style: normal;
+    }
+
+    /* ─── Footer credit ────────────────────────────────────── */
+    .footer-credit { color: var(--text-3); }
+    .footer-credit a { color: var(--accent-l); }
+    .footer-credit a:hover { color: var(--text); }
+
+    /* ─── Carousel responsive ──────────────────────────────── */
+    @media (max-width: 900px) {
+      .carousel-content { grid-template-columns: 1fr; padding: 32px 24px; gap: 28px; }
+      .carousel-demo { order: -1; }
+    }
+    @media (max-width: 600px) {
+      .carousel-nav { gap: 6px; }
+      .carousel-tab { padding: 8px 14px; font-size: 12px; }
+      .carousel-tab-icon { display: none; }
+      .carousel-metrics { gap: 16px; }
+    }
+
+    /* ─── Reduced motion ───────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      html { scroll-behavior: auto; }
+      .hero-particles, .hero-orb { display: none; }
+      .dag-arrow { animation: none; }
+      .mep-airflow { animation: none; }
+      .ghost-cursor-1, .ghost-cursor-2 { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Skip to content (WCAG 2.1 AA) ───────────────────── -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- ── Nav ───────────────────────────────────────────────── -->
+<nav class="nav" id="main-nav" role="navigation" aria-label="Main navigation">
+  <a href="/" class="nav-logo" aria-label="Atlantist home">
+    <img src="/images/logo.svg" alt="Atlantist logo" width="32" height="32">
+    <span>Atlantist</span>
+  </a>
+
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#workflow">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="/docs">Docs</a>
+    <a href="/contact">Contact</a>
+  </div>
+
+  <div class="nav-actions">
+    <button class="nav-mobile-toggle" id="nav-mobile-btn" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+    </button>
+    <a href="#pricing" class="btn-ghost">See Pricing</a>
+    <a href="/app?demo=nyc-midrise" class="btn-solid">Open Demo</a>
+  </div>
+</nav>
+
+<!-- Mobile nav menu -->
+<div class="nav-mobile-menu" id="mobile-menu" role="navigation" aria-label="Mobile navigation">
+  <a href="#features">Features</a>
+  <a href="#workflow">How It Works</a>
+  <a href="#pricing">Pricing</a>
+  <a href="#faq">FAQ</a>
+  <a href="/docs">Docs</a>
+  <a href="/contact">Contact</a>
+  <a href="/app?demo=nyc-midrise" style="color:var(--accent-l);font-weight:600">Open Demo &rarr;</a>
+</div>
+
+<!-- ── Hero ──────────────────────────────────────────────── -->
+<section class="hero" id="main-content">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="hero-particles" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="hero-orb" aria-hidden="true"></div>
+
+  <div class="hero-mark anim-up">
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-3"></div>
+    <img src="/images/logo.svg" alt="Atlantist — compass-A mark with concentric rings" width="160" height="160">
+  </div>
+
+  <div class="hero-badge anim-up anim-up-d1">
+    <span class="hero-badge-dot"></span>
+    Idea &rarr; Implementation &mdash; in your browser
+  </div>
+
+  <h1 class="anim-up anim-up-d2">From <em>idea</em> to<br>construction documents.</h1>
+
+  <p class="hero-sub anim-up anim-up-d3">
+    Real-time browser BIM with space-grade encryption.
+    Sub-5ms saves. Parametric constraints. Energy, fire, and structural analysis &mdash; live.
+  </p>
+
+  <div class="hero-cta anim-up anim-up-d4">
+    <a href="/demo/nyc-midrise" class="btn-hero btn-hero-primary">
+      Try the live demo →
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="#pricing" class="btn-hero btn-hero-secondary">See Pricing &rarr;</a>
+  </div>
+
+  <div class="hero-scroll" aria-hidden="true">
+    <div class="hero-scroll-line"></div>
+    SCROLL
+  </div>
+</section>
+
+<!-- ── Stats ──────────────────────────────────────────────── -->
+<section class="stats-strip reveal" aria-label="Platform statistics">
+  <div class="stat">
+    <div class="stat-num">30+</div>
+    <div class="stat-label">Engineering phases</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">8</div>
+    <div class="stat-label">Simulation engines</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">6</div>
+    <div class="stat-label">Export formats</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">$5</div>
+    <div class="stat-label">Starting price/mo</div>
+  </div>
+</section>
+
+<!-- ── Feature Showcase (interactive carousel) ──────────── -->
+<section class="section" id="features">
+  <div class="section-header reveal">
+    <div class="section-label">Capabilities</div>
+    <h2 class="section-title">Five engines. One platform. Zero installs.</h2>
+    <p class="section-sub">Every capability ships with animated previews and live demo access. No betas, no waitlists.</p>
+  </div>
+
+  <!-- Carousel nav tabs -->
+  <div class="carousel-nav reveal" role="tablist" aria-label="Feature capabilities">
+    <button class="carousel-tab active" role="tab" aria-selected="true" aria-controls="carousel-panel-0" id="carousel-tab-0" data-slide="0">
+      <span class="carousel-tab-icon">⬡</span> Architecture
+    </button>
+    <button class="carousel-tab" role="tab" aria-selected="false" aria-controls="carousel-panel-1" id="carousel-tab-1" data-slide="1">
+      <span class="carousel-tab-icon">⚡</span> MEP
+    </button>
+    <button class="carousel-tab" role="tab" aria-selected="false" aria-controls="carousel-panel-2" id="carousel-tab-2" data-slide="2">
+      <span class="carousel-tab-icon">☀</span> Energy
+    </button>
+    <button class="carousel-tab" role="tab" aria-selected="false" aria-controls="carousel-panel-3" id="carousel-tab-3" data-slide="3">
+      <span class="carousel-tab-icon">🔥</span> Fire
+    </button>
+    <button class="carousel-tab" role="tab" aria-selected="false" aria-controls="carousel-panel-4" id="carousel-tab-4" data-slide="4">
+      <span class="carousel-tab-icon">👥</span> Collab
+    </button>
+    <button class="carousel-tab" role="tab" aria-selected="false" aria-controls="carousel-panel-5" id="carousel-tab-5" data-slide="5">
+      <span class="carousel-tab-icon">↕</span> Import / Export
+    </button>
+  </div>
+
+  <!-- Carousel panels -->
+  <div class="carousel-track reveal" aria-live="polite">
+
+    <!-- Panel 0: Architecture + DAG -->
+    <div class="carousel-panel active" id="carousel-panel-0" role="tabpanel" aria-labelledby="carousel-tab-0">
+      <div class="carousel-content">
+        <div class="carousel-text">
+          <div class="carousel-eyebrow">DAG Constraint Solver</div>
+          <h3 class="carousel-title">Every change propagates instantly.</h3>
+          <p class="carousel-desc">Parametric walls, columns, floors, stairs, curved surfaces. Change a level elevation — watch every bound element update across all views simultaneously. Zero manual redraws.</p>
+          <div class="carousel-metrics">
+            <div class="carousel-metric"><span class="carousel-metric-val">&lt;5ms</span><span class="carousel-metric-lbl">Save latency</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">∞</span><span class="carousel-metric-lbl">Undo depth</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">3D+2D</span><span class="carousel-metric-lbl">Views synced</span></div>
+          </div>
+          <div class="carousel-tags">
+            <span class="feat-tag">Walls</span><span class="feat-tag">Doors</span><span class="feat-tag">Floors</span><span class="feat-tag">Stairs</span><span class="feat-tag">Curved</span>
+          </div>
+        </div>
+        <div class="carousel-demo">
+          <div class="carousel-demo-screen">
+            <!-- Animated DAG visualization -->
+            <div class="dag-viz" aria-label="DAG constraint propagation animation">
+              <div class="dag-node dag-node-level" style="top:12%;left:42%">
+                <div class="dag-node-pulse"></div>
+                <span>Level 5</span><small>+1.0m</small>
+              </div>
+              <svg class="dag-arrows" aria-hidden="true">
+                <defs><marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(52,121,196,0.7)"/></marker></defs>
+                <line class="dag-arrow dag-arrow-1" x1="50%" y1="22%" x2="25%" y2="48%" marker-end="url(#arr)"/>
+                <line class="dag-arrow dag-arrow-2" x1="50%" y1="22%" x2="50%" y2="48%" marker-end="url(#arr)"/>
+                <line class="dag-arrow dag-arrow-3" x1="50%" y1="22%" x2="75%" y2="48%" marker-end="url(#arr)"/>
+              </svg>
+              <div class="dag-node dag-node-wall" style="top:48%;left:12%">
+                <span>Wall A</span><small>H=3.6m ✓</small>
+              </div>
+              <div class="dag-node dag-node-wall" style="top:48%;left:40%">
+                <span>Column B</span><small>H=3.6m ✓</small>
+              </div>
+              <div class="dag-node dag-node-wall" style="top:48%;left:68%">
+                <span>Floor Slab</span><small>Z=18.0m ✓</small>
+              </div>
+              <div class="dag-badge">DAG recalculating&hellip;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 1: MEP -->
+    <div class="carousel-panel" id="carousel-panel-1" role="tabpanel" aria-labelledby="carousel-tab-1" hidden>
+      <div class="carousel-content">
+        <div class="carousel-text">
+          <div class="carousel-eyebrow">MEP Simulation</div>
+          <h3 class="carousel-title">HVAC, plumbing, electrical — all in one run.</h3>
+          <p class="carousel-desc">Calculate heating/cooling loads, size ducts with airflow animation, count plumbing fixtures, generate electrical panel schedules. No separate CAD tools.</p>
+          <div class="carousel-metrics">
+            <div class="carousel-metric"><span class="carousel-metric-val">3</span><span class="carousel-metric-lbl">Disciplines</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">ASHRAE</span><span class="carousel-metric-lbl">Compliant</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">IBC</span><span class="carousel-metric-lbl">Code refs</span></div>
+          </div>
+          <div class="carousel-tags">
+            <span class="feat-tag">HVAC</span><span class="feat-tag">Plumbing</span><span class="feat-tag">Electrical</span><span class="feat-tag">Panel Schedules</span>
+          </div>
+        </div>
+        <div class="carousel-demo">
+          <div class="carousel-demo-screen">
+            <div class="mep-viz" aria-label="MEP system visualization">
+              <div class="mep-duct-grid">
+                <div class="mep-duct mep-duct-h" style="top:30%;left:5%;width:90%;height:10px">
+                  <div class="mep-airflow"></div>
+                </div>
+                <div class="mep-duct mep-duct-v" style="top:30%;left:20%;width:10px;height:50%"></div>
+                <div class="mep-duct mep-duct-v" style="top:30%;left:50%;width:10px;height:50%"></div>
+                <div class="mep-duct mep-duct-v" style="top:30%;left:80%;width:10px;height:50%"></div>
+                <div class="mep-diffuser" style="bottom:18%;left:17%">◈</div>
+                <div class="mep-diffuser" style="bottom:18%;left:47%">◈</div>
+                <div class="mep-diffuser" style="bottom:18%;left:77%">◈</div>
+              </div>
+              <div class="mep-legend">
+                <span class="mep-legend-item mep-hvac">HVAC: 24,000 BTU/h</span>
+                <span class="mep-legend-item mep-elec">Elec: 200A main panel</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Energy -->
+    <div class="carousel-panel" id="carousel-panel-2" role="tabpanel" aria-labelledby="carousel-tab-2" hidden>
+      <div class="carousel-content">
+        <div class="carousel-text">
+          <div class="carousel-eyebrow">8,760-Hour Simulation</div>
+          <h3 class="carousel-title">A full year of energy data, rendered live.</h3>
+          <p class="carousel-desc">NYECC EN-001 through EN-008 compliance checks. gbXML export for EnergyPlus. Heatmap timeline shows hourly building energy use. One-click DOB submission package.</p>
+          <div class="carousel-metrics">
+            <div class="carousel-metric"><span class="carousel-metric-val">8,760</span><span class="carousel-metric-lbl">Hours simulated</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">EN-008</span><span class="carousel-metric-lbl">Compliance forms</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">9 PDFs</span><span class="carousel-metric-lbl">DOB package</span></div>
+          </div>
+          <div class="carousel-tags">
+            <span class="feat-tag">EnergyPlus</span><span class="feat-tag">gbXML</span><span class="feat-tag">EN-1 Form</span><span class="feat-tag">DOB Filing</span>
+          </div>
+        </div>
+        <div class="carousel-demo">
+          <div class="carousel-demo-screen">
+            <div class="energy-viz" aria-label="Energy simulation heatmap">
+              <div class="energy-heatmap">
+                <!-- 12 months × 7 rows simulating hourly heatmap -->
+                <div class="energy-heatmap-labels">
+                  <span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span>
+                </div>
+                <div class="energy-heatmap-grid" id="energy-heatmap-grid"></div>
+              </div>
+              <div class="energy-legend">
+                <span class="energy-legend-low">0 kBtu</span>
+                <div class="energy-legend-bar"></div>
+                <span class="energy-legend-high">120 kBtu</span>
+              </div>
+              <div class="energy-compliance">
+                <span class="energy-badge energy-pass">EN-001 ✓</span>
+                <span class="energy-badge energy-pass">EN-003 ✓</span>
+                <span class="energy-badge energy-warn">EN-005 ⚠</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Fire Protection -->
+    <div class="carousel-panel" id="carousel-panel-3" role="tabpanel" aria-labelledby="carousel-tab-3" hidden>
+      <div class="carousel-content">
+        <div class="carousel-text">
+          <div class="carousel-eyebrow">NFPA 13 / 101 / 92</div>
+          <h3 class="carousel-title">Sprinklers, egress, smoke control.</h3>
+          <p class="carousel-desc">NFPA 13 sprinkler hydraulics with coverage maps. NFPA 101 egress paths and travel distance checks. NFPA 92 smoke control. FDS input generation for 3D fire modeling.</p>
+          <div class="carousel-metrics">
+            <div class="carousel-metric"><span class="carousel-metric-val">NFPA</span><span class="carousel-metric-lbl">13 / 101 / 92</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">FDS</span><span class="carousel-metric-lbl">3D fire sim</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">FDNY</span><span class="carousel-metric-lbl">Code checks</span></div>
+          </div>
+          <div class="carousel-tags">
+            <span class="feat-tag">Sprinklers</span><span class="feat-tag">Egress</span><span class="feat-tag">Smoke</span><span class="feat-tag">FDS</span>
+          </div>
+        </div>
+        <div class="carousel-demo">
+          <div class="carousel-demo-screen">
+            <div class="fire-viz" aria-label="Fire protection visualization">
+              <!-- Floor plan with sprinkler coverage circles -->
+              <div class="fire-floorplan">
+                <div class="fire-sprinkler" style="top:25%;left:25%"><div class="fire-coverage"></div>⊕</div>
+                <div class="fire-sprinkler" style="top:25%;left:60%"><div class="fire-coverage"></div>⊕</div>
+                <div class="fire-sprinkler" style="top:65%;left:40%"><div class="fire-coverage"></div>⊕</div>
+                <div class="fire-egress-path"></div>
+              </div>
+              <div class="fire-results">
+                <div class="fire-result fire-ok">Sprinkler density: 0.10 gpm/ft² ✓</div>
+                <div class="fire-result fire-ok">Egress travel: 184 ft ✓</div>
+                <div class="fire-result fire-ok">Smoke exhaust: 6 ACH ✓</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 4: Collaboration -->
+    <div class="carousel-panel" id="carousel-panel-4" role="tabpanel" aria-labelledby="carousel-tab-4" hidden>
+      <div class="carousel-content">
+        <div class="carousel-text">
+          <div class="carousel-eyebrow">WebSocket + WebRTC</div>
+          <h3 class="carousel-title">Ghost cursors. Live presence. Shared viewport.</h3>
+          <p class="carousel-desc">Every keystroke broadcasts over WebSocket. See collaborators' cursors and selections in real time. Pin 3D issues to geometry with camera snapshots. WebRTC for synchronized viewport reviews.</p>
+          <div class="carousel-metrics">
+            <div class="carousel-metric"><span class="carousel-metric-val">&lt;50ms</span><span class="carousel-metric-lbl">Sync latency</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">∞</span><span class="carousel-metric-lbl">Team size</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">3D</span><span class="carousel-metric-lbl">Issue pins</span></div>
+          </div>
+          <div class="carousel-tags">
+            <span class="feat-tag">Live Cursors</span><span class="feat-tag">Issues</span><span class="feat-tag">Presence</span><span class="feat-tag">WebRTC</span>
+          </div>
+        </div>
+        <div class="carousel-demo">
+          <div class="carousel-demo-screen">
+            <div class="collab-viz" aria-label="Collaboration interface preview">
+              <div class="collab-viewport">
+                <!-- Ghost cursors -->
+                <div class="ghost-cursor ghost-cursor-1" style="top:35%;left:42%">
+                  <svg width="16" height="20" viewBox="0 0 16 20" fill="none" aria-hidden="true"><path d="M0 0L0 16L4.5 12L7 18L9 17L6.5 11L12 11Z" fill="#3479c4" stroke="#fff" stroke-width="1"/></svg>
+                  <span class="ghost-label">Maya K.</span>
+                </div>
+                <div class="ghost-cursor ghost-cursor-2" style="top:58%;left:65%">
+                  <svg width="16" height="20" viewBox="0 0 16 20" fill="none" aria-hidden="true"><path d="M0 0L0 16L4.5 12L7 18L9 17L6.5 11L12 11Z" fill="#c9a84c" stroke="#fff" stroke-width="1"/></svg>
+                  <span class="ghost-label ghost-label-gold">Chen W.</span>
+                </div>
+                <!-- Issue pin -->
+                <div class="issue-pin" style="top:45%;left:30%">
+                  <div class="issue-pin-dot">!</div>
+                  <div class="issue-pin-tooltip">Review ceiling height at grid A-3</div>
+                </div>
+                <!-- Presence bar -->
+                <div class="collab-presence">
+                  <div class="presence-avatar" title="Maya K." style="background:#3479c4">M</div>
+                  <div class="presence-avatar" title="Chen W." style="background:#c9a84c">C</div>
+                  <div class="presence-avatar" title="You" style="background:#3a8a6e">Y</div>
+                  <span class="presence-count">3 active</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 5: Export / IFC -->
+    <div class="carousel-panel" id="carousel-panel-5" role="tabpanel" aria-labelledby="carousel-tab-5" hidden>
+      <div class="carousel-content">
+        <div class="carousel-text">
+          <div class="carousel-eyebrow">Revit-grade Interop</div>
+          <h3 class="carousel-title">Import Revit. Export IFC. File DOB.</h3>
+          <p class="carousel-desc">.rvt import via Autodesk APS — any Revit version, walls and families mapped automatically. IFC 2x3 round-trip for ArchiCAD. DXF R14/2000 for CAD. Design Book generates the 9-PDF DOB submission package.</p>
+          <div class="carousel-metrics">
+            <div class="carousel-metric"><span class="carousel-metric-val">IFC 2x3</span><span class="carousel-metric-lbl">Round-trip</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">.rvt</span><span class="carousel-metric-lbl">Any version</span></div>
+            <div class="carousel-metric"><span class="carousel-metric-val">9 PDFs</span><span class="carousel-metric-lbl">DOB bundle</span></div>
+          </div>
+          <div class="carousel-tags">
+            <span class="feat-tag">.rvt Import</span><span class="feat-tag">IFC</span><span class="feat-tag">DXF</span><span class="feat-tag">gbXML</span><span class="feat-tag">DOB</span>
+          </div>
+        </div>
+        <div class="carousel-demo">
+          <div class="carousel-demo-screen">
+            <div class="export-viz" aria-label="Export formats visualization">
+              <div class="export-flow">
+                <div class="export-source">
+                  <div class="export-icon">⬡</div>
+                  <span>Atlantist Model</span>
+                </div>
+                <div class="export-arrows-grid">
+                  <div class="export-target"><div class="export-fmt export-rvt">.rvt</div><span>Revit</span></div>
+                  <div class="export-target"><div class="export-fmt export-ifc">IFC</div><span>ArchiCAD</span></div>
+                  <div class="export-target"><div class="export-fmt export-dxf">DXF</div><span>AutoCAD</span></div>
+                  <div class="export-target"><div class="export-fmt export-dob">DOB</div><span>NYC Filing</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /carousel-track -->
+
+  <!-- Progress dots / scrubber -->
+  <div class="carousel-dots reveal" role="tablist" aria-label="Carousel progress">
+    <button class="carousel-dot active" data-slide="0" aria-label="Go to slide 1: Architecture"></button>
+    <button class="carousel-dot" data-slide="1" aria-label="Go to slide 2: MEP"></button>
+    <button class="carousel-dot" data-slide="2" aria-label="Go to slide 3: Energy"></button>
+    <button class="carousel-dot" data-slide="3" aria-label="Go to slide 4: Fire"></button>
+    <button class="carousel-dot" data-slide="4" aria-label="Go to slide 5: Collaboration"></button>
+    <button class="carousel-dot" data-slide="5" aria-label="Go to slide 6: Import / Export"></button>
+  </div>
+
+</section>
+
+<!-- ── App Showcase (Phase 28) ─────────────────────────────── -->
+<section class="app-showcase reveal" aria-label="Application preview">
+  <div class="app-showcase-inner">
+    <div class="app-showcase-text">
+      <div class="section-label">Live Interface</div>
+      <h2>Architecture-grade BIM, in your browser.</h2>
+      <p>Everything you need to model, analyze, and document a building — with the responsiveness of a native desktop app. Dark-first design, keyboard-first navigation.</p>
+      <ul class="app-showcase-points">
+        <li><span>&#x2713;</span> Real-time 3D / Plan / Section / RCP views</li>
+        <li><span>&#x2713;</span> DAG constraint solver — every change propagates instantly</li>
+        <li><span>&#x2713;</span> Cmd+K command palette — 35+ actions, fuzzy search</li>
+        <li><span>&#x2713;</span> WebSocket collaboration — live cursors &amp; presence</li>
+        <li><span>&#x2713;</span> Issue tracking with camera snapshots &amp; threads</li>
+        <li><span>&#x2713;</span> Auto-generated A-400 schedules from placed families</li>
+      </ul>
+      <a href="/demo/nyc-midrise" class="btn-ghost" style="margin-top:8px">See it live &rarr;</a>
+    </div>
+    <div class="browser-frame">
+      <div class="browser-bar">
+        <div class="browser-dot browser-dot-red"></div>
+        <div class="browser-dot browser-dot-yellow"></div>
+        <div class="browser-dot browser-dot-green"></div>
+        <div class="browser-url">atlantist.cloud/demo/nyc-midrise</div>
+      </div>
+      <img class="browser-img"
+           src="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_138239/a652c95a-9e98-4c1a-b94c-0eb4b176252a.jpg"
+           alt="Atlantist BIM interface — 3D view of NYC mid-rise building model"
+           loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- ── Social Proof ────────────────────────────────────────── -->
+<section class="social-proof-section reveal" aria-label="Platform capabilities">
+  <div class="social-proof-inner">
+    <div class="social-proof-label">What's inside the free demo</div>
+    <div class="social-proof-logos" role="list">
+      <div class="sp-logo-item" role="listitem">
+        <div class="sp-logo-placeholder">
+          <span class="sp-logo-icon">🏗</span>
+          <span class="sp-logo-name">Full 10-story model</span>
+        </div>
+      </div>
+      <div class="sp-logo-item" role="listitem">
+        <div class="sp-logo-placeholder">
+          <span class="sp-logo-icon">📐</span>
+          <span class="sp-logo-name">Structural analysis</span>
+        </div>
+      </div>
+      <div class="sp-logo-item" role="listitem">
+        <div class="sp-logo-placeholder">
+          <span class="sp-logo-icon">⚡</span>
+          <span class="sp-logo-name">Energy simulation</span>
+        </div>
+      </div>
+      <div class="sp-logo-item" role="listitem">
+        <div class="sp-logo-placeholder">
+          <span class="sp-logo-icon">🧮</span>
+          <span class="sp-logo-name">DOB package</span>
+        </div>
+      </div>
+      <div class="sp-logo-item sp-logo-beta" role="listitem">
+        <div class="sp-logo-placeholder sp-logo-placeholder-cta">
+          <span class="sp-logo-name"><a href="/app?demo=nyc-midrise" style="color:inherit;text-decoration:none">Try it free &rarr;</a></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How It Works ──────────────────────────────────────── -->
+<section class="section" id="workflow">
+  <div class="section-header reveal">
+    <div class="section-label">Idea &rarr; Implementation</div>
+    <h2 class="section-title">Three steps from concept to construction documents.</h2>
+    <p class="section-sub">Every workflow is designed to minimize clicks between what you think and what gets built.</p>
+  </div>
+
+  <div class="workflow-grid">
+    <div class="workflow-step reveal">
+      <div class="workflow-num">1</div>
+      <h3>Model</h3>
+      <p>Draw walls, place doors, define levels. The DAG engine propagates every change instantly across all views and schedules.</p>
+    </div>
+    <div class="workflow-step reveal">
+      <div class="workflow-num">2</div>
+      <h3>Simulate</h3>
+      <p>Run energy, structural, fire, geotech, and MEP simulations directly on your model. No export/import cycle.</p>
+    </div>
+    <div class="workflow-step reveal">
+      <div class="workflow-num">3</div>
+      <h3>Document</h3>
+      <p>Auto-generated schedules, Design Book, DOB filing packages, and IFC/DXF export — all from the same model.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── Integrations ──────────────────────────────────────── -->
+<section class="integrations reveal" aria-label="Integrations">
+  <div class="int-item"><span class="int-dot"></span> VERAS</div>
+  <div class="int-item"><span class="int-dot"></span> Finch3D</div>
+  <div class="int-item"><span class="int-dot"></span> Motif</div>
+  <div class="int-item"><span class="int-dot"></span> Drive</div>
+  <div class="int-item"><span class="int-dot"></span> Forma</div>
+  <div class="int-item"><span class="int-dot"></span> Polycam</div>
+</section>
+
+<!-- ── Pricing ───────────────────────────────────────────── -->
+<section class="section" id="pricing">
+  <div class="section-header reveal">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Cost-based pricing. Radically transparent.</h2>
+    <p class="section-sub">You pay 2&times; our actual infrastructure cost. That's it. <a href="/pricing" style="color:var(--accent-l);text-decoration:underline;text-underline-offset:2px">See the full breakdown &rarr;</a></p>
+  </div>
+
+  <div class="pricing-grid reveal">
+    <div class="price-card">
+      <div class="price-label">Monthly</div>
+      <div class="price-amount">$5+</div>
+      <div class="price-period">/ month (cost-based)</div>
+      <div class="price-savings">&nbsp;</div>
+      <ul class="price-list">
+        <li>Unlimited projects</li>
+        <li>All BIM features</li>
+        <li>Energy &amp; Fire analysis</li>
+        <li>MEP simulations</li>
+        <li>IFC / DXF / gbXML export</li>
+        <li>Real-time collaboration</li>
+      </ul>
+      <a href="/subscribe/acknowledge?plan=monthly" class="btn-price btn-price-outline">Start Free Trial</a>
+      <div class="price-trial">30-day trial &mdash; no credit card</div>
+    </div>
+
+    <div class="price-card featured">
+      <div class="price-label">Annual</div>
+      <div class="price-amount">$330</div>
+      <div class="price-period">/ year ($27.50/mo)</div>
+      <div class="price-savings">Locked rate &mdash; predictable billing</div>
+      <ul class="price-list">
+        <li>Everything in Monthly</li>
+        <li>Priority support</li>
+        <li>DOB filing package</li>
+        <li>Design Book generator</li>
+        <li>Forum community access</li>
+        <li>.rvt import (any version)</li>
+      </ul>
+      <a href="/subscribe/acknowledge?plan=yearly" class="btn-price btn-price-solid">Start Free Trial</a>
+      <div class="price-trial">30-day trial &mdash; no credit card</div>
+    </div>
+  </div>
+
+  <p class="price-note reveal">
+    Every dollar is traceable to a real infrastructure cost. <a href="/pricing">See exactly what you're paying for.</a>
+  </p>
+
+  <!-- Smart pricing message -->
+  <div class="smart-pricing reveal">
+    <div class="smart-pricing-icon">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="19" stroke="rgba(29,95,166,0.4)" stroke-width="2"/><path d="M20 10v12l8 4" stroke="var(--accent-l)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h3 class="smart-pricing-title">Smart pricing that adjusts automatically</h3>
+    <p class="smart-pricing-desc">No upfront estimation. No commitment tiers. Your bill reflects exactly what you use &mdash; compute, storage, bandwidth, simulations &mdash; and nothing more.</p>
+    <div class="smart-pricing-points">
+      <div class="smart-pricing-point">
+        <span class="smart-pricing-check">&#10003;</span>
+        <span>Cost-based transparent model</span>
+      </div>
+      <div class="smart-pricing-point">
+        <span class="smart-pricing-check">&#10003;</span>
+        <span>Adjusts in real time as you work</span>
+      </div>
+      <div class="smart-pricing-point">
+        <span class="smart-pricing-check">&#10003;</span>
+        <span>Most individuals pay under $10/mo</span>
+      </div>
+    </div>
+    <a href="/pricing" class="smart-pricing-formula">bill = max($5, infra cost &times; 2) &mdash; see the math</a>
+  </div>
+</section>
+
+<!-- ── FAQ ────────────────────────────────────────────────── -->
+<section id="faq" class="faq-section reveal">
+  <div class="section-label">FAQ</div>
+  <h2 class="section-title">Common questions</h2>
+  <div class="faq-list">
+    <details class="faq-item">
+      <summary class="faq-q">Is Atlantist free to use?</summary>
+      <p class="faq-a">Yes. You can open the app and start modeling without signing in. Billing kicks in based on actual infrastructure usage — and the minimum charge is $5/mo. Most individual users pay under $10.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Do I need to install anything?</summary>
+      <p class="faq-a">No. Atlantist runs entirely in your browser using WebGL via Three.js. No plugins, no desktop client, no Revit license required.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">How does the pricing model work?</summary>
+      <p class="faq-a">We charge 2× your actual infrastructure cost (compute + storage + bandwidth + simulations). The formula is <code>bill = max($5, infra cost × 2)</code>. Your bill adjusts automatically &mdash; no estimation needed. <a href="/pricing" style="color:var(--accent-l)">See the full breakdown.</a></p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Can I import my Revit (.rvt) files?</summary>
+      <p class="faq-a">Yes. Atlantist integrates with the Autodesk APS (formerly Forge) Model Derivative API to convert and import .rvt files. Walls, columns, doors, windows, and levels are mapped to native Atlantist elements.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">What simulations are included?</summary>
+      <p class="faq-a">Five engines are built in: Energy Analysis (NYECC EN-001–008 compliance), MEP (HVAC, plumbing, electrical), Fire Protection (NFPA 13/101/92 + FDNY), Geotechnical (bearing capacity, settlement, pile capacity), and Structural (placeholder — FEA integration coming Q3 2026).</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Does it work on mobile?</summary>
+      <p class="faq-a">The app loads and the BIM canvas is usable on tablets (768px+). Some toolbar features collapse into a mobile popover. For serious modeling work, a desktop or laptop with a pointer device is recommended.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">How does collaboration work?</summary>
+      <p class="faq-a">Invite teammates via magic-link email. Live presence shows ghost cursors and active-user indicators. Pinned 3D comments anchor to model geometry. All changes broadcast over WebSocket in real time.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Can I export to DXF or IFC?</summary>
+      <p class="faq-a">Yes to both. DXF export targets R14/2000 CAD format. IFC export writes IFC 2x3 for round-tripping with Revit and ArchiCAD. gbXML export feeds energy analysis tools.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">How is my data kept secure?</summary>
+      <p class="faq-a">All data is encrypted in transit (TLS 1.3) and at rest (AES-256 on Neon PostgreSQL). The DAG constraint engine and every parametric change are logged in an immutable event ledger — nothing is silently overwritten. Sessions use short-lived hashed tokens. We don't sell or share your project data. For enterprise teams, a Data Processing Agreement (DPA) is available at <a href="/legal/dpa" style="color:var(--accent-l)">atlantist.cloud/legal/dpa</a>.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">Can I use Atlantist to file with the NYC DOB?</summary>
+      <p class="faq-a">Yes. The DOB Submission Package generates a 9-PDF zip (LS-1 cover, energy forms EN-001 through EN-008, and an IFC extract) formatted to NYC DOB requirements. The package is built directly from your live model — no manual PDF assembly. Available on the Annual plan and as an add-on.</p>
+    </details>
+  </div>
+</section>
+
+<style>
+.faq-section {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 80px 24px 60px;
+}
+.faq-list {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.faq-item {
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.faq-q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.88);
+  cursor: pointer;
+  list-style: none;
+  gap: 12px;
+  transition: color 0.15s;
+}
+.faq-q::-webkit-details-marker { display: none; }
+.faq-q::after {
+  content: '+';
+  font-size: 20px;
+  color: rgba(255,255,255,0.35);
+  flex-shrink: 0;
+  transition: transform 0.2s, color 0.15s;
+  line-height: 1;
+}
+.faq-item[open] .faq-q::after {
+  transform: rotate(45deg);
+  color: #5b9bd5;
+}
+.faq-item[open] .faq-q {
+  color: #e8f0fa;
+}
+.faq-a {
+  padding: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.55);
+  margin: 0;
+}
+.faq-a code {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  background: rgba(255,255,255,0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #7db9f5;
+}
+@media (max-width: 480px) {
+  .faq-section { padding: 60px 16px 40px; }
+  .faq-q { font-size: 14px; padding: 16px 0; }
+}
+</style>
+
+<!-- ── Final CTA ──────────────────────────────────────────── -->
+<section class="cta-section reveal">
+  <h2>Start building. Right now.</h2>
+  <p>Open the BIM editor in your browser. No installs, no setup, no waiting.</p>
+  <div class="hero-cta" style="position:relative">
+    <a href="/demo/nyc-midrise" class="btn-hero btn-hero-primary">
+      Try the NYC Mid-Rise Demo
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="/app" class="btn-hero btn-hero-secondary">Open the App &rarr;</a>
+  </div>
+</section>
+
+<!-- ── Footer ────────────────────────────────────────────── -->
+<footer class="footer" role="contentinfo">
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">
+        <img src="/images/logo.svg" alt="Atlantist" width="28" height="28">
+        <span>Atlantist</span>
+      </div>
+      <div class="footer-tagline">Professional BIM, entirely in your browser. From concept to construction documents.</div>
+    </div>
+
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#features">Features</a>
+        <a href="/pricing">Pricing</a>
+        <a href="/docs">Documentation</a>
+        <a href="/wallt">Install Wallt</a>
+        <a href="/app?demo=nyc-midrise">Demo</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="/legal/terms">Terms</a>
+        <a href="/legal/privacy">Privacy</a>
+        <a href="/legal/cookies">Cookies</a>
+        <a href="/legal/dpa">DPA</a>
+        <a href="/legal/sla">SLA</a>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <a href="/contact">Contact</a>
+        <a href="mailto:support@atlantist.cloud">Support</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>&copy; 2026 Atlantist. All rights reserved.</span>
+    <span class="footer-credit">Visual language by <a href="https://liberpict.com" rel="noopener noreferrer" target="_blank">LIBER Creative</a> &mdash; Nikita Beregovykh</span>
+    <a href="mailto:support@atlantist.cloud">support@atlantist.cloud</a>
+  </div>
+</footer>
+
+<!-- Scroll-reveal + nav scroll + interactivity -->
+<script src="/js/boot-safety.js"></script>
+<script>
+/* ── Scroll-triggered reveal animation ──────────────────── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ── Nav scroll state ───────────────────────────────────── */
+const nav = document.getElementById('main-nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 48);
+}, { passive: true });
+
+/* ── Mobile menu toggle ─────────────────────────────────── */
+const mobileBtn = document.getElementById('nav-mobile-btn');
+const mobileMenu = document.getElementById('mobile-menu');
+if (mobileBtn && mobileMenu) {
+  mobileBtn?.addEventListener('click', () => {
+    const open = mobileMenu.classList.toggle('open');
+    mobileBtn.setAttribute('aria-expanded', open);
+    mobileBtn.innerHTML = open
+      ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+      : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>';
+  });
+  // Close menu when a link is clicked
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a?.addEventListener('click', () => {
+      mobileMenu.classList.remove('open');
+      mobileBtn.setAttribute('aria-expanded', 'false');
+      mobileBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>';
+    });
+  });
+}
+
+/* ── Animated stat counters ─────────────────────────────── */
+const statObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    if (el.dataset.counted) return;
+    el.dataset.counted = '1';
+    const text = el.textContent.trim();
+    const prefix = text.match(/^\D*/)[0];
+    const suffix = text.match(/\D*$/)[0];
+    const numStr = text.replace(/^\D*/, '').replace(/\D*$/, '');
+    const target = parseInt(numStr);
+    if (isNaN(target)) return;
+    const duration = 1200;
+    const start = performance.now();
+    function tick(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
+      const current = Math.round(target * ease);
+      el.textContent = prefix + current + suffix;
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    el.textContent = prefix + '0' + suffix;
+    requestAnimationFrame(tick);
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.stat-num').forEach(el => statObserver.observe(el));
+
+/* ── Parallax hero on scroll ────────────────────────────── */
+const heroMark = document.querySelector('.hero-mark');
+const heroGrid = document.querySelector('.hero-grid');
+let ticking = false;
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      if (heroMark && y < 900) {
+        heroMark.style.transform = `translateY(${y * 0.15}px)`;
+      }
+      if (heroGrid && y < 900) {
+        heroGrid.style.transform = `translateY(${y * 0.08}px)`;
+      }
+      ticking = false;
+    });
+    ticking = true;
+  }
+}, { passive: true });
+
+/* Calculator removed — smart pricing auto-adjusts, no client-side estimation needed */
+
+/* ── Smooth scroll for anchor links ─────────────────────── */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a?.addEventListener('click', (e) => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+/* ── Interactive feature carousel ───────────────────────── */
+(function() {
+  const tabs = document.querySelectorAll('.carousel-tab');
+  const panels = document.querySelectorAll('.carousel-panel');
+  const dots = document.querySelectorAll('.carousel-dot');
+  let currentSlide = 0;
+  let autoTimer = null;
+
+  function goToSlide(idx) {
+    if (idx === currentSlide) return;
+    const prev = currentSlide;
+    currentSlide = idx;
+
+    // Tabs
+    tabs[prev].classList.remove('active');
+    tabs[prev].setAttribute('aria-selected', 'false');
+    tabs[idx].classList.add('active');
+    tabs[idx].setAttribute('aria-selected', 'true');
+
+    // Panels
+    panels[prev].classList.remove('active');
+    panels[prev].hidden = true;
+    panels[idx].classList.add('active');
+    panels[idx].hidden = false;
+
+    // Dots
+    dots[prev].classList.remove('active');
+    dots[idx].classList.add('active');
+  }
+
+  tabs.forEach((tab, i) => {
+    tab?.addEventListener('click', () => {
+      goToSlide(i);
+      resetAuto();
+    });
+  });
+
+  dots.forEach((dot, i) => {
+    dot?.addEventListener('click', () => {
+      goToSlide(i);
+      resetAuto();
+    });
+  });
+
+  // Keyboard navigation within the carousel
+  document.querySelector('.carousel-nav')?.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = (currentSlide + 1) % tabs.length;
+      goToSlide(next);
+      tabs[next].focus();
+      resetAuto();
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = (currentSlide - 1 + tabs.length) % tabs.length;
+      goToSlide(prev);
+      tabs[prev].focus();
+      resetAuto();
+    }
+  });
+
+  // Auto-advance every 5 seconds (pauses on hover / focus)
+  function startAuto() {
+    autoTimer = setInterval(() => {
+      goToSlide((currentSlide + 1) % tabs.length);
+    }, 5000);
+  }
+  function resetAuto() {
+    clearInterval(autoTimer);
+    startAuto();
+  }
+  startAuto();
+
+  const carouselTrack = document.querySelector('.carousel-track');
+  if (carouselTrack) {
+    carouselTrack?.addEventListener('mouseenter', () => clearInterval(autoTimer));
+    carouselTrack?.addEventListener('focusin', () => clearInterval(autoTimer));
+    carouselTrack?.addEventListener('mouseleave', startAuto);
+    carouselTrack?.addEventListener('focusout', (e) => {
+      if (!carouselTrack.contains(e.relatedTarget)) startAuto();
+    });
+  }
+
+  // Respect reduced motion — disable auto-advance
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    clearInterval(autoTimer);
+  }
+})();
+
+/* ── Energy heatmap generator ────────────────────────────── */
+(function() {
+  const grid = document.getElementById('energy-heatmap-grid');
+  if (!grid) return;
+  // 52 weeks × 7 days = 364 cells, simplified to 52 cols × 5 rows for display
+  const cols = 52;
+  const rows = 5;
+  const colors = [
+    'rgba(30,64,112,0.6)',   // winter low
+    'rgba(29,95,166,0.7)',   // spring
+    'rgba(52,121,196,0.6)',  // mild
+    'rgba(245,158,11,0.7)',  // summer warm
+    'rgba(239,68,68,0.75)',  // peak summer
+  ];
+  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  grid.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'energy-cell';
+      // Simulate seasonal pattern: hot July-Aug (col 27-35), cold Jan (col 0-3) and Dec (col 48-52)
+      const seasonality = Math.sin((c / cols) * Math.PI) * 0.7;
+      const noise = Math.random() * 0.3;
+      const heat = Math.min(1, Math.max(0, seasonality + noise));
+      const colorIdx = Math.floor(heat * (colors.length - 1));
+      cell.style.background = colors[colorIdx];
+      cell.setAttribute('aria-hidden', 'true');
+      grid.appendChild(cell);
+    }
+  }
+})();
+
+/* ── Global unhandled error handler — POST to /api/client-errors ─── */
+window.addEventListener('error', (event) => {
+  const { message, filename, lineno, colno } = event;
+  fetch('/api/client-errors', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message,
+      source: filename || '(no source)',
+      lineno,
+      colno,
+      url: window.location.href,
+      userAgent: navigator.userAgent,
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {}); // fire-and-forget; never throw in error handler
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  const err = event.reason;
+  fetch('/api/client-errors', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message: err?.message || String(err),
+      source: '(unhandledrejection)',
+      lineno: null,
+      colno: null,
+      stack: err?.stack || '(no stack)',
+      url: window.location.href,
+      userAgent: navigator.userAgent,
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+});
+
+/* ── Service Worker registration ────────────────────────── */
+/* BUG-SWBANNER: Arm banner check 10s after page init. Hard reload can fire a
+   controllerchange before the SW writes CACHE_VERSION to localStorage, making
+   the page see a false "new version". The 10s window suppresses all banners
+   during the race condition; genuine deploys (SW sends navigate with new version)
+   still show the banner immediately after the update is applied. */
+window._swBannerArmedAt = Date.now();
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.ready.then((reg) => {
+    let hadController = !!reg.active;
+
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      if (!newWorker) return;
+
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state !== 'installed') return;
+        if (newWorker.scriptURL === (reg.active?.scriptURL || '')) return;
+        // Update is waiting
+        if (hadController) showSWBanner();
+        hadController = true;
+      });
+    });
+
+    // Banner suppressed when no prior controller — fresh SW install, not a rollback/redeploy
+    reg.addEventListener('controllerchange', () => {
+      hideSWBanner();
+    });
+  }).catch(() => {});
+}
+
+function showSWBanner() {
+  if (window._swBannerArmedAt && Date.now() - window._swBannerArmedAt < 10000) return;
+  const existing = document.getElementById('sw-banner');
+  if (existing) return;
+  const b = document.createElement('div');
+  b.id = 'sw-banner';
+  b.innerHTML = '<span style="font-weight:600">New version available</span><button id="btn-reload" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:4px 14px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600">Reload</button>';
+  document.body.prepend(b);
+}
+function hideSWBanner() {
+  document.getElementById('sw-banner')?.remove();
+}
+</script>
+
+<!-- Wallt AI Companion widget (anon mode on landing) -->
+<link rel="stylesheet" href="/css/wallt.css">
+<script src="/js/wallt.js" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATLANTIST Manifesto — Perfection is asymptotic. Beauty is personal.</title>
+  <meta name="description" content="Perfection is asymptotic. Beauty is personal. The Wavetree Principle and the architecture of shipping software that earns its place.">
+  <meta name="author" content="Atlantist">
+  <meta name="publish_date" content="2026-05-27">
+  <meta name="theme-color" content="#060a10">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+
+  <!-- OG / Twitter Card -->
+  <meta property="og:title" content="ATLANTIST Manifesto">
+  <meta property="og:description" content="Perfection is asymptotic. Beauty is personal.">
+  <meta property="og:image" content="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_138239/608bfc7a-69ce-41bc-b278-338f22009355.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://atlantist.cloud/blog/atlantist-manifesto">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Atlantist">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ATLANTIST Manifesto">
+  <meta name="twitter:description" content="Perfection is asymptotic. Beauty is personal.">
+  <meta name="twitter:image" content="https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_138239/608bfc7a-69ce-41bc-b278-338f22009355.jpg">
+  <link rel="canonical" href="https://atlantist.cloud/blog/atlantist-manifesto">
+
+  <!-- KaTeX CSS — loaded first to prevent flash -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+  <!-- Schema.org Article markup -->
+  <script src="/js/boot-safety.js"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "ATLANTIST Manifesto",
+    "description": "Perfection is asymptotic. Beauty is personal. The Wavetree Principle and the architecture of shipping software that earns its place.",
+    "image": "https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_138239/608bfc7a-69ce-41bc-b278-338f22009355.jpg",
+    "author": { "@type": "Organization", "name": "Atlantist" },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Atlantist",
+      "logo": { "@type": "ImageObject", "url": "https://atlantist.cloud/brand/favicon.svg" }
+    },
+    "datePublished": "2026-05-27",
+    "dateModified": "2026-05-27",
+    "url": "https://atlantist.cloud/blog/atlantist-manifesto",
+    "articleSection": "Philosophy",
+    "keywords": ["BIM", "software", "perfection", "beauty", "design philosophy", "craft", "parametric", "architecture"]
+  }
+  </script>
+
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#060a10;--surface:#0e1524;--surface2:#131e34;--border:rgba(255,255,255,.06);
+      --text:#e8eaf0;--text-dim:#8898b0;--text-hd:#f0f4ff;
+      --accent:#1d5fa6;--accent-l:#3479c4;--accent-glow:rgba(29,95,166,.15);
+      --gold:#c9a84c;--gold-dim:rgba(201,168,76,.12);
+      --serif:'Georgia',serif;--sans:-apple-system,system-ui,sans-serif;
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.65;-webkit-font-smoothing:antialiased}
+    ::selection{background:var(--accent);color:#fff}
+    a{color:inherit;text-decoration:none}
+    img{width:100%;height:auto;display:block}
+
+    /* KaTeX equation styling — no flash */
+    .katex-display{
+      display:block !important;
+      text-align:center;
+      margin:2rem 0;
+      padding:.75rem 1.5rem;
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:8px;
+      overflow-x:auto;
+      max-width:100%;
+    }
+    .katex{display:inline-block}
+    /* Pre-render: hide math until KaTeX is ready */
+    .math-block{visibility:hidden}
+    .math-block.katex-ready{visibility:visible}
+
+    .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100}
+    .topbar-logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--text-hd);text-decoration:none}
+    .topbar-logo svg{color:var(--accent-l)}
+    .topbar-nav{display:flex;gap:4px}
+    .nav-link{padding:6px 12px;font-size:13px;color:var(--text-dim);text-decoration:none;border-radius:6px;transition:all .15s}
+    .nav-link:hover{color:var(--text-hd);background:var(--surface2)}
+    .topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+    .btn-primary{background:var(--accent);color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:13px;cursor:pointer;text-decoration:none;font-weight:500;transition:background .15s}
+    .btn-primary:hover{background:var(--accent-l)}
+
+    .article-header{padding:80px 24px 56px;max-width:860px;margin:0 auto;text-align:center}
+    .article-header .eyebrow{font-size:12px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.14em;margin-bottom:16px}
+    .article-header h1{font-family:var(--serif);font-size:clamp(30px,5vw,52px);font-weight:400;color:var(--text-hd);line-height:1.15;margin-bottom:20px;letter-spacing:-.5px}
+    .article-header .lead{font-size:18px;color:var(--text-dim);max-width:620px;margin:0 auto 28px;line-height:1.7;font-style:italic}
+    .article-meta{display:flex;align-items:center;justify-content:center;gap:16px;font-size:13px;color:var(--text-dim);flex-wrap:wrap}
+    .article-meta .tag{background:var(--gold-dim);padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);border:1px solid rgba(201,168,76,.2)}
+
+    .hero-equation{margin:32px auto;max-width:700px;padding:0 24px}
+    .hero-equation .katex-display{text-align:center;background:linear-gradient(135deg,var(--surface) 0%,var(--surface2) 100%);border-color:rgba(201,168,76,.25);padding:1rem 2rem}
+
+    .article-body{max-width:860px;margin:0 auto;padding:0 24px 96px}
+
+    .section{padding:56px 0;border-bottom:1px solid var(--border)}
+    .section:last-child{border-bottom:none}
+    .section-label{font-size:11px;font-weight:700;color:var(--accent-l);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+    .section h2{font-family:var(--serif);font-size:clamp(22px,3vw,30px);font-weight:400;color:var(--text-hd);margin-bottom:12px;line-height:1.25}
+    .section p{font-size:15px;color:var(--text-dim);margin-bottom:24px;line-height:1.8}
+
+    .pullquote{
+      border-left:3px solid var(--gold);
+      padding:20px 28px;
+      margin:40px 0;
+      background:linear-gradient(90deg,var(--gold-dim) 0%,transparent 100%);
+      border-radius:0 10px 10px 0;
+    }
+    .pullquote p{font-size:18px;color:var(--text-hd);font-style:italic;line-height:1.65;margin:0}
+    .pullquote cite{display:block;font-size:12px;color:var(--text-dim);margin-top:12px;font-style:normal}
+
+    .key-point{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:20px 24px;
+      margin:28px 0;
+    }
+    .key-point h4{font-size:14px;font-weight:700;color:var(--text-hd);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+    .key-point h4 .bullet{width:8px;height:8px;background:var(--accent-l);border-radius:50%;flex-shrink:0}
+    .key-point p{font-size:14px;color:var(--text-dim);margin:0;line-height:1.7}
+
+    .eq-label{
+      font-size:11px;
+      color:var(--accent-l);
+      text-transform:uppercase;
+      letter-spacing:.1em;
+      font-weight:600;
+      margin-bottom:8px;
+      display:block;
+      text-align:center;
+    }
+
+    .refs{margin-top:64px;padding-top:40px;border-top:1px solid var(--border)}
+    .refs h3{font-family:var(--serif);font-size:20px;color:var(--text-hd);margin-bottom:20px}
+    .refs ol{list-style:none;padding:0;counter-reset:ref}
+    .refs li{counter-increment:ref;display:flex;gap:12px;padding:8px 0;font-size:13px;color:var(--text-dim);line-height:1.6;border-bottom:1px solid rgba(255,255,255,.04)}
+    .refs li::before{content:'[' counter(ref) ']';color:var(--accent-l);font-weight:600;flex-shrink:0;min-width:28px}
+    .refs li code{font-family:monospace;font-size:11px;background:var(--surface2);padding:1px 5px;border-radius:3px}
+
+    .cta-section{background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 100%);border:1px solid var(--border);border-radius:16px;padding:48px;text-align:center;margin:48px 0}
+    .cta-section h2{font-family:var(--serif);font-size:28px;font-weight:400;color:var(--text-hd);margin-bottom:10px}
+    .cta-section p{font-size:15px;color:var(--text-dim);margin-bottom:24px}
+    .cta-section .cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+    footer{padding:20px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-dim)}
+    footer a{color:var(--text-dim);text-decoration:none}
+    footer a:hover{color:var(--text-hd)}
+
+    @media(max-width:480px){
+      .article-header{padding:56px 20px 40px}
+      .section{padding:40px 0}
+      .katex-display{padding:.5rem 1rem;font-size:.85em}
+      .cta-section{padding:32px 20px}
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="/" class="topbar-logo">
+    <svg width="20" height="20" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="12" fill="#0a0e14"/>
+      <circle cx="32" cy="35" r="26" fill="none" stroke="#c8cdd6" stroke-width="1.0" opacity="0.22"/>
+      <circle cx="32" cy="35" r="21" fill="none" stroke="#c8cdd6" stroke-width="1.1" opacity="0.30"/>
+      <circle cx="32" cy="35" r="16" fill="none" stroke="#c8cdd6" stroke-width="1.3" opacity="0.38"/>
+      <circle cx="32" cy="35" r="11" fill="none" stroke="#c8cdd6" stroke-width="1.5" opacity="0.48"/>
+      <circle cx="32" cy="35" r="6" fill="none" stroke="#c8cdd6" stroke-width="1.6" opacity="0.58"/>
+      <line x1="32" y1="6" x2="18" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="32" y1="6" x2="46" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="23" y1="45" x2="41" y2="45" stroke="#e0e4ea" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="29" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="35" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="32" cy="3" r="1.8" fill="none" stroke="#e0e4ea" stroke-width="1"/>
+      <path d="M 32 30 L 33.5 35 L 32 40 L 30.5 35 Z" fill="#e0e4ea" opacity="0.9"/>
+      <path d="M 27 35 L 32 33.5 L 37 35 L 32 36.5 Z" fill="#e0e4ea" opacity="0.9"/>
+      <circle cx="32" cy="35" r="1.5" fill="#e0e4ea"/>
+    </svg>
+    Atlantist
+  </a>
+  <nav class="topbar-nav">
+    <a href="/docs" class="nav-link">Docs</a>
+    <a href="/docs/features" class="nav-link">Features</a>
+    <a href="/pricing" class="nav-link">Pricing</a>
+    <a href="/blog" class="nav-link">Blog</a>
+  </nav>
+  <div class="topbar-actions">
+    <a href="/app" class="btn-primary">Open App →</a>
+  </div>
+</header>
+
+<article itemscope itemtype="https://schema.org/Article">
+  <meta itemprop="datePublished" content="2026-05-27">
+  <meta itemprop="dateModified" content="2026-05-27">
+  <meta itemprop="author" content="Atlantist">
+
+  <header class="article-header">
+    <p class="eyebrow">ATLANTIST — Founding Document</p>
+    <h1 itemprop="headline">ATLANTIST Manifesto</h1>
+    <p class="lead" itemprop="description">"Perfection is asymptotic. Beauty is personal."</p>
+    <div class="article-meta">
+      <span>By Atlantist</span>
+      <span>·</span>
+      <span>May 27, 2026</span>
+      <span class="tag">Philosophy</span>
+      <span class="tag">Math</span>
+    </div>
+  </header>
+
+  <!-- Hero equation: ε-δ limit -->
+  <div class="hero-equation">
+    <div class="katex-display math-block" id="eq-limit">
+      <span class="eq-label">The limit definition</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <!-- SECTION: THE HOOK -->
+    <section class="section">
+      <p class="section-label">01 — The Hook</p>
+      <h2>We do not ship perfect software.</h2>
+      <p>We ship software that earns its place. That distinction sounds like a cop-out — it's not. It's the entire philosophy. Every tool we've built for Atlantist, every decision that shapes the platform, comes back to one question: are we building something that justifies its own existence?</p>
+      <p>Perfection is asymptotic. You can always make it better. Every additional decimal place costs the same as the last: infinite work for a limit you'll never reach. Beauty is personal. You see it in your way; I see it in mine. There is no universal beauty, only convergences of form and function that strike particular observers in particular moments.</p>
+      <p>These are not metaphors. They are the load-bearing principles of everything we make.</p>
+    </section>
+
+    <!-- SECTION: THE WAVETREE PRINCIPLE -->
+    <section class="section">
+      <p class="section-label">02 — The Wavetree Principle</p>
+      <h2>Where math meets the craft of software</h2>
+      <p>Banach's fixed-point theorem gives us this: a function maps a space to itself, and under the right conditions, iteration converges to a unique fixed point. It's a beautiful result. It describes how certain processes — certain systems — settle.</p>
+      <p>But it doesn't describe everything. Some sequences converge without the amplitude converging. The terms get arbitrarily close to their limit — the distance |x<sub>n</sub> − L| → 0 — yet the magnitude of each term stays above zero. The sequence settles in position but not in scale.</p>
+
+      <!-- Wavetree convergence equation -->
+      <div class="katex-display math-block" id="eq-wavetree"></div>
+
+      <p>This is the Wavetree Principle. Convergence and amplitude are independent. You can converge on a destination and still carry something nonzero. The distance goes to zero. The magnitude stays positive. Forever.</p>
+      <p>In software, it means this: you can get every detail right and still have work to do. The model becomes stable — convergence — while remaining rich with unresolved potential — amplitude. A good tool never runs out of ceiling. It converges toward mastery without ever saying "you're done."</p>
+    </section>
+
+    <!-- SECTION: ARCHITECTURE PROBLEM -->
+    <section class="section">
+      <p class="section-label">03 — The Architecture Problem, Formalized</p>
+      <h2>Why CAD geometry is not fabrication data</h2>
+      <p>Every CAD system carries an implicit assumption: that the geometry it produces maps cleanly to the thing that gets built. It doesn't. Not precisely. There is always a gap between the computational representation and the physical reality.</p>
+
+      <!-- CAD ≠ fabrication equation -->
+      <div class="katex-display math-block" id="eq-cad-fab"></div>
+
+      <p>The CAD representation of a curved surface S is not the same as the physical fabrication shape S<sub>fabrication</sub>. Manufacturing introduces tolerances, material behavior, human placement, thermal effects, tool radius compensation. The CAD model is a target. The thing that gets built is an approximation of a target.</p>
+      <p>This isn't a bug in CAD software. It's a property of the world. The math is exact; matter is not. But here's what most CAD tools do: they treat this gap as a problem to hide. They pretend the digital object is the physical object until someone on the job site notices it isn't.</p>
+      <p>What we built in Atlantist's DAG constraint system does the opposite. It makes the gap explicit. Parameters propagate through a graph of constraints — when you change a level elevation, every element that depends on that level updates instantly across all views. The model stays consistent not by suppressing the gap, but by tracking it.</p>
+      <div class="key-point">
+        <h4><span class="bullet"></span>Architecture insight</h4>
+        <p>The real architecture problem is not how to make CAD geometry match fabrication. It's how to make the system honest about the gap — to track where the digital and physical diverge, and propagate those divergences through every dependent parameter until the user sees the complete picture.</p>
+      </div>
+    </section>
+
+    <!-- SECTION: WHY PERFECT SOFTWARE IS WRONG -->
+    <section class="section">
+      <p class="section-label">04 — Why Perfect Software Is the Wrong Goal</p>
+      <h2>Perfection is asymptotic. It has no terminus.</h2>
+      <p>There's a function that describes the quality of software as time goes to infinity. It looks like this:</p>
+
+      <!-- Perfection function equation -->
+      <div class="katex-display math-block" id="eq-perfection"></div>
+
+      <p>As n → ∞, Software_n(x) approaches Perfection(x), but never arrives. The limit is the destination; the function is the journey. And the journey is always underway. There is no final version. There is no ship-moment where the quality becomes what it was trying to be.</p>
+      <p>This is not a counsel of despair. It's a liberation. If perfection has no terminus, then "not perfect yet" is not a failure state. It's the permanent condition of work in progress. The question is not "are we there?" The question is "are we getting closer in the directions that matter?"</p>
+      <div class="pullquote">
+        <p>"Unreachable by definition" is not a flaw in your plan. It is the nature of the thing you are building.</p>
+      </div>
+    </section>
+
+    <!-- SECTION: BEAUTY DOESN'T CONVERGE -->
+    <section class="section">
+      <p class="section-label">05 — Beauty Doesn't Converge</p>
+      <h2>The distinction between perfection and beauty</h2>
+      <p>Here's the equation nobody writes because it's not a formula — it's a claim:</p>
+
+      <!-- P ≠ Beauty equation -->
+      <div class="katex-display math-block" id="eq-p-nb"></div>
+
+      <p>Perfection is asymptotic. Beauty is personal. These are not the same thing. A system can be technically perfect — every constraint satisfied, every parameter propagated, every edge case handled — and still feel dead. Like someone followed a checklist. Like the care got extracted along with the uncertainty.</p>
+      <p>Beauty in software lives in the specific. In the moment where something does exactly what you needed it to do, exactly when you needed it. In the geometry that is precise without being cold. In the error message that tells you not just what went wrong, but what to do next. In the workflow that feels like it was designed by someone who has actually done this job.</p>
+      <p>These things are not quantifiable. You cannot put a number on them. You cannot check a box for them. You can only build toward them with attention and get closer over time without ever arriving.</p>
+    </section>
+
+    <!-- SECTION: NATURAL VS ARTIFICIAL -->
+    <section class="section">
+      <p class="section-label">06 — Natural vs Artificial Formation</p>
+      <h2>Where BIM tools go wrong</h2>
+      <p>Most software tools are built as if the designer knows better than the user. As if the system anticipates every possible intent and provides an interface for each of them. Every menu item is a branch in a decision tree the designer built before meeting the user.</p>
+      <p>Natural formation is different. It grows from local conditions. It adapts. A tree doesn't follow a blueprint — it responds to light, gravity, moisture, competition. The form is not imposed from outside; it emerges from the interaction between the thing and its environment.</p>
+      <p>The best software has this character. Not the character of a designer showing you the right way — the character of a medium that responds to your intent. You push on it and something gives in the direction you pushed. Not the direction the designer anticipated, but the direction the problem requires.</p>
+      <p>Our DAG constraint solver is an attempt to build this character into Atlantist. When you change a parameter, the system doesn't ask you to also change every dependent parameter. It works backward from the change you've made and propagates it forward through the constraint graph. You're not doing the work of propagating — you're just doing the work of deciding what to change. The system handles the rest.</p>
+      <p>This is natural formation applied to building information modeling. The model grows from your decisions, not from your exhaustive specification of every decision.</p>
+    </section>
+
+    <!-- SECTION: WHY THIS MATTERS FOR SHIPPING -->
+    <section class="section">
+      <p class="section-label">07 — Why This Matters for How We Ship</p>
+      <h2>Two corollaries for product decisions</h2>
+      <p>The Wavetree Principle and the perfection function give us two operational constraints that shape every decision we make:</p>
+      <p><strong>Corollary 1: Ship toward the amplitude, not the limit.</strong> Convergent metrics — code quality, test coverage, error rate — approach zero asymptotically. You can always improve them. They never reach perfection. So optimize for the rate of approach in the dimensions that matter most, not for the completeness of coverage. A tool that's 80% solid in every dimension is better than a tool that's 100% in three dimensions and zero in the others.</p>
+      <p><strong>Corollary 2: The UI is the product.</strong> The parametric logic under the hood could be technically perfect and still produce a bad tool if the interface makes it impossible to access. The beauty of a system lives in how it presents itself, not just in what it computes. Every interactive surface is a claim about what matters. We are always making that claim when we design a panel, write an error message, or choose where to put a button.</p>
+      <p>These are not marketing abstractions. They are the specific filters we apply to every feature we build. When we add a structural analysis mode, we ask: does this converge toward the engineer's intent, or does it impose a predetermined workflow? When we design the energy simulation UI, we ask: does the interface feel like it was built by someone who has run a DOB filing? When we implement the issue tracking layer, we ask: does a threaded comment in this tool feel like the conversation it replaces, or like a form submission?</p>
+    </section>
+
+    <!-- SECTION: THE CLOSING -->
+    <section class="section">
+      <p class="section-label">08 — The Closing</p>
+      <h2>The paradox, unresolved</h2>
+      <p>Perfection is asymptotic — infinite work to reveal it. Beauty is personal — personal thing to see it. These are not competing values. They are compatible constraints. You pursue perfection toward its limit and you pursue beauty in its particulars, and the two pursuits reinforce each other without resolving into a single answer.</p>
+
+      <!-- Damped oscillator equation -->
+      <div class="katex-display math-block" id="eq-oscillator"></div>
+
+      <p>An underdamped system oscillates around its equilibrium. The amplitude decays, but the frequency persists. The system doesn't just arrive at rest — it passes through rest, overshoots, oscillates, and converges. The beauty is in the motion, not just the destination.</p>
+      <p>That is what we are building. A system that moves. That oscillates. That converges. That carries amplitude all the way to the limit. That does not stop until it arrives — and arrives knowing it cannot stay.</p>
+      <div class="pullquote">
+        <p>Perfection exists everywhere — infinite work to reveal it.<br>Beauty exists everywhere — personal thing to see it.<br>Both are true. Both are unresolved. That is not a contradiction. That is the work.</p>
+        <cite>— Atlantist, May 2026</cite>
+      </div>
+    </section>
+
+    <!-- SECTION: REFERENCES -->
+    <section class="section refs">
+      <h3>References &amp; Notes</h3>
+      <ol>
+        <li><span>Banach, S. (1922). Sur les opérations dans les ensembles abstraits et leur application aux équations intégrales. <em>Fundamenta Mathematicae</em>, 3, 133–181. — Fixed-point theorem, the foundation of convergence in complete metric spaces.</span></li>
+        <li><span>Cominetti, R. (1994). Quantitative error analysis for uniform convex inequalities. <em>Mathematics of Computation</em>, 62(205), 171–186. — Convergence rates in normed spaces; relevant to sequence convergence behavior described here.</span></li>
+        <li><span>Young, H.D. &amp; Freedman, R.A. <em>University Physics</em>, Vol. 1, §15.5 — Damped harmonic oscillators: x(t) = Ae<sup>−βt</sup> cos(ωt + φ). Underdamped systems oscillate while converging.</span></li>
+        <li><span>Atlantist internal research — BIM industry failure landscape. The gap between CAD geometry and fabrication data is a documented cause of cost overruns and RFI cycles in commercial construction.</span></li>
+        <li><span>Atlantist product documentation — DAG constraint solver. Parametric constraint propagation across the dependency graph; element parameter updates propagate to all bound geometry in real-time.</span></li>
+      </ol>
+    </section>
+
+    <section class="cta-section">
+      <h2>Build something that earns its place.</h2>
+      <p>Open Atlantist. Start with a template. Explore what it means to model with parametric constraints.</p>
+      <div class="cta-actions">
+        <a href="/app" class="btn-primary">Launch Atlantist →</a>
+        <a href="/docs/features" class="btn-outline">View Features</a>
+        <a href="/pricing" class="btn-outline">See Pricing</a>
+      </div>
+    </section>
+
+  </div>
+</article>
+
+<footer>
+  <span>© 2026 Atlantist. Built for structural engineers and architects.</span>
+  <nav style="display:flex;gap:16px">
+    <a href="/docs">Docs</a>
+    <a href="/pricing">Pricing</a>
+    <a href="/blog">Blog</a>
+    <a href="/terms">Terms</a>
+    <a href="/privacy">Privacy</a>
+  </nav>
+</footer>
+
+<!-- KaTeX JS — load after DOM so math-block elements exist -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+(function() {
+  // Mark as ready once KaTeX is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    // Equations to render: {id, latex, display}
+    var equations = [
+      {
+        id: 'eq-limit',
+        latex: '\\boxed{\\forall \\epsilon > 0,\\ \\exists N \\in \\mathbb{N}:\\ n > N \\implies |x_n - L| < \\epsilon}',
+        display: true
+      },
+      {
+        id: 'eq-wavetree',
+        latex: '\\boxed{\\lim_{n \\to \\infty}|x_n - L| = 0,\\ \\text{but}\\ A_n > 0\\ \\forall n}',
+        display: true
+      },
+      {
+        id: 'eq-cad-fab',
+        latex: '\\boxed{\\mathrm{CAD}_{\\text{curved}}(S) \\neq S_{\\text{fabrication}}}',
+        display: true
+      },
+      {
+        id: 'eq-perfection',
+        latex: '\\boxed{\\mathrm{Perfection}(x) = \\lim_{n \\to \\infty}\\mathrm{Software}_n(x)}',
+        display: true
+      },
+      {
+        id: 'eq-p-nb',
+        latex: '\\boxed{\\mathrm{Perfection} \\neq \\mathrm{Beauty}}',
+        display: true
+      },
+      {
+        id: 'eq-oscillator',
+        latex: '\\boxed{x(t) = Ae^{-\\beta t}\\cos(\\omega_d t + \\phi)}',
+        display: true
+      }
+    ];
+
+    equations.forEach(function(eq) {
+      var el = document.getElementById(eq.id);
+      if (el) {
+        try {
+          katex.render(eq.latex, el, {
+            displayMode: true,
+            throwOnError: false,
+            trust: true
+          });
+          el.classList.add('katex-ready');
+        } catch (err) {
+          // Fallback: show raw latex
+          el.textContent = eq.latex;
+          el.classList.add('katex-ready');
+          console.warn('KaTeX render error for ' + eq.id + ':', err.message);
+        }
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

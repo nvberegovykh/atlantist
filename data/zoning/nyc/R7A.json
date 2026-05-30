@@ -1,0 +1,48 @@
+{
+  "district": "R7A",
+  "description": "Contextual medium-to-high density residential district. Quality Housing mandatory. Higher FAR than R6A. Typically produces 7-10 story buildings.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "source_url_height": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22", "23-432", "23-34", "23-335"],
+  "bulk": {
+    "far_standard": 4.00,
+    "far_qualifying": 5.01,
+    "far_note": "UAP standard. Community facility FAR per ZR §24-11.",
+    "lot_coverage_max": 80,
+    "quality_housing_mandatory": true
+  },
+  "height_setback": {
+    "regulation_type": "Quality Housing (mandatory)",
+    "min_base_height_ft": 40,
+    "max_base_height_ft": 75,
+    "max_building_height_ft": 85,
+    "affordable_max_base_height_ft": 85,
+    "affordable_max_building_height_ft": 115,
+    "street_wall_setback_wide_st": "10 ft depth above max base height",
+    "street_wall_setback_narrow_st": "15 ft depth above max base height",
+    "street_wall_location": "No closer to street line than buildings within 150 ft on same block",
+    "tower_permitted": false,
+    "notes": "Per ZR §23-432 table (R7A, R7-11, R7-21 rows). Standard: min base 40, max base 75, max height 85 ft. Qualifying affordable/senior: max base 85, max height 115 ft."
+  },
+  "yards": {
+    "front": { "requirement": "Per §23-322" },
+    "side": { "requirement": "Per §23-335: none required for Quality Housing contextual districts" },
+    "rear": {
+      "requirement": "30 ft min depth per §23-342",
+      "through_lot_alternative": "Rear yard equivalent per §23-343 on through lots ≥180 ft"
+    }
+  },
+  "permitted_uses": {
+    "residential": ["Dwelling units per §22-11", "Quality Housing required"],
+    "community_facility": "Per ZR §24-11",
+    "parking": "Parking not permitted in front yard"
+  },
+  "dob_filing_notes": [
+    "Quality Housing Program certification required in DOB NOW",
+    "R7A allows higher FAR than R6A — confirm district designation on zoning map",
+    "If UAP affordable housing: FAR increases to 5.01 — requires MIH or UAP documentation",
+    "BSA special permit needed for any height/setback modifications"
+  ]
+}

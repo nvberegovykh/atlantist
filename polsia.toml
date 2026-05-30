@@ -1,0 +1,68 @@
+[project]
+name = "atlantist"
+
+[[crons]]
+name = "email-sequences-daily"
+schedule = "0 9 * * *"
+command = "node jobs/email-sequences.js"
+description = "Send welcome, inactive, and billing renewal email sequences daily at 9am"
+
+[[crons]]
+name = "email-auto-responder"
+schedule = "*/10 * * * *"
+command = "node jobs/email-auto-responder.js"
+description = "Poll Polsia inbox every 10 minutes for forwarded IONOS emails, auto-respond with Atlantist context, mark read. Guarded by POLSIA_IN_PROCESS_CRONS_ENABLED."
+
+[[crons]]
+name = "abuse-scan-daily"
+schedule = "0 8 * * *"
+command = "node jobs/abuse-scan.js"
+description = "Daily abuse scan — recent models (24h window), ITAR/EAR/CWC/BWC/ATF/NIJ pattern matching, Tier 1/2 auto-erasure"
+
+[[crons]]
+name = "abuse-scan-deep"
+schedule = "0 8 * * 3"
+command = "node jobs/deep-abuse-scan.js"
+description = "Deep abuse scan every 72h — full database scan of all models regardless of modification date. Tier 1/2 auto-erasure + account suspension."
+
+[[crons]]
+name = "grace-expiry-daily"
+schedule = "0 6 * * *"
+command = "node jobs/grace-expiry.js"
+description = "Process grace period expirations: suspend accounts past 30-day window, send 7-day and 1-day reminder emails to users in grace_export_only state."
+
+[[crons]]
+name = "ad-campaign-refresh"
+schedule = "0 3 * * 1"
+command = "node scripts/ad_generator.js --page hero --audience architect --goal signups"
+description = "Weekly ad refresh: generate new hero ads for architect audience every Monday at 3am UTC"
+
+[[crons]]
+name = "forum-ai-agent"
+schedule = "*/2 * * * *"
+command = "node jobs/forum-agent.js"
+description = "Run forum AI agent every 2 minutes — scan recent threads for moderation, auto-respond to new posts, escalate after 2 AI responses without resolution."
+
+[[crons]]
+name = "cost-aggregator-daily"
+schedule = "0 4 * * *"
+command = "node jobs/cost-aggregator.js"
+description = "Daily infrastructure cost aggregation per user — compute/storage/bandwidth/API/hosting amort. Runs at 4am daily. Updates monthly_cost_snapshots and billing predictions at month-end."
+
+[[crons]]
+name = "cost-optimization-monthly"
+schedule = "0 5 1 * *"
+command = "node jobs/cost-optimization-trigger.js"
+description = "Monthly cost threshold check. If total monthly infrastructure cost across all users >= $150/mo, creates P0 optimization trigger with replacement plan and engineering tasks. Owner approval required before execution."
+
+[[crons]]
+name = "wallt-memory-archive-weekly"
+schedule = "0 6 * * 0"
+command = "node jobs/wallt-memory-archive.js"
+description = "Wallt Core Memory weekly archive — archive institutional memory not accessed in 90 days to cold storage, hard-delete records past 2-year retention, evict Redis cache to stay under 500MB soft cap. Guarded by POLSIA_IN_PROCESS_CRONS_ENABLED."
+
+[[crons]]
+name = "wallt-view-refresh"
+schedule = "*/5 * * * *"
+command = "node jobs/wallt-view-refresh.js"
+description = "Refresh materialized views for the Reasoner agent. Refreshes mv_wallt_deployment_readiness every 5 min (code-push event) and triggers concurrent refresh of code-quality + test-coverage MVs on a longer interval. Updates wallt_view_refresh_log timestamps so the Reasoner knows data freshness."

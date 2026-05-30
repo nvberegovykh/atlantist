@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asset — Atlantist Store</title>
+  <meta name="description" content="Browse BIM assets on the Atlantist Asset Store.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0c10; --bg-card: #13151c; --bg-card2: #1a1d27; --bg-raised: #1e2130;
+      --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+      --text: #f0eeea; --text-dim: rgba(240,238,234,0.55); --text-mid: rgba(240,238,234,0.35);
+      --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.15); --blue: #5b8fd9; --blue-dim: rgba(91,143,217,0.15);
+      --green: #3bba6c; --green-dim: rgba(59,186,108,0.1); --red: #e84855; --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+      --radius: 12px; --radius-sm: 8px;
+    }
+    html, body { min-height: 100vh; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    ::selection { background: var(--blue); color: white; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    nav { display: flex; align-items: center; padding: 16px 48px; border-bottom: 1px solid var(--border); background: rgba(11,12,16,0.95); position: sticky; top: 0; z-index: 50; }
+    nav .logo { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    nav .logo svg { width: 26px; height: 26px; }
+    nav .breadcrumb { color: var(--text-mid); font-size: 13px; margin-left: 16px; }
+    nav .nav-links { margin-left: auto; display: flex; gap: 20px; align-items: center; }
+    nav .nav-links a { color: var(--text-dim); font-size: 13px; font-weight: 500; transition: color 0.15s; }
+    nav .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+    .asset-layout { display: grid; grid-template-columns: 1fr 380px; gap: 40px; align-items: start; }
+    @media (max-width: 800px) { .asset-layout { grid-template-columns: 1fr; } }
+
+    /* Left column */
+    .asset-preview { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 24px; }
+    .asset-preview img { width: 100%; height: 280px; object-fit: cover; display: block; }
+    .asset-preview .placeholder { height: 280px; display: flex; align-items: center; justify-content: center; }
+    .asset-preview .placeholder svg { width: 64px; height: 64px; stroke: var(--text-mid); opacity: 0.3; }
+
+    .asset-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+    .asset-section h2 { font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+    .asset-description { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
+    .asset-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .meta-tag { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; background: var(--bg-raised); color: var(--text-dim); border: 1px solid var(--border); }
+    .meta-tag.gold { background: var(--gold-dim); color: var(--gold); border-color: rgba(201,168,76,0.2); }
+
+    /* Right column — purchase card */
+    .purchase-card { background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius); padding: 28px; position: sticky; top: 90px; }
+    .purchase-price { font-size: 36px; font-weight: 700; margin-bottom: 4px; }
+    .purchase-price .cents { font-size: 20px; color: var(--text-dim); }
+    .purchase-license { font-size: 13px; color: var(--text-mid); margin-bottom: 20px; }
+    .purchase-breakdown { background: var(--bg-card2); border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+    .breakdown-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+    .breakdown-row .label { color: var(--text-dim); }
+    .breakdown-row .value { font-weight: 600; }
+    .breakdown-row .total-row { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 10px; font-weight: 600; }
+    .breakdown-row .total-row .label { color: var(--text); }
+    .breakdown-row .stripe-fee { color: var(--text-mid); font-size: 12px; }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 13px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: var(--blue); color: white; }
+    .btn-primary:hover { background: #6fa3e8; }
+    .btn-gold { background: var(--gold); color: #0b0c10; }
+    .btn-gold:hover { background: #d4b557; }
+    .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--text-dim); }
+    .btn-outline:hover { color: var(--text); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .creator-row { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-top: 1px solid var(--border); margin-top: 16px; }
+    .creator-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-raised); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: var(--text-dim); }
+    .creator-info .name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .creator-info .since { font-size: 12px; color: var(--text-mid); }
+
+    /* Reviews */
+    .review-item { padding: 16px 0; border-bottom: 1px solid var(--border); }
+    .review-item:last-child { border-bottom: none; }
+    .review-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .review-stars { color: var(--gold); font-size: 13px; }
+    .review-stars .empty { color: var(--text-mid); }
+    .review-author { font-size: 13px; color: var(--text-dim); }
+    .review-date { font-size: 12px; color: var(--text-mid); margin-left: auto; }
+    .review-body { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+    .stats-row { display: flex; gap: 24px; padding: 12px 0; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+    .stat-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-mid); }
+    .stat-item svg { width: 14px; height: 14px; stroke: currentColor; }
+
+    /* Loading / error states */
+    .loading { text-align: center; padding: 80px; color: var(--text-mid); }
+    .error-state { text-align: center; padding: 80px; }
+    .error-state h2 { font-size: 20px; margin-bottom: 12px; }
+    .error-state p { color: var(--text-dim); margin-bottom: 20px; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; background: var(--bg-card2); border: 1px solid var(--border2); border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-color: rgba(59,186,108,0.5); color: var(--green); }
+    .toast.error { border-color: rgba(232,72,85,0.5); color: var(--red); }
+
+    @media (max-width: 600px) { nav { padding: 14px 20px; } .container { padding: 24px 16px; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <svg viewBox="0 0 40 40" fill="none">
+      <circle cx="20" cy="20" r="19" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.3"/>
+      <circle cx="20" cy="20" r="14" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.5"/>
+      <circle cx="20" cy="20" r="9" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M20 8 L20 11 M20 29 L20 32 M8 20 L11 20 M29 20 L32 20" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="20" cy="20" r="3" fill="#c9a84c"/>
+    </svg>
+    Atlantist Store
+  </div>
+  <div class="breadcrumb" id="breadcrumb"> / Loading…</div>
+  <div class="nav-links">
+    <a href="/store">Browse</a>
+    <a href="/store/dashboard">Dashboard</a>
+    <a href="/store/library">My Library</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div id="loading-state" class="loading">Loading asset…</div>
+  <div id="error-state" class="error-state" style="display:none">
+    <h2>Asset not found</h2>
+    <p>This asset may have been removed or the link is invalid.</p>
+    <a href="/store" class="btn btn-primary" style="width:auto;display:inline-flex">Browse the Store</a>
+  </div>
+
+  <div id="asset-content" style="display:none">
+    <div class="asset-layout">
+      <!-- Left: preview + description + reviews -->
+      <div>
+        <div class="asset-preview">
+          <div id="asset-preview-img"></div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-item"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> <span id="stat-downloads">0</span> downloads</div>
+          <div class="stat-item"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> <span id="stat-views">0</span> views</div>
+          <div class="stat-item" id="stat-rating-row" style="display:none">
+            <span id="stat-stars" class="review-stars"></span> <span id="stat-rating"></span>
+          </div>
+        </div>
+
+        <div class="asset-section">
+          <h2>Description</h2>
+          <p class="asset-description" id="asset-desc">—</p>
+        </div>
+
+        <div class="asset-section">
+          <h2>Details</h2>
+          <div class="asset-meta" id="asset-meta"></div>
+        </div>
+
+        <div class="asset-section" id="reviews-section" style="display:none">
+          <h2>Reviews <span id="review-count" style="font-size:13px;color:var(--text-mid);font-weight:400"></span></h2>
+          <div id="reviews-list"></div>
+        </div>
+      </div>
+
+      <!-- Right: purchase card -->
+      <div>
+        <div class="purchase-card">
+          <div class="purchase-price" id="purchase-price">—</div>
+          <div class="purchase-license" id="purchase-license">—</div>
+
+          <div class="purchase-breakdown" id="purchase-breakdown">
+            <div class="breakdown-row">
+              <span class="label">Asset price</span>
+              <span class="value" id="bp-asset-price">—</span>
+            </div>
+            <div class="breakdown-row" id="bp-stripe-row">
+              <span class="label">Stripe processing <span class="stripe-fee">(2.9% + $0.30)</span></span>
+              <span class="value" id="bp-stripe-fee" style="color:var(--text-mid)">—</span>
+            </div>
+            <div class="breakdown-row total-row">
+              <span class="label">Buyer pays</span>
+              <span class="value" id="bp-buyer-total">—</span>
+            </div>
+          </div>
+
+          <button class="btn btn-gold" id="btn-purchase" onclick="initiatePurchase()">
+            Acquire Asset
+          </button>
+          <button class="btn btn-outline" style="margin-top:8px" id="btn-library" onclick="location.href='/store/library'">
+            View My Library
+          </button>
+
+          <div id="creator-row" class="creator-row"></div>
+          <div style="font-size:12px;color:var(--text-mid);text-align:center;margin-top:8px">
+            <a href="/store/commission" target="_blank" style="color:var(--blue)">See how pricing works →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/js/boot-safety.js"></script>
+<script>
+let assetData = null;
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => { t.className = 'toast'; }, 4000);
+}
+
+function renderStars(n) {
+  return Array.from({ length: 5 }, (_, i) => i < n
+    ? '<span>★</span>'
+    : '<span class="empty">★</span>'
+  ).join('');
+}
+
+async function init() {
+  const slug = window.location.pathname.split('/store/asset/')[1];
+  if (!slug) { showError(); return; }
+
+  document.title = 'Loading… — Atlantist Store';
+
+  try {
+    const res = await fetch(`/api/store/asset/slug/${encodeURIComponent(slug)}`, { credentials: 'include' });
+    if (!res.ok) { showError(); return; }
+
+    assetData = await res.json();
+    renderAsset(assetData);
+  } catch (err) {
+    console.error('[asset] load error:', err);
+    showError();
+  }
+}
+
+function showError() {
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('error-state').style.display = 'block';
+}
+
+function formatBytes(bytes) {
+  if (!bytes) return '';
+  const mb = bytes / (1024 * 1024);
+  return mb >= 1 ? mb.toFixed(1) + ' MB' : (bytes / 1024).toFixed(0) + ' KB';
+}
+
+function renderAsset(a) {
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('asset-content').style.display = 'block';
+
+  // Title
+  document.title = `${a.title} — Atlantist Store`;
+  document.getElementById('breadcrumb').textContent = ` / ${a.title}`;
+
+  // Preview
+  const previewEl = document.getElementById('asset-preview-img');
+  if (a.preview_url) {
+    previewEl.innerHTML = `<img src="${a.preview_url}" alt="${a.title}" onerror="this.parentElement.innerHTML='<div class=placeholder><svg viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/><circle cx=\\'8.5\\' cy=\\'8.5\\' r=\\'1.5\\'/><polyline points=\\'21 15 16 10 5 21\\'/></svg></div>'">`;
+  } else {
+    previewEl.innerHTML = `<div class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`;
+  }
+
+  // Stats
+  document.getElementById('stat-downloads').textContent = a.download_count || 0;
+  document.getElementById('stat-views').textContent = a.view_count || 0;
+  if (a.rating_avg && a.rating_avg > 0) {
+    document.getElementById('stat-rating-row').style.display = 'flex';
+    document.getElementById('stat-stars').innerHTML = renderStars(Math.round(a.rating_avg));
+    document.getElementById('stat-rating').textContent = `${parseFloat(a.rating_avg).toFixed(1)} (${a.review_count || 0} reviews)`;
+  }
+
+  // Description
+  document.getElementById('asset-desc').textContent = a.description || 'No description provided.';
+
+  // Meta tags
+  const meta = document.getElementById('asset-meta');
+  const tags = [
+    { label: a.category },
+    { label: a.file_type ? a.file_type.toUpperCase() : null },
+    { label: a.license ? a.license.replace('-', ' ').replace(/\b\/g, c => c.toUpperCase()) : null },
+    { label: a.version ? `v${a.version}` : null },
+    a.compatibility ? { label: a.compatibility, gold: true } : null,
+    a.file_size_bytes ? { label: formatBytes(a.file_size_bytes) } : null,
+  ].filter(Boolean);
+  meta.innerHTML = tags.map(t => `<span class="meta-tag${t.gold ? ' gold' : ''}">${t.label || t}</span>`).join('');
+
+  // Price / purchase
+  const isFree = !a.is_paid || parseFloat(a.price_usd) === 0;
+  if (isFree) {
+    document.getElementById('purchase-price').innerHTML = 'Free';
+    document.getElementById('purchase-license').textContent = (a.license || 'Royalty-Free').replace('-', ' ').replace(/\b\/g, c => c.toUpperCase());
+    document.getElementById('bp-asset-price').textContent = '$0.00';
+    document.getElementById('bp-stripe-row').style.display = 'none';
+    document.getElementById('bp-buyer-total').textContent = '$0.00';
+    document.getElementById('btn-purchase').textContent = 'Download Free';
+    document.getElementById('btn-purchase').className = 'btn btn-primary';
+  } else {
+    const price = parseFloat(a.price_usd);
+    const stripeFee = parseFloat((price * 0.029 + 0.30).toFixed(2));
+    const buyerTotal = parseFloat((price + stripeFee).toFixed(2));
+    const platformFee = parseFloat((price * 0.02).toFixed(2));
+    const creatorGets = parseFloat((price * 0.98).toFixed(2));
+
+    document.getElementById('purchase-price').innerHTML = `$${price.toFixed(2)}`;
+    document.getElementById('purchase-license').textContent = `Royalty-Free · Platform fee: 2% ($${platformFee.toFixed(2)})`;
+    document.getElementById('bp-asset-price').textContent = `$${price.toFixed(2)}`;
+    document.getElementById('bp-stripe-fee').textContent = `$${stripeFee.toFixed(2)}`;
+    document.getElementById('bp-buyer-total').textContent = `$${buyerTotal.toFixed(2)}`;
+  }
+
+  // Creator
+  const creatorRow = document.getElementById('creator-row');
+  const initial = (a.uploader_name || a.uploader_email || '?')[0].toUpperCase();
+  creatorRow.innerHTML = `
+    <div class="creator-avatar">${initial}</div>
+    <div class="creator-info">
+      <div class="name">${a.uploader_name || a.uploader_email || 'Unknown'}</div>
+      <div class="since">Creator · ${a.created_at ? new Date(a.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'recently'}</div>
+    </div>
+  `;
+
+  // Load reviews
+  loadReviews(a.id);
+}
+
+async function loadReviews(assetId) {
+  try {
+    const res = await fetch(`/api/store/asset/${assetId}/reviews`);
+    if (!res.ok) return;
+    const reviews = await res.json();
+    if (!reviews.length) return;
+
+    document.getElementById('reviews-section').style.display = 'block';
+    document.getElementById('review-count').textContent = `(${reviews.length})`;
+    document.getElementById('reviews-list').innerHTML = reviews.slice(0, 5).map(r => `
+      <div class="review-item">
+        <div class="review-header">
+          <span class="review-stars">${renderStars(r.rating)}</span>
+          <span class="review-author">${r.reviewer_name || r.reviewer_email || 'Verified Buyer'}</span>
+          <span class="review-date">${new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+        </div>
+        ${r.body ? `<p class="review-body">${r.body}</p>` : ''}
+      </div>
+    `).join('');
+  } catch (err) {
+    console.warn('[asset] reviews load failed:', err);
+  }
+}
+
+async function initiatePurchase() {
+  const btn = document.getElementById('btn-purchase');
+  const isFree = !assetData.is_paid || parseFloat(assetData.price_usd) === 0;
+
+  if (isFree) {
+    // Free acquire
+    btn.disabled = true;
+    btn.textContent = 'Acquiring…';
+    try {
+      const res = await fetch(`/api/store/assets/${assetData.id}/acquire`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+      if (!res.ok) { showToast(data.error || 'Failed to acquire', 'error'); btn.disabled = false; btn.textContent = 'Download Free'; return; }
+      showToast('Asset acquired! Check your library to download.', 'success');
+      btn.textContent = 'Acquired ✓';
+    } catch (err) {
+      showToast('Error: ' + err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Download Free';
+    }
+    return;
+  }
+
+  // Redirect to app for Stripe checkout
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+  try {
+    const res = await fetch(`/api/store/assets/${assetData.id}/acquire`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Failed', 'error'); btn.disabled = false; btn.textContent = 'Acquire Asset'; return; }
+
+    if (data.client_secret) {
+      // Open checkout in same tab via app
+      window.location.href = `/app?panel=store&checkout_asset=${assetData.id}`;
+    } else if (data.is_free) {
+      showToast('Asset acquired!', 'success');
+    }
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.textContent = 'Acquire Asset';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

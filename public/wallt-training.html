@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallt Training Room — Atlantist</title>
+  <meta name="theme-color" content="#060a10">
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #060a10;
+      --surface: #0a1020;
+      --surface-2: #0f1625;
+      --surface-3: #141e30;
+      --border: #1a2840;
+      --border-2: #243550;
+      --text: #c8dff5;
+      --text-muted: #4a6a8a;
+      --text-dim: #2a4a6a;
+      --accent: #3a6a9a;
+      --accent-bright: #5b9bd5;
+      --green: #3a8a5a;
+      --green-bright: #4ab87a;
+      --red: #8a3a3a;
+      --red-bright: #d06060;
+      --yellow: #8a6a2a;
+      --yellow-bright: #c0a040;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-display: 'DM Serif Display', Georgia, serif;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Top bar ─────────────────────────────────────────────── */
+    #tr-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+      gap: 16px;
+    }
+
+    .tr-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .tr-logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1a2a3a, #2a4a6a);
+      border: 1px solid var(--border-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--accent-bright);
+    }
+
+    .tr-logo-text {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--text);
+    }
+
+    .tr-logo-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    #tr-status-bar {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .tr-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+
+    .tr-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green-bright);
+    }
+
+    .tr-status-dot.frozen { background: var(--red-bright); }
+    .tr-status-dot.warning { background: var(--yellow-bright); }
+
+    .tr-status-dot.pulse {
+      animation: tr-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes tr-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(1.2); }
+    }
+
+    .tr-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tr-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+
+    .tr-btn:hover { border-color: var(--accent); color: var(--text); }
+
+    .tr-btn.danger {
+      border-color: var(--red);
+      color: var(--red-bright);
+    }
+
+    .tr-btn.danger:hover { background: var(--red); color: var(--text); }
+
+    .tr-btn.primary {
+      background: linear-gradient(135deg, #1a3050, #2a4a70);
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    /* ── Mode tabs ───────────────────────────────────────────── */
+    #tr-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      padding: 0 16px;
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+
+    .tr-tab {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+      transition: color .2s, border-color .2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: var(--font);
+    }
+
+    .tr-tab:hover { color: var(--text); }
+
+    .tr-tab.active {
+      color: var(--accent-bright);
+      border-bottom-color: var(--accent-bright);
+    }
+
+    .tr-tab-icon { font-size: 14px; }
+
+    /* ── Content area ─────────────────────────────────────────── */
+    #tr-content {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .tr-mode-panel {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .tr-mode-panel.active { display: flex; flex-direction: column; }
+
+    /* ── Shared panel styles ─────────────────────────────────── */
+    .tr-panel-header {
+      margin-bottom: 20px;
+    }
+
+    .tr-panel-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .tr-panel-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .tr-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .tr-card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tr-section { margin-bottom: 24px; }
+
+    /* ── Forms ───────────────────────────────────────────────── */
+    .tr-form-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: flex-start;
+    }
+
+    .tr-input, .tr-textarea, .tr-select {
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: var(--font);
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tr-input:focus, .tr-textarea:focus, .tr-select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .tr-textarea { resize: vertical; min-height: 60px; }
+
+    .tr-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* ── Tables ─────────────────────────────────────────────── */
+    .tr-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .tr-table th {
+      text-align: left;
+      padding: 8px 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .tr-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .tr-table tr:hover td { background: var(--surface-3); }
+
+    .tr-table .mono {
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      font-size: 11px;
+      color: var(--accent-bright);
+    }
+
+    /* ── Badges ──────────────────────────────────────────────── */
+    .tr-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .tr-badge.green { background: #1a2a1a; color: var(--green-bright); border: 1px solid var(--green); }
+    .tr-badge.red { background: #2a1a1a; color: var(--red-bright); border: 1px solid var(--red); }
+    .tr-badge.yellow { background: #2a2010; color: var(--yellow-bright); border: 1px solid var(--yellow); }
+    .tr-badge.blue { background: #1a2a3a; color: var(--accent-bright); border: 1px solid var(--accent); }
+    .tr-badge.muted { background: var(--surface-3); color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ── Chat (Mode 2) ────────────────────────────────────────── */
+    .tr-chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 800px;
+      width: 100%;
+    }
+
+    .tr-chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 8px;
+    }
+
+    .tr-chat-msg {
+      display: flex;
+      gap: 10px;
+      max-width: 100%;
+    }
+
+    .tr-chat-msg.user { flex-direction: row-reverse; }
+
+    .tr-chat-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .tr-chat-msg.wallt .tr-chat-avatar { background: linear-gradient(135deg, #2a4a6a, #5b9bd5); color: var(--text); }
+    .tr-chat-msg.nikita .tr-chat-avatar { background: #1e3a5a; color: #7aafd5; }
+    .tr-chat-msg.user .tr-chat-avatar { background: #1a2a3a; color: var(--text-muted); }
+
+    .tr-chat-bubble {
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 85%;
+      word-break: break-word;
+    }
+
+    .tr-chat-msg.wallt .tr-chat-bubble { background: #1a2535; border: 1px solid #2a3a4a; border-bottom-left-radius: 4px; }
+    .tr-chat-msg.nikita .tr-chat-bubble { background: #1a2840; border: 1px solid #2a3a5a; border-bottom-left-radius: 4px; }
+    .tr-chat-msg.user .tr-chat-bubble { background: #1e3a5a; border: 1px solid #2a5a8a; border-bottom-right-radius: 4px; }
+
+    .tr-chat-bubble p { margin: 0 0 6px; }
+    .tr-chat-bubble p:last-child { margin: 0; }
+    .tr-chat-bubble code {
+      background: #0d1a26;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: 'SF Mono', monospace;
+      font-size: 12px;
+      color: var(--accent-bright);
+    }
+
+    .tr-chat-input-row {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    #tr-chat-input {
+      flex: 1;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: var(--font);
+      resize: none;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    #tr-chat-input:focus { outline: none; border-color: var(--accent); }
+    #tr-chat-input:disabled { opacity: .4; }
+
+    #tr-chat-send {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #1a3050, #2a4a70);
+      border: 1px solid var(--accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity .2s;
+    }
+
+    #tr-chat-send:disabled { opacity: .4; cursor: not-allowed; }
+    #tr-chat-send:not(:disabled):hover { opacity: .8; }
+
+    /* ── Kill switch (Mode 3) ───────────────────────────────── */
+    .tr-kill-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+      padding-top: 40px;
+    }
+
+    .tr-kill-indicator {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 3px solid var(--green);
+      background: radial-gradient(circle at 40% 40%, #1a3a2a, #0a1a10);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      transition: border-color 1s, background 1s;
+      gap: 4px;
+    }
+
+    .tr-kill-indicator.frozen {
+      border-color: var(--red);
+      background: radial-gradient(circle at 40% 40%, #3a1a1a, #1a0a0a);
+    }
+
+    .tr-kill-indicator .tr-kill-big { font-size: 28px; }
+
+    .tr-kill-btn {
+      padding: 16px 40px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: var(--font);
+      cursor: pointer;
+      border: 2px solid;
+      transition: transform .1s, box-shadow .2s;
+    }
+
+    .tr-kill-btn:active { transform: scale(.97); }
+
+    .tr-kill-btn.stop {
+      background: var(--red);
+      border-color: var(--red-bright);
+      color: var(--text);
+    }
+
+    .tr-kill-btn.resume {
+      background: var(--green);
+      border-color: var(--green-bright);
+      color: var(--text);
+    }
+
+    .tr-kill-reason {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: var(--font);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .tr-kill-reason:focus { outline: none; border-color: var(--accent); }
+
+    /* ── Monitor (Mode 5) ────────────────────────────────────── */
+    .tr-monitor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .tr-metric-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .tr-metric-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 6px;
+    }
+
+    .tr-metric-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .tr-metric-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    /* ── Scrolling log ────────────────────────────────────────── */
+    .tr-log-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .tr-log-item {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+
+    .tr-log-item:last-child { border-bottom: none; }
+
+    .tr-log-time {
+      color: var(--text-dim);
+      flex-shrink: 0;
+      font-family: 'SF Mono', monospace;
+      font-size: 10px;
+      padding-top: 2px;
+    }
+
+    .tr-log-body { flex: 1; }
+
+    /* ── Loading states ────────────────────────────────────────── */
+    .tr-loading {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 20px 0;
+    }
+
+    .tr-loading-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      animation: tr-loading-bounce 1.4s ease-in-out infinite;
+    }
+
+    .tr-loading-dot:nth-child(2) { animation-delay: .2s; }
+    .tr-loading-dot:nth-child(3) { animation-delay: .4s; }
+
+    @keyframes tr-loading-bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); }
+    }
+
+    .tr-empty {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 32px 0;
+    }
+
+    /* ── Toast notifications ──────────────────────────────────── */
+    #tr-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--surface-3);
+      border: 1px solid var(--border-2);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--text);
+      box-shadow: 0 8px 24px rgba(0,0,0,.5);
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity .3s;
+      pointer-events: none;
+    }
+
+    #tr-toast.visible { opacity: 1; }
+    #tr-toast.success { border-color: var(--green); }
+    #tr-toast.error { border-color: var(--red); }
+
+    /* ── Scope config grid ──────────────────────────────────── */
+    .tr-scope-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .tr-scope-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .tr-scope-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .tr-scope-key {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-bright);
+      font-family: 'SF Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .tr-scope-value {
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 6px;
+      word-break: break-all;
+    }
+
+    .tr-scope-reason {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* ── Checkpoint cards ──────────────────────────────────── */
+    .tr-ckpt-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .tr-ckpt-info { flex: 1; min-width: 0; }
+
+    .tr-ckpt-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .tr-ckpt-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .tr-ckpt-actions { display: flex; gap: 8px; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header id="tr-header">
+    <a href="/" class="tr-logo">
+      <div class="tr-logo-icon">W</div>
+      <div>
+        <div class="tr-logo-text">Wallt Training Room</div>
+        <div class="tr-logo-sub">Nikita's Private Control Interface</div>
+      </div>
+    </a>
+
+    <div id="tr-status-bar">
+      <div class="tr-status-pill" id="tr-wallt-status">
+        <div class="tr-status-dot pulse" id="tr-wallt-dot"></div>
+        <span id="tr-wallt-label">Wallt Active</span>
+      </div>
+      <div class="tr-status-pill" id="tr-session-status">
+        <span id="tr-session-count">—</span>
+      </div>
+    </div>
+
+    <div class="tr-header-actions">
+      <a href="/wallt" class="tr-btn" id="tr-open-wallt-btn">
+        Open Wallt Chat
+      </a>
+      <a href="/app" class="tr-btn">BIM App</a>
+    </div>
+  </header>
+
+  <!-- Mode tabs -->
+  <nav id="tr-tabs">
+    <button class="tr-tab active" data-mode="scope">
+      <span class="tr-tab-icon">⚙</span> Scope Config
+    </button>
+    <button class="tr-tab" data-mode="training">
+      <span class="tr-tab-icon">💬</span> Direct Training
+    </button>
+    <button class="tr-tab" data-mode="kill">
+      <span class="tr-tab-icon">🛑</span> Emergency Stop
+    </button>
+    <button class="tr-tab" data-mode="recovery">
+      <span class="tr-tab-icon">↩</span> State Recovery
+    </button>
+    <button class="tr-tab" data-mode="monitor">
+      <span class="tr-tab-icon">📡</span> Environment Monitor
+    </button>
+  </nav>
+
+  <!-- Content -->
+  <div id="tr-content">
+
+    <!-- MODE 1: Scope Configuration -->
+    <div class="tr-mode-panel active" id="tr-panel-scope">
+      <div style="max-width:900px;width:100%">
+        <div class="tr-panel-header">
+          <h2 class="tr-panel-title">Scope Configuration</h2>
+          <p class="tr-panel-desc">Define Wallt's operating boundaries. Changes take effect immediately.</p>
+        </div>
+
+        <!-- Quick-add form -->
+        <div class="tr-card" style="margin-bottom:20px">
+          <div class="tr-card-title">Add / Update Scope Parameter</div>
+          <div class="tr-form-row">
+            <div style="flex:.8;min-width:0">
+              <label class="tr-label">Parameter Key</label>
+              <input class="tr-input" id="tr-scope-key" placeholder="e.g. spending_limit_usd, approved_vendors, escalation_threshold" />
+            </div>
+            <div style="flex:1;min-width:0">
+              <label class="tr-label">Value (JSON or plain text)</label>
+              <input class="tr-input" id="tr-scope-value" placeholder='5000 or ["Acme Corp", "Builder Supply"]' />
+            </div>
+          </div>
+          <div class="tr-form-row">
+            <div style="flex:1">
+              <label class="tr-label">Reason for this change</label>
+              <input class="tr-input" id="tr-scope-reason" placeholder="Optional — helps audit trail" />
+            </div>
+            <button class="tr-btn primary" id="tr-scope-save" style="align-self:flex-end">Save Config</button>
+          </div>
+        </div>
+
+        <!-- Current configs grid -->
+        <div class="tr-section">
+          <div class="tr-card-title">Current Scope Configuration</div>
+          <div class="tr-scope-grid" id="tr-scope-grid">
+            <div class="tr-loading">
+              <div class="tr-loading-dot"></div>
+              <div class="tr-loading-dot"></div>
+              <div class="tr-loading-dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change history -->
+        <div class="tr-section">
+          <div class="tr-card-title">Recent Changes</div>
+          <div id="tr-scope-history">
+            <table class="tr-table">
+              <thead>
+                <tr>
+                  <th>Key</th>
+                  <th>New Value</th>
+                  <th>Reason</th>
+                  <th>Changed</th>
+                </tr>
+              </thead>
+              <tbody id="tr-scope-history-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE 2: Direct Training Chat -->
+    <div class="tr-mode-panel" id="tr-panel-training">
+      <div class="tr-chat-container">
+        <div class="tr-panel-header">
+          <h2 class="tr-panel-title">Direct Training Chat</h2>
+          <p class="tr-panel-desc">Private 1:1 with Wallt. Corrections are stored in training memory and take effect immediately.</p>
+        </div>
+
+        <div class="tr-chat-messages" id="tr-chat-messages">
+          <div id="tr-chat-empty" class="tr-empty">Start a conversation — Wallt is listening.</div>
+        </div>
+
+        <div class="tr-chat-input-row">
+          <textarea id="tr-chat-input" placeholder="Talk to Wallt — give corrections, test behaviors, report concerns…" rows="1"></textarea>
+          <button id="tr-chat-send" disabled>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5b9bd5" stroke-width="2">
+              <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <button class="tr-btn" id="tr-chat-new">New Session</button>
+          <button class="tr-btn" id="tr-chat-history-btn">Session History</button>
+          <span id="tr-chat-session-label" style="font-size:11px;color:var(--text-muted);margin-left:auto"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE 3: Emergency Stop -->
+    <div class="tr-mode-panel" id="tr-panel-kill">
+      <div class="tr-kill-panel">
+        <div class="tr-panel-header" style="text-align:center;max-width:400px">
+          <h2 class="tr-panel-title">Emergency Stop</h2>
+          <p class="tr-panel-desc">Immediate Wallt halt. Wallt completes its current atomic action then freezes. No new actions execute until resumed.</p>
+        </div>
+
+        <div class="tr-kill-indicator" id="tr-kill-indicator">
+          <div class="tr-kill-big" id="tr-kill-icon">▶</div>
+          <div id="tr-kill-status-text">ACTIVE</div>
+        </div>
+
+        <div id="tr-kill-form" style="width:100%;max-width:400px;display:flex;flex-direction:column;gap:10px">
+          <input class="tr-kill-reason" id="tr-kill-reason" placeholder="Why are you stopping Wallt? (optional)" />
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);cursor:pointer">
+            <input type="checkbox" id="tr-kill-checkpoint" checked /> Create pre-stop checkpoint
+          </label>
+          <button class="tr-kill-btn stop" id="tr-kill-btn" style="width:100%">■ STOP WALLT</button>
+        </div>
+
+        <div id="tr-kill-resume-form" style="display:none;width:100%;max-width:400px;flex-direction:column;gap:10px">
+          <input class="tr-kill-reason" id="tr-resume-reason" placeholder="How are you resuming? (auto/manual)" style="display:none" />
+          <button class="tr-kill-btn resume" id="tr-resume-btn" style="width:100%">▶ RESUME WALLT</button>
+        </div>
+
+        <div class="tr-card" style="width:100%;max-width:500px">
+          <div class="tr-card-title">Stop / Resume History</div>
+          <div class="tr-log-list" id="tr-kill-history"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE 4: State Recovery -->
+    <div class="tr-mode-panel" id="tr-panel-recovery">
+      <div style="max-width:800px;width:100%">
+        <div class="tr-panel-header">
+          <h2 class="tr-panel-title">State Recovery</h2>
+          <p class="tr-panel-desc">Restore Wallt to previous stable states. Checkpoints capture memory, config, and runtime state.</p>
+        </div>
+
+        <div class="tr-card" style="margin-bottom:20px">
+          <div class="tr-card-title">Create Manual Checkpoint</div>
+          <div class="tr-form-row">
+            <input class="tr-input" id="tr-ckpt-label" placeholder="Checkpoint label (e.g. 'Pre-sourcing run')" style="flex:1" />
+            <button class="tr-btn primary" id="tr-ckpt-create">Create Checkpoint</button>
+          </div>
+        </div>
+
+        <div class="tr-card-title">Available Checkpoints</div>
+        <div id="tr-checkpoints-list">
+          <div class="tr-loading">
+            <div class="tr-loading-dot"></div>
+            <div class="tr-loading-dot"></div>
+            <div class="tr-loading-dot"></div>
+          </div>
+        </div>
+
+        <div class="tr-section" style="margin-top:24px">
+          <div class="tr-card-title">Recovery Options</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="tr-btn" id="tr-restore-full">Full Factory Reset</button>
+            <button class="tr-btn" id="tr-restore-memory">Restore Memory Only</button>
+            <button class="tr-btn" id="tr-restore-config">Restore Config Only</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE 5: Environment Monitor -->
+    <div class="tr-mode-panel" id="tr-panel-monitor">
+      <div style="max-width:900px;width:100%">
+        <div class="tr-panel-header">
+          <h2 class="tr-panel-title">Environment Boundary Monitor</h2>
+          <p class="tr-panel-desc">Live telemetry of Wallt's runtime context, decision authority, and boundary drift alerts.</p>
+        </div>
+
+        <div class="tr-monitor-grid" id="tr-monitor-metrics"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="tr-card">
+            <div class="tr-card-title">Active Scope Config</div>
+            <div id="tr-monitor-scopes">
+              <div class="tr-loading">
+                <div class="tr-loading-dot"></div>
+                <div class="tr-loading-dot"></div>
+                <div class="tr-loading-dot"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tr-card">
+            <div class="tr-card-title">Training Memory</div>
+            <div id="tr-monitor-memory" style="max-height:200px;overflow-y:auto">
+              <div class="tr-loading">
+                <div class="tr-loading-dot"></div>
+                <div class="tr-loading-dot"></div>
+                <div class="tr-loading-dot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tr-card" style="margin-top:16px">
+          <div class="tr-card-title">Boundary Drift Events <span class="tr-badge blue" id="tr-boundary-count">0</span></div>
+          <div class="tr-log-list" id="tr-boundary-events"></div>
+          <div style="margin-top:10px">
+            <button class="tr-btn" id="tr-add-boundary">Log Boundary Event</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast -->
+  <div id="tr-toast"></div>
+
+  <script src="/js/boot-safety.js"></script>
+  <script>
+    'use strict';
+
+    const API = '/api/wallt/training';
+    let currentMode = 'scope';
+    let walltFrozen = false;
+    let activeSessionId = null;
+    let isTrainingTyping = false;
+
+    // ── Utilities ─────────────────────────────────────────────────────────────
+
+    function toast(msg, type = 'info') {
+      const el = document.getElementById('tr-toast');
+      el.textContent = msg;
+      el.className = `visible ${type}`;
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.remove('visible'), 3000);
+    }
+
+    async function apiFetch(path, opts = {}) {
+      const res = await fetch(API + path, { credentials: 'include', ...opts });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `HTTP ${res.status}`);
+      }
+      return res.json();
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function fmtDate(iso) {
+      const d = new Date(iso);
+      return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function timeAgo(iso) {
+      const secs = (Date.now() - new Date(iso).getTime()) / 1000;
+      if (secs < 60) return `${Math.round(secs)}s ago`;
+      if (secs < 3600) return `${Math.round(secs / 60)}m ago`;
+      if (secs < 86400) return `${Math.round(secs / 3600)}h ago`;
+      return `${Math.round(secs / 86400)}d ago`;
+    }
+
+    // ── Mode switching ─────────────────────────────────────────────────────────
+
+    document.querySelectorAll('.tr-tab').forEach(tab => {
+      tab?.addEventListener('click', () => {
+        const mode = tab.dataset.mode;
+        currentMode = mode;
+        document.querySelectorAll('.tr-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.tr-mode-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(`tr-panel-${mode}`).classList.add('active');
+
+        if (mode === 'scope') loadScope();
+        if (mode === 'training') loadTraining();
+        if (mode === 'kill') loadKillState();
+        if (mode === 'recovery') loadCheckpoints();
+        if (mode === 'monitor') loadMonitor();
+      });
+    });
+
+    // ── Global init ────────────────────────────────────────────────────────────
+
+    async function init() {
+      // Load global status
+      try {
+        const data = await apiFetch('/');
+        walltFrozen = data.is_frozen;
+        document.getElementById('tr-session-count').textContent = `Sessions: ${data.stats.totalSessions}`;
+        updateWalltStatus(data.is_frozen);
+      } catch (err) {
+        console.warn('[training] init error:', err.message);
+      }
+    }
+
+    function updateWalltStatus(frozen) {
+      const dot = document.getElementById('tr-wallt-dot');
+      const label = document.getElementById('tr-wallt-label');
+      if (frozen) {
+        dot.className = 'tr-status-dot frozen';
+        label.textContent = 'Wallt FROZEN';
+      } else {
+        dot.className = 'tr-status-dot pulse';
+        label.textContent = 'Wallt Active';
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // MODE 1 — Scope Config
+    // ══════════════════════════════════════════════════════════════════════════
+
+    async function loadScope() {
+      try {
+        const data = await apiFetch('/scope');
+        const grid = document.getElementById('tr-scope-grid');
+        if (!data.configs.length) {
+          grid.innerHTML = '<div class="tr-empty">No scope config yet — add one above.</div>';
+        } else {
+          // Group by key (show latest per key)
+          const byKey = {};
+          for (const c of data.configs) {
+            byKey[c.config_key] = c;
+          }
+          grid.innerHTML = Object.entries(byKey).map(([key, c]) => `
+            <div class="tr-scope-card">
+              <div class="tr-scope-card-header">
+                <span class="tr-scope-key">${escapeHtml(key)}</span>
+                <button class="tr-badge muted" style="cursor:pointer;border:none;font-size:10px" onclick="showKeyHistory('${escapeHtml(key)}')">History</button>
+              </div>
+              <div class="tr-scope-value">${escapeHtml(JSON.stringify(c.config_value))}</div>
+              <div class="tr-scope-reason">${c.change_reason ? escapeHtml(c.change_reason) : 'No reason provided'} · ${timeAgo(c.created_at)}</div>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        toast('Failed to load scope config: ' + err.message, 'error');
+      }
+    }
+
+    document.getElementById('tr-scope-save')?.addEventListener('click', async () => {
+      const key = document.getElementById('tr-scope-key').value.trim();
+      const rawValue = document.getElementById('tr-scope-value').value.trim();
+      const reason = document.getElementById('tr-scope-reason').value.trim();
+
+      if (!key) { toast('Key is required', 'error'); return; }
+      if (!rawValue) { toast('Value is required', 'error'); return; }
+
+      // Try JSON parse, fall back to string
+      let configValue;
+      try { configValue = JSON.parse(rawValue); } catch { configValue = rawValue; }
+
+      try {
+        const res = await apiFetch('/scope', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ config_key: key, config_value: configValue, reason }),
+        });
+        toast(`Saved — ${key} updated`, 'success');
+        document.getElementById('tr-scope-key').value = '';
+        document.getElementById('tr-scope-value').value = '';
+        document.getElementById('tr-scope-reason').value = '';
+        loadScope();
+      } catch (err) {
+        toast('Save failed: ' + err.message, 'error');
+      }
+    });
+
+    async function showKeyHistory(key) {
+      try {
+        const data = await apiFetch(`/scope/${encodeURIComponent(key)}/history`);
+        const body = document.getElementById('tr-scope-history-body');
+        if (!data.history.length) {
+          body.innerHTML = '<tr><td colspan="4" class="tr-empty">No history</td></tr>';
+        } else {
+          body.innerHTML = data.history.map(h => `
+            <tr>
+              <td class="mono">${escapeHtml(key)}</td>
+              <td class="mono">${escapeHtml(JSON.stringify(h.config_value))}</td>
+              <td style="font-size:11px;color:var(--text-muted)">${h.change_reason ? escapeHtml(h.change_reason) : '—'}</td>
+              <td style="font-size:11px;color:var(--text-dim)">${fmtDate(h.created_at)}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        toast('Failed to load history: ' + err.message, 'error');
+      }
+    }
+
+    window.showKeyHistory = showKeyHistory;
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // MODE 2 — Direct Training Chat
+    // ══════════════════════════════════════════════════════════════════════════
+
+    async function loadTraining() {
+      // Check for open session
+      try {
+        const data = await apiFetch('/chat/current');
+        if (data.session) {
+          activeSessionId = data.session.id;
+          renderTrainingTranscript(data.transcript);
+          document.getElementById('tr-chat-session-label').textContent = `Session #${activeSessionId}`;
+        } else {
+          activeSessionId = null;
+          document.getElementById('tr-chat-messages').innerHTML = '<div id="tr-chat-empty" class="tr-empty">Start a conversation — Wallt is listening.</div>';
+          document.getElementById('tr-chat-session-label').textContent = '';
+        }
+      } catch (err) {
+        console.warn('[training] load training error:', err.message);
+      }
+    }
+
+    function renderTrainingTranscript(turns) {
+      const container = document.getElementById('tr-chat-messages');
+      container.innerHTML = '';
+      for (const t of turns) {
+        const roleClass = t.role === 'nikita' ? 'nikita' : 'wallt';
+        const avatar = t.role === 'nikita' ? 'N' : 'W';
+        const bubble = document.createElement('div');
+        bubble.className = `tr-chat-msg ${roleClass}`;
+        bubble.innerHTML = `
+          <div class="tr-chat-avatar">${avatar}</div>
+          <div class="tr-chat-bubble">${renderTrainingText(t.content)}</div>
+        `;
+        container.appendChild(bubble);
+      }
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function renderTrainingText(text) {
+      if (!text) return '';
+      return text
+        .replace(/```([\n\r][\r\n\\S]*?)```/g, '<pre><code>$1</code></pre>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>')
+        .replace(/(<p>)?(#{1,6}\b[^<\n]+)/g, (m, p, t) => `${p || '<p>'}<strong>${t.replace(/^#+ /, '')}</strong>`);
+    }
+
+    function addTrainingMsg(role, content) {
+      const container = document.getElementById('tr-chat-messages');
+      const empty = document.getElementById('tr-chat-empty');
+      if (empty) empty.remove();
+
+      const bubble = document.createElement('div');
+      const roleClass = role === 'nikita' ? 'nikita' : 'wallt';
+      const avatar = role === 'nikita' ? 'N' : 'W';
+      bubble.className = `tr-chat-msg ${roleClass}`;
+      bubble.innerHTML = `
+        <div class="tr-chat-avatar">${avatar}</div>
+        <div class="tr-chat-bubble">${renderTrainingText(content)}</div>
+      `;
+      container.appendChild(bubble);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    document.getElementById('tr-chat-input')?.addEventListener('input', function () {
+      this.style.height = 'auto';
+      this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+      document.getElementById('tr-chat-send').disabled = !this.value.trim();
+    });
+
+    document.getElementById('tr-chat-input')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendTrainingMsg();
+      }
+    });
+
+    document.getElementById('tr-chat-send')?.addEventListener('click', sendTrainingMsg);
+
+    async function sendTrainingMsg() {
+      const input = document.getElementById('tr-chat-input');
+      const content = input.value.trim();
+      if (!content || isTrainingTyping) return;
+
+      input.value = '';
+      input.style.height = 'auto';
+      document.getElementById('tr-chat-send').disabled = true;
+
+      addTrainingMsg('nikita', content);
+
+      // Show typing
+      isTrainingTyping = true;
+      const typingEl = document.createElement('div');
+      typingEl.className = 'tr-chat-msg wallt';
+      typingEl.id = 'tr-training-typing';
+      typingEl.innerHTML = `
+        <div class="tr-chat-avatar">W</div>
+        <div class="tr-chat-bubble">
+          <span style="display:flex;gap:4px;align-items:center">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:tr-loading-bounce 1.4s ease-in-out infinite"></span>
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:tr-loading-bounce 1.4s ease-in-out infinite;animation-delay:.2s"></span>
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:tr-loading-bounce 1.4s ease-in-out infinite;animation-delay:.4s"></span>
+          </span>
+        </div>
+      `;
+      document.getElementById('tr-chat-messages').appendChild(typingEl);
+      document.getElementById('tr-chat-messages').scrollTop = 99999;
+
+      try {
+        const data = await apiFetch('/chat/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content }),
+        });
+
+        // Remove typing
+        const typing = document.getElementById('tr-training-typing');
+        if (typing) typing.remove();
+
+        addTrainingMsg('wallt', data.wallt_reply || "I hear you, Nikita.");
+
+        if (data.memory_updated) {
+          toast('Training memory updated from this correction', 'success');
+        }
+
+        if (activeSessionId !== data.session_id) {
+          activeSessionId = data.session_id;
+          document.getElementById('tr-chat-session-label').textContent = `Session #${activeSessionId}`;
+        }
+      } catch (err) {
+        const typing = document.getElementById('tr-training-typing');
+        if (typing) typing.remove();
+        addTrainingMsg('wallt', "I'm having trouble responding right now — try again.");
+        toast('Training chat error: ' + err.message, 'error');
+      }
+
+      isTrainingTyping = false;
+    }
+
+    document.getElementById('tr-chat-new')?.addEventListener('click', async () => {
+      try {
+        const data = await apiFetch('/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+        activeSessionId = data.session.id;
+        document.getElementById('tr-chat-messages').innerHTML = '<div id="tr-chat-empty" class="tr-empty">New session started — go ahead.</div>';
+        document.getElementById('tr-chat-session-label').textContent = `Session #${activeSessionId}`;
+        toast('New training session started', 'success');
+      } catch (err) {
+        toast('Failed to start session: ' + err.message, 'error');
+      }
+    });
+
+    document.getElementById('tr-chat-history-btn')?.addEventListener('click', async () => {
+      try {
+        const data = await apiFetch('/chat');
+        if (!data.sessions.length) { toast('No sessions yet', 'info'); return; }
+        const lines = data.sessions.slice(0, 10).map(s =>
+          `#${s.id} — ${fmtDate(s.session_started_at)} — ${s.summary || 'no summary'}`
+        ).join('\n');
+        alert('Recent sessions:\n' + lines);
+      } catch (err) {
+        toast('Failed to load sessions: ' + err.message, 'error');
+      }
+    });
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // MODE 3 — Emergency Stop
+    // ══════════════════════════════════════════════════════════════════════════
+
+    async function loadKillState() {
+      try {
+        const data = await apiFetch('/kill');
+        updateKillUI(data.is_frozen, data.frozen);
+
+        // Load history
+        const hist = await apiFetch('/kill/history');
+        renderKillHistory(hist.history);
+      } catch (err) {
+        toast('Failed to load kill state: ' + err.message, 'error');
+      }
+    }
+
+    function updateKillUI(frozen, frozenData) {
+      const indicator = document.getElementById('tr-kill-indicator');
+      const icon = document.getElementById('tr-kill-icon');
+      const statusText = document.getElementById('tr-kill-status-text');
+      const killBtn = document.getElementById('tr-kill-btn');
+      const resumeBtn = document.getElementById('tr-resume-btn');
+      const killForm = document.getElementById('tr-kill-form');
+      const resumeForm = document.getElementById('tr-kill-resume-form');
+      const resumeReason = document.getElementById('tr-resume-reason');
+
+      if (frozen) {
+        indicator.classList.add('frozen');
+        icon.textContent = '■';
+        statusText.textContent = 'FROZEN';
+        killForm.style.display = 'none';
+        resumeForm.style.display = 'flex';
+        resumeReason.style.display = 'block';
+        resumeReason.placeholder = 'How are you resuming? (e.g. manual, auto, from checkpoint)';
+      } else {
+        indicator.classList.remove('frozen');
+        icon.textContent = '▶';
+        statusText.textContent = 'ACTIVE';
+        killForm.style.display = 'flex';
+        resumeForm.style.display = 'none';
+      }
+
+      walltFrozen = frozen;
+      updateWalltStatus(frozen);
+    }
+
+    document.getElementById('tr-kill-btn')?.addEventListener('click', async () => {
+      const reason = document.getElementById('tr-kill-reason').value.trim();
+      const createCheckpoint = document.getElementById('tr-kill-checkpoint').checked;
+
+      if (!confirm('⚠ EMERGENCY STOP — Wallt will freeze immediately. Continue?')) return;
+
+      try {
+        const data = await apiFetch('/kill', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason, create_checkpoint: createCheckpoint }),
+        });
+        toast('Wallt stopped', 'success');
+        updateKillUI(true, { id: data.stop_id });
+        loadKillState();
+      } catch (err) {
+        toast('Stop failed: ' + err.message, 'error');
+      }
+    });
+
+    document.getElementById('tr-resume-btn')?.addEventListener('click', async () => {
+      const how = document.getElementById('tr-resume-reason').value.trim() || 'manual';
+      try {
+        await apiFetch('/kill/resume', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ how }),
+        });
+        toast('Wallt resumed', 'success');
+        updateKillUI(false);
+        loadKillState();
+      } catch (err) {
+        toast('Resume failed: ' + err.message, 'error');
+      }
+    });
+
+    function renderKillHistory(history) {
+      const el = document.getElementById('tr-kill-history');
+      if (!history.length) {
+        el.innerHTML = '<div class="tr-empty">No kill/resume events yet.</div>';
+        return;
+      }
+      el.innerHTML = history.map(h => {
+        const badge = h.resumed_at
+          ? `<span class="tr-badge green">Resumed</span>`
+          : `<span class="tr-badge red pulse">ACTIVE STOP</span>`;
+        return `
+          <div class="tr-log-item">
+            <div class="tr-log-time">${fmtDate(h.stopped_at)}</div>
+            <div class="tr-log-body">
+              <div style="margin-bottom:4px">${badge} ${h.how_resumed ? `<span class="tr-badge muted">${escapeHtml(h.how_resumed)}</span>` : ''}</div>
+              ${h.reason ? `<div style="font-size:12px;color:var(--text-muted)">"${escapeHtml(h.reason)}"</div>` : ''}
+              ${h.notes ? `<div style="font-size:11px;color:var(--text-dim)">${escapeHtml(h.notes)}</div>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // MODE 4 — State Recovery
+    // ══════════════════════════════════════════════════════════════════════════
+
+    async function loadCheckpoints() {
+      try {
+        const data = await apiFetch('/recovery/checkpoints');
+        renderCheckpoints(data.checkpoints);
+      } catch (err) {
+        toast('Failed to load checkpoints: ' + err.message, 'error');
+      }
+    }
+
+    function renderCheckpoints(checkpoints) {
+      const el = document.getElementById('tr-checkpoints-list');
+      if (!checkpoints.length) {
+        el.innerHTML = '<div class="tr-empty">No checkpoints yet — create one above.</div>';
+        return;
+      }
+      el.innerHTML = checkpoints.map(c => `
+        <div class="tr-ckpt-card">
+          <div class="tr-ckpt-info">
+            <div class="tr-ckpt-label">${escapeHtml(c.label || c.checkpoint_type)}</div>
+            <div class="tr-ckpt-meta">
+              <span class="tr-badge ${c.checkpoint_type === 'pre_kill' ? 'red' : c.checkpoint_type === 'restore' ? 'yellow' : 'blue'}">${escapeHtml(c.checkpoint_type)}</span>
+              <span>${fmtDate(c.created_at)}</span>
+              ${c.wallt_version ? `<span>· v${escapeHtml(c.wallt_version)}</span>` : ''}
+            </div>
+          </div>
+          <div class="tr-ckpt-actions">
+            <button class="tr-btn" onclick="restoreCheckpoint(${c.id})">Restore</button>
+            <button class="tr-btn" onclick="deleteCheckpoint(${c.id})" style="color:var(--text-muted)">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('tr-ckpt-create')?.addEventListener('click', async () => {
+      const label = document.getElementById('tr-ckpt-label').value.trim();
+      if (!label) { toast('Label is required', 'error'); return; }
+      try {
+        await apiFetch('/recovery/checkpoint', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ label, snapshot_data: { label, created_at: new Date().toISOString() } }),
+        });
+        toast('Checkpoint created', 'success');
+        document.getElementById('tr-ckpt-label').value = '';
+        loadCheckpoints();
+      } catch (err) {
+        toast('Checkpoint failed: ' + err.message, 'error');
+      }
+    });
+
+    window.restoreCheckpoint = async function (id) {
+      if (!confirm('Restore Wallt to this checkpoint?')) return;
+      try {
+        await apiFetch(`/recovery/restore/${id}`, { method: 'POST' });
+        toast('Checkpoint restored', 'success');
+      } catch (err) {
+        toast('Restore failed: ' + err.message, 'error');
+      }
+    };
+
+    window.deleteCheckpoint = async function (id) {
+      if (!confirm('Delete this checkpoint?')) return;
+      try {
+        await apiFetch(`/recovery/checkpoint/${id}`, { method: 'DELETE' });
+        toast('Checkpoint deleted', 'success');
+        loadCheckpoints();
+      } catch (err) {
+        toast('Delete failed: ' + err.message, 'error');
+      }
+    };
+
+    document.getElementById('tr-restore-full')?.addEventListener('click', async () => {
+      if (!confirm('Full factory reset — clear all training memory and checkpoints? This cannot be undone.')) return;
+      toast('Factory reset: clear memory entries, then restore from default config', 'info');
+    });
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // MODE 5 — Environment Monitor
+    // ══════════════════════════════════════════════════════════════════════════
+
+    async function loadMonitor() {
+      try {
+        const data = await apiFetch('/monitor');
+        renderMonitor(data);
+      } catch (err) {
+        toast('Monitor load failed: ' + err.message, 'error');
+      }
+    }
+
+    function renderMonitor(data) {
+      const metrics = document.getElementById('tr-monitor-metrics');
+      metrics.innerHTML = `
+        <div class="tr-metric-card">
+          <div class="tr-metric-label">Wallt Status</div>
+          <div class="tr-metric-value" style="color:${data.is_frozen ? 'var(--red-bright)' : 'var(--green-bright)'}">${data.is_frozen ? 'FROZEN' : 'ACTIVE'}</div>
+          <div class="tr-metric-sub">${data.is_frozen ? 'Stopped by Nikita' : 'Running normally'}</div>
+        </div>
+        <div class="tr-metric-card">
+          <div class="tr-metric-label">Scope Configs</div>
+          <div class="tr-metric-value">${Object.keys(data.scope_configs || {}).length}</div>
+          <div class="tr-metric-sub">active parameters</div>
+        </div>
+        <div class="tr-metric-card">
+          <div class="tr-metric-label">Training Memory</div>
+          <div class="tr-metric-value">${data.active_memory_count}</div>
+          <div class="tr-metric-sub">rules + corrections</div>
+        </div>
+        <div class="tr-metric-card">
+          <div class="tr-metric-label">Boundary Events</div>
+          <div class="tr-metric-value">${data.recent_boundary_events?.length || 0}</div>
+          <div class="tr-metric-sub">last 24h</div>
+        </div>
+        <div class="tr-metric-card">
+          <div class="tr-metric-label">Sessions</div>
+          <div class="tr-metric-value">${data.stats.totalSessions}</div>
+          <div class="tr-metric-sub">training sessions</div>
+        </div>
+        <div class="tr-metric-card">
+          <div class="tr-metric-label">Checkpoints</div>
+          <div class="tr-metric-value">${data.stats.checkpoints}</div>
+          <div class="tr-metric-sub">snapshots saved</div>
+        </div>
+      `;
+
+      // Scope configs
+      const scopesEl = document.getElementById('tr-monitor-scopes');
+      const scopes = data.scope_configs || {};
+      if (!Object.keys(scopes).length) {
+        scopesEl.innerHTML = '<div class="tr-empty">No scope config set.</div>';
+      } else {
+        scopesEl.innerHTML = Object.entries(scopes).map(([k, v]) => `
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">
+            <span class="mono" style="color:var(--accent-bright)">${escapeHtml(k)}</span>
+            <span style="color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(String(JSON.stringify(v)))}</span>
+          </div>
+        `).join('');
+      }
+
+      // Memory entries
+      const memEl = document.getElementById('tr-monitor-memory');
+      if (!data.memory_entries?.length) {
+        memEl.innerHTML = '<div class="tr-empty">No training memory entries.</div>';
+      } else {
+        memEl.innerHTML = data.memory_entries.map(m => `
+          <div style="padding:6px 0;border-bottom:1px solid var(--border)">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span class="mono" style="font-size:11px;color:var(--accent-bright)">${escapeHtml(m.key)}</span>
+              <span class="tr-badge ${m.confidence === 'high' ? 'green' : m.confidence === 'medium' ? 'yellow' : 'muted'}">${escapeHtml(m.confidence)}</span>
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${escapeHtml(String(JSON.stringify(m.value)).slice(0, 120))}</div>
+          </div>
+        `).join('');
+      }
+
+      // Boundary events
+      const boundaryEl = document.getElementById('tr-boundary-events');
+      document.getElementById('tr-boundary-count').textContent = data.recent_boundary_events?.length || 0;
+      if (!data.recent_boundary_events?.length) {
+        boundaryEl.innerHTML = '<div class="tr-empty">No boundary drift events.</div>';
+      } else {
+        boundaryEl.innerHTML = data.recent_boundary_events.map(e => `
+          <div class="tr-log-item">
+            <div class="tr-log-time">${fmtDate(e.detected_at)}</div>
+            <div class="tr-log-body">
+              <span class="tr-badge ${e.severity === 'high' ? 'red' : e.severity === 'medium' ? 'yellow' : 'muted'}">${escapeHtml(e.severity)}</span>
+              <span style="font-weight:600;margin-left:6px">${escapeHtml(e.event_type)}</span>
+              ${e.description ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px">${escapeHtml(e.description)}</div>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    document.getElementById('tr-add-boundary')?.addEventListener('click', async () => {
+      const type = prompt('Event type (e.g. spending_exceeded, unauthorized_vendor):');
+      if (!type) return;
+      const desc = prompt('Description:') || '';
+      const sev = prompt('Severity (low/medium/high):') || 'low';
+      try {
+        await apiFetch('/monitor/boundary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event_type: type, description: desc, severity: sev }),
+        });
+        toast('Boundary event logged', 'success');
+        loadMonitor();
+      } catch (err) {
+        toast('Failed to log event: ' + err.message, 'error');
+      }
+    });
+
+    // ── Init ───────────────────────────────────────────────────────────────────
+    init();
+  </script>
+</body>
+</html>

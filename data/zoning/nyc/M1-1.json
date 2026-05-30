@@ -1,0 +1,45 @@
+{
+  "district": "M1-1",
+  "description": "Light manufacturing district. Permits manufacturing, commercial, and some community facility uses. Residential use generally prohibited (except M1-1D suffix with special authorization). No front or side yard requirements.",
+  "source_url": "https://zr.planning.nyc.gov/article-iv/chapter-2",
+  "source_url_height": "https://zr.planning.nyc.gov/article-iv/chapter-3/43-40",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-iv/chapter-3/43-40",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["42-00", "42-40", "43-40", "43-41", "43-42", "43-43", "43-44"],
+  "bulk": {
+    "far_commercial": "1.0 to 10.0 depending on special district; no fixed FAR in underlying M1-1",
+    "far_note": "FAR in M1 districts varies. Sky exposure plane governs height. No fixed residential FAR — residential not permitted.",
+    "community_facility_far": "Same as commercial per §44-00",
+    "no_residential": true,
+    "verify_far": true
+  },
+  "height_setback": {
+    "regulation_type": "Sky exposure plane (§43-40)",
+    "community_facility_max_front_wall": "35 ft or 3 stories, whichever is less, per §43-41",
+    "notes": "Sky exposure plane governs. Buildings below max front wall height do not require setback. Community facility buildings max front wall 35 ft / 3 stories in M1-1 per §43-41. No front or side yard required in M districts.",
+    "tower_permitted": "Yes, towers permitted in M1-3 through M1-6 per §43-45; M1-1 is low-density so towers less applicable"
+  },
+  "yards": {
+    "front": { "requirement": "None required in M districts" },
+    "side": { "requirement": "None required in M districts" },
+    "rear": {
+      "requirement": "20 ft min depth for interior lots per ZR §43-40; 40 ft rear yard equivalent above ground floor for through lots",
+      "note": "M districts have no front or side yard requirements"
+    }
+  },
+  "permitted_uses": {
+    "manufacturing": ["Use Groups 4-10 permitted", "Light manufacturing uses subject to performance standards (§42-40 through §42-48)"],
+    "commercial": ["Most commercial uses permitted", "Retail and services per Use Group 6-8"],
+    "community_facility": ["Some community facility uses permitted", "Performance standards apply"],
+    "residential": ["Generally prohibited in M1-1", "M1-1D suffix permits residential with special authorization per §42-311"],
+    "adult_establishments": "Not permitted within 500 ft of residence district, school, house of worship per §42-51"
+  },
+  "dob_filing_notes": [
+    "Manufacturing district — confirm industrial use is allowed at site",
+    "Performance standards (noise, vibration, smoke, glare, etc.) must be verified per §42-40 to §42-48",
+    "No front or side yard required — site can build to property line",
+    "If residential conversion needed: M1-1D suffix required; authorization from CPC or BSA required",
+    "DOB: file NB or Alt1. Review if within 500 ft of residential district — adult use restrictions apply",
+    "verify_far: true — underlying M1-1 FAR not fixed; check Special Purpose District overlay or applicable zone district"
+  ]
+}

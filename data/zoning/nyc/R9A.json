@@ -1,0 +1,48 @@
+{
+  "district": "R9A",
+  "description": "Contextual high-density residential district. Quality Housing mandatory. Allows tall buildings with FAR up to 7.52 (9.02 qualifying). Common in Manhattan and high-density outer borough areas.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "source_url_height": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22", "23-432", "23-34", "23-435"],
+  "bulk": {
+    "far_standard": 7.52,
+    "far_qualifying": 9.02,
+    "far_note": "UAP standard. High FAR — significant development potential. Community facility FAR per ZR §24-11.",
+    "lot_coverage_max": 80,
+    "quality_housing_mandatory": true
+  },
+  "height_setback": {
+    "regulation_type": "Quality Housing (mandatory)",
+    "min_base_height_ft": 60,
+    "max_base_height_ft": 105,
+    "max_building_height_ft": 145,
+    "affordable_max_base_height_ft": 135,
+    "affordable_max_building_height_ft": 185,
+    "street_wall_setback_wide_st": "10 ft depth above max base height",
+    "street_wall_setback_narrow_st": "15 ft depth above max base height",
+    "street_wall_location": "No closer than buildings within 150 ft on same block",
+    "tower_permitted": false,
+    "notes": "Per ZR §23-432 table (R9A1, R9-1 rows). R9A2 / R9-2: min base 60, max base 95, max height 135 ft standard. Qualifying extends to 185 ft. Tower regulations §23-435 do not apply in contextual R9A."
+  },
+  "yards": {
+    "front": { "requirement": "Per §23-322" },
+    "side": { "requirement": "Per §23-335: none required for Quality Housing contextual" },
+    "rear": {
+      "requirement": "30 ft min depth per §23-342",
+      "through_lot_alternative": "Rear yard equivalent per §23-343 on through lots ≥180 ft"
+    }
+  },
+  "permitted_uses": {
+    "residential": "Dwelling units per §22-11",
+    "community_facility": "Per ZR §24-11",
+    "parking": "Parking not permitted in front yard"
+  },
+  "dob_filing_notes": [
+    "Quality Housing Program certification required",
+    "R9A high FAR (7.52/9.02) — verify district on zoning map",
+    "Confirm MIH vs UAP — affects FAR and affordability requirements",
+    "DOB NOW: NB or Alt1. Review tower envelope vs R9D for higher FAR alternatives"
+  ]
+}

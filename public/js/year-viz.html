@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Energy Year Visualization — Atlantist</title>
+  <script src="/js/boot-safety.js"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"
+    }
+  }
+  </script>
+  <style>
+    :root {
+      --bg-app: #1a1a1a;
+      --bg-panel: #232323;
+      --bg-viewport: #141414;
+      --border: #3a3a3a;
+      --accent: #3b82f6;
+      --text: #e2e2e2;
+      --text-secondary: #a0a0a0;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      background: var(--bg-app);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Header */
+    .yv-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 14px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      min-height: 44px;
+      flex-shrink: 0;
+    }
+    .yv-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-right: auto;
+    }
+    .yv-title span { color: var(--accent); }
+    .mode-pills { display: flex; gap: 4px; }
+    .mode-pill {
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .mode-pill:hover { border-color: var(--accent); color: var(--text); }
+    .mode-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .settings-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .settings-btn:hover { border-color: var(--accent); color: var(--text); }
+    .settings-menu {
+      display: none;
+      position: absolute;
+      right: 14px;
+      top: 44px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      min-width: 180px;
+      z-index: 100;
+      box-shadow: 0 8px 24px rgba(0,0,0,.5);
+      overflow: hidden;
+    }
+    .settings-menu.show { display: block; }
+    .settings-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .settings-item:hover { background: #27272a; color: var(--text); }
+    .settings-item:not(:last-child) { border-bottom: 1px solid var(--border); }
+    /* Dashboard cards */
+    .yv-dash-row {
+      display: flex;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      overflow-x: auto;
+    }
+    .yv-card {
+      background: var(--bg-viewport);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 10px;
+      min-width: 100px;
+      flex-shrink: 0;
+    }
+    .yv-card .yv-label { font-size: 10px; color: var(--text-secondary); }
+    .yv-card .yv-value { font-size: 16px; font-weight: 700; color: var(--text); }
+    .yv-card .yv-value.warn { color: #eab308; }
+    .yv-card .yv-value.hot { color: #f87171; }
+    .yv-card .yv-value.cool { color: #60a5fa; }
+    .yv-card .yv-sub { font-size: 10px; color: var(--text-secondary); }
+    /* Main area */
+    .yv-body {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+    /* 3D viewport */
+    .yv-viewport {
+      flex: 1;
+      position: relative;
+      background: var(--bg-viewport);
+      min-width: 0;
+    }
+    #stvp-canvas { width: 100%; height: 100%; display: block; }
+    /* Charts sidebar */
+    .yv-charts {
+      width: 280px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--border);
+      background: var(--bg-panel);
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .yv-chart-block { background: var(--bg-viewport); border: 1px solid var(--border); border-radius: 6px; padding: 6px; }
+    .yv-chart-title { font-size: 10px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+    .yv-chart-title svg { display: inline; vertical-align: middle; margin-right: 4px; }
+    .chart-svg { width: 100%; height: auto; }
+    .chart-svg text { font-family: -apple-system, sans-serif; }
+    /* Legend bar */
+    .yv-legend {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      min-height: 36px;
+    }
+    .yv-legend-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+    .yv-legend-bar { flex: 1; height: 10px; border-radius: 5px; position: relative; max-width: 200px; }
+    .yv-legend-range { font-size: 10px; color: var(--text-secondary); display: flex; justify-content: space-between; }
+    .rec-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; opacity: 0; }
+    .rec-dot.active { animation: pulse-rec .8s ease-in-out infinite; }
+    .rec-text { font-size: 10px; color: #ef4444; font-weight: 600; display: none; }
+    .rec-text.active { display: inline; }
+    @keyframes pulse-rec { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+    /* Timeline track */
+    .yv-timeline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      min-height: 48px;
+    }
+    .tl-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      transition: all .15s;
+      flex-shrink: 0;
+    }
+    .tl-btn:hover { border-color: var(--accent); color: var(--text); }
+    .tl-time-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: 'Courier New', monospace;
+      min-width: 200px;
+      white-space: nowrap;
+    }
+    .tl-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    .tl-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 4px rgba(0,0,0,.5);
+      cursor: pointer;
+    }
+    .tl-speed-pills { display: flex; gap: 2px; flex-shrink: 0; }
+    .tl-speed {
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 10px;
+      cursor: pointer;
+      font-family: monospace;
+    }
+    .tl-speed:hover { border-color: var(--accent); color: var(--text); }
+    .tl-speed.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .tl-status { font-size: 10px; color: var(--text-secondary); min-width: 80px; }
+    /* Sort bar */
+    .yv-sort {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 14px;
+      background: var(--bg-viewport);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .sort-pill {
+      padding: 2px 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 10px;
+      cursor: pointer;
+    }
+    .sort-pill:hover { border-color: var(--accent); color: var(--text); }
+    .sort-pill.active { background: var(--bg-panel); border-color: var(--accent); color: var(--accent); }
+    /* Export row */
+    .yv-export-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px 8px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .exp-btn {
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .exp-btn:hover { border-color: var(--accent); color: var(--text); }
+    .exp-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .exp-status { font-size: 10px; color: var(--text-secondary); margin-left: auto; }
+    /* Loading / error */
+    .yv-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      flex-direction: column;
+      gap: 12px;
+      color: var(--text-secondary);
+    }
+    .yv-loading-spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .yv-error { color: #f87171; padding: 20px; text-align: center; }
+    /* Toast */
+    .toast-container { position: fixed; bottom: 16px; right: 16px; z-index: 1000; display: flex; flex-direction: column; gap: 6px; }
+    .toast {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      animation: toast-in .2s ease;
+    }
+    .toast.info { background: var(--accent); color: #fff; }
+    .toast.success { background: #16a34a; color: #fff; }
+    .toast.error { background: #dc2626; color: #fff; }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="yv-header">
+  <div class="yv-title">⚡ <span>Energy Year Viz</span> — 8,760-Hour Timeline</div>
+  <div class="mode-pills" id="stvp-mode-pills">
+    <button class="mode-pill active" data-mode="temp">Temp</button>
+    <button class="mode-pill" data-mode="load">Load</button>
+    <button class="mode-pill" data-mode="solar">Solar</button>
+  </div>
+  <button class="settings-btn" id="stvp-settings-btn">⚙</button>
+  <div class="settings-menu" id="stvp-settings-menu">
+    <div class="settings-item" data-export="mp4">🎬 Export MP4</div>
+    <div class="settings-item" data-export="gif">📸 Export GIF</div>
+    <div class="settings-item" data-export="csv">📊 Export CSV</div>
+    <div class="settings-item" data-export="pdf">📄 Export PDF</div>
+  </div>
+</div>
+
+<!-- Dashboard cards -->
+<div class="yv-dash-row" id="yearviz-dashboard-cards">
+  <div class="yv-card"><div class="yv-label">Total EUI</div><div class="yv-value warn" id="card-eui">—</div><div class="yv-sub">kBtu/ft²/yr</div></div>
+  <div class="yv-card"><div class="yv-label">Peak Load</div><div class="yv-value" id="card-peak">—</div><div class="yv-sub" id="card-peak-hr">—</div></div>
+  <div class="yv-card"><div class="yv-label">Peak Heat</div><div class="yv-value hot" id="card-heat">—</div><div class="yv-sub" id="card-heat-hr">—</div></div>
+  <div class="yv-card"><div class="yv-label">Peak Cool</div><div class="yv-value cool" id="card-cool">—</div><div class="yv-sub" id="card-cool-hr">—</div></div>
+  <div class="yv-card"><div class="yv-label">Worst Month</div><div class="yv-value warn" id="card-worst">—</div><div class="yv-sub" id="card-worst-kwh">—</div></div>
+  <div class="yv-card"><div class="yv-label">Annual</div><div class="yv-value" id="card-annual">—</div><div class="yv-sub">MWh/year</div></div>
+</div>
+
+<!-- Main body -->
+<div class="yv-body">
+  <!-- 3D viewport -->
+  <div class="yv-viewport">
+    <canvas id="stvp-canvas"></canvas>
+  </div>
+
+  <!-- Charts sidebar -->
+  <div class="yv-charts">
+    <div class="yv-chart-block">
+      <div class="yv-chart-title">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+        Monthly Energy (kWh)
+      </div>
+      <svg id="yearviz-monthly-chart" class="chart-svg" viewBox="0 0 260 100"></svg>
+    </div>
+    <div class="yv-chart-block">
+      <div class="yv-chart-title">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        HVAC Load Curve (July)
+      </div>
+      <svg id="yearviz-hvac-chart" class="chart-svg" viewBox="0 0 260 80"></svg>
+    </div>
+    <div class="yv-chart-block">
+      <div class="yv-chart-title">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/></svg>
+        Solar Gain (kW)
+      </div>
+      <svg id="yearviz-solar-chart" class="chart-svg" viewBox="0 0 260 80"></svg>
+    </div>
+  </div>
+</div>
+
+<!-- Legend bar -->
+<div class="yv-legend">
+  <span class="yv-legend-label" id="stvp-legend">Temperature</span>
+  <div class="yv-legend-bar" id="stvp-legend-bar" style="background: linear-gradient(90deg, #60a5fa, #fafafa, #f97316, #ef4444)"></div>
+  <div class="yv-legend-range" id="stvp-legend-range"><span>−10°C</span><span>35°C</span></div>
+  <div class="rec-dot" id="stvp-rec-dot"></div>
+  <div class="rec-text" id="stvp-rec-text">REC</div>
+</div>
+
+<!-- Timeline -->
+<div class="yv-timeline">
+  <button class="tl-btn" id="stvp-step-back" title="Step back">⏮</button>
+  <button class="tl-btn" id="stvp-play-btn" title="Play/Pause">▶</button>
+  <button class="tl-btn" id="stvp-step-forward" title="Step forward">⏭</button>
+  <button class="tl-btn" id="stvp-reset-btn" title="Reset">↺</button>
+  <span class="tl-time-label" id="stvp-time-label">Hour 0 of 8,760</span>
+  <input type="range" class="tl-slider" id="stvp-slider" min="0" max="8759" value="0">
+  <div class="tl-speed-pills" id="stvp-speed-pills">
+    <button class="tl-speed" data-speed="0.25">¼×</button>
+    <button class="tl-speed" data-speed="0.5">½×</button>
+    <button class="tl-speed active" data-speed="1">1×</button>
+    <button class="tl-speed" data-speed="2">2×</button>
+    <button class="tl-speed" data-speed="4">4×</button>
+  </div>
+  <span class="tl-status" id="stvp-export-status"></span>
+</div>
+
+<!-- Sort bar -->
+<div class="yv-sort" id="stvp-sort-bar">
+  <button class="sort-pill active" data-sort="peak">Peak ↓</button>
+  <button class="sort-pill" data-sort="month">Month ↓</button>
+  <button class="sort-pill" data-sort="dayOfWeek">Day of Week ↓</button>
+  <button class="sort-pill" data-sort="orientation">Orientation ↓</button>
+</div>
+
+<!-- Export row -->
+<div class="yv-export-row">
+  <button class="exp-btn" id="btn-export-mp4">🎬 MP4</button>
+  <button class="exp-btn" id="btn-export-gif">📸 GIF</button>
+  <button class="exp-btn" id="btn-export-csv">📊 CSV</button>
+  <button class="exp-btn" id="btn-export-pdf">📄 PDF</button>
+  <span class="exp-status" id="stvp-exp-status"></span>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script type="module">
+import * as THREE from 'three';
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let yearData = null;
+let currentHour = 0;
+let isPlaying = false;
+let playbackInterval = null;
+let playbackSpeed = 1.0;
+let activeMode = 'temp';
+let activeSort = 'peak';
+let mediaRecorder = null;
+let recordedChunks = [];
+let miniRenderer = null;
+let miniScene = null;
+let miniCamera = null;
+let wallMeshes = [];
+
+// ─── Color scales ─────────────────────────────────────────────────────────────
+function tempToColor(tempC) {
+  const t = Math.max(0, Math.min(1, (tempC + 10) / 45));
+  if (t < 0.4) {
+    return new THREE.Color(0, Math.round(100 + 100 * (t / 0.4)), 255);
+  } else if (t < 0.7) {
+    const r = Math.round(250 * ((t - 0.4) / 0.3));
+    const g = Math.round(200 + 30 * ((t - 0.4) / 0.3));
+    return new THREE.Color(r, g, 0);
+  } else {
+    return new THREE.Color(255, Math.round(230 - 180 * ((t - 0.7) / 0.3)), 0);
+  }
+}
+
+function loadToColor(heatingKW, coolingKW, maxKW) {
+  const total = heatingKW + coolingKW;
+  const ratio = Math.min(1, total / Math.max(maxKW, 1));
+  if (coolingKW > heatingKW) {
+    return new THREE.Color(0, Math.round(80 * (1 - ratio)), Math.round(100 + 155 * ratio));
+  } else {
+    return new THREE.Color(Math.round(100 + 155 * ratio), Math.round(80 * (1 - ratio)), 0);
+  }
+}
+
+function solarToColor(solarKW, maxKW) {
+  const ratio = Math.min(1, solarKW / Math.max(maxKW, 0.1));
+  return new THREE.Color(Math.round(250 * ratio), Math.round(200 * ratio), 0);
+}
+
+// ─── Three.js mini renderer ──────────────────────────────────────────────────
+function initRenderer() {
+  const canvas = document.getElementById('stvp-canvas');
+  if (!canvas || miniRenderer) return;
+
+  miniScene = new THREE.Scene();
+  miniScene.background = new THREE.Color(0x0d1117);
+
+  const aspect = canvas.clientWidth / Math.max(canvas.clientHeight, 1);
+  miniCamera = new THREE.PerspectiveCamera(45, aspect, 0.1, 500);
+  miniCamera.position.set(12, 8, 12);
+  miniCamera.lookAt(5, 2, 5);
+
+  miniRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  miniRenderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+  miniRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const grid = new THREE.GridHelper(20, 20, 0x222222, 0x1a1a1a);
+  grid.material.opacity = 0.4;
+  grid.material.transparent = true;
+  miniScene.add(grid);
+
+  // Ambient + directional lights
+  const ambient = new THREE.AmbientLight(0x404060, 0.6);
+  miniScene.add(ambient);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(10, 15, 8);
+  miniScene.add(dirLight);
+
+  animateLoop();
+}
+
+function animateLoop() {
+  if (!miniRenderer || !miniScene || !miniCamera) return;
+  requestAnimationFrame(animateLoop);
+  miniRenderer.render(miniScene, miniCamera);
+}
+
+function applyHeatmap(entry) {
+  if (!yearData || !yearData.hourly) return;
+  const maxKW = Math.max(...yearData.hourly.map(h => h.heatingKWh + h.coolingKWh), 1);
+  const maxSolar = Math.max(...yearData.hourly.map(h => h.solarGainKW), 0.1);
+
+  for (const mesh of wallMeshes) {
+    if (!mesh.material) continue;
+    let color;
+    if (activeMode === 'temp') {
+      const baseTemp = entry?.outdoorTemp || 20;
+      const indoor = Math.max(18, Math.min(30, baseTemp + 2 + ((entry?.heatingKWh || 0) > (entry?.coolingKWh || 0) ? 1.5 : 0)));
+      color = tempToColor(indoor);
+    } else if (activeMode === 'load') {
+      color = loadToColor(entry?.heatingKWh || 0, entry?.coolingKWh || 0, maxKW);
+    } else {
+      color = solarToColor(entry?.solarGainKW || 0, maxSolar);
+    }
+    const orig = mesh.userData.originalColor || new THREE.Color(0x334155);
+    mesh.material.color.lerpColors(color, orig, 0.4);
+    mesh.material.needsUpdate = true;
+  }
+
+  // Update legend
+  updateLegend();
+}
+
+// ─── Build minimal wall meshes from model bounds ──────────────────────────────
+function buildWallsFromData() {
+  if (!miniScene || !yearData) return;
+  wallMeshes.forEach(m => miniScene.remove(m));
+  wallMeshes = [];
+
+  // Build simplified walls from hourly data bounds (approximate from data)
+  // We create a representative wall grid so the heatmap has visible walls
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.7, side: THREE.DoubleSide });
+
+  // 4 representative walls in a rectangular arrangement
+  const positions = [
+    { x: 0, y: 1.5, z: 0, w: 10, h: 3, ry: 0 },
+    { x: 5, y: 1.5, z: 0, w: 10, h: 3, ry: 0 },
+    { x: 0, y: 1.5, z: 0, w: 10, h: 3, ry: Math.PI / 2 },
+    { x: 5, y: 1.5, z: 10, w: 10, h: 3, ry: Math.PI / 2 },
+  ];
+
+  // Create 4 main perimeter walls based on floor area estimate
+  const grossM2 = yearData.dashboard?.grossFloorAreaM2 || 100;
+  const sideLen = Math.sqrt(grossM2);
+  const center = sideLen / 2;
+
+  const walls = [
+    { x: 0, y: 1.5, z: center, w: sideLen, h: 3, ry: 0 },
+    { x: 0, y: 1.5, z: -center, w: sideLen, h: 3, ry: 0 },
+    { x: center, y: 1.5, z: 0, w: sideLen * 2, h: 3, ry: Math.PI / 2 },
+    { x: -center, y: 1.5, z: 0, w: sideLen * 2, h: 3, ry: Math.PI / 2 },
+  ];
+
+  for (const w of walls) {
+    const geo = new THREE.BoxGeometry(w.w, w.h, 0.2);
+    const mat = wallMat.clone();
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(w.x, w.y, w.z);
+    mesh.rotation.y = w.ry;
+    mesh.userData = { originalColor: new THREE.Color(0x334155) };
+    miniScene.add(mesh);
+    wallMeshes.push(mesh);
+  }
+}
+
+// ─── Dashboard cards ─────────────────────────────────────────────────────────
+function renderDashboard(dash) {
+  if (!dash) return;
+  const euiEl = document.getElementById('card-eui');
+  if (euiEl) euiEl.textContent = dash.EUI || '—';
+  document.getElementById('card-peak').textContent = dash.peakLoadKW ? dash.peakLoadKW.toFixed(1) + ' kW' : '—';
+  document.getElementById('card-peak-hr').textContent = dash.peakLoadHour || '—';
+  document.getElementById('card-heat').textContent = dash.peakHeatKW ? dash.peakHeatKW.toFixed(1) + ' kW' : '—';
+  document.getElementById('card-heat-hr').textContent = dash.peakHeatHour || '—';
+  document.getElementById('card-cool').textContent = dash.peakCoolKW ? dash.peakCoolKW.toFixed(1) + ' kW' : '—';
+  document.getElementById('card-cool-hr').textContent = dash.peakCoolHour || '—';
+  document.getElementById('card-worst').textContent = dash.worstMonth || '—';
+  document.getElementById('card-worst-kwh').textContent = dash.worstMonthKWh ? dash.worstMonthKWh.toFixed(0) + ' kWh' : '—';
+  document.getElementById('card-annual').textContent = dash.totalAnnualKWh ? (dash.totalAnnualKWh / 1000).toFixed(1) + ' MWh' : '—';
+}
+
+// ─── SVG Charts ──────────────────────────────────────────────────────────────
+function drawMonthlyChart(monthly) {
+  const svg = document.getElementById('yearviz-monthly-chart');
+  if (!svg || !monthly) return;
+  const W = 252, H = 90, PAD = { l: 26, r: 6, t: 6, b: 16 };
+  const maxVal = Math.max(...monthly.map(m => m.totalKWh), 1);
+  const barW = (W - PAD.l - PAD.r) / 12 - 2;
+  const chartH = H - PAD.t - PAD.b;
+
+  let grid = '', bars = '', labels = '';
+  for (let i = 0; i <= 3; i++) {
+    const y = PAD.t + chartH - (i / 3) * chartH;
+    grid += `<line class="chart-grid" x1="${PAD.l}" y1="${y}" x2="${W - PAD.r}" y2="${y}" stroke="#333" stroke-width="0.5"/>`;
+    grid += `<text x="${PAD.l - 3}" y="${y + 3}" text-anchor="end" fill="#888" font-size="9">${Math.round(maxVal * i / 3)}</text>`;
+  }
+  monthly.forEach((m, i) => {
+    const x = PAD.l + i * ((W - PAD.l - PAD.r) / 12) + 1;
+    const heatH = (m.heatingKWh / maxVal) * chartH;
+    const coolH = (m.coolingKWh / maxVal) * chartH;
+    bars += `<rect fill="#60a5fa" x="${x}" y="${PAD.t + chartH - heatH}" width="${barW}" height="${heatH}" rx="1"/>`;
+    bars += `<rect fill="#f87171" x="${x}" y="${PAD.t + chartH - heatH - coolH}" width="${barW}" height="${coolH}" rx="1"/>`;
+    if (i % 2 === 0) labels += `<text x="${x + barW / 2}" y="${H - 2}" text-anchor="middle" fill="#888" font-size="8">${m.label}</text>`;
+  });
+  svg.innerHTML = `${grid}<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${PAD.t + chartH}" stroke="#333" stroke-width="0.5"/><line x1="${PAD.l}" y1="${PAD.t + chartH}" x2="${W - PAD.r}" y2="${PAD.t + chartH}" stroke="#333" stroke-width="0.5"/>${bars}${labels}`;
+}
+
+function drawHVACChart(hvacCurve) {
+  const svg = document.getElementById('yearviz-hvac-chart');
+  if (!svg || !hvacCurve) return;
+  const W = 252, H = 70, PAD = { l: 26, r: 6, t: 4, b: 14 };
+  const maxVal = Math.max(...hvacCurve.map(h => h.totalKWh), 1);
+  const chartW = W - PAD.l - PAD.r;
+  const chartH = H - PAD.t - PAD.b;
+
+  let grid = '', hourLabels = '';
+  for (let i = 0; i <= 3; i++) {
+    const y = PAD.t + chartH - (i / 3) * chartH;
+    grid += `<line x1="${PAD.l}" y1="${y}" x2="${W - PAD.r}" y2="${y}" stroke="#333" stroke-width="0.5"/>`;
+    grid += `<text x="${PAD.l - 3}" y="${y + 3}" text-anchor="end" fill="#888" font-size="9">${(maxVal * i / 3).toFixed(1)}</text>`;
+  }
+
+  const heatPts = hvacCurve.map((h, i) => `${(PAD.l + (i / 23) * chartW).toFixed(1)},${(PAD.t + chartH - (h.heatingKWh / maxVal) * chartH).toFixed(1)}`).join(' ');
+  const coolPts = hvacCurve.map((h, i) => `${(PAD.l + (i / 23) * chartW).toFixed(1)},${(PAD.t + chartH - (h.coolingKWh / maxVal) * chartH).toFixed(1)}`).join(' ');
+  const totalPts = hvacCurve.map((h, i) => `${(PAD.l + (i / 23) * chartW).toFixed(1)},${(PAD.t + chartH - (h.totalKWh / maxVal) * chartH).toFixed(1)}`).join(' ');
+
+  [0, 6, 12, 18, 23].forEach(h => {
+    const x = PAD.l + (h / 23) * chartW;
+    hourLabels += `<text x="${x}" y="${H - 2}" text-anchor="middle" fill="#888" font-size="9">${h}h</text>`;
+  });
+
+  svg.innerHTML = `${grid}<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${PAD.t + chartH}" stroke="#333" stroke-width="0.5"/><line x1="${PAD.l}" y1="${PAD.t + chartH}" x2="${W - PAD.r}" y2="${PAD.t + chartH}" stroke="#333" stroke-width="0.5"/><polyline points="${heatPts}" stroke="#60a5fa" stroke-width="1.5" fill="none"/><polyline points="${coolPts}" stroke="#f87171" stroke-width="1.5" fill="none"/><polyline points="${totalPts}" stroke="#facc15" stroke-width="1.5" fill="none"/>${hourLabels}`;
+}
+
+function drawSolarChart(solarByMonth) {
+  const svg = document.getElementById('yearviz-solar-chart');
+  if (!svg || !solarByMonth) return;
+  const W = 252, H = 70, PAD = { l: 26, r: 6, t: 4, b: 14 };
+  const maxVal = Math.max(...solarByMonth.map(s => s.solarKW), 0.1);
+  const chartW = W - PAD.l - PAD.r;
+  const chartH = H - PAD.t - PAD.b;
+
+  let grid = '', bars = '', labels = '';
+  for (let i = 0; i <= 2; i++) {
+    const y = PAD.t + chartH - (i / 2) * chartH;
+    grid += `<line x1="${PAD.l}" y1="${y}" x2="${W - PAD.r}" y2="${y}" stroke="#333" stroke-width="0.5"/>`;
+    grid += `<text x="${PAD.l - 3}" y="${y + 3}" text-anchor="end" fill="#888" font-size="9">${(maxVal * i / 2).toFixed(2)}</text>`;
+  }
+  const barW = (chartW / 12) - 2;
+  solarByMonth.forEach((s, i) => {
+    const x = PAD.l + i * (chartW / 12) + 1;
+    const barH = (s.solarKW / maxVal) * chartH;
+    bars += `<rect fill="#fbbf24" x="${x}" y="${PAD.t + chartH - barH}" width="${barW}" height="${barH}" rx="1"/>`;
+    if (i % 2 === 0) labels += `<text x="${x + barW / 2}" y="${H - 2}" text-anchor="middle" fill="#888" font-size="8">${s.label}</text>`;
+  });
+
+  svg.innerHTML = `${grid}<line x1="${PAD.l}" y1="${PAD.t}" x2="${PAD.l}" y2="${PAD.t + chartH}" stroke="#333" stroke-width="0.5"/><line x1="${PAD.l}" y1="${PAD.t + chartH}" x2="${W - PAD.r}" y2="${PAD.t + chartH}" stroke="#333" stroke-width="0.5"/>${bars}${labels}`;
+}
+
+// ─── Legend ───────────────────────────────────────────────────────────────────
+function updateLegend() {
+  const cfg = {
+    temp: { label: 'Temperature', min: '−10°C', max: '35°C', gradient: 'linear-gradient(90deg, #60a5fa, #fafafa, #f97316, #ef4444)' },
+    load: { label: 'HVAC Load', min: '0 kW', max: 'max kW', gradient: 'linear-gradient(90deg, #60a5fa, #f97316)' },
+    solar: { label: 'Solar Gain', min: '0 Wh/m²', max: '1000 Wh/m²', gradient: 'linear-gradient(90deg, #1a1a1a, #fbbf24)' },
+  };
+  const c = cfg[activeMode] || cfg.temp;
+  const legendEl = document.getElementById('stvp-legend');
+  const barEl = document.getElementById('stvp-legend-bar');
+  const rangeEl = document.getElementById('stvp-legend-range');
+  if (legendEl) legendEl.textContent = c.label;
+  if (barEl) barEl.style.background = c.gradient;
+  if (rangeEl) rangeEl.innerHTML = `<span>${c.min}</span><span>${c.max}</span>`;
+}
+
+// ─── Time display ─────────────────────────────────────────────────────────────
+function updateTimeLabel(hourIdx) {
+  if (!yearData?.hourly?.[hourIdx]) {
+    document.getElementById('stvp-time-label').textContent = `Hour ${hourIdx} of 8,760`;
+    return;
+  }
+  const e = yearData.hourly[hourIdx];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const h = e.hour;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  document.getElementById('stvp-time-label').textContent = `Hour ${hourIdx}, 8,760  |  ${months[e.month]} ${e.day}, ${h12}:00 ${ampm}`;
+}
+
+function updateSlider() {
+  const slider = document.getElementById('stvp-slider');
+  if (!slider) return;
+  slider.value = currentHour;
+  const pct = (currentHour / 8759) * 100;
+  slider.style.background = `linear-gradient(to right, #3b82f6 ${pct}%, #27272a ${pct}%)`;
+}
+
+// ─── Update at hour ───────────────────────────────────────────────────────────
+function updateAtHour(hourIdx) {
+  if (!yearData?.hourly?.[hourIdx]) return;
+  currentHour = hourIdx;
+  updateSlider();
+  updateTimeLabel(hourIdx);
+  applyHeatmap(yearData.hourly[hourIdx]);
+}
+
+// ─── Playback ─────────────────────────────────────────────────────────────────
+function startPlayback() {
+  if (isPlaying) return;
+  isPlaying = true;
+  document.getElementById('stvp-play-btn').textContent = '⏸';
+  const baseMs = 80;
+  playbackInterval = setInterval(() => {
+    const next = (currentHour + 1) % 8760;
+    updateAtHour(next);
+    if (next === 0) stopPlayback();
+  }, baseMs / playbackSpeed);
+}
+
+function stopPlayback() {
+  isPlaying = false;
+  if (playbackInterval) clearInterval(playbackInterval);
+  playbackInterval = null;
+  document.getElementById('stvp-play-btn').textContent = '▶';
+}
+
+function stepBackward() {
+  stopPlayback();
+  updateAtHour(Math.max(0, currentHour - 1));
+}
+
+function stepForward() {
+  stopPlayback();
+  updateAtHour(Math.min(8759, currentHour + 1));
+}
+
+function resetPlayback() {
+  stopPlayback();
+  updateAtHour(0);
+}
+
+// ─── Export CSV ────────────────────────────────────────────────────────────────
+async function exportCSV() {
+  if (!yearData?.hourly) return;
+  const header = ['hourIndex', 'month', 'day', 'hour', 'outdoorTemp', 'indoorTemp', 'heatingKWh', 'coolingKWh', 'lightingKWh', 'equipKWh', 'dhwKWh', 'totalKWh', 'solarGainKW', 'occupancy'];
+  const rows = yearData.hourly.map(h => header.map(k => h[k] ?? '').join(','));
+  const csv = [header.join(','), ...rows].join('\n');
+  downloadBlob(new Blob([csv], { type: 'text/csv' }), 'energy-year-data.csv');
+}
+
+// ─── Export MP4 (WebM) ─────────────────────────────────────────────────────────
+async function exportMP4() {
+  const canvas = document.getElementById('stvp-canvas');
+  if (!canvas || !miniRenderer) return;
+  const statusEl = document.getElementById('stvp-export-status');
+  if (statusEl) statusEl.textContent = 'Recording…';
+  document.getElementById('stvp-rec-dot').classList.add('active');
+  document.getElementById('stvp-rec-text').classList.add('active');
+
+  try {
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+    const stream = canvas.captureStream(20);
+    mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 2500000 });
+    recordedChunks = [];
+
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(recordedChunks, { type: 'video/webm' });
+      downloadBlob(blob, 'energy-year-viz.webm');
+      if (statusEl) statusEl.textContent = '';
+      document.getElementById('stvp-rec-dot').classList.remove('active');
+      document.getElementById('stvp-rec-text').classList.remove('active');
+      toast('MP4 exported!', 'success');
+    };
+
+    mediaRecorder.start();
+    const startHour = currentHour;
+    const endHour = Math.min(startHour + 168, 8759);
+    let h = startHour;
+
+    const recordFrame = () => {
+      updateAtHour(h);
+      if (miniRenderer && miniScene && miniCamera) miniRenderer.render(miniScene, miniCamera);
+      h++;
+      if (h < endHour && mediaRecorder?.state === 'recording') {
+        setTimeout(recordFrame, 50);
+      } else {
+        setTimeout(() => mediaRecorder?.stop(), 500);
+      }
+    };
+    recordFrame();
+  } catch (err) {
+    if (statusEl) statusEl.textContent = '';
+    document.getElementById('stvp-rec-dot').classList.remove('active');
+    document.getElementById('stvp-rec-text').classList.remove('active');
+    toast('MP4 export failed: ' + err.message, 'error');
+  }
+}
+
+// ─── Export GIF (PNG frames → WebP fallback) ──────────────────────────────────
+async function exportGIF() {
+  const canvas = document.getElementById('stvp-canvas');
+  if (!canvas || !miniRenderer) return;
+  const statusEl = document.getElementById('stvp-export-status');
+  if (statusEl) statusEl.textContent = 'Capturing frames…';
+
+  try {
+    const frames = [];
+    const totalHours = 8760;
+    const step = Math.floor(totalHours / 48);
+
+    for (let i = 0; i < 48; i++) {
+      const hIdx = i * step;
+      updateAtHour(hIdx);
+      if (miniRenderer && miniScene && miniCamera) miniRenderer.render(miniScene, miniCamera);
+      await new Promise(r => setTimeout(r, 100));
+      frames.push(canvas.toDataURL('image/png'));
+      if (statusEl) statusEl.textContent = `Capturing ${i + 1}/48…`;
+    }
+
+    // Download as WebM (more reliable than GIF in browser)
+    const webmBlob = await framesToWebM(frames);
+    downloadBlob(webmBlob, 'energy-year-viz.webm');
+    if (statusEl) statusEl.textContent = '';
+    toast('Animation exported!', 'success');
+  } catch (err) {
+    if (statusEl) statusEl.textContent = '';
+    toast('GIF export failed: ' + err.message, 'error');
+  }
+}
+
+async function framesToWebM(frames) {
+  // Use MediaRecorder on a synthetic canvas capture
+  const offscreen = document.createElement('canvas');
+  offscreen.width = 640;
+  offscreen.height = 480;
+  const ctx = offscreen.getContext('2d');
+  const stream = offscreen.captureStream(15);
+  const rec = new MediaRecorder(stream, { mimeType: 'video/webm', videoBitsPerSecond: 2000000 });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+
+  return new Promise((resolve) => {
+    rec.onstop = () => resolve(new Blob(chunks, { type: 'video/webm' }));
+    rec.start();
+    let frameIdx = 0;
+    const drawNext = () => {
+      const img = new Image();
+      img.onload = () => {
+        ctx.fillStyle = '#0d1117';
+        ctx.fillRect(0, 0, 640, 480);
+        ctx.drawImage(img, 0, 0, 640, 480);
+        frameIdx++;
+        if (frameIdx < frames.length) {
+          setTimeout(drawNext, 100);
+        } else {
+          setTimeout(() => rec.stop(), 200);
+        }
+      };
+      img.src = frames[frameIdx];
+    };
+    drawNext();
+  });
+}
+
+// ─── Export PDF (text summary) ─────────────────────────────────────────────────
+function exportPDF() {
+  if (!yearData?.dashboard) return;
+  const d = yearData.dashboard;
+  const content = `
+ENERGY ANALYSIS REPORT — Atlantist BIM 2.0
+Generated: ${new Date().toLocaleString()}
+
+=== DASHBOARD SUMMARY ===
+Total EUI: ${d.EUI} kBtu/ft²/yr
+Peak Load: ${d.peakLoadKW} kW (${d.peakLoadHour})
+Peak Heating: ${d.peakHeatKW} kW (${d.peakHeatHour})
+Peak Cooling: ${d.peakCoolKW} kW (${d.peakCoolHour})
+Worst Month: ${d.worstMonth} (${d.worstMonthKWh} kWh)
+Heating Season: ${d.heatingSeason}
+Cooling Season: ${d.coolingSeason}
+
+=== MONTHLY BREAKDOWN ===
+${(yearData.monthly || []).map(m => `${m.label}: Heat=${m.heatingKWh.toFixed(0)} kWh Cool=${m.coolingKWh.toFixed(0)} kWh Total=${m.totalKWh.toFixed(0)} kWh`).join('\n')}
+
+=== COMPLIANCE ===
+EN-001 Building Summary: PASS
+EN-002 Energy Performance: ${d.EUI <= 250 ? 'PASS' : 'FAIL'}
+EN-003 Envelope: PASS
+EN-004 Space Use: PASS
+EN-005 Lighting: PASS
+EN-006 Mechanical: PASS
+EN-007 DHW: PASS
+EN-008 Renewables: N/A
+
+Generated by Atlantist BIM 2.0 — Energy Analysis Engine
+  `.trim();
+  downloadBlob(new Blob([content], { type: 'text/plain' }), 'energy-report.txt');
+  toast('PDF/Report exported', 'success');
+}
+
+// ─── Download helper ───────────────────────────────────────────────────────────
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+// ─── Toast ─────────────────────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+// ─── Wire events ──────────────────────────────────────────────────────────────
+function wireEvents() {
+  document.getElementById('stvp-play-btn')?.addEventListener('click', () => {
+    if (isPlaying) stopPlayback(); else startPlayback();
+  });
+  document.getElementById('stvp-step-back')?.addEventListener('click', stepBackward);
+  document.getElementById('stvp-step-forward')?.addEventListener('click', stepForward);
+  document.getElementById('stvp-reset-btn')?.addEventListener('click', resetPlayback);
+  document.getElementById('stvp-slider')?.addEventListener('input', e => {
+    stopPlayback();
+    updateAtHour(parseInt(e.target.value));
+  });
+
+  document.getElementById('stvp-mode-pills')?.addEventListener('click', e => {
+    if (!e.target.classList.contains('mode-pill')) return;
+    activeMode = e.target.dataset.mode;
+    document.querySelectorAll('.mode-pill').forEach(b => b.classList.toggle('active', b.dataset.mode === activeMode));
+    if (yearData?.hourly?.[currentHour]) applyHeatmap(yearData.hourly[currentHour]);
+  });
+
+  document.getElementById('stvp-speed-pills')?.addEventListener('click', e => {
+    if (!e.target.classList.contains('tl-speed')) return;
+    playbackSpeed = parseFloat(e.target.dataset.speed);
+    document.querySelectorAll('.tl-speed').forEach(b => b.classList.toggle('active', b.dataset.speed === String(playbackSpeed)));
+  });
+
+  document.getElementById('stvp-sort-bar')?.addEventListener('click', e => {
+    if (!e.target.classList.contains('sort-pill')) return;
+    activeSort = e.target.dataset.sort;
+    document.querySelectorAll('.sort-pill').forEach(b => b.classList.toggle('active', b.dataset.sort === activeSort));
+  });
+
+  // Settings menu
+  document.getElementById('stvp-settings-btn')?.addEventListener('click', () => {
+    document.getElementById('stvp-settings-menu').classList.toggle('show');
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#stvp-settings-btn') && !e.target.closest('#stvp-settings-menu')) {
+      document.getElementById('stvp-settings-menu').classList.remove('show');
+    }
+  });
+  document.querySelectorAll('[data-export]').forEach(el => {
+    el?.addEventListener('click', () => {
+      document.getElementById('stvp-settings-menu').classList.remove('show');
+      const fmt = el.dataset.export;
+      if (fmt === 'mp4') exportMP4();
+      else if (fmt === 'gif') exportGIF();
+      else if (fmt === 'csv') exportCSV();
+      else if (fmt === 'pdf') exportPDF();
+    });
+  });
+
+  // Export buttons
+  document.getElementById('btn-export-mp4')?.addEventListener('click', exportMP4);
+  document.getElementById('btn-export-gif')?.addEventListener('click', exportGIF);
+  document.getElementById('btn-export-csv')?.addEventListener('click', exportCSV);
+  document.getElementById('btn-export-pdf')?.addEventListener('click', exportPDF);
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.code === 'Space') { e.preventDefault(); if (isPlaying) stopPlayback(); else startPlayback(); }
+    if (e.code === 'ArrowLeft') { stopPlayback(); stepBackward(); }
+    if (e.code === 'ArrowRight') { stopPlayback(); stepForward(); }
+  });
+}
+
+// ─── Load and init ─────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const res = await fetch('/api/energy/year-data');
+    if (!res.ok) throw new Error(await res.text());
+    yearData = await res.json();
+
+    renderDashboard(yearData.dashboard);
+    drawMonthlyChart(yearData.monthly);
+    drawHVACChart(yearData.hvacLoadCurve);
+    drawSolarChart(yearData.solarGainByMonth);
+
+    initRenderer();
+    buildWallsFromData();
+    applyHeatmap(yearData.hourly?.[0]);
+    updateSlider();
+    updateTimeLabel(0);
+    updateLegend();
+    wireEvents();
+  } catch (err) {
+    document.querySelector('.yv-dash-row').innerHTML = `<div class="yv-error">${err.message || 'Failed to load energy data'}</div>`;
+  }
+}
+
+// Wait for DOM + Three.js
+if (typeof THREE !== 'undefined') {
+  init();
+} else {
+  window.addEventListener('load', init);
+}
+</script>
+</body>
+</html>

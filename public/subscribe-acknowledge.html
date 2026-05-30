@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceptable Use Acknowledgement — Atlantist</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0a1018">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f1117;
+    color: #e4e8f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card {
+    background: #1a1d27;
+    border: 1px solid #2a2d3d;
+    border-radius: 12px;
+    padding: 40px 48px;
+    max-width: 680px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #6366f1;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+    display: block;
+    text-decoration: none;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #f0f4ff;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    color: #7a8099;
+    font-size: 14px;
+    margin-bottom: 32px;
+  }
+
+  .banner {
+    background: linear-gradient(135deg, #1e1b3a 0%, #1a2040 100%);
+    border: 1px solid #3b3680;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 28px;
+  }
+
+  .banner h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #a5b4fc;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .banner h2::before {
+    content: '⚠';
+    font-size: 16px;
+  }
+
+  .banner ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .banner li {
+    font-size: 14px;
+    color: #c5cce8;
+    line-height: 1.6;
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .banner li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #6366f1;
+    font-weight: 700;
+  }
+
+  .process-block {
+    background: #141720;
+    border: 1px solid #252840;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 28px;
+  }
+
+  .process-block h3 {
+    font-size: 13px;
+    font-weight: 600;
+    color: #7a8099;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 14px;
+  }
+
+  .process-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13px;
+    color: #c5cce8;
+    line-height: 1.5;
+  }
+
+  .step-num {
+    background: #2a2d4a;
+    color: #a5b4fc;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .ack-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #141720;
+    border: 1px solid #252840;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .ack-row:hover {
+    border-color: #6366f1;
+  }
+
+  .ack-row.checked {
+    border-color: #4f46e5;
+    background: #1a1d35;
+  }
+
+  .ack-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #6366f1;
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+  }
+
+  .ack-label {
+    font-size: 14px;
+    color: #d0d5ee;
+    line-height: 1.6;
+    cursor: pointer;
+  }
+
+  .ack-label a {
+    color: #818cf8;
+    text-decoration: underline;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .btn-proceed {
+    background: #4f46e5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+  }
+
+  .btn-proceed:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #4f46e5;
+  }
+
+  .btn-proceed:not(:disabled):hover {
+    background: #4338ca;
+  }
+
+  .btn-cancel {
+    background: none;
+    border: none;
+    color: #7a8099;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 4px 0;
+  }
+
+  .btn-cancel:hover { color: #c5cce8; }
+
+  .appeal-note {
+    margin-top: 28px;
+    font-size: 12px;
+    color: #555a77;
+    line-height: 1.6;
+  }
+
+  .appeal-note a { color: #6366f1; text-decoration: none; }
+  .appeal-note a:hover { text-decoration: underline; }
+
+  .error-msg {
+    background: #2a1515;
+    border: 1px solid #7f1d1d;
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: #fca5a5;
+    font-size: 14px;
+    margin-bottom: 20px;
+    display: none;
+  }
+
+  .spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    body { padding: 16px; align-items: flex-start; padding-top: 48px; }
+    .card { padding: 28px 20px; border-radius: 10px; }
+    .logo { margin-bottom: 24px; font-size: 16px; }
+    h1 { font-size: 20px; }
+    .subtitle { font-size: 13px; margin-bottom: 24px; }
+    .banner { padding: 20px 16px; }
+    .banner h2 { font-size: 14px; margin-bottom: 14px; }
+    .banner li { font-size: 13px; }
+    .process-block { padding: 16px; }
+    .process-block h3 { font-size: 12px; }
+    .step { font-size: 12px; }
+    .ack-row { padding: 14px 16px; gap: 10px; }
+    .ack-label { font-size: 13px; line-height: 1.55; }
+    .actions { flex-direction: column; gap: 10px; }
+    .btn-proceed { width: 100%; font-size: 14px; padding: 14px; border-radius: 8px; }
+    .btn-cancel { text-align: center; font-size: 13px; }
+    .appeal-note { font-size: 11px; }
+    .error-msg { font-size: 13px; }
+  }
+
+  @media (max-width: 400px) {
+    body { padding: 12px; padding-top: 40px; }
+    .card { padding: 20px 16px; }
+    h1 { font-size: 18px; }
+    .banner { padding: 16px 12px; }
+    .banner li { font-size: 12px; padding-left: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <a href="/" class="logo">Atlantist</a>
+
+  <h1>Before you subscribe</h1>
+  <p class="subtitle">Please review our Acceptable Use &amp; Safety policy. This takes 30 seconds.</p>
+
+  <div class="banner">
+    <h2>Acceptable Use &amp; Safety</h2>
+    <ul>
+      <li><strong>Atlantist is for lawful architectural and engineering work only.</strong> You may not use it to design, model, document, or share any substance, structure, object, system, or assembly intended to cause harm to any person, property, or the environment.</li>
+      <li>Prohibited content includes but is not limited to: weapons, explosive devices, structures designed to fail, illicit substance synthesis apparatus, and surveillance or restraint equipment intended for non-consensual use.</li>
+      <li>Intent is inferred from model content, descriptions, metadata, and communications. "Hypothetical" framing does not exempt a model from policy review.</li>
+    </ul>
+  </div>
+
+  <div class="process-block">
+    <h3>What happens if a project is reported</h3>
+    <div class="process-steps">
+      <div class="step"><span class="step-num">1</span><span><strong>Automatic lock</strong> — the project is immediately locked pending review.</span></div>
+      <div class="step"><span class="step-num">2</span><span><strong>Human review</strong> — the Atlantist Trust &amp; Safety team reviews within 72 hours.</span></div>
+      <div class="step"><span class="step-num">3</span><span><strong>Uphold</strong> — project is permanently erased; account enters a 30-day export-only grace period, then suspension.</span></div>
+      <div class="step"><span class="step-num">4</span><span><strong>Dismiss</strong> — lock removed; you receive 50% off your next 3 billing cycles as compensation.</span></div>
+    </div>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <label class="ack-row" id="ackRow">
+    <input type="checkbox" id="ackCheckbox" onchange="onAckChange()">
+    <span class="ack-label">I have read the <a href="/legal/terms#acceptable-use-safety" target="_blank" rel="noopener">Acceptable Use &amp; Safety terms</a>. I understand that harmful-intent models are erased and may result in account suspension.</span>
+  </label>
+
+  <div class="actions">
+    <button class="btn-proceed" id="proceedBtn" disabled onclick="proceed()">
+      Continue to checkout <span class="spinner" id="spinner"></span>
+    </button>
+    <button class="btn-cancel" onclick="history.back()">Go back</button>
+  </div>
+
+  <p class="appeal-note">
+    You may appeal any Trust &amp; Safety decision within 14 days by emailing <a href="mailto:support@atlantist.cloud">support@atlantist.cloud</a>.<br>
+    Full policy: <a href="/legal/terms#acceptable-use-safety" target="_blank" rel="noopener">Terms of Service §4A</a> &nbsp;·&nbsp; <a href="/legal/content-policy" target="_blank" rel="noopener">Content Policy</a>
+  </p>
+</div>
+
+<script src="/js/boot-safety.js"></script>
+<script>
+  // plan is passed via query string: ?plan=monthly or ?plan=yearly
+  const params = new URLSearchParams(location.search);
+  const plan = params.get('plan') || 'monthly';
+
+  function onAckChange() {
+    const checked = document.getElementById('ackCheckbox').checked;
+    document.getElementById('proceedBtn').disabled = !checked;
+    document.getElementById('ackRow').classList.toggle('checked', checked);
+  }
+
+  async function proceed() {
+    const btn = document.getElementById('proceedBtn');
+    const spinner = document.getElementById('spinner');
+    const errorMsg = document.getElementById('errorMsg');
+
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+    errorMsg.style.display = 'none';
+
+    try {
+      // 1. Record acknowledgement
+      const ackRes = await fetch('/api/subscribe-ack', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ acknowledged: true })
+      });
+
+      if (!ackRes.ok) {
+        const data = await ackRes.json().catch(() => ({}));
+        if (ackRes.status === 401) {
+          // Not logged in — redirect to app, then back here
+          location.href = '/app';
+          return;
+        }
+        throw new Error(data.error || 'Failed to record acknowledgement');
+      }
+
+      // 2. Create Stripe checkout session
+      const checkoutRes = await fetch('/api/billing/checkout', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan })
+      });
+
+      const checkoutData = await checkoutRes.json();
+
+      if (!checkoutRes.ok) {
+        throw new Error(checkoutData.error || 'Failed to create checkout session');
+      }
+
+      // 3. Redirect to Stripe checkout
+      location.href = checkoutData.url;
+    } catch (err) {
+      errorMsg.textContent = err.message;
+      errorMsg.style.display = 'block';
+      spinner.style.display = 'none';
+      btn.disabled = false;
+    }
+  }
+</script>
+</body>
+</html>

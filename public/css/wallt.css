@@ -1,0 +1,720 @@
+/* ============================================================
+   Wallt — AI Companion Widget Styles (Phase 34A)
+   Dark cinematic theme matching Atlantist app palette.
+   Floating chat widget, bottom-right, draggable expand/collapse.
+   ============================================================ */
+
+/* ── Widget overlay ──────────────────────────────────────── */
+#wallt-overlay {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: var(--z-widget, 700);
+  font-family: var(--font, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif);
+  pointer-events: none;
+}
+
+#wallt-trigger {
+  pointer-events: all;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a2a3a 0%, #2a4a6a 100%);
+  border: 2px solid #3a6a9a;
+  box-shadow: 0 4px 24px rgba(0,0,0,.5), 0 0 0 1px rgba(74,122,189,.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s, box-shadow .2s;
+  position: relative;
+}
+
+#wallt-trigger:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 32px rgba(0,0,0,.6), 0 0 16px rgba(74,122,189,.4);
+}
+
+#wallt-trigger svg { width: 26px; height: 26px; }
+
+#wallt-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 14px;
+  height: 14px;
+  background: #4caf50;
+  border-radius: 50%;
+  border: 2px solid #1a1a1a;
+  animation: wallt-pulse 2s infinite;
+}
+
+@keyframes wallt-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: .8; }
+}
+
+/* ── Chat panel ──────────────────────────────────────────── */
+#wallt-panel {
+  pointer-events: all;
+  position: absolute;
+  bottom: 68px;
+  right: 0;
+  width: 380px;
+  max-height: 560px;
+  background: #161616;
+  border: 1px solid #2a3a4a;
+  border-radius: 12px;
+  box-shadow: 0 16px 64px rgba(0,0,0,.7), 0 0 0 1px rgba(74,122,189,.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: opacity .25s, transform .25s;
+  transform-origin: bottom right;
+}
+
+#wallt-panel.collapsed {
+  opacity: 0;
+  transform: scale(.85) translateY(16px);
+  pointer-events: none;
+}
+
+#wallt-panel.expanded {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* ── Panel header ────────────────────────────────────────── */
+#wallt-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #1a2535 0%, #1a2a3a 100%);
+  border-bottom: 1px solid #2a3a4a;
+  flex-shrink: 0;
+}
+
+#wallt-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3a6a9a 0%, #5b9bd5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+#wallt-header-info { flex: 1; min-width: 0; }
+#wallt-header-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #cfe3f5;
+  letter-spacing: -.2px;
+}
+#wallt-header-sub {
+  font-size: 11px;
+  color: #5b8ab5;
+  margin-top: 1px;
+}
+
+#wallt-header-actions { display: flex; gap: 6px; }
+
+.wallt-icon-btn {
+  background: none;
+  border: none;
+  color: #5b8ab5;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, color .15s;
+}
+.wallt-icon-btn:hover { background: #2a3a4a; color: #cfe3f5; }
+.wallt-icon-btn svg { width: 16px; height: 16px; }
+
+/* ── Conversation selector ─────────────────────────────── */
+#wallt-conv-selector {
+  padding: 8px 12px;
+  border-bottom: 1px solid #1e2e3e;
+  background: #141414;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+#wallt-conv-selector::-webkit-scrollbar { display: none; }
+
+.wallt-conv-chip {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  background: #1e2e3e;
+  color: #7a9ab5;
+  border: 1px solid #2a3a4a;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, border-color .15s;
+}
+.wallt-conv-chip.active {
+  background: #1a3045;
+  border-color: #3a6a9a;
+  color: #5b9bd5;
+}
+.wallt-conv-chip:hover:not(.active) { background: #243444; }
+
+/* ── Message area ─────────────────────────────────────── */
+#wallt-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+
+#wallt-messages::-webkit-scrollbar { width: 4px; }
+#wallt-messages::-webkit-scrollbar-track { background: transparent; }
+#wallt-messages::-webkit-scrollbar-thumb { background: #2a3a4a; border-radius: 2px; }
+
+/* ── Messages ─────────────────────────────────────────── */
+.wallt-msg {
+  display: flex;
+  gap: 10px;
+  animation: wallt-msg-in .2s ease-out;
+}
+
+@keyframes wallt-msg-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.wallt-msg.user { flex-direction: row-reverse; }
+
+.wallt-msg-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.wallt-msg.user .wallt-msg-avatar { background: #2a4a6a; }
+.wallt-msg.wallt .wallt-msg-avatar { background: linear-gradient(135deg, #3a6a9a 0%, #5b9bd5 100%); }
+
+.wallt-msg-body {
+  max-width: 76%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #d0dde8;
+}
+
+.wallt-msg.user .wallt-msg-body {
+  background: #1e3a5a;
+  border: 1px solid #2a5a8a;
+  border-bottom-right-radius: 4px;
+  color: #cfe3f5;
+}
+
+.wallt-msg.wallt .wallt-msg-body {
+  background: #1a2535;
+  border: 1px solid #2a3a4a;
+  border-bottom-left-radius: 4px;
+}
+
+/* Markdown content in messages */
+.wallt-msg-body p { margin: 0 0 6px; }
+.wallt-msg-body p:last-child { margin-bottom: 0; }
+.wallt-msg-body code {
+  background: #0d1a26;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: var(--font-mono, 'SF Mono', 'Cascadia Code', monospace);
+  font-size: 12px;
+  color: #5b9bd5;
+}
+.wallt-msg-body pre {
+  background: #0d1a26;
+  border: 1px solid #1e2e3e;
+  border-radius: 6px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  margin: 6px 0;
+}
+.wallt-msg-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 12px;
+  color: #a0c0e0;
+}
+.wallt-msg-body ul, .wallt-msg-body ol {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+.wallt-msg-body li { margin: 2px 0; }
+.wallt-msg-body strong { color: #cfe3f5; }
+.wallt-msg-body em { color: #8aafc5; }
+.wallt-msg-body a { color: #5b9bd5; }
+
+/* ── Typing indicator ─────────────────────────────────── */
+#wallt-typing {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px 4px;
+}
+
+#wallt-typing.visible { display: flex; }
+
+.wallt-typing-dots {
+  display: flex;
+  gap: 3px;
+  padding: 8px 12px;
+  background: #1a2535;
+  border: 1px solid #2a3a4a;
+  border-radius: 12px;
+  border-bottom-left-radius: 4px;
+}
+
+.wallt-typing-dots span {
+  width: 6px;
+  height: 6px;
+  background: #5b8ab5;
+  border-radius: 50%;
+  animation: wallt-dot 1.2s infinite;
+}
+.wallt-typing-dots span:nth-child(2) { animation-delay: .2s; }
+.wallt-typing-dots span:nth-child(3) { animation-delay: .4s; }
+
+@keyframes wallt-dot {
+  0%, 100% { transform: translateY(0); opacity: .4; }
+  50% { transform: translateY(-3px); opacity: 1; }
+}
+
+/* ── Sources (Phase 34C) ─────────────────────────────── */
+.wallt-sources {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.wallt-sources-label {
+  font-size: 10px;
+  color: #4a6a8a;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 2px;
+}
+.wallt-source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #5b9bd5;
+  background: #1a2535;
+  border: 1px solid #2a3a4a;
+  border-radius: 6px;
+  padding: 3px 8px;
+  text-decoration: none;
+  transition: background .15s, border-color .15s, color .15s;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wallt-source-chip:hover {
+  background: #1e3045;
+  border-color: #3a6a9a;
+  color: #7ab8e5;
+}
+
+/* ── Project pill (Phase 34C) ───────────────────────── */
+#wallt-project-pill {
+  display: none;
+  flex-shrink: 0;
+  max-width: 130px;
+  background: #1a3045;
+  border: 1px solid #2a5a8a;
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-size: 10px;
+  color: #5b9bd5;
+  cursor: default;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background .15s;
+}
+#wallt-project-pill:hover { background: #1e3a5a; }
+
+/* ── Input area ───────────────────────────────────────── */
+#wallt-input-area {
+  padding: 10px 12px;
+  border-top: 1px solid #1e2e3e;
+  background: #141414;
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+#wallt-input {
+  flex: 1;
+  background: #1a2535;
+  border: 1px solid #2a3a4a;
+  border-radius: 8px;
+  color: #d0dde8;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 8px 12px;
+  resize: none;
+  max-height: 120px;
+  min-height: 36px;
+  outline: none;
+  transition: border-color .15s;
+  line-height: 1.4;
+}
+
+#wallt-input:focus { border-color: #3a6a9a; }
+#wallt-input::placeholder { color: #4a6a8a; }
+
+#wallt-send-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2a4a6a 0%, #3a6a9a 100%);
+  border: 1px solid #4a7abd;
+  color: #cfe3f5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, transform .1s;
+}
+
+#wallt-send-btn:hover { background: linear-gradient(135deg, #3a5a7a 0%, #4a7abd 100%); }
+#wallt-send-btn:active { transform: scale(.95); }
+#wallt-send-btn:disabled { opacity: .4; cursor: default; transform: none; }
+#wallt-send-btn svg { width: 16px; height: 16px; }
+
+/* ── Welcome state ────────────────────────────────────── */
+#wallt-welcome {
+  padding: 24px 20px;
+  text-align: center;
+}
+
+#wallt-welcome-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a2a3a 0%, #2a4a6a 100%);
+  border: 1px solid #3a6a9a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  font-size: 22px;
+}
+
+#wallt-welcome h3 {
+  font-size: 15px;
+  color: #cfe3f5;
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+#wallt-welcome p {
+  font-size: 12px;
+  color: #5b8ab5;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.wallt-quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.wallt-quick-btn {
+  padding: 8px 12px;
+  background: #1a2535;
+  border: 1px solid #2a3a4a;
+  border-radius: 8px;
+  color: #7a9ab5;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s, border-color .15s, color .15s;
+  font-family: inherit;
+}
+.wallt-quick-btn:hover {
+  background: #1e3045;
+  border-color: #3a6a9a;
+  color: #5b9bd5;
+}
+
+/* ── Phase 34D: Action chips ──────────────────────────── */
+.wallt-action-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.wallt-action-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 16px;
+  border: 1px solid #3a6a9a;
+  background: rgba(58,106,154,.15);
+  color: #7ab5e0;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.wallt-action-chip:hover:not(:disabled) {
+  background: rgba(91,155,213,.25);
+  border-color: #5b9bd5;
+  color: #aad4f5;
+}
+
+.wallt-action-chip:disabled {
+  cursor: default;
+  opacity: .7;
+}
+
+/* Confirmation required — amber accent */
+.wallt-action-chip.wallt-action-confirm {
+  border-color: #7a6a2a;
+  background: rgba(122,106,42,.15);
+  color: #d4bc6a;
+}
+
+/* First-click confirmed state */
+.wallt-action-chip.wallt-action-confirmed {
+  border-color: #c08020;
+  background: rgba(192,128,32,.2);
+  color: #f0c050;
+}
+
+/* Executing state */
+.wallt-action-chip.wallt-action-executing {
+  border-color: #3a6a9a;
+  background: rgba(58,106,154,.3);
+  color: #8ab8e8;
+}
+
+/* Done state — green */
+.wallt-action-chip.wallt-action-done {
+  border-color: #2d7a42;
+  background: rgba(45,122,66,.2);
+  color: #5ecb7a;
+}
+
+/* Failed state — red */
+.wallt-action-chip.wallt-action-failed {
+  border-color: #7a2d2d;
+  background: rgba(122,45,45,.2);
+  color: #e07070;
+}
+
+/* Undo chip */
+.wallt-action-chip.wallt-action-undo {
+  border-color: #4a4a7a;
+  background: rgba(74,74,122,.15);
+  color: #9090c0;
+}
+
+.wallt-action-chip.wallt-action-undo:hover:not(:disabled) {
+  background: rgba(100,100,180,.25);
+  color: #b0b0e0;
+}
+
+/* ── Tool attribution ─────────────────────────────────── */
+.wallt-tool-attribution {
+  font-size: 10px;
+  color: #3a5a7a;
+  padding: 6px 16px 8px;
+  text-align: center;
+  border-top: 1px solid #1a2535;
+  flex-shrink: 0;
+}
+
+/* ── Voice panel (Phase 36K) ──────────────────────────── */
+#wallt-voice-panel {
+  border-top: 1px solid #2a3a4a;
+  padding: 12px;
+  background: #161616;
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wallt-voice-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #cfe3f5;
+  font-size: 13px;
+  font-weight: 600;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #1e2e3e;
+}
+
+.wallt-voice-panel-header .wallt-icon-btn { color: #5b8ab5; }
+
+.wallt-voice-toggle-row,
+.wallt-voice-volume-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #7a9ab5;
+}
+
+.wallt-voice-toggle-row span,
+.wallt-voice-volume-row span:first-child {
+  flex: 1;
+}
+
+/* Toggle switch */
+.wallt-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.wallt-toggle-switch input { opacity: 0; width: 0; height: 0; }
+.wallt-toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #2a3a4a;
+  border-radius: 20px;
+  transition: background .2s;
+}
+.wallt-toggle-slider::before {
+  content: '';
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background: #7a9ab5;
+  border-radius: 50%;
+  transition: transform .2s, background .2s;
+}
+.wallt-toggle-switch input:checked + .wallt-toggle-slider {
+  background: #2a5a3a;
+}
+.wallt-toggle-switch input:checked + .wallt-toggle-slider::before {
+  transform: translateX(16px);
+  background: #5bdb7a;
+}
+
+.wallt-voice-volume-row input[type=range] {
+  accent-color: #5b9bd5;
+}
+
+#wallt-volume-label {
+  min-width: 36px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #5b9bd5;
+}
+
+.wallt-voice-quota {
+  font-size: 10px;
+  color: #4a7a4a;
+  background: #1a2a1a;
+  border: 1px solid #2a3a2a;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+.wallt-voice-quota-unavailable {
+  color: #7a6a2a;
+  background: #2a2a1a;
+  border-color: #3a3a2a;
+}
+
+.wallt-voice-cards-label {
+  font-size: 10px;
+  color: #4a6a8a;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.wallt-voice-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.wallt-voice-card {
+  background: #1a2535;
+  border: 1px solid #2a3a4a;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.wallt-voice-card:hover:not(.selected) {
+  background: #1e3045;
+  border-color: #3a6a9a;
+}
+.wallt-voice-card.selected {
+  background: #1a3045;
+  border-color: #5b9bd5;
+  box-shadow: 0 0 0 1px rgba(91,155,213,.3);
+}
+.wallt-voice-card-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #cfe3f5;
+  margin-bottom: 2px;
+}
+.wallt-voice-card-desc {
+  font-size: 10px;
+  color: #5b8ab5;
+  line-height: 1.3;
+}
+
+/* Voice toggle button in header */
+#wallt-voice-toggle {
+  display: none; /* shown via JS when voices loaded */
+}
+#wallt-voice-toggle.voice-active svg {
+  stroke: #5b9bd5;
+}
+
+/* Mobile: voice panel full-width */
+@media (max-width: 480px) {
+  #wallt-panel {
+    width: calc(100vw - 32px);
+    right: -16px;
+    max-height: 70vh;
+  }
+  #wallt-overlay { bottom: 16px; right: 16px; }
+}

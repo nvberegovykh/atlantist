@@ -1,0 +1,35 @@
+{
+  "env": {
+    "node": true,
+    "es2022": true,
+    "jest": true
+  },
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-console": "off",
+    "eqeqeq": ["error", "always"],
+    "no-var": "error",
+    "prefer-const": "warn",
+    "no-prototype-builtins": "error",
+    "no-return-await": "error",
+    "no-throw-literal": "error",
+    "no-unreachable": "error",
+    "no-unsafe-negation": "error",
+    "no-shadow": "warn",
+    "no-eval": "error",
+    "no-implied-eval": "error"
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "tests/",
+    "migrations/",
+    "jobs/",
+    "public/",
+    "coverage/"
+  ]
+}

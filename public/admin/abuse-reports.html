@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Report Queue — Atlantist Admin</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+<meta name="theme-color" content="#0c1420">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #0d0d0f; color: #e2e8f0; min-height: 100vh; }
+
+  .header { background: #1a1a2e; border-bottom: 1px solid #2d2d4a; padding: 14px 24px; display: flex; align-items: center; gap: 16px; }
+  .header a { color: #94a3b8; text-decoration: none; font-size: 13px; }
+  .header a:hover { color: #e2e8f0; }
+  .header h1 { font-size: 16px; font-weight: 600; }
+  .header .badge { background: #dc2626; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 1px solid #2d2d4a; padding-bottom: 0; }
+  .tab-btn { background: none; border: none; color: #64748b; font-size: 13px; font-weight: 500; padding: 10px 16px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab-btn.active { color: #e2e8f0; border-bottom-color: #4a7dbd; }
+  .tab-btn:hover { color: #e2e8f0; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .stat-card { background: #1a1a2e; border: 1px solid #2d2d4a; border-radius: 8px; padding: 16px; }
+  .stat-card .label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .stat-card .value { font-size: 26px; font-weight: 700; }
+  .stat-card.pending .value { color: #a5b4fc; }
+  .stat-card.upheld .value { color: #f87171; }
+  .stat-card.dismissed .value { color: #4ade80; }
+
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+  .filter-bar select, .filter-bar input { background: #1a1a2e; border: 1px solid #2d2d4a; color: #e2e8f0; border-radius: 6px; padding: 7px 10px; font-size: 13px; }
+  .filter-bar select:focus, .filter-bar input:focus { outline: 2px solid #4a7dbd; }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid #2d2d4a; cursor: pointer; user-select: none; }
+  thead th:hover { color: #e2e8f0; }
+  tbody td { padding: 12px; border-bottom: 1px solid #1a1a2e; font-size: 13px; vertical-align: top; }
+  tbody tr:hover td { background: #1a1a2e; }
+
+  .status-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .status-pending   { background: #1e1b4b; color: #a5b4fc; }
+  .status-upheld    { background: #450a0a; color: #fca5a5; }
+  .status-dismissed { background: #14532d; color: #86efac; }
+
+  .reason-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; background: #2d2d4a; color: #94a3b8; }
+
+  .expand-row td { background: #12121a; border-bottom: 1px solid #2d2d4a; }
+  .expand-content { padding: 0 12px; }
+  .expand-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; padding: 16px 0; }
+  .expand-field label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: .04em; display: block; margin-bottom: 4px; }
+  .expand-field p { font-size: 13px; color: #e2e8f0; }
+  .desc-box { background: #1a1a2e; border: 1px solid #2d2d4a; border-radius: 6px; padding: 10px 12px; font-size: 13px; color: #e2e8f0; line-height: 1.5; grid-column: 1 / -1; white-space: pre-wrap; word-break: break-word; }
+
+  .action-bar { display: flex; gap: 8px; padding: 12px 0; border-top: 1px solid #2d2d4a; margin-top: 8px; }
+  .btn-uphold  { background: #dc2626; color: #fff; border: none; padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-uphold:hover  { background: #b91c1c; }
+  .btn-dismiss { background: #15803d; color: #fff; border: none; padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-dismiss:hover { background: #166534; }
+  .notes-input { flex: 1; background: #1a1a2e; border: 1px solid #2d2d4a; color: #e2e8f0; border-radius: 6px; padding: 7px 10px; font-size: 13px; }
+  .notes-input:focus { outline: 2px solid #4a7dbd; }
+
+  .log-section { margin-top: 32px; }
+  .section-title { font-size: 13px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 12px; }
+
+  .empty-state { text-align: center; padding: 60px 24px; color: #64748b; }
+  .empty-state .icon { font-size: 36px; margin-bottom: 12px; }
+  .empty-state p { font-size: 14px; }
+
+  /* Confirmation modal */
+  .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: none; align-items: center; justify-content: center; z-index: 9999; }
+  .confirm-overlay.active { display: flex; }
+  .confirm-box { background: #1a1a2e; border: 1px solid #2d2d4a; border-radius: 10px; padding: 28px; max-width: 420px; width: 100%; }
+  .confirm-box h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .confirm-box p { font-size: 13px; color: #94a3b8; margin-bottom: 20px; line-height: 1.5; }
+  .confirm-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .btn-cancel { background: #2d2d4a; color: #e2e8f0; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+  .btn-cancel:hover { background: #3d3d5a; }
+
+  .loading { text-align: center; padding: 40px; color: #64748b; }
+
+  @media (max-width: 768px) {
+    .container { padding: 16px; }
+    .header { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+    .header h1 { font-size: 14px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .stat-card .value { font-size: 22px; }
+    .filter-bar { gap: 6px; }
+    .filter-bar select, .filter-bar input { font-size: 12px; padding: 6px 8px; }
+    table { display: block; overflow-x: auto; white-space: nowrap; }
+    thead th, tbody td { padding: 8px 10px; font-size: 12px; }
+    .action-bar { flex-wrap: wrap; }
+    .notes-input { width: 100%; }
+    .expand-grid { grid-template-columns: 1fr 1fr; }
+    .desc-box { grid-column: 1 / -1; }
+    .confirm-box { margin: 16px; padding: 20px; }
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 12px; }
+    .header { padding: 10px 12px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-card .value { font-size: 20px; }
+    .stat-card .label { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="/admin/abuse">← Scan Queue</a>
+  <h1>User Report Queue</h1>
+  <span class="badge" id="pending-badge">…</span>
+  <div style="flex:1"></div>
+  <a href="/app">← Back to App</a>
+</div>
+
+<div class="container">
+
+  <div class="stat-grid">
+    <div class="stat-card pending"><div class="label">Pending</div><div class="value" id="stat-pending">—</div></div>
+    <div class="stat-card upheld"><div class="label">Upheld</div><div class="value" id="stat-upheld">—</div></div>
+    <div class="stat-card dismissed"><div class="label">Dismissed</div><div class="value" id="stat-dismissed">—</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="pending">Pending</button>
+    <button class="tab-btn" data-tab="upheld">Upheld</button>
+    <button class="tab-btn" data-tab="dismissed">Dismissed</button>
+    <button class="tab-btn" data-tab="all">All</button>
+    <button class="tab-btn" data-tab="log">Audit Log</button>
+  </div>
+
+  <!-- Reports table -->
+  <div id="reports-section">
+    <div id="reports-container">
+      <div class="loading">Loading reports…</div>
+    </div>
+  </div>
+
+  <!-- Audit log -->
+  <div id="log-section" class="hidden log-section">
+    <div class="section-title">Decision Audit Log</div>
+    <div id="log-container"><div class="loading">Loading…</div></div>
+  </div>
+
+</div>
+
+<!-- Confirmation modal -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <h3 id="confirm-title">Confirm Action</h3>
+    <p id="confirm-body">Are you sure?</p>
+    <textarea id="confirm-notes" placeholder="Optional decision notes…" rows="2"
+      style="width:100%;background:#0d0d0f;border:1px solid #2d2d4a;color:#e2e8f0;border-radius:6px;padding:8px 10px;font-size:13px;margin-bottom:16px;resize:vertical"></textarea>
+    <div class="confirm-actions">
+      <button class="btn-cancel" id="confirm-cancel">Cancel</button>
+      <button id="confirm-ok" style="padding:8px 20px;border-radius:6px;border:none;font-size:13px;font-weight:600;cursor:pointer">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/boot-safety.js"></script>
+<script>
+(function () {
+  let currentTab = 'pending';
+  let reports = [];
+  let expandedId = null;
+  let pendingDecide = null; // { report_id, decision }
+
+  const REASON_LABELS = {
+    harmful_intent: 'Harmful intent',
+    illegal_substance_or_structure: 'Illegal structure',
+    weapon_design: 'Weapon design',
+    other: 'Other'
+  };
+
+  // ── Fetch & render ──────────────────────────────────────────────────────
+
+  async function loadReports(status) {
+    const qs = status && status !== 'all' ? `?status=${status}` : '';
+    const res = await fetch(`/api/abuse/reports${qs}`);
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
+    return data.reports || [];
+  }
+
+  async function loadAll() {
+    const [pending, upheld, dismissed] = await Promise.all([
+      loadReports('pending'),
+      loadReports('upheld'),
+      loadReports('dismissed')
+    ]);
+
+    document.getElementById('stat-pending').textContent = pending.length;
+    document.getElementById('stat-upheld').textContent = upheld.length;
+    document.getElementById('stat-dismissed').textContent = dismissed.length;
+
+    const badge = document.getElementById('pending-badge');
+    badge.textContent = pending.length + ' pending';
+    badge.style.display = pending.length ? 'inline' : 'none';
+
+    const allMap = { pending, upheld, dismissed };
+    allMap.all = [...pending, ...upheld, ...dismissed].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    reports = allMap;
+    renderTable(currentTab);
+  }
+
+  function renderTable(tab) {
+    const container = document.getElementById('reports-container');
+    const list = tab === 'all' ? reports.all
+      : reports[tab] || [];
+
+    if (!list || list.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div class="icon">✓</div><p>No reports in this category.</p></div>';
+      return;
+    }
+
+    const rows = list.map(r => `
+      <tr data-id="${r.id}" class="report-row" style="cursor:pointer">
+        <td><code style="font-size:11px;color:#64748b">#${r.id}</code></td>
+        <td><strong>${esc(r.project_name || '—')}</strong><br><span style="font-size:11px;color:#64748b">#${r.project_id}</span></td>
+        <td>${REASON_LABELS[r.reason] || r.reason}</td>
+        <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+        <td style="color:#94a3b8">${esc(r.reporter_email || '—')}</td>
+        <td style="color:#94a3b8">${esc(r.owner_email || '—')}</td>
+        <td style="white-space:nowrap;color:#64748b">${fmtDate(r.created_at)}</td>
+        <td style="text-align:right">
+          ${r.status === 'pending' ? `
+            <button class="btn-uphold" onclick="startDecide(${r.id},'uphold',event)">Uphold</button>
+            <button class="btn-dismiss" style="margin-left:6px" onclick="startDecide(${r.id},'dismiss',event)">Dismiss</button>
+          ` : '<span style="font-size:11px;color:#64748b">decided</span>'}
+        </td>
+      </tr>
+      <tr id="expand-${r.id}" class="expand-row hidden">
+        <td colspan="8">
+          <div class="expand-content">
+            <div class="expand-grid">
+              <div class="expand-field"><label>Project created</label><p>${fmtDate(r.project_created_at)}</p></div>
+              <div class="expand-field"><label>Report filed</label><p>${fmtDate(r.created_at)}</p></div>
+              <div class="expand-field"><label>Decision</label><p>${r.status !== 'pending' ? `${r.status} on ${fmtDate(r.decided_at)}` : '—'}</p></div>
+              <div class="desc-box">${esc(r.description)}</div>
+              ${r.decision_notes ? `<div class="expand-field" style="grid-column:1/-1"><label>Admin notes</label><p>${esc(r.decision_notes)}</p></div>` : ''}
+            </div>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+
+    container.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Project</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Reporter</th>
+            <th>Owner</th>
+            <th>Filed</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    `;
+
+    // Row expand on click (not on action buttons)
+    container.querySelectorAll('tr.report-row').forEach(tr => {
+      tr?.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') return;
+        const id = tr.dataset.id;
+        const expRow = document.getElementById(`expand-${id}`);
+        expRow.classList.toggle('hidden');
+      });
+    });
+  }
+
+  // ── Audit log ──────────────────────────────────────────────────────────
+
+  async function loadLog() {
+    const res = await fetch('/api/abuse/');
+    if (!res.ok) return;
+    const data = await res.json();
+    const actions = (data.recentActions || []).filter(a => a.action === 'report_upheld' || a.action === 'report_dismissed');
+    const container = document.getElementById('log-container');
+    if (!actions.length) {
+      container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No decisions yet.</p></div>';
+      return;
+    }
+    const rows = actions.map(a => {
+      let det = {};
+      try { det = JSON.parse(a.details || '{}'); } catch (_) {}
+      return `<tr>
+        <td><code style="font-size:11px;color:#64748b">${fmtDate(a.created_at)}</code></td>
+        <td><span class="status-badge ${a.action === 'report_upheld' ? 'status-upheld' : 'status-dismissed'}">${a.action === 'report_upheld' ? 'upheld' : 'dismissed'}</span></td>
+        <td style="color:#94a3b8">${esc(a.actor_email || '—')}</td>
+        <td style="color:#64748b">Report #${det.report_id || '?'} / Project #${det.project_id || '?'}</td>
+        <td style="color:#94a3b8">${esc(det.notes || '—')}</td>
+      </tr>`;
+    }).join('');
+    container.innerHTML = `<table>
+      <thead><tr><th>Decided at</th><th>Decision</th><th>Admin</th><th>Target</th><th>Notes</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  // ── Decision flow ──────────────────────────────────────────────────────
+
+  window.startDecide = function (reportId, decision, e) {
+    e && e.stopPropagation();
+    pendingDecide = { report_id: reportId, decision };
+    const confirmOverlay = document.getElementById('confirm-overlay');
+    document.getElementById('confirm-title').textContent = decision === 'uphold' ? 'Uphold report?' : 'Dismiss report?';
+    document.getElementById('confirm-body').textContent = decision === 'uphold'
+      ? 'This will ban the project and mark the report as upheld.'
+      : 'This will restore the project and issue a 50% compensation coupon to the owner.';
+    document.getElementById('confirm-ok').textContent = decision === 'uphold' ? 'Uphold' : 'Dismiss';
+    document.getElementById('confirm-ok').style.background = decision === 'uphold' ? '#dc2626' : '#15803d';
+    document.getElementById('confirm-notes').value = '';
+    confirmOverlay.classList.add('active');
+  };
+
+  document.getElementById('confirm-cancel')?.addEventListener('click', () => {
+    document.getElementById('confirm-overlay').classList.remove('active');
+    pendingDecide = null;
+  });
+
+  document.getElementById('confirm-ok')?.addEventListener('click', async () => {
+    if (!pendingDecide) return;
+    const notes = document.getElementById('confirm-notes').value.trim();
+    const { report_id, decision } = pendingDecide;
+    document.getElementById('confirm-ok').disabled = true;
+    document.getElementById('confirm-ok').textContent = 'Processing…';
+
+    try {
+      const res = await fetch(`/api/abuse/reports/${report_id}/decide`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decision, notes: notes || undefined })
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        alert('Error: ' + (d.error || 'Unknown error'));
+        document.getElementById('confirm-ok').disabled = false;
+        document.getElementById('confirm-ok').textContent = 'Confirm';
+        return;
+      }
+      document.getElementById('confirm-overlay').classList.remove('active');
+      pendingDecide = null;
+      await loadAll();
+    } catch (err) {
+      alert('Network error. Try again.');
+      document.getElementById('confirm-ok').disabled = false;
+      document.getElementById('confirm-ok').textContent = 'Confirm';
+    }
+  });
+
+  // ── Tabs ──────────────────────────────────────────────────────────────
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn?.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTab = btn.dataset.tab;
+
+      const reportsSection = document.getElementById('reports-section');
+      const logSection = document.getElementById('log-section');
+
+      if (currentTab === 'log') {
+        reportsSection.classList.add('hidden');
+        logSection.classList.remove('hidden');
+        loadLog();
+      } else {
+        reportsSection.classList.remove('hidden');
+        logSection.classList.add('hidden');
+        renderTable(currentTab);
+      }
+    });
+  });
+
+  // ── Helpers ───────────────────────────────────────────────────────────
+
+  function esc(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    try { return new Date(iso).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+    catch(_) { return iso; }
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────
+  loadAll().catch(err => {
+    document.getElementById('reports-container').innerHTML = `<div class="empty-state"><div class="icon">⚠</div><p>${esc(err.message)}</p></div>`;
+  });
+})();
+</script>
+</body>
+</html>

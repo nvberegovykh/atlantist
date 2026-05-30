@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f1923"/>
+      <stop offset="60%" stop-color="#0d2236"/>
+      <stop offset="100%" stop-color="#0f1923"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3479c4"/>
+      <stop offset="100%" stop-color="#7fb3de"/>
+    </linearGradient>
+    <!-- Subtle grid pattern for background texture -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1d5fa6" stroke-width="0.3" opacity="0.3"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- Subtle blueprint grid overlay -->
+  <rect width="1200" height="630" fill="url(#grid)" opacity="0.4"/>
+
+  <!-- Decorative concentric rings (Atlantis motif, large) -->
+  <circle cx="900" cy="315" r="380" fill="none" stroke="#1d5fa6" stroke-width="1" opacity="0.12"/>
+  <circle cx="900" cy="315" r="280" fill="none" stroke="#1d5fa6" stroke-width="1" opacity="0.18"/>
+  <circle cx="900" cy="315" r="190" fill="none" stroke="#3479c4" stroke-width="1" opacity="0.25"/>
+  <circle cx="900" cy="315" r="115" fill="none" stroke="#3479c4" stroke-width="1.5" opacity="0.35"/>
+  <circle cx="900" cy="315" r="60" fill="none" stroke="#7fb3de" stroke-width="1.5" opacity="0.5"/>
+  <circle cx="900" cy="315" r="24" fill="url(#accent)" opacity="0.7"/>
+
+  <!-- Top accent bar -->
+  <rect x="0" y="0" width="1200" height="3" fill="#1d5fa6"/>
+
+  <!-- Left content area -->
+  <!-- Monogram (large) -->
+  <circle cx="120" cy="180" r="60" fill="none" stroke="#7fb3de" stroke-width="2" opacity="0.18"/>
+  <circle cx="120" cy="180" r="44" fill="none" stroke="#7fb3de" stroke-width="2" opacity="0.35"/>
+  <circle cx="120" cy="180" r="28" fill="none" stroke="#7fb3de" stroke-width="2" opacity="0.6"/>
+  <circle cx="120" cy="180" r="11" fill="url(#accent)"/>
+  <line x1="88" y1="218" x2="120" y2="130" stroke="#f7f6f3" stroke-width="5.5" stroke-linecap="round"/>
+  <line x1="152" y1="218" x2="120" y2="130" stroke="#f7f6f3" stroke-width="5.5" stroke-linecap="round"/>
+  <line x1="97" y1="196" x2="143" y2="196" stroke="#f7f6f3" stroke-width="5.5" stroke-linecap="round"/>
+
+  <!-- Wordmark -->
+  <text x="196" y="202" font-family="Georgia, serif" font-size="72" fill="#f7f6f3" letter-spacing="-2">Atlantist</text>
+
+  <!-- Tagline rule -->
+  <line x1="120" y1="252" x2="740" y2="252" stroke="#1d5fa6" stroke-width="1.5" opacity="0.5"/>
+
+  <!-- Tagline -->
+  <text x="120" y="296" font-family="Georgia, serif" font-size="22" fill="#7fb3de" letter-spacing="0.5">BIM 2.0 — Build smarter, coordinate faster.</text>
+
+  <!-- Feature pills -->
+  <rect x="120" y="340" width="180" height="36" rx="18" fill="#1d5fa6" opacity="0.4"/>
+  <text x="210" y="363" font-family="Georgia, serif" font-size="13" fill="#cfe3f5" text-anchor="middle">3D Model</text>
+
+  <rect x="316" y="340" width="180" height="36" rx="18" fill="#1d5fa6" opacity="0.4"/>
+  <text x="406" y="363" font-family="Georgia, serif" font-size="13" fill="#cfe3f5" text-anchor="middle">DAG Solver</text>
+
+  <rect x="512" y="340" width="180" height="36" rx="18" fill="#1d5fa6" opacity="0.4"/>
+  <text x="602" y="363" font-family="Georgia, serif" font-size="13" fill="#cfe3f5" text-anchor="middle">Energy Analysis</text>
+
+  <rect x="708" y="340" width="180" height="36" rx="18" fill="#1d5fa6" opacity="0.4"/>
+  <text x="798" y="363" font-family="Georgia, serif" font-size="13" fill="#cfe3f5" text-anchor="middle">IFC + RVT</text>
+
+  <!-- URL footer -->
+  <text x="120" y="580" font-family="Georgia, serif" font-size="16" fill="#8a8680">atlantist.cloud</text>
+
+  <!-- Bottom rule -->
+  <rect x="0" y="627" width="1200" height="3" fill="#1d5fa6"/>
+</svg>

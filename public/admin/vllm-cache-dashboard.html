@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KV Cache Monitor — Atlantist</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #0d0f14;
+    --surface:  #161a24;
+    --surface2: #1e2435;
+    --border:   #2a3048;
+    --text:     #c8d0e7;
+    --text-dim: #6b7594;
+    --green:    #34d399;
+    --amber:    #fbbf24;
+    --red:      #f87171;
+    --blue:     #60a5fa;
+    --purple:   #a78bfa;
+    --cyan:     #22d3ee;
+    --font:     'JetBrains Mono', 'Courier New', monospace;
+    --radius:   8px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  /* ── Header ─────────────────────────────────────────── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .logo-mark {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold; color: #fff;
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+  .backend-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+  .backend-badge.vllm { color: var(--green); border-color: #34d39944; }
+  .backend-badge.polsia { color: var(--blue); border-color: #60a5fa44; }
+  .header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  #last-updated {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .live-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .live-dot.stale { background: var(--amber); }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── Main layout ────────────────────────────────────── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 16px;
+    padding: 16px 24px;
+    align-items: start;
+  }
+  .left-col { display: flex; flex-direction: column; gap: 16px; }
+  .right-col { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── Card ───────────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  .card-header .card-icon { font-size: 16px; }
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+  }
+  .card-body { padding: 14px; }
+
+  /* ── KPI row ────────────────────────────────────────── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .kpi {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .kpi-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .kpi-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-dim);
+  }
+  .kpi-good { color: var(--green); }
+  .kpi-warn { color: var(--amber); }
+  .kpi-bad  { color: var(--red); }
+
+  /* ── Chart area ─────────────────────────────────────── */
+  .chart-container {
+    width: 100%;
+    height: 200px;
+    position: relative;
+  }
+
+  /* ── Sector health ──────────────────────────────────── */
+  .sector-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .sector-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    transition: border-color 0.3s;
+  }
+  .sector-card.ok     { border-color: #34d39955; }
+  .sector-card.warning { border-color: #fbbf2455; }
+  .sector-card.critical { border-color: #f8717155; }
+  .sector-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .sector-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .sector-status-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .sector-status-dot.ok       { background: var(--green); }
+  .sector-status-dot.warning  { background: var(--amber); }
+  .sector-status-dot.critical { background: var(--red); animation: pulse 1s ease-in-out infinite; }
+
+  .sector-detail {
+    font-size: 10px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .sector-detail strong { color: var(--text); }
+  .sector-staleness {
+    margin-top: 4px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .sector-staleness.ok       { color: var(--green); }
+  .sector-staleness.warning { color: var(--amber); }
+  .sector-staleness.critical { color: var(--red); }
+
+  /* ── Summary table ──────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  th {
+    text-align: left;
+    padding: 7px 10px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+  td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #ffffff08;
+    color: var(--text);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #ffffff04; }
+  .tier-core     { color: var(--blue); font-size: 10px; }
+  .tier-sector    { color: var(--purple); font-size: 10px; }
+  .tier-pipeline  { color: var(--cyan); font-size: 10px; }
+
+  .rate-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .rate-track {
+    flex: 1;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+    min-width: 60px;
+  }
+  .rate-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+  .rate-fill.good { background: var(--green); }
+  .rate-fill.warn { background: var(--amber); }
+  .rate-fill.bad  { background: var(--red); }
+
+  /* ── Alerts panel ────────────────────────────────────── */
+  .alert-item {
+    padding: 10px 14px;
+    border-bottom: 1px solid #ffffff08;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .alert-item:last-child { border-bottom: none; }
+  .alert-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .alert-dot.warning { background: var(--amber); }
+  .alert-dot.critical { background: var(--red); animation: pulse 0.8s ease-in-out infinite; }
+  .alert-content { flex: 1; }
+  .alert-msg { font-size: 12px; color: var(--text); line-height: 1.4; }
+  .alert-time { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+  .no-alerts {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .no-alerts span { display: inline-block; color: var(--green); }
+
+  /* ── GPU gauge ──────────────────────────────────────── */
+  .gauge-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  #gpu-gauge {
+    width: 180px;
+    height: 100px;
+  }
+  .gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 180px;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+  .gpu-status {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+    text-align: center;
+  }
+  .gpu-status.warn { color: var(--amber); }
+  .gpu-status.critical { color: var(--red); }
+
+  /* ── Eviction log ───────────────────────────────────── */
+  .eviction-item {
+    padding: 8px 14px;
+    border-bottom: 1px solid #ffffff08;
+    font-size: 11px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: center;
+  }
+  .eviction-item:last-child { border-bottom: none; }
+  .ev-reason { color: var(--text); }
+  .ev-meta { color: var(--text-dim); font-size: 10px; }
+  .ev-time { font-size: 10px; color: var(--text-dim); white-space: nowrap; }
+
+  /* ── CPU swap ───────────────────────────────────────── */
+  .cpu-swap-alert {
+    background: #f8717118;
+    border: 1px solid #f8717155;
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--red);
+    text-align: center;
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  /* ── Buttons ────────────────────────────────────────── */
+  .btn {
+    font-family: var(--font);
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .btn:hover { background: var(--surface); border-color: var(--text-dim); }
+  .btn-primary { background: #60a5fa22; border-color: #60a5fa55; color: var(--blue); }
+  .btn-primary:hover { background: #60a5fa33; }
+  .btn-danger  { background: #f8717118; border-color: #f8717155; color: var(--red); }
+
+  /* ── Polling indicator ──────────────────────────────── */
+  .poll-status {
+    font-size: 10px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .poll-spinner {
+    width: 12px; height: 12px;
+    border: 2px solid var(--border);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Responsive ─────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .sector-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo-mark">K</div>
+  <h1>KV Cache Monitor</h1>
+  <span class="backend-badge" id="backend-badge">—</span>
+  <div class="header-right">
+    <span class="poll-status" id="poll-status">
+      <div class="poll-spinner"></div>
+      Fetching…
+    </span>
+    <div class="live-dot" id="live-dot"></div>
+    <span id="last-updated">—</span>
+    <button class="btn btn-primary" onclick="fetchNow()">Refresh</button>
+    <button class="btn btn-danger" onclick="resetAll()">Reset All</button>
+  </div>
+</header>
+
+<!-- Main Grid -->
+<div class="main-grid">
+
+  <!-- LEFT COLUMN -->
+  <div class="left-col">
+
+    <!-- KPI Row -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">📊</span>
+        <span class="card-title">Key Metrics</span>
+      </div>
+      <div class="card-body">
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-val" id="kpi-avg-hit-rate">—</div>
+            <div class="kpi-label">Avg Hit Rate</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-val" id="kpi-total-blocks">—</div>
+            <div class="kpi-label">Blocks Allocated</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-val" id="kpi-evictions-1h">—</div>
+            <div class="kpi-label">Evicted (1h)</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-val" id="kpi-active-alerts">—</div>
+            <div class="kpi-label">Active Alerts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hit Rate Chart -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">📈</span>
+        <span class="card-title">Hit Rate — Last 30 Readings</span>
+        <span style="margin-left:auto;font-size:10px;color:var(--text-dim)" id="chart-legend"></span>
+      </div>
+      <div class="card-body">
+        <div class="chart-container">
+          <canvas id="hitRateChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Per-Agent Summary Table -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">🔍</span>
+        <span class="card-title">Per-Agent Cache Performance</span>
+      </div>
+      <div class="card-body" style="padding:0;overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th>Tier</th>
+              <th>Requests</th>
+              <th>Hits</th>
+              <th>Misses</th>
+              <th>Hit Rate</th>
+            </tr>
+          </thead>
+          <tbody id="agent-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Eviction Event Log -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">🗑</span>
+        <span class="card-title">Eviction Events (last 20)</span>
+      </div>
+      <div class="card-body" style="padding:0;" id="eviction-log">
+        <div class="no-alerts">No eviction events recorded yet.</div>
+      </div>
+    </div>
+
+  </div><!-- /left-col -->
+
+  <!-- RIGHT COLUMN -->
+  <div class="right-col">
+
+    <!-- GPU Memory Gauge -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">🟦</span>
+        <span class="card-title">GPU Memory</span>
+      </div>
+      <div class="card-body">
+        <div class="gauge-wrap">
+          <canvas id="gpu-gauge"></canvas>
+          <div class="gauge-labels">
+            <span>0%</span>
+            <span>50%</span>
+            <span>85%</span>
+            <span>100%</span>
+          </div>
+          <div class="gpu-status" id="gpu-status">Loading…</div>
+          <div style="font-size:10px;color:var(--text-dim);text-align:center;">
+            Warn threshold: 85% · Ceiling: 90%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sector Health -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">🏗</span>
+        <span class="card-title">Sector Health</span>
+      </div>
+      <div class="card-body">
+        <div class="sector-grid" id="sector-grid"></div>
+      </div>
+    </div>
+
+    <!-- Active Alerts -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">🚨</span>
+        <span class="card-title">Active Alerts</span>
+      </div>
+      <div id="alerts-panel">
+        <div class="no-alerts">✅ <span>All systems nominal</span></div>
+      </div>
+    </div>
+
+    <!-- CPU Swap Log -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-icon">⚠</span>
+        <span class="card-title">CPU Swap Events</span>
+      </div>
+      <div id="cpu-swap-panel">
+        <div class="no-alerts">✅ No CPU swap events</div>
+      </div>
+    </div>
+
+  </div><!-- /right-col -->
+</div><!-- /main-grid -->
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+let chartData = {}; // { agent_id: [rate, ...] }
+let chartLabels = [];
+const HISTORY_LEN = 30;
+const SECTOR_COLORS = {
+  core:     '#60a5fa',
+  sector:   '#a78bfa',
+  pipeline: '#22d3ee',
+};
+const SECTOR_COLORS_BY_ID = {
+  ingestion:          '#60a5fa',
+  transformation:     '#7c3aed',
+  analytics:          '#0891b2',
+  governance:         '#059669',
+  structural:         '#f59e0b',
+  mep:                '#10b981',
+  thermal:            '#ef4444',
+  dob:                '#6366f1',
+  materials:          '#8b5cf6',
+  fire:               '#f97316',
+  goal19_code_review: '#22d3ee',
+  goal19_sandbox:     '#14b8a6',
+  goal19_promotion:   '#06b6d4',
+};
+const AGENT_NAMES = {
+  ingestion:          'Ingestion',
+  transformation:     'Transform',
+  analytics:           'Analytics',
+  governance:          'Governance',
+  structural:          'Structural',
+  mep:                 'MEP',
+  thermal:             'Thermal',
+  dob:                 'DOB/Zoning',
+  materials:           'Materials',
+  fire:                'Fire Prot.',
+  goal19_code_review:  'G19 Code Rev.',
+  goal19_sandbox:      'G19 Sandbox',
+  goal19_promotion:    'G19 Promo',
+};
+const TIER_LABELS = {
+  core:     'CORE',
+  sector:   'SECTOR',
+  pipeline: 'PIPELINE',
+};
+
+// ── Canvas Gauge (GPU) ─────────────────────────────────────────────────────────
+function drawGauge(pct) {
+  const canvas = document.getElementById('gpu-gauge');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width = 180;
+  const H = canvas.height = 100;
+  const cx = W / 2, cy = H - 10;
+  const R = 70;
+  const startAngle = Math.PI;
+  const endAngle = 2 * Math.PI;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Track bg
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, startAngle, endAngle);
+  ctx.lineWidth = 14;
+  ctx.strokeStyle = '#1e2435';
+  ctx.stroke();
+
+  // Fill arc
+  const fillEnd = startAngle + (endAngle - startAngle) * pct;
+  const color = pct >= 0.90 ? '#f87171' : pct >= 0.85 ? '#fbbf24' : '#34d399';
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, startAngle, fillEnd);
+  ctx.lineWidth = 14;
+  ctx.strokeStyle = color;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+
+  // 85% mark
+  const warnAngle = startAngle + (endAngle - startAngle) * 0.85;
+  ctx.beginPath();
+  ctx.arc(cx, cy, R + 3, warnAngle, warnAngle + 0.01);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = '#fbbf2499';
+  ctx.stroke();
+
+  // Value text
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 20px JetBrains Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(Math.round(pct * 100) + '%', cx, cy - 20);
+
+  // Label
+  ctx.fillStyle = '#6b7594';
+  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.fillText('GPU MEM', cx, cy + 5);
+}
+
+// ── Hit Rate Chart (Canvas) ────────────────────────────────────────────────────
+const chartCanvas = document.getElementById('hitRateChart');
+const chartCtx = chartCanvas.getContext('2d');
+const agentsForChart = ['ingestion','transformation','structural','mep','thermal','dob','materials','fire'];
+
+function resizeChart() {
+  const parent = chartCanvas.parentElement;
+  chartCanvas.width = parent.clientWidth;
+  chartCanvas.height = parent.clientHeight;
+}
+resizeChart();
+
+function drawHitRateChart() {
+  const W = chartCanvas.width;
+  const H = chartCanvas.height;
+  chartCtx.clearRect(0, 0, W, H);
+  if (!chartLabels.length) {
+    chartCtx.fillStyle = '#6b7594';
+    chartCtx.font = '12px monospace';
+    chartCtx.textAlign = 'center';
+    chartCtx.fillText('Waiting for data…', W / 2, H / 2);
+    return;
+  }
+  const PAD = { l: 38, r: 16, t: 16, b: 28 };
+  const cW = W - PAD.l - PAD.r;
+  const cH = H - PAD.t - PAD.b;
+
+  // Grid lines
+  chartCtx.strokeStyle = '#ffffff0f';
+  chartCtx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD.t + (cH * i) / 4;
+    chartCtx.beginPath();
+    chartCtx.moveTo(PAD.l, y);
+    chartCtx.lineTo(PAD.l + cW, y);
+    chartCtx.stroke();
+  }
+  // Y-axis labels
+  chartCtx.fillStyle = '#6b7594';
+  chartCtx.font = '10px monospace';
+  chartCtx.textAlign = 'right';
+  ['100', '75', '50', '25', '0'].forEach((v, i) => {
+    const y = PAD.t + (cH * i) / 4;
+    chartCtx.fillText(v + '%', PAD.l - 4, y + 4);
+  });
+
+  // X-axis labels (every 5 ticks)
+  chartCtx.textAlign = 'center';
+  chartLabels.forEach((lbl, i) => {
+    if (i % 5 === 0 || i === chartLabels.length - 1) {
+      const x = PAD.l + (cW * i) / (chartLabels.length - 1 || 1);
+      chartCtx.fillText(lbl, x, H - 6);
+    }
+  });
+
+  // Draw lines per agent
+  agentsForChart.forEach((aid, ai) => {
+    const series = chartData[aid] || [];
+    if (!series.length) return;
+    const color = SECTOR_COLORS_BY_ID[aid] || '#888';
+    chartCtx.beginPath();
+    series.forEach((val, i) => {
+      const x = PAD.l + (cW * i) / (HISTORY_LEN - 1);
+      const y = PAD.t + cH * (1 - (val || 0));
+      if (i === 0) chartCtx.moveTo(x, y);
+      else chartCtx.lineTo(x, y);
+    });
+    chartCtx.strokeStyle = color + 'bb';
+    chartCtx.lineWidth = 1.5;
+    chartCtx.stroke();
+  });
+
+  // Legend
+  const legendEl = document.getElementById('chart-legend');
+  if (legendEl) {
+    legendEl.textContent = agentsForChart
+      .filter(aid => (chartData[aid] || []).length > 0)
+      .map(aid => `● ${AGENT_NAMES[aid] || aid}`)
+      .join('  ');
+  }
+}
+drawHitRateChart();
+
+// ── Render helpers ─────────────────────────────────────────────────────────────
+function timeAgo(isoStr) {
+  if (!isoStr) return '—';
+  const diff = Date.now() - new Date(isoStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return 'just now';
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  return Math.floor(h / 24) + 'd ago';
+}
+
+function staleAge(ms) {
+  if (ms === null) return 'never';
+  const h = ms / (60 * 60 * 1000);
+  if (h < 1) return Math.round(ms / 60000) + 'm';
+  if (h < 24) return h.toFixed(1) + 'h';
+  return (h / 24).toFixed(1) + 'd';
+}
+
+function rateClass(rate) {
+  if (rate === null) return 'warn';
+  if (rate >= 0.80) return 'good';
+  if (rate >= 0.60) return 'warn';
+  return 'bad';
+}
+
+// ── Render snapshot ────────────────────────────────────────────────────────────
+function renderSnapshot(data) {
+  // timestamp
+  document.getElementById('last-updated').textContent = timeAgo(data.timestamp);
+  document.getElementById('poll-status').innerHTML = '✅ Live';
+
+  // backend badge
+  const badge = document.getElementById('backend-badge');
+  badge.textContent = data.gpu ? (data.gpu.utilization !== undefined ? 'vLLM' : 'Polsia Proxy') : '—';
+  badge.className = 'backend-badge ' + (badge.textContent === 'vLLM' ? 'vllm' : 'polsia');
+
+  // KPIs
+  const rates = data.agents.map(a => a.hit_rate).filter(r => r !== null);
+  const avgRate = rates.length ? rates.reduce((s, r) => s + r, 0) / rates.length : null;
+  document.getElementById('kpi-avg-hit-rate').textContent = avgRate !== null
+    ? Math.round(avgRate * 100) + '%'
+    : '—';
+  document.getElementById('kpi-avg-hit-rate').className = 'kpi-val ' + rateClass(avgRate);
+  document.getElementById('kpi-total-blocks').textContent = data.blocks?.allocated ?? '—';
+  document.getElementById('kpi-evictions-1h').textContent = data.blocks?.evicted_1h ?? 0;
+  const alertCount = (data.alerts || []).length;
+  const alertKpi = document.getElementById('kpi-active-alerts');
+  alertKpi.textContent = alertCount;
+  alertKpi.className = 'kpi-val ' + (alertCount === 0 ? 'kpi-good' : alertCount > 3 ? 'kpi-bad' : 'kpi-warn');
+
+  // GPU gauge
+  if (data.gpu) {
+    const util = data.gpu.utilization || 0;
+    drawGauge(util);
+    const statusEl = document.getElementById('gpu-status');
+    const pct = Math.round(util * 100);
+    statusEl.textContent = pct + '% utilized';
+    statusEl.className = 'gpu-status' + (pct >= 90 ? ' critical' : pct >= 85 ? ' warn' : '');
+  }
+
+  // Hit rate chart
+  chartLabels.push(new Date(data.timestamp).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }));
+  if (chartLabels.length > HISTORY_LEN) {
+    chartLabels.shift();
+  }
+  data.agents.forEach(a => {
+    if (!chartData[a.agent_id]) chartData[a.agent_id] = [];
+    chartData[a.agent_id].push(a.hit_rate);
+    if (chartData[a.agent_id].length > HISTORY_LEN) chartData[a.agent_id].shift();
+  });
+  resizeChart();
+  drawHitRateChart();
+
+  // Agent table
+  const tbody = document.getElementById('agent-table');
+  tbody.innerHTML = data.agents.map(a => {
+    const rate = a.hit_rate;
+    const cls = rateClass(rate);
+    const rateLabel = rate !== null ? Math.round(rate * 100) + '%' : '—';
+    const fillPct = rate !== null ? Math.round(rate * 100) : 0;
+    return `<tr>
+      <td>${AGENT_NAMES[a.agent_id] || a.agent_id}</td>
+      <td><span class="tier-${a.tier}">${TIER_LABELS[a.tier] || a.tier}</span></td>
+      <td>${a.requests}</td>
+      <td>${a.hits}</td>
+      <td>${a.misses}</td>
+      <td>
+        <div class="rate-bar">
+          <div class="rate-track"><div class="rate-fill ${cls}" style="width:${fillPct}%"></div></div>
+          <span>${rateLabel}</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Sector health
+  const sectorGrid = document.getElementById('sector-grid');
+  sectorGrid.innerHTML = (data.sectors || []).map(s => {
+    const statusClass = s.status || 'ok';
+    const nameMap = { structural:'Structural', mep:'MEP', thermal:'Thermal/Energy', dob:'DOB/Zoning', materials:'Materials', fire:'Fire Prot.' };
+    const ageStr = s.stale_ms !== null ? staleAge(s.stale_ms) : 'never';
+    const thrStr = staleAge(s.threshold_ms);
+    return `<div class="sector-card ${statusClass}">
+      <div class="sector-header">
+        <span class="sector-name">${nameMap[s.sector_id] || s.sector_id}</span>
+        <div class="sector-status-dot ${statusClass}"></div>
+      </div>
+      <div class="sector-detail">
+        <div>Last: <strong>${timeAgo(s.last_ingestion)}</strong></div>
+        <div>Stale: <strong>${ageStr}</strong> / ${thrStr}</div>
+      </div>
+      <div class="sector-staleness ${statusClass}">${statusClass.toUpperCase()}</div>
+    </div>`;
+  }).join('');
+
+  // Eviction log
+  const evLog = document.getElementById('eviction-log');
+  if (!data.evictions || data.evictions.length === 0) {
+    evLog.innerHTML = '<div class="no-alerts">No eviction events recorded yet.</div>';
+  } else {
+    evLog.innerHTML = data.evictions.slice(-10).reverse().map(e => `
+      <div class="eviction-item">
+        <div>
+          <div class="ev-reason">${e.reason || 'Eviction'} — tier ${e.tier}, sector ${e.sector_id || '?'}</div>
+          <div class="ev-meta">agent: ${e.agent_id || '?'} · blocks: ${e.block_count || '?'}</div>
+        </div>
+        <div class="ev-time">${timeAgo(e.timestamp)}</div>
+      </div>`).join('');
+  }
+
+  // Alerts
+  const alertsPanel = document.getElementById('alerts-panel');
+  const activeAlerts = data.alerts || [];
+  if (activeAlerts.length === 0) {
+    alertsPanel.innerHTML = '<div class="no-alerts">✅ <span>All systems nominal</span></div>';
+  } else {
+    alertsPanel.innerHTML = activeAlerts.map(a => `
+      <div class="alert-item">
+        <div class="alert-dot ${a.severity === 'critical' ? 'critical' : 'warning'}"></div>
+        <div class="alert-content">
+          <div class="alert-msg">${a.message}</div>
+          <div class="alert-time">${timeAgo(a.fired_at)} · ${a.severity}</div>
+        </div>
+      </div>`).join('');
+  }
+
+  // CPU swap
+  const cpuPanel = document.getElementById('cpu-swap-panel');
+  if (!data.cpu_swap_events || data.cpu_swap_events.length === 0) {
+    cpuPanel.innerHTML = '<div class="no-alerts">✅ No CPU swap events</div>';
+  } else {
+    cpuPanel.innerHTML = data.cpu_swap_events.map(e => `
+      <div class="cpu-swap-alert">⚠ CPU swap triggered: ${e.reason} (${e.agent_id}) — ${timeAgo(e.timestamp)}</div>
+    `).join('');
+  }
+}
+
+// ── Fetch ─────────────────────────────────────────────────────────────────────
+let pollInterval = null;
+
+async function fetchNow() {
+  try {
+    const res = await fetch('/api/vllm-cache-monitor/snapshot');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    renderSnapshot(data);
+    // Update live dot
+    const dot = document.getElementById('live-dot');
+    dot.className = 'live-dot';
+  } catch (err) {
+    console.error('[KV Dashboard] fetch error:', err);
+    document.getElementById('poll-status').innerHTML =
+      '<span style="color:var(--red)">✕ Fetch error — retrying in 10s</span>';
+    document.getElementById('live-dot').className = 'live-dot stale';
+  }
+}
+
+async function resetAll() {
+  if (!confirm('Reset all KV cache metrics? This will clear all hit/miss counters, evictions, and alerts.')) return;
+  try {
+    await fetch('/api/vllm-cache-monitor/reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ all: true }),
+    });
+    chartData = {};
+    chartLabels = [];
+    fetchNow();
+  } catch (err) {
+    alert('Reset failed: ' + err.message);
+  }
+}
+
+// Start polling every 5 seconds
+function startPolling() {
+  fetchNow();
+  pollInterval = setInterval(fetchNow, 5000);
+}
+
+startPolling();
+
+window.addEventListener('resize', () => {
+  resizeChart();
+  drawHitRateChart();
+});
+</script>
+</body>
+</html>

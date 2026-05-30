@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Everything Atlantist Builds — Feature Showcase</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c1420">
+<meta name="description" content="A complete visual tour of every feature in Atlantist BIM — parametric modeling, structural analysis, MEP simulation, energy analysis, fire protection, and IFC interoperability.">
+<meta property="og:title" content="Everything Atlantist Builds — Feature Showcase">
+<meta property="og:description" content="From walls to NYC DOB compliance: every tool Atlantist ships for structural engineers, architects, and MEP consultants — in one browser tab.">
+<meta property="og:image" content="https://atlantist.cloud/brand/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://atlantist.cloud/blog">
+<meta property="og:site_name" content="Atlantist">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Everything Atlantist Builds — Feature Showcase">
+<meta name="twitter:description" content="A complete visual tour of every feature in Atlantist BIM.">
+<meta name="twitter:image" content="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/b104a926-4b15-4cff-9ecf-e086c5be4198-atlantist.cloud.png">
+<meta name="author" content="Atlantist">
+<meta name="published_date" content="2026-05-26">
+
+<!-- Schema.org Article markup for SEO -->
+<script src="/js/boot-safety.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Everything Atlantist Builds — Feature Showcase",
+  "description": "A complete visual tour of every feature in Atlantist BIM: parametric modeling, structural analysis, MEP simulation, energy analysis, fire protection, and BIM interoperability.",
+  "image": "https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/b104a926-4b15-4cff-9ecf-e086c5be4198-atlantist.cloud.png",
+  "author": { "@type": "Organization", "name": "Atlantist" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Atlantist",
+    "url": "https://atlantist.cloud"
+  },
+  "datePublished": "2026-05-26",
+  "dateModified": "2026-05-26",
+  "mainEntityOfPage": { "@type": "WebPage", "@id": "https://atlantist.cloud/blog" },
+  "articleSection": "Product",
+  "keywords": ["BIM", "structural analysis", "MEP simulation", "energy analysis", "fire protection", "IFC", "OpenSees", "EnergyPlus", "NYC DOB", "parametric modeling"]
+}
+</script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d0f;--surface:#111118;--surface2:#1a1a24;--border:#222232;
+  --text:#c8cad4;--text-dim:#6b7280;--text-hd:#e2e8f0;
+  --accent:#5b9bd5;--accent-dim:#3a6f9a;--accent-glow:#5b9bd530;
+  --green:#22c55e;--yellow:#f59e0b;--red:#ef4444;--orange:#f97316;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;gap:16px;flex-shrink:0;position:sticky;top:0;z-index:100}
+.topbar-logo{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--text-hd);text-decoration:none;flex-shrink:0}
+.topbar-logo svg{color:var(--accent)}
+.topbar-nav{display:flex;gap:4px}
+.nav-link{padding:6px 12px;font-size:13px;color:var(--text-dim);text-decoration:none;border-radius:6px;transition:all .15s}
+.nav-link:hover{color:var(--text-hd);background:var(--surface2)}
+.nav-link.active{color:var(--accent);background:var(--accent-glow)}
+.topbar-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.btn-primary{background:var(--accent);color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:13px;cursor:pointer;text-decoration:none;font-weight:500;transition:background .15s}
+.btn-primary:hover{background:var(--accent-dim)}
+
+.article{max-width:800px;margin:0 auto;padding:0 24px 80px}
+.article-header{padding:56px 0 40px;border-bottom:1px solid var(--border);margin-bottom:48px}
+.article-meta{display:flex;gap:16px;align-items:center;margin-bottom:20px}
+.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:4px;background:var(--accent-glow);color:var(--accent);text-transform:uppercase;letter-spacing:.08em}
+.badge-date{font-size:13px;color:var(--text-dim)}
+.article-header h1{font-size:36px;font-weight:800;color:var(--text-hd);line-height:1.15;letter-spacing:-.5px;margin-bottom:16px}
+.article-header p{font-size:18px;color:var(--text-dim);line-height:1.65}
+.article-share{margin-top:20px;display:flex;gap:8px}
+.share-btn{padding:6px 12px;font-size:12px;border-radius:6px;border:1px solid var(--border);color:var(--text-dim);text-decoration:none;transition:all .15s}
+.share-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+.post-section{margin-bottom:56px}
+.section-label{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
+.section-title{font-size:24px;font-weight:700;color:var(--text-hd);margin-bottom:8px}
+.section-desc{font-size:15px;color:var(--text-dim);line-height:1.65;margin-bottom:28px;max-width:640px}
+.screenshot-block{margin-bottom:32px}
+.screenshot-block img{width:100%;border-radius:8px;border:1px solid var(--border);display:block;aspect-ratio:16/9;object-fit:cover}
+.screenshot-caption{font-size:12px;color:var(--text-dim);margin-top:8px;padding-left:4px}
+.screenshot-caption a{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px}
+.two-col img{width:100%;border-radius:8px;border:1px solid var(--border);display:block;aspect-ratio:16/9;object-fit:cover}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px}
+.three-col img{width:100%;border-radius:8px;border:1px solid var(--border);display:block;aspect-ratio:16/9;object-fit:cover}
+
+.feature-callout{display:flex;gap:16px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px 24px;margin:24px 0;align-items:flex-start}
+.callout-icon{font-size:22px;flex-shrink:0;line-height:1}
+.callout-text h4{font-size:15px;font-weight:600;color:var(--text-hd);margin-bottom:4px}
+.callout-text p{font-size:13px;color:var(--text-dim);line-height:1.6}
+
+.stats-bar{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:40px 0}
+.stat{flex:1;padding:20px;text-align:center;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-num{font-size:24px;font-weight:800;color:var(--text-hd)}
+.stat-label{font-size:12px;color:var(--text-dim);margin-top:4px}
+
+.divider{border:none;border-top:1px solid var(--border);margin:40px 0}
+
+.cta-block{padding:48px;background:var(--surface);border:1px solid var(--border);border-radius:12px;text-align:center;margin:48px 0}
+.cta-block h2{font-size:28px;font-weight:800;color:var(--text-hd);margin-bottom:10px}
+.cta-block p{color:var(--text-dim);margin-bottom:24px;font-size:16px}
+.cta-block .btn-primary{font-size:15px;padding:10px 24px}
+
+@media(max-width:640px){
+  .two-col,.three-col{grid-template-columns:1fr}
+  .article-header h1{font-size:28px}
+  .stats-bar{flex-wrap:wrap}
+  .stat{flex:1 1 50%}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="/" class="topbar-logo">
+    <svg width="20" height="20" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="12" fill="#0a0e14"/>
+      <circle cx="32" cy="35" r="26" fill="none" stroke="#c8cdd6" stroke-width="1.0" opacity="0.22"/>
+      <circle cx="32" cy="35" r="21" fill="none" stroke="#c8cdd6" stroke-width="1.1" opacity="0.30"/>
+      <circle cx="32" cy="35" r="16" fill="none" stroke="#c8cdd6" stroke-width="1.3" opacity="0.38"/>
+      <circle cx="32" cy="35" r="11" fill="none" stroke="#c8cdd6" stroke-width="1.5" opacity="0.48"/>
+      <circle cx="32" cy="35" r="6" fill="none" stroke="#c8cdd6" stroke-width="1.6" opacity="0.58"/>
+      <line x1="32" y1="6" x2="18" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="32" y1="6" x2="46" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="23" y1="45" x2="41" y2="45" stroke="#e0e4ea" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="29" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="35" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="32" cy="3" r="1.8" fill="none" stroke="#e0e4ea" stroke-width="1"/>
+      <path d="M 32 30 L 33.5 35 L 32 40 L 30.5 35 Z" fill="#e0e4ea" opacity="0.9"/>
+      <path d="M 27 35 L 32 33.5 L 37 35 L 32 36.5 Z" fill="#e0e4ea" opacity="0.9"/>
+      <circle cx="32" cy="35" r="1.5" fill="#e0e4ea"/>
+    </svg>
+    Atlantist
+  </a>
+  <nav class="topbar-nav">
+    <a href="/docs" class="nav-link">Docs</a>
+    <a href="/docs/features" class="nav-link">Features</a>
+    <a href="/pricing" class="nav-link">Pricing</a>
+    <a href="/blog" class="nav-link active">Blog</a>
+  </nav>
+  <div class="topbar-actions">
+    <a href="/app" class="btn-primary">Open App</a>
+  </div>
+</header>
+
+<main class="article">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="badge">Feature Tour</span>
+      <span class="badge-date">May 26, 2026</span>
+    </div>
+    <h1>Everything Atlantist Builds</h1>
+    <p>A complete visual tour of every feature shipped in the Atlantist BIM platform — from parametric walls and doors to NYC DOB compliance and IFC export.</p>
+    <div class="article-share">
+      <a href="https://twitter.com/intent/tweet?text=Everything+Atlantist+Builds+%E2%80%94+Feature+Showcase&url=https://atlantist.cloud/blog" class="share-btn" target="_blank" rel="noopener">Share on X</a>
+      <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://atlantist.cloud/blog" class="share-btn" target="_blank" rel="noopener">Share on LinkedIn</a>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num">17+</div><div class="stat-label">Analysis types</div></div>
+    <div class="stat"><div class="stat-num">3</div><div class="stat-label">MEP disciplines</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">Import/export formats</div></div>
+    <div class="stat"><div class="stat-num">8</div><div class="stat-label">Code compliance engines</div></div>
+    <div class="stat"><div class="stat-num">1</div><div class="stat-label">Browser tab</div></div>
+  </div>
+
+  <!-- ── Architecture ──────────────────────────────── -->
+  <section class="post-section">
+    <p class="section-label">Architecture</p>
+    <h2 class="section-title">Modeling Tools</h2>
+    <p class="section-desc">Walls, doors, windows, floors, roofs, stairs, and railings — all parametric, all bound to the DAG constraint solver.</p>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/b104a926-4b15-4cff-9ecf-e086c5be4198-atlantist.cloud.png" alt="Atlantist landing page — hero, features, pricing">
+      <p class="screenshot-caption">The landing page at <a href="https://atlantist.cloud" target="_blank">atlantist.cloud</a>. Anonymous users get instant access — no download, no plugin.</p>
+    </div>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/5658962c-a13e-4d49-9760-584835c9fcf7-nexaxis.polsia.app.png" alt="BIM app entry — project launcher">
+      <p class="screenshot-caption">The BIM application entry screen — project dashboard, demo access, template instantiation. Clone the 10-story Manhattan mid-rise demo or start from Office/Residential/Warehouse templates.</p>
+    </div>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/c4470371-b9d6-4e83-81d5-9fcddaf4842f-nexaxis.polsia.app.png" alt="NYC mid-rise demo — live BIM model in browser">
+      <p class="screenshot-caption">The 10-story Manhattan mid-rise demo — fully interactive BIM model in the browser. Fork it to your account and start editing immediately.</p>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/b323e644-1bfd-46a2-a85a-954ea92573c4-nexaxis.polsia.app.png" alt="Parametric template projects">
+        <p class="screenshot-caption">Parametric template projects: Office, Residential, Warehouse — pre-seeded with multi-layer walls, floor slabs, curtain glass, and standing seam roofs.</p>
+      </div>
+      <div>
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/c8420c1c-8eda-4b49-b654-1640de7270d3-nexaxis.polsia.app.png" alt="Cost-based pricing with live calculator">
+        <p class="screenshot-caption">Autonomous cost-based pricing with a live calculator. Formula: bill = max($5, actual_cost × 2). Transparent, usage-based.</p>
+      </div>
+    </div>
+
+    <div class="feature-callout">
+      <div class="callout-icon">⚙</div>
+      <div class="callout-text">
+        <h4>DAG Constraint Solver</h4>
+        <p>Change a level elevation and watch the DAG propagate that change to every bound element's computed values — instant recalc across 3 synchronized views. No manual update needed.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── Simulation ────────────────────────────────── -->
+  <section class="post-section">
+    <p class="section-label">Simulation</p>
+    <h2 class="section-title">Analysis Engines</h2>
+    <p class="section-desc">Five specialized simulation engines — structural, energy, MEP, fire protection, geotechnical — all running in the browser or on the backend.</p>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/7335ada9-6025-47aa-b10b-f4c48b38d3a4-nexaxis.polsia.app.png" alt="OpenSees structural analysis — deflection, stress, DCR color map">
+      <p class="screenshot-caption">OpenSees structural analysis panel. Animated deflection and stress visualization in 3D. DCR (Demand-to-Capacity Ratio) color map. Code check PASS/FAIL per member.</p>
+    </div>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/a2b27b50-655e-40ae-bc53-5be9ae0fe596-nexaxis.polsia.app.png" alt="EnergyPlus simulation — 8,760hr timeline and EN-001/008 compliance">
+      <p class="screenshot-caption">Energy simulation with ASHRAE JS engine. 8,760-hour annual timeline player. EN-001 and EN-008 NYC compliance. EN-1 Workbook tab exports .xlsm with actual geometry baked in.</p>
+    </div>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/fda75df0-7069-44f3-aac8-1de51a06b55a-nexaxis.polsia.app.png" alt="MEP simulation — HVAC, plumbing, electrical">
+      <p class="screenshot-caption">MEP simulation across three disciplines. HVAC runner with VAV terminals and duct routing. Plumbing fixture counts. Electrical panel sizing and load calculations.</p>
+    </div>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/b0568e7f-c7da-4201-b4d6-099447368a6c-nexaxis.polsia.app.png" alt="Fire protection — NFPA 13/101/92/FDNY and FDS smoke simulation">
+      <p class="screenshot-caption">Fire protection engine: NFPA 13 sprinkler, NFPA 101 egress, NFPA 92 smoke control, FDNY filing compliance. FDS smoke/temperature/pressure visualization modes.</p>
+    </div>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/16891215-a7c8-484a-b911-49d9d24f7bef-nexaxis.polsia.app.png" alt="Geotechnical — bearing capacity, settlement, slope stability">
+      <p class="screenshot-caption">Geotechnical engineering panel: bearing capacity (Terzaghi, Meyerhof, Hansen), elastic/consolidation settlement, lateral earth pressure, pile capacity, slope stability. OpenSees .tcl input generation.</p>
+    </div>
+
+    <div class="feature-callout">
+      <div class="callout-icon">🔬</div>
+      <div class="callout-text">
+        <h4>Code Compliance Built In</h4>
+        <p>IBC 1013/1014 (stairs and railings), ASHRAE 90.1 (energy), NFPA 13/101/92 (fire), NYC EN-001/008 (DOB filing), NAVFAC (geotechnical) — all at your fingertips without leaving the model.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── Collaboration ─────────────────────────────── -->
+  <section class="post-section">
+    <p class="section-label">Collaboration</p>
+    <h2 class="section-title">Team Coordination</h2>
+    <p class="section-desc">WebSocket-powered real-time sync. Issue tickets anchored to elements with camera snapshots. Design Book with procurement tracking.</p>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/249ca3d1-9d7d-43f8-b541-ce3883bb8b00-nexaxis.polsia.app.png" alt="Design Book — schedules, procurement, A-500 material takeoff">
+      <p class="screenshot-caption">Design Book with auto-populated A-500 Material Takeoff. Placeholder selection system with pending/approved/rejected status. Product selections linked to manufacturer, code, and lead time.</p>
+    </div>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/a5ed682f-e163-4b8e-814b-6bd4439534b5-nexaxis.polsia.app.png" alt="A-400 door/window schedules and section line management">
+      <p class="screenshot-caption">A-400 door and window schedules auto-populated from placed family instances. Room, finish, and material schedules. CSV export for downstream coordination. Section line management for plan cuts.</p>
+    </div>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/eb63df7b-75c1-4746-98ea-13ef6b0cd656-nexaxis.polsia.app.png" alt="Learning hub guides">
+      <p class="screenshot-caption">The learning hub — step-by-step guides with difficulty ratings and time estimates. Community submissions with review queue. Progress tracking per user.</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── Import/Export ─────────────────────────────── -->
+  <section class="post-section">
+    <p class="section-label">Import / Export</p>
+    <h2 class="section-title">BIM Interoperability</h2>
+    <p class="section-desc">Five file formats for round-trip with Revit, ArchiCAD, and energy simulation tools.</p>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/95199428-1042-44ee-9fd0-25d448be1959-nexaxis.polsia.app.png" alt="IFC export and .rvt import">
+      <p class="screenshot-caption">IFC 2X3 and IFC4 round-trip via STEP parser — for ArchiCAD and Revit interchange. .rvt import pipeline via Autodesk Forge Model Derivative API.</p>
+    </div>
+
+    <div class="screenshot-block">
+      <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/d564a5d7-b739-4bc6-b942-e18b6fe105a7-nexaxis.polsia.app.png" alt="NYC DOB 9-PDF submission bundle">
+      <p class="screenshot-caption">NYC DOB 9-PDF submission bundle — pdf-lib and archiver. EN-001/008 forms, building geometry, required affidavits. BIN lookup by address.</p>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/8e4e4041-5b73-4ad7-acf7-de46ef80b80d-nexaxis.polsia.app.png" alt="Documentation site">
+        <p class="screenshot-caption">30+ documentation pages — BIM guides, API reference, MEP, energy, troubleshooting. Admin inline editor for the content team.</p>
+      </div>
+      <div>
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/4b2f4d36-7f1e-4913-8e22-2726bf61802c-nexaxis.polsia.app.png" alt="Contact page">
+        <p class="screenshot-caption">Direct contact with the Atlantist team. Enterprise pricing, DOB filing support, integrations. Response typically within 24 hours.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── More Pages ─────────────────────────────────── -->
+  <section class="post-section">
+    <p class="section-label">More</p>
+    <h2 class="section-title">Docs, Contact &amp; Onboarding</h2>
+    <p class="section-desc">The complete Atlantist experience — from learning the platform to subscribing and getting started.</p>
+
+    <div class="three-col">
+      <div>
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/f360d40e-8021-47ea-b59e-07bb6301ec74-nexaxis.polsia.app.png" alt="Feature showcase blog post">
+        <p class="screenshot-caption">The feature showcase blog post — all screenshots organized by category with Schema.org Article markup for SEO.</p>
+      </div>
+      <div>
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/73867a21-331d-4ad8-a002-93eeb7e4b124-nexaxis.polsia.app.png" alt="Subscribe acknowledge — onboarding flow">
+        <p class="screenshot-caption">Clean onboarding flow. 30-day free trial. Annual plan locks in $330/yr. DOB filing and Design Book included.</p>
+      </div>
+      <div>
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/5658962c-a13e-4d49-9760-584835c9fcf7-nexaxis.polsia.app.png" alt="BIM app project launcher">
+        <p class="screenshot-caption">The BIM app project launcher — your starting point for building, from blank project to demo to template.</p>
+      </div>
+    </div>
+
+    <div class="feature-callout">
+      <div class="callout-icon">🌐</div>
+      <div class="callout-text">
+        <h4>Everything in One Tab</h4>
+        <p>No downloads. No plugins. No license servers. Open atlantist.cloud and start building. The full BIM stack — modeling, simulation, collaboration, and documentation — in one browser tab.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ───────────────────────────────────────── -->
+  <div class="cta-block">
+    <h2>Try it now — no download required</h2>
+    <p>Full BIM in a browser tab. 30-day free trial. No credit card.</p>
+    <a href="/app?demo=nyc-midrise" class="btn-primary">Launch Atlantist →</a>
+  </div>
+
+</main>
+
+<footer style="padding:20px 24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-dim);flex-wrap:wrap;gap:12px">
+  <span>&copy; 2026 Atlantist. Browser-based BIM for structural engineers and architects.</span>
+  <nav style="display:flex;gap:16px">
+    <a href="/docs" style="color:var(--text-dim);text-decoration:none">Docs</a>
+    <a href="/docs/features" style="color:var(--text-dim);text-decoration:none">Features</a>
+    <a href="/pricing" style="color:var(--text-dim);text-decoration:none">Pricing</a>
+    <a href="/terms" style="color:var(--text-dim);text-decoration:none">Terms</a>
+    <a href="/privacy" style="color:var(--text-dim);text-decoration:none">Privacy</a>
+  </nav>
+</footer>
+
+</body>
+</html>

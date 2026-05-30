@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Wallt — Atlantist AI Companion</title>
+  <meta name="description" content="Your always-on AI companion for BIM modeling. Context-aware, architecture-first.">
+  <meta name="theme-color" content="#060a10">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Wallt">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/wallt.css">
+  <link rel="stylesheet" href="/css/wallt-install.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #060a10;
+      --surface: #0f1620;
+      --surface-2: #131d2a;
+      --border: #1e2d3d;
+      --text: #cfe3f5;
+      --text-muted: #5b8ab5;
+      --accent: #4a7dbd;
+      --accent-light: #5b9bd5;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-display: 'DM Serif Display', Georgia, serif;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Top bar ─────────────────────────────────────── */
+    #wallt-app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+      gap: 12px;
+    }
+
+    .wallt-app-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .wallt-app-logo-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #1a2a3a, #2a4a6a);
+      border: 1px solid #3a6a9a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .wallt-app-logo-text {
+      font-family: var(--font-display);
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .wallt-app-project-select {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      max-width: 320px;
+    }
+
+    .wallt-project-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    #wallt-project-select {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: var(--font);
+      cursor: pointer;
+      flex: 1;
+      min-width: 0;
+    }
+
+    #wallt-project-select:focus { outline: none; border-color: var(--accent); }
+
+    .wallt-app-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wallt-app-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .wallt-app-btn:hover { border-color: var(--accent); color: var(--text); }
+
+    .wallt-app-btn.primary {
+      background: linear-gradient(135deg, #1a3050, #2a4a70);
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    /* ── Messages area ───────────────────────────────── */
+    #wallt-messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Welcome state */
+    #wallt-welcome-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+      gap: 20px;
+    }
+
+    #wallt-welcome-state.hidden { display: none; }
+
+    .wallt-welcome-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a2a3a, #2a4a6a);
+      border: 2px solid #3a6a9a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    }
+
+    .wallt-welcome-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      color: var(--text);
+    }
+
+    .wallt-welcome-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 440px;
+      line-height: 1.6;
+    }
+
+    .wallt-quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .wallt-quick-btn {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: var(--font);
+      cursor: pointer;
+      text-align: left;
+      transition: border-color .2s, color .2s;
+    }
+
+    .wallt-quick-btn:hover { border-color: var(--accent); color: var(--text); }
+
+    /* Message bubbles */
+    .wallt-standalone-msg {
+      display: flex;
+      gap: 10px;
+      max-width: 700px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .wallt-standalone-msg.user { flex-direction: row-reverse; }
+
+    .wallt-msg-avatar-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .wallt-standalone-msg.wallt .wallt-msg-avatar-box {
+      background: linear-gradient(135deg, #2a4a6a, #5b9bd5);
+    }
+
+    .wallt-standalone-msg.user .wallt-msg-avatar-box {
+      background: #1e3a5a;
+      color: #7aafd5;
+    }
+
+    .wallt-msg-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .wallt-msg-body-box {
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+    }
+
+    .wallt-standalone-msg.wallt .wallt-msg-body-box {
+      background: #1a2535;
+      border: 1px solid #2a3a4a;
+      border-bottom-left-radius: 4px;
+    }
+
+    .wallt-standalone-msg.user .wallt-msg-body-box {
+      background: #1e3a5a;
+      border: 1px solid #2a5a8a;
+      border-bottom-right-radius: 4px;
+    }
+
+    .wallt-msg-body-box p { margin: 0 0 6px; }
+    .wallt-msg-body-box p:last-child { margin-bottom: 0; }
+    .wallt-msg-body-box code {
+      background: #0d1a26;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: 'SF Mono', 'Cascadia Code', monospace;
+      font-size: 12px;
+      color: var(--accent-light);
+    }
+    .wallt-msg-body-box pre {
+      background: #0d1a26;
+      border-radius: 6px;
+      padding: 12px;
+      overflow-x: auto;
+      margin: 8px 0;
+      font-size: 12px;
+    }
+    .wallt-msg-body-box strong { color: var(--text); }
+
+    .wallt-sources {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .wallt-source-chip {
+      font-size: 11px;
+      background: #0d1a26;
+      border: 1px solid #1e2e3e;
+      padding: 2px 8px;
+      border-radius: 10px;
+      color: #4a6a8a;
+      text-decoration: none;
+    }
+
+    .wallt-source-chip:hover { border-color: var(--accent); color: var(--accent-light); }
+
+    /* Action chips */
+    .wallt-action-chips {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .wallt-action-chip {
+      background: linear-gradient(135deg, #1a3050, #2a4a70);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .wallt-action-chip:hover { background: linear-gradient(135deg, #2a4a70, #3a5a90); }
+
+    .wallt-action-chip.wallt-action-confirm { border-color: #c07820; color: #f0c060; }
+
+    .wallt-action-chip.wallt-action-done {
+      background: #1a3020;
+      border-color: #3a8a4a;
+      color: #6ab87a;
+      cursor: default;
+    }
+
+    .wallt-action-chip.wallt-action-failed {
+      background: #301a1a;
+      border-color: #8a3a3a;
+      color: #d07070;
+    }
+
+    .wallt-action-chip.wallt-action-executing {
+      opacity: .7;
+      cursor: wait;
+    }
+
+    .wallt-action-undo {
+      background: transparent;
+      border: 1px solid #2a4a5a;
+      color: var(--text-muted);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    /* Typing indicator */
+    #wallt-typing-standalone {
+      display: none;
+      max-width: 700px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    #wallt-typing-standalone.visible { display: flex; }
+
+    .wallt-typing-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .wallt-typing-dots {
+      display: flex;
+      gap: 4px;
+      padding: 10px 14px;
+      background: #1a2535;
+      border: 1px solid #2a3a4a;
+      border-radius: 10px;
+      border-bottom-left-radius: 4px;
+    }
+
+    .wallt-typing-dots span {
+      width: 6px;
+      height: 6px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: wallt-typing-bounce 1.4s ease-in-out infinite;
+    }
+
+    .wallt-typing-dots span:nth-child(2) { animation-delay: .2s; }
+    .wallt-typing-dots span:nth-child(3) { animation-delay: .4s; }
+
+    @keyframes wallt-typing-bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); }
+    }
+
+    /* ── Input area ─────────────────────────────────── */
+    #wallt-input-area {
+      border-top: 1px solid var(--border);
+      padding: 16px 20px;
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .wallt-input-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    #wallt-input-standalone {
+      flex: 1;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: var(--font);
+      line-height: 1.5;
+      resize: none;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    #wallt-input-standalone:focus { outline: none; border-color: var(--accent); }
+
+    #wallt-send-standalone {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #1a3050, #2a4a70);
+      border: 1px solid var(--accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: opacity .2s;
+    }
+
+    #wallt-send-standalone:disabled { opacity: .4; cursor: not-allowed; }
+
+    .wallt-attribution {
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      opacity: .6;
+    }
+
+    /* ── Install prompt ─────────────────────────────── */
+    #wallt-install-banner {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      max-width: 300px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+      z-index: 100;
+      display: none;
+    }
+
+    #wallt-install-banner.visible { display: block; }
+
+    .wallt-install-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .wallt-install-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .wallt-install-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .wallt-install-actions button {
+      flex: 1;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: var(--font);
+      cursor: pointer;
+      border: none;
+    }
+
+    #wallt-install-cta {
+      background: linear-gradient(135deg, #1a3050, #2a4a70);
+      border: 1px solid var(--accent);
+      color: var(--text);
+    }
+
+    #wallt-install-dismiss {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    /* ── iOS instructions modal ────────────────────── */
+    #wallt-ios-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6,10,16,.85);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    #wallt-ios-modal.visible { display: flex; }
+
+    .wallt-ios-modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      max-width: 380px;
+      width: 90%;
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
+    }
+
+    .wallt-ios-modal-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .wallt-ios-steps {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .wallt-ios-steps li {
+      display: flex;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .wallt-ios-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .wallt-ios-close {
+      width: 100%;
+      padding: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-family: var(--font);
+      cursor: pointer;
+    }
+
+    .wallt-ios-close:hover { border-color: var(--accent); color: var(--text); }
+
+    /* ── Dock mode (PWA installed) ─────────────────── */
+    body.dock-mode {
+      flex-direction: row;
+    }
+
+    body.dock-mode #wallt-messages-container,
+    body.dock-mode #wallt-input-area,
+    body.dock-mode #wallt-welcome-state {
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── RECT Pricing Panel ─────────────────────────── */
+    #rect-pricing-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-radius: 16px 16px 0 0;
+      box-shadow: 0 -16px 48px rgba(0,0,0,.6);
+      z-index: 500;
+      display: none;
+      flex-direction: column;
+      max-height: 78vh;
+      overflow-y: auto;
+    }
+
+    #rect-pricing-panel.open {
+      display: flex;
+      animation: rect-slide-up .3s cubic-bezier(.2,.8,.3,1);
+    }
+
+    @keyframes rect-slide-up {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+
+    .rect-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .rect-panel-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .rect-panel-title h2 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .rect-badge {
+      font-size: 10px;
+      background: linear-gradient(135deg,#1a3050,#2a4a70);
+      border: 1px solid var(--accent);
+      padding: 2px 8px;
+      border-radius: 10px;
+      color: var(--accent-light);
+      letter-spacing: .5px;
+    }
+
+    .rect-panel-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: border-color .2s, color .2s;
+    }
+
+    .rect-panel-close:hover { border-color: var(--accent); color: var(--text); }
+
+    .rect-panel-body {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 600px) {
+      .rect-panel-body { grid-template-columns: 1fr; }
+    }
+
+    .rect-graph-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .rect-graph-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .rect-graph-wrap canvas {
+      display: block;
+      width: 100%;
+    }
+
+    .rect-current-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .rect-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .rect-stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .rect-stat-value {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--accent-light);
+      line-height: 1;
+    }
+
+    .rect-stat-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .rect-formula-box {
+      background: #0d1a26;
+      border: 1px solid #1e3a5a;
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .rect-formula-box pre {
+      font-family: 'SF Mono','Cascadia Code','Consolas',monospace;
+      font-size: 11px;
+      color: #7aafd5;
+      margin: 0;
+      white-space: pre-wrap;
+      line-height: 1.8;
+    }
+
+    .rect-rules {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .rect-rule-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .rect-rule-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    .rect-rule-icon.floor { background: #1a3a1a; border: 1px solid #2a5a2a; color: #5baf5b; }
+    .rect-rule-icon.ceil  { background: #3a1a1a; border: 1px solid #5a2a2a; color: #af5b5b; }
+
+    .rect-audit-text {
+      font-size: 11px;
+      color: #4a6a8a;
+      line-height: 1.6;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    .rect-audit-text strong { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header id="wallt-app-header">
+    <a href="/" class="wallt-app-logo">
+      <div class="wallt-app-logo-icon">W</div>
+      <span class="wallt-app-logo-text">Wallt</span>
+    </a>
+
+    <div class="wallt-app-project-select">
+      <span class="wallt-project-label">Project:</span>
+      <select id="wallt-project-select" title="Select project for context">
+        <option value="">No project — general BIM help</option>
+        <!-- Populated from API on load if logged in -->
+      </select>
+    </div>
+
+    <div class="wallt-app-actions">
+      <button class="wallt-app-btn" id="wallt-new-chat-btn" title="New conversation">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+        New Chat
+      </button>
+      <button class="wallt-app-btn" id="rect-pricing-btn" title="RECT Pricing — Equal-Cost Distribution">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        RECT Pricing
+      </button>
+      <a href="/app" class="wallt-app-btn" id="wallt-open-app-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <path d="M9 9h6M9 12h6M9 15h4"/>
+        </svg>
+        Open BIM App
+      </a>
+    </div>
+  </header>
+
+  <!-- Messages / Welcome -->
+  <div id="wallt-messages-container">
+    <div id="wallt-welcome-state">
+      <div class="wallt-welcome-icon">🤖</div>
+      <h1 class="wallt-welcome-title">I'm Wallt</h1>
+      <p class="wallt-welcome-sub">Your always-on architecture AI companion. Ask about zoning, BIM modeling, structural calculations, energy analysis, fire protection — anything in your project.</p>
+      <div class="wallt-quick-grid">
+        <button class="wallt-quick-btn" data-prompt="What are the setback and FAR requirements for R7A zoning in NYC?">NYC zoning — R7A setbacks</button>
+        <button class="wallt-quick-btn" data-prompt="Run a bearing capacity check for a shallow foundation on clay soil">Structural — bearing capacity</button>
+        <button class="wallt-quick-btn" data-prompt="What's the minimum fire rating for a corridor in a Class B office building?">Fire protection — corridor rating</button>
+        <button class="wallt-quick-btn" data-prompt="Explain the difference between a moment frame and a braced frame for seismic design">Structural — seismic frames</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Typing indicator -->
+  <div id="wallt-typing-standalone">
+    <div class="wallt-typing-row">
+      <div class="wallt-msg-avatar-box wallt" style="background:linear-gradient(135deg,#2a4a6a,#5b9bd5)">W</div>
+      <div class="wallt-typing-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div id="wallt-input-area">
+    <div class="wallt-input-row">
+      <textarea id="wallt-input-standalone" placeholder="Ask Wallt anything…" rows="1"></textarea>
+      <button id="wallt-send-standalone" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5b9bd5" stroke-width="2">
+          <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="wallt-attribution">Wallt AI — responses may contain inaccuracies · verify critical data</div>
+  </div>
+
+  <!-- Install banner -->
+  <div id="wallt-install-banner">
+    <div class="wallt-install-title">Install Wallt</div>
+    <div class="wallt-install-sub">Always have your AI companion one tap away — home screen icon, works offline.</div>
+    <div class="wallt-install-actions">
+      <button id="wallt-install-cta">Install now</button>
+      <button id="wallt-install-dismiss">Later</button>
+    </div>
+  </div>
+
+  <!-- iOS instructions modal -->
+  <div id="wallt-ios-modal">
+    <div class="wallt-ios-modal-box">
+      <h2 class="wallt-ios-modal-title">Add Wallt to Home Screen</h2>
+      <ol class="wallt-ios-steps">
+        <li><span class="wallt-ios-step-num">1</span> Tap the Share button at the bottom of your screen</li>
+        <li><span class="wallt-ios-step-num">2</span> Scroll down and tap "Add to Home Screen"</li>
+        <li><span class="wallt-ios-step-num">3</span> Tap "Add" — Wallt will appear on your home screen</li>
+      </ol>
+      <button class="wallt-ios-close" id="wallt-ios-close">Got it</button>
+    </div>
+  </div>
+
+  <!-- RECT Pricing Panel -->
+  <div id="rect-pricing-panel">
+    <div class="rect-panel-header">
+      <div class="rect-panel-title">
+        <h2>RECT Pricing</h2>
+        <span class="rect-badge">EQUAL-COST DISTRIBUTION</span>
+      </div>
+      <button class="rect-panel-close" id="rect-panel-close" title="Close">✕</button>
+    </div>
+    <div class="rect-panel-body">
+      <div class="rect-graph-card">
+        <div class="rect-graph-title">Your cost as the network grows</div>
+        <div class="rect-graph-wrap">
+          <canvas id="rectChartCanvas" height="200"></canvas>
+        </div>
+      </div>
+      <div class="rect-current-card">
+        <div class="rect-stat">
+          <div class="rect-stat-label">Current cost per user</div>
+          <div class="rect-stat-value" id="rect-cost-value">—</div>
+          <div class="rect-stat-sub" id="rect-cost-sub">Loading from network…</div>
+        </div>
+        <div class="rect-stat">
+          <div class="rect-stat-label">Active users</div>
+          <div class="rect-stat-value" id="rect-users-value" style="font-size:22px;color:var(--text)">—</div>
+          <div class="rect-stat-sub">in the network right now</div>
+        </div>
+        <div class="rect-formula-box">
+          <pre id="rect-formula-text">C_per_user = (C_fixed + C_marginal × N) / N
+
+C_fixed_ATL = $29/mo (Atlantist: infra, support, compliance)
+C_fixed_POL = $29/mo (Polsia: platform base plan)
+C_marginal  = $0.20/user/mo (API, storage, compute)
+────────────────────────────
+At N=1:   cost = $29.20/mo (ceiling — solo absorbs all fixed)
+At N=1000: cost = $0.23/mo (fixed cost distributed across 1000 users)
+As N grows: cost → $0.20 (marginal cost floor)
+
+No extraction. No markup.
+Everyone pays exactly this.</pre>
+        </div>
+        <div class="rect-rules">
+          <div class="rect-rule-row">
+            <span class="rect-rule-icon floor">⬇</span>
+            <span><strong>$5 floor</strong> — no user pays less (dormant accounts covered)</span>
+          </div>
+          <div class="rect-rule-row">
+            <span class="rect-rule-icon ceil">⬆</span>
+            <span><strong>$29.20 ceiling</strong> — max at N=1 (full fixed costs: Atlantist + Polsia)</span>
+          </div>
+        </div>
+        <div class="rect-audit-text">
+          <strong>Formula is public and auditable.</strong> No pricing tiers, no premium versions. Every user is on the same equation. The numbers come live from the network count.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/boot-safety.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
+  <script src="/js/wallt-install.js"></script>
+  <script>
+    (function() {
+      'use strict';
+
+      const API_BASE = '/api/wallt';
+      const AVATAR_WALLT = 'W';
+      const AVATAR_USER = 'U';
+      const ANON_STORAGE_KEY = 'wallt_anon_messages';
+      const DISMISS_KEY = 'wallt_install_dismissed';
+
+      let messages = [];
+      let isTyping = false;
+      let isLoggedIn = false;
+      let currentProjectId = null;
+      let isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      let deferredPrompt = null;
+
+      // ── Init ──────────────────────────────────────────────────────────────
+      async function init() {
+        // Register Wallt service worker
+        if ('serviceWorker' in navigator) {
+          try {
+            const reg = await navigator.serviceWorker.register('/sw-wallt.js');
+            reg?.addEventListener('updatefound', () => {
+              const worker = reg.installing || reg.waiting;
+              worker?.addEventListener('statechange', () => {
+                if (worker.state === 'activated') {
+                  // New SW loaded — reload to pick up changes
+                  window.location.reload();
+                }
+              });
+            });
+          } catch (err) {
+            console.warn('[wallt-app] SW registration failed:', err.message);
+          }
+        }
+
+        // Inject Wallt install manager
+        if (window.WalltInstallManager) {
+          window.WalltInstallManager.init({
+            onInstallClick: handleInstallClick,
+            onIOSDetected: showIOSModal,
+          });
+        }
+
+        // Load anon messages from localStorage
+        loadAnonMessages();
+
+        // Probe auth state
+        try {
+          const r = await fetch('/api/auth/me', { credentials: 'include' });
+          if (r.ok) {
+            const d = await r.json();
+            isLoggedIn = d.authenticated === true;
+          }
+        } catch (_) {}
+
+        // Load conversations if logged in
+        if (isLoggedIn) loadConversations();
+
+        bindEvents();
+      }
+
+      function loadAnonMessages() {
+        try {
+          const stored = localStorage.getItem(ANON_STORAGE_KEY);
+          if (stored) {
+            messages = JSON.parse(stored);
+            if (messages.length > 0) renderMessages();
+          }
+        } catch (_) {}
+      }
+
+      function persistAnonMessages() {
+        try {
+          localStorage.setItem(ANON_STORAGE_KEY, JSON.stringify(messages.slice(-50)));
+        } catch (_) {}
+      }
+
+      // ── Events ─────────────────────────────────────────────────────────────
+      function bindEvents() {
+        document.getElementById('wallt-send-standalone')?.addEventListener('click', sendMessage);
+
+        const input = document.getElementById('wallt-input-standalone');
+        input?.addEventListener('input', onInputChange);
+        input?.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+          }
+        });
+
+        document.getElementById('wallt-new-chat-btn')?.addEventListener('click', startNewChat);
+
+        // Quick action buttons
+        document.getElementById('wallt-messages-container')?.addEventListener('click', (e) => {
+          const btn = e.target.closest('.wallt-quick-btn');
+          if (btn) {
+            const prompt = btn.dataset.prompt;
+            document.getElementById('wallt-input-standalone').value = prompt;
+            onInputChange({ target: document.getElementById('wallt-input-standalone') });
+            sendMessage();
+          }
+        });
+
+        // Action chip clicks
+        document.getElementById('wallt-messages-container')?.addEventListener('click', handleActionChipClick);
+
+        // Project selector change
+        document.getElementById('wallt-project-select')?.addEventListener('change', (e) => {
+          currentProjectId = e.target.value || null;
+        });
+
+        // iOS modal close
+        document.getElementById('wallt-ios-close')?.addEventListener('click', () => {
+          document.getElementById('wallt-ios-modal').classList.remove('visible');
+        });
+
+        // RECT Pricing panel
+        document.getElementById('rect-pricing-btn')?.addEventListener('click', openRECTPanel);
+        document.getElementById('rect-panel-close')?.addEventListener('click', closeRECTPanel);
+
+        // Click outside panel to close
+        document.addEventListener('click', (e) => {
+          const panel = document.getElementById('rect-pricing-panel');
+          const btn = document.getElementById('rect-pricing-btn');
+          if (panel.classList.contains('open') &&
+              !panel.contains(e.target) &&
+              !btn.contains(e.target)) {
+            closeRECTPanel();
+          }
+        });
+      }
+
+      function onInputChange(e) {
+        const el = e.target;
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+        document.getElementById('wallt-send-standalone').disabled = !el.value.trim();
+      }
+
+      // ── Conversations ──────────────────────────────────────────────────────
+      async function loadConversations() {
+        try {
+          const res = await fetch(`${API_BASE}/conversations`, { credentials: 'include' });
+          if (!res.ok) return;
+          const data = await res.json();
+          // Populate project selector from conversations
+          const select = document.getElementById('wallt-project-select');
+          const convs = data.conversations || [];
+          for (const c of convs) {
+            if (c.context_project_id) {
+              const opt = document.createElement('option');
+              opt.value = c.context_project_id;
+              opt.textContent = c.title || `Project #${c.context_project_id}`;
+              if (![...select.options].some(o => o.value === c.context_project_id)) {
+                select.appendChild(opt);
+              }
+            }
+          }
+        } catch (_) {}
+      }
+
+      async function startNewChat() {
+        messages = [];
+        persistAnonMessages();
+        document.getElementById('wallt-welcome-state').classList.remove('hidden');
+        document.getElementById('wallt-messages-container').innerHTML = '';
+        document.getElementById('wallt-messages-container').appendChild(
+          document.getElementById('wallt-welcome-state')
+        );
+        // Reset welcome state properly
+        document.getElementById('wallt-welcome-state').style.display = '';
+      }
+
+      // ── Send ────────────────────────────────────────────────────────────────
+      async function sendMessage() {
+        const input = document.getElementById('wallt-input-standalone');
+        const content = input.value.trim();
+        if (!content || isTyping) return;
+
+        input.value = '';
+        onInputChange({ target: input });
+
+        // Add to local state
+        const userMsg = { role: 'user', content, created_at: new Date().toISOString() };
+        messages.push(userMsg);
+        addMessageToUI(userMsg);
+
+        showTyping(true);
+
+        const projectPayload = currentProjectId
+          ? { project_id: parseInt(currentProjectId) }
+          : {};
+
+        try {
+          let data;
+
+          if (!isLoggedIn) {
+            const msgWindow = messages.slice(-20).map(m => ({
+              role: m.role === 'wallt' ? 'assistant' : m.role,
+              content: m.content,
+            }));
+            const res = await fetch(`${API_BASE}/chat`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ messages: msgWindow, ...projectPayload }),
+            });
+            if (!res.ok) throw new Error('chat failed');
+            data = await res.json();
+          } else {
+            // Logged-in: create a conversation then post
+            const res = await fetch(`${API_BASE}/conversations`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ title: content.slice(0, 60), ...projectPayload }),
+            });
+            if (!res.ok) throw new Error('create conv failed');
+            const convData = await res.json();
+            const convId = convData.conversation.id;
+
+            const msgRes = await fetch(`${API_BASE}/conversations/${convId}/messages`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ content, ...projectPayload }),
+            });
+            if (!msgRes.ok) throw new Error('send failed');
+            data = await msgRes.json();
+          }
+
+          showTyping(false);
+          const botMsg = { ...data.message, created_at: new Date().toISOString() };
+          messages.push(botMsg);
+          addMessageToUI(botMsg);
+
+          // Auto-exec non-destructive actions
+          const lowerContent = content.toLowerCase().trim();
+          const autoExecPrefixes = ['do it', 'go ahead', 'yes do it', 'execute', 'confirm'];
+          const isAutoExec = autoExecPrefixes.some(p => lowerContent.startsWith(p) || lowerContent === p);
+          if (isAutoExec && botMsg.actions && botMsg.actions.length > 0 && window.WalltBridge) {
+            for (const action of botMsg.actions) {
+              if (!action.needsConfirm) {
+                window.WalltBridge.execute(action).catch(() => {});
+              }
+            }
+          }
+
+        } catch (err) {
+          showTyping(false);
+          const errMsg = { role: 'wallt', content: "I'm having trouble connecting right now. Try again in a moment.", created_at: new Date().toISOString() };
+          messages.push(errMsg);
+          addMessageToUI(errMsg);
+        }
+
+        persistAnonMessages();
+      }
+
+      // ── Render ─────────────────────────────────────────────────────────────
+      function showTyping(show) {
+        isTyping = show;
+        const el = document.getElementById('wallt-typing-standalone');
+        el.classList.toggle('visible', show);
+        if (show) {
+          document.getElementById('wallt-messages-container').scrollTop =
+            document.getElementById('wallt-messages-container').scrollHeight;
+        }
+      }
+
+      function addMessageToUI(msg) {
+        document.getElementById('wallt-welcome-state').style.display = 'none';
+
+        const container = document.getElementById('wallt-messages-container');
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = buildMsgHTML(msg);
+
+        // Insert before typing indicator
+        const typingEl = document.getElementById('wallt-typing-standalone');
+        container.insertBefore(wrapper.firstElementChild, typingEl);
+
+        container.scrollTop = container.scrollHeight;
+      }
+
+      function renderMessages() {
+        const container = document.getElementById('wallt-messages-container');
+        const welcome = document.getElementById('wallt-welcome-state');
+        welcome.style.display = 'none';
+
+        for (const msg of messages) {
+          const wrapper = document.createElement('div');
+          wrapper.innerHTML = buildMsgHTML(msg);
+          container.insertBefore(wrapper.firstElementChild, document.getElementById('wallt-typing-standalone'));
+        }
+
+        container.scrollTop = container.scrollHeight;
+      }
+
+      function buildMsgHTML(msg) {
+        const avatar = msg.role === 'user' ? AVATAR_USER : AVATAR_WALLT;
+        const avatarStyle = msg.role === 'user'
+          ? 'background:#1e3a5a'
+          : 'background:linear-gradient(135deg,#2a4a6a,#5b9bd5)';
+        const msgClass = msg.role === 'user' ? 'user' : 'wallt';
+
+        const sourcesHTML = msg.sources && msg.sources.length > 0 ? `
+          <div class="wallt-sources">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Sources</div>
+            ${msg.sources.map(s => `<a class="wallt-source-chip" href="${escapeHtml(s)}" target="_blank" rel="noopener noreferrer">🔗 ${escapeHtml(s)}</a>`).join('')}
+          </div>` : '';
+
+        const actions = msg.actions || msg.actions_json || [];
+        const actionsHTML = actions.length > 0 ? buildActionChipsHTML(actions) : '';
+
+        return `<div class="wallt-standalone-msg ${msgClass}">
+          <div class="wallt-msg-avatar-box" style="${avatarStyle}">${avatar}</div>
+          <div class="wallt-msg-content">
+            <div class="wallt-msg-body-box">${renderMarkdown(msg.content)}</div>
+            ${sourcesHTML}${actionsHTML}
+          </div>
+        </div>`;
+      }
+
+      function buildActionChipsHTML(actions) {
+        const chips = actions.map((action, idx) => {
+          const needsConfirm = action.needsConfirm || action.needs_confirm;
+          const confirmClass = needsConfirm ? ' wallt-action-confirm' : '';
+          const label = escapeHtml(action.label || action.type);
+          const dataAction = escapeHtml(JSON.stringify(action));
+          return `<button class="wallt-action-chip${confirmClass}" data-action="${dataAction}">${label}</button>`;
+        }).join('');
+        return `<div class="wallt-action-chips">${chips}</div>`;
+      }
+
+      async function handleActionChipClick(e) {
+        const chip = e.target.closest('.wallt-action-chip');
+        if (!chip || chip.disabled) return;
+
+        let action;
+        try { action = JSON.parse(chip.dataset.action || '{}'); } catch (_) { return; }
+
+        if (action.needsConfirm && !chip.classList.contains('wallt-action-confirmed')) {
+          chip.classList.add('wallt-action-confirmed');
+          chip.textContent = '⚠ Confirm — click again';
+          return;
+        }
+
+        chip.disabled = true;
+        chip.classList.add('wallt-action-executing');
+        chip.textContent = 'Working…';
+
+        if (window.WalltBridge) {
+          const result = await window.WalltBridge.execute(action);
+          if (result.ok) {
+            chip.classList.add('wallt-action-done');
+            chip.textContent = `✓ ${result.message}`;
+            if (action.type === 'spawn_element' && result.spawned && result.spawned.length > 0) {
+              const undo = document.createElement('button');
+              undo.className = 'wallt-action-chip wallt-action-undo';
+              undo.textContent = 'Undo';
+              undo?.addEventListener('click', async () => {
+                undo.disabled = true;
+                undo.textContent = 'Undoing…';
+                await window.WalltBridge.undo(action, result);
+                undo.textContent = 'Undone';
+              });
+              chip.parentElement.appendChild(undo);
+            }
+          } else {
+            chip.classList.add('wallt-action-failed');
+            chip.textContent = `✗ ${result.message}`;
+            chip.disabled = false;
+          }
+        } else {
+          chip.textContent = action.label || action.type;
+          chip.disabled = false;
+        }
+      }
+
+      // ── Markdown ────────────────────────────────────────────────────────────
+      function renderMarkdown(text) {
+        if (!text) return '';
+        return text
+          .replace(/```([\n\r][\r\n\\S]*?)```/g, '<pre><code>$1</code></pre>')
+          .replace(/`([^`]+)`/g, '<code>$1</code>')
+          .replace(/\n\n/g, '</p><p>')
+          .replace(/\n/g, '<br>')
+          .replace(/(<p>)?(#{1,6}\b[^<\n]+)/g, (m, p, t) => {
+            const level = (t.match(/^#+ /) || [''])[0].length;
+            return `${p || '<p>'}<strong>${t.replace(/^#+ /, '')}</strong>`;
+          });
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      // ── Install handler ────────────────────────────────────────────────────
+      function handleInstallClick() {
+        if (isIOS) {
+          showIOSModal();
+        } else if (deferredPrompt) {
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then((choice) => {
+            if (choice.outcome === 'accepted') {
+              document.getElementById('wallt-install-banner').classList.remove('visible');
+            }
+            deferredPrompt = null;
+          });
+        }
+      }
+
+      function showIOSModal() {
+        document.getElementById('wallt-ios-modal').classList.add('visible');
+      }
+
+      // Capture beforeinstallprompt
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+      });
+
+      window.addEventListener('appinstalled', () => {
+        deferredPrompt = null;
+        document.getElementById('wallt-install-banner').classList.remove('visible');
+        document.body.classList.add('dock-mode');
+      });
+
+      // ── RECT Pricing Panel ──────────────────────────────────────────────────
+      let rectChartInstance = null;
+
+      function openRECTPanel() {
+        const panel = document.getElementById('rect-pricing-panel');
+        panel.classList.add('open');
+        loadRECTData();
+      }
+
+      function closeRECTPanel() {
+        document.getElementById('rect-pricing-panel').classList.remove('open');
+      }
+
+      async function loadRECTData() {
+        try {
+          const resp = await fetch('/api/rect/pricing');
+          if (!resp.ok) throw new Error('failed');
+          const data = await resp.json();
+          updateRECTMeta(data);
+          renderRECTChart(data);
+        } catch (err) {
+          document.getElementById('rect-cost-value').textContent = '$29.20';
+          document.getElementById('rect-cost-sub').textContent = 'Backend unavailable — ceiling applies';
+          document.getElementById('rect-users-value').textContent = '—';
+        }
+      }
+
+      function updateRECTMeta(data) {
+        const cost = data.current?.cost_per_user;
+        const n = data.current?.n_users;
+        const costEl = document.getElementById('rect-cost-value');
+        const subEl = document.getElementById('rect-cost-sub');
+        const usersEl = document.getElementById('rect-users-value');
+        if (cost !== undefined) costEl.textContent = `$${parseFloat(cost.toFixed(2))}`;
+        if (n !== undefined) usersEl.textContent = n;
+        if (subEl) subEl.textContent = `${n} user${n === 1 ? '' : 's'} in network — fixed cost amortized, cost drops as network grows`;
+      }
+
+      function renderRECTChart(data) {
+        const canvas = document.getElementById('rectChartCanvas');
+        if (!canvas) return;
+
+        const curve = data.curve || [];
+        const labels = curve.map(p => p.users);
+        const values = curve.map(p => parseFloat(p.cost.toFixed(2)));
+        const currentN = data.current?.n_users || 1;
+        const currentCost = parseFloat((data.current?.cost_per_user || 0.50).toFixed(2));
+
+        // Destroy old chart
+        if (rectChartInstance) {
+          rectChartInstance.destroy();
+          rectChartInstance = null;
+        }
+
+        rectChartInstance = new Chart(canvas, {
+          type: 'line',
+          data: {
+            labels: labels.map(n => n === 1 ? '1' : n.toString()),
+            datasets: [
+              {
+                label: 'Cost per user ($/mo)',
+                data: values,
+                borderColor: '#4a7dbd',
+                backgroundColor: 'rgba(74,125,189,0.08)',
+                borderWidth: 2,
+                pointRadius: 3,
+                pointBackgroundColor: labels.map(n => n === currentN ? '#5b9bd5' : '#4a7dbd'),
+                pointBorderWidth: 0,
+                fill: true,
+                tension: 0.3,
+              },
+              {
+                label: '$5 Floor',
+                data: labels.map(() => 5),
+                borderColor: '#3a6a3a',
+                borderWidth: 1.5,
+                borderDash: [5, 4],
+                pointRadius: 0,
+                fill: false,
+              },
+              {
+                label: '$29.20 Ceiling',
+                data: labels.map(() => 29.20),
+                borderColor: '#6a3a3a',
+                borderWidth: 1.5,
+                borderDash: [5, 4],
+                pointRadius: 0,
+                fill: false,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 1200, easing: 'easeInOutQuart' },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  title: (items) => `${items[0].label} users`,
+                  label: (item) => {
+                    if (item.datasetIndex === 0) return `$${item.raw.toFixed(2)}/mo`;
+                    if (item.datasetIndex === 1) return '$5 floor';
+                    return '$30 ceiling';
+                  },
+                },
+                backgroundColor: '#111827',
+                borderColor: '#1e2d3d',
+                borderWidth: 1,
+                padding: 10,
+                titleColor: '#cfe3f5',
+                bodyColor: '#5b8ab5',
+              },
+            },
+            scales: {
+              x: {
+                title: { display: true, text: 'Network size (users)', color: '#5b8ab5', font: { size: 11 } },
+                ticks: { color: '#5b8ab5', font: { size: 10 } },
+                grid: { color: 'rgba(30,45,61,0.5)' },
+              },
+              y: {
+                min: 0,
+                max: 32,
+                title: { display: true, text: 'Cost per user ($/mo)', color: '#5b8ab5', font: { size: 11 } },
+                ticks: { color: '#5b8ab5', font: { size: 10 }, callback: v => '$' + v },
+                grid: { color: 'rgba(30,45,61,0.5)' },
+              },
+            },
+          },
+        });
+      }
+
+      // Expose openRECTPanel for deep-link: ?panel=rect
+      window.openRECTPanel = openRECTPanel;
+      if (new URLSearchParams(location.search).get('panel') === 'rect') {
+        setTimeout(openRECTPanel, 200);
+      }
+
+      // ── Start ──────────────────────────────────────────────────────────────
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>

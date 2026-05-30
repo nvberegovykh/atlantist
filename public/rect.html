@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RECT Pricing — Atlantist</title>
+  <meta name="description" content="Your cost as the network grows. The RECT formula: equal distribution across all users, no extraction.">
+  <meta property="og:title" content="RECT Pricing — Atlantist">
+  <meta property="og:description" content="Equal cost distribution. Your cost decreases as the network grows.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://atlantist.cloud/rect">
+  <meta name="theme-color" content="#0b0c10">
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+  <script src="/js/boot-safety.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b0c10;
+      --bg-card:   #13151c;
+      --bg-card2:  #1a1d27;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.12);
+      --text:      #f0eeea;
+      --text-dim:  rgba(240,238,234,0.55);
+      --text-mid:  rgba(240,238,234,0.35);
+      --gold:      #c9a84c;
+      --gold-dim:  rgba(201,168,76,0.18);
+      --blue:      #5b8fd9;
+      --blue-dim:  rgba(91,143,217,0.15);
+      --green:     #3bba6c;
+      --green-dim: rgba(59,186,108,0.15);
+      --red:       #e84855;
+      --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+      --radius:    12px;
+      --radius-sm: 8px;
+    }
+
+    html, body { min-height: 100vh; overflow-x: hidden; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--blue); color: white; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ──────────────────────────────────────────── */
+    nav {
+      display: flex; align-items: center;
+      padding: 20px 48px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(11,12,16,0.95);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; color: var(--text); text-decoration: none; }
+    .nav-logo:hover { text-decoration: none; }
+    .nav-links { display: flex; gap: 32px; margin-left: 48px; list-style: none; }
+    .nav-links a { font-size: 14px; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .btn-outline {
+      padding: 8px 20px; border: 1px solid var(--border2); border-radius: 8px;
+      background: transparent; color: var(--text); font-size: 14px; font-family: inherit;
+      cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-outline:hover { background: var(--bg-card); text-decoration: none; }
+    .btn-primary {
+      padding: 8px 20px; background: var(--blue); border: none; border-radius: 8px;
+      color: white; font-size: 14px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; text-decoration: none; }
+
+    /* ── Hero ─────────────────────────────────────────── */
+    .hero-section {
+      text-align: center; padding: 72px 24px 40px; max-width: 700px; margin: 0 auto;
+    }
+    .hero-section .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 500; color: var(--gold);
+      background: var(--gold-dim); padding: 6px 14px;
+      border-radius: 100px; margin-bottom: 20px;
+      border: 1px solid rgba(201,168,76,0.25);
+    }
+    .hero-section h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(36px, 5vw, 52px); font-weight: 400;
+      line-height: 1.1; color: var(--text); margin-bottom: 16px;
+    }
+    .hero-section p { font-size: 17px; color: var(--text-dim); line-height: 1.65; }
+
+    /* ── Current cost banner ──────────────────────────── */
+    .current-banner {
+      max-width: 700px; margin: 0 auto 48px; padding: 0 24px;
+      display: flex; gap: 24px; align-items: center; justify-content: center;
+      flex-wrap: wrap;
+    }
+    .cost-chip {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 28px; text-align: center;
+      min-width: 140px;
+    }
+    .cost-chip .chip-label { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .cost-chip .chip-value { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--text); line-height: 1; }
+    .cost-chip .chip-sub { font-size: 11px; color: var(--text-mid); margin-top: 4px; }
+    .cost-chip.accent {
+      border-color: rgba(201,168,76,0.3);
+      background: linear-gradient(135deg, #1a1d27 0%, #13151c 100%);
+    }
+    .cost-chip.accent .chip-value { color: var(--gold); }
+    .cost-chip .arrow {
+      font-size: 24px; color: var(--text-mid); align-self: center;
+    }
+    .chip-arrow { color: var(--text-mid); font-size: 20px; align-self: center; }
+
+    /* ── Live graph section ────────────────────────────── */
+    .graph-section {
+      max-width: 900px; margin: 0 auto 64px; padding: 0 24px;
+    }
+    .graph-section h2 {
+      font-family: 'DM Serif Display', serif; font-size: 24px; font-weight: 400;
+      text-align: center; margin-bottom: 8px;
+    }
+    .graph-subhead { text-align: center; font-size: 14px; color: var(--text-dim); margin-bottom: 28px; }
+
+    .graph-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      position: relative;
+    }
+    .graph-legend {
+      display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-dim); }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .legend-dot.curve { background: var(--blue); }
+    .legend-dot.floor { background: var(--green); }
+    .legend-dot.current { background: var(--gold); box-shadow: 0 0 6px rgba(201,168,76,0.6); }
+    .legend-dot.ceiling { background: var(--text-mid); }
+
+    #rect-chart { width: 100% !important; max-height: 380px; }
+
+    .graph-loading { text-align: center; padding: 60px; color: var(--text-dim); font-size: 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 20px; height: 20px; border: 2px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 8px;
+    }
+
+    /* ── Formula explainer ──────────────────────────────── */
+    .formula-section {
+      max-width: 860px; margin: 0 auto 64px; padding: 0 24px;
+    }
+    .formula-card {
+      background: var(--bg-card); border: 1px solid rgba(201,168,76,0.2);
+      border-radius: var(--radius); padding: 36px;
+      text-align: center;
+    }
+    .formula-equation {
+      font-family: 'DM Sans', monospace; font-size: 20px; color: var(--gold);
+      letter-spacing: 0.02em; margin-bottom: 20px;
+      background: rgba(201,168,76,0.07); padding: 16px 24px;
+      border-radius: var(--radius-sm); border: 1px solid rgba(201,168,76,0.12);
+      display: inline-block;
+    }
+    .formula-components {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 24px;
+    }
+    .formula-component {
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 16px;
+      text-align: left;
+    }
+    .formula-component .comp-label { font-size: 11px; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .formula-component .comp-value { font-size: 22px; font-weight: 600; color: var(--text); }
+    .formula-component .comp-sub { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+    /* ── How it works ──────────────────────────────────── */
+    .how-section {
+      max-width: 860px; margin: 0 auto 64px; padding: 0 24px;
+    }
+    .how-section h2 {
+      font-family: 'DM Serif Display', serif; font-size: 24px; font-weight: 400;
+      text-align: center; margin-bottom: 32px;
+    }
+    .how-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .how-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .how-card:hover { border-color: var(--border2); }
+    .how-card .card-num {
+      font-size: 11px; font-weight: 600; color: var(--blue);
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px;
+    }
+    .how-card h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+    .how-card p { font-size: 13px; color: var(--text-dim); line-height: 1.55; }
+    .how-card code {
+      font-family: 'DM Sans', monospace; font-size: 12px;
+      background: var(--bg-card2); padding: 2px 6px; border-radius: 4px;
+      color: var(--gold);
+    }
+
+    /* ── Milestones table ─────────────────────────────── */
+    .milestones-section {
+      max-width: 860px; margin: 0 auto 64px; padding: 0 24px;
+    }
+    .milestones-section h2 {
+      font-family: 'DM Serif Display', serif; font-size: 24px; font-weight: 400;
+      text-align: center; margin-bottom: 24px;
+    }
+    .milestones-table {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .milestones-table table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .milestones-table th {
+      background: var(--bg-card2); padding: 12px 20px;
+      text-align: left; font-size: 11px; font-weight: 600;
+      color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+    .milestones-table th:last-child { text-align: right; }
+    .milestones-table td {
+      padding: 12px 20px; color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+    }
+    .milestones-table tr:last-child td { border-bottom: none; }
+    .milestones-table tr.current td { background: rgba(91,143,217,0.06); }
+    .milestones-table tr.current td:first-child { color: var(--blue); font-weight: 600; }
+    .milestones-table .cost-val { text-align: right; color: var(--text); font-weight: 500; }
+    .milestones-table .floor-tag {
+      font-size: 10px; padding: 2px 7px; background: var(--green-dim);
+      color: var(--green); border-radius: 4px; margin-left: 6px; font-weight: 600;
+    }
+    .milestones-table .ceiling-tag {
+      font-size: 10px; padding: 2px 7px;
+      background: var(--bg-card2); color: var(--text-mid);
+      border-radius: 4px; margin-left: 6px;
+    }
+
+    /* ── Audit / transparency ──────────────────────────── */
+    .audit-section {
+      max-width: 860px; margin: 0 auto 80px; padding: 0 24px;
+    }
+    .audit-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px;
+    }
+    .audit-card h2 {
+      font-family: 'DM Serif Display', serif; font-size: 22px; font-weight: 400;
+      margin-bottom: 20px;
+    }
+    .audit-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .audit-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: var(--bg-card2); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 14px 16px;
+    }
+    .audit-item svg { flex-shrink: 0; color: var(--green); margin-top: 1px; }
+    .audit-item .audit-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .audit-item .audit-desc { font-size: 12px; color: var(--text-dim); }
+
+    /* ── Footer ───────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border); padding: 32px 48px;
+      display: flex; justify-content: space-between; align-items: center;
+      color: var(--text-mid); font-size: 13px;
+    }
+    footer a { color: var(--text-dim); }
+    footer a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── Responsive ───────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .hero-section { padding: 48px 20px 32px; }
+      .formula-components { grid-template-columns: 1fr; }
+      .how-grid { grid-template-columns: 1fr; }
+      .audit-grid { grid-template-columns: 1fr; }
+      footer { padding: 24px 20px; flex-direction: column; gap: 8px; text-align: center; }
+      .milestones-table { overflow-x: auto; display: block; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a href="/" class="nav-logo">
+    <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="8" fill="#0a0e14"/>
+      <circle cx="32" cy="35" r="26" fill="none" stroke="#c8cdd6" stroke-width="1.0" opacity="0.22"/>
+      <circle cx="32" cy="35" r="21" fill="none" stroke="#c8cdd6" stroke-width="1.1" opacity="0.30"/>
+      <circle cx="32" cy="35" r="16" fill="none" stroke="#c8cdd6" stroke-width="1.3" opacity="0.38"/>
+      <circle cx="32" cy="35" r="11" fill="none" stroke="#c8cdd6" stroke-width="1.5" opacity="0.48"/>
+      <circle cx="32" cy="35" r="6" fill="none" stroke="#c8cdd6" stroke-width="1.6" opacity="0.58"/>
+      <line x1="32" y1="6" x2="18" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="32" y1="6" x2="46" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="23" y1="45" x2="41" y2="45" stroke="#e0e4ea" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="29" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="35" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="32" cy="3" r="1.8" fill="none" stroke="#e0e4ea" stroke-width="1"/>
+      <path d="M 32 30 L 33.5 35 L 32 40 L 30.5 35 Z" fill="#e0e4ea" opacity="0.9"/>
+      <path d="M 27 35 L 32 33.5 L 37 35 L 32 36.5 Z" fill="#e0e4ea" opacity="0.9"/>
+      <circle cx="32" cy="35" r="1.5" fill="#e0e4ea"/>
+    </svg>
+    Atlantist
+  </a>
+  <ul class="nav-links">
+    <li><a href="/#features">Features</a></li>
+    <li><a href="/docs">Docs</a></li>
+    <li><a href="/pricing">Pricing</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="/app" class="btn-outline">Open app</a>
+    <a href="/app" class="btn-primary">Start free →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero-section">
+  <div class="eyebrow">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    RECT — Reverse Equilibrium Cooperative Trading
+  </div>
+  <h1>Your cost as the network grows</h1>
+  <p>Equal distribution across all users. As more people join, everyone pays less. The formula is public — audit it yourself.</p>
+</section>
+
+<!-- Current cost banner -->
+<div class="current-banner" id="current-banner">
+  <div class="cost-chip">
+    <div class="chip-label">Current users</div>
+    <div class="chip-value" id="chip-users">—</div>
+    <div class="chip-sub">in the network</div>
+  </div>
+  <span class="chip-arrow">→</span>
+  <div class="cost-chip accent">
+    <div class="chip-label">Your cost today</div>
+    <div class="chip-value" id="chip-cost">—</div>
+    <div class="chip-sub">per month</div>
+  </div>
+  <span class="chip-arrow">→</span>
+  <div class="cost-chip">
+    <div class="chip-label">At 1,000 users</div>
+    <div class="chip-value" id="chip-1k">—</div>
+    <div class="chip-sub">per month</div>
+  </div>
+</div>
+
+<!-- Live graph -->
+<section class="graph-section">
+  <h2>Your cost as the network grows</h2>
+  <p class="graph-subhead">The curve updates in real-time based on the actual number of users in the network.</p>
+  <div class="graph-card" id="graph-card">
+    <div class="graph-legend">
+      <div class="legend-item"><span class="legend-dot curve"></span> Cost curve</div>
+      <div class="legend-item"><span class="legend-dot floor"></span> $5 floor — minimum</div>
+      <div class="legend-item"><span class="legend-dot current"></span> Your position today</div>
+    </div>
+    <div id="chart-container">
+      <div class="graph-loading" id="chart-loading">
+        <div class="spinner"></div>
+        Loading cost data…
+      </div>
+      <canvas id="rect-chart" style="display:none"></canvas>
+    </div>
+  </div>
+</section>
+
+<!-- Formula explainer -->
+<section class="formula-section">
+  <div class="formula-card">
+    <div class="formula-equation">C_per_user = (C_fixed + C_marginal × N) / N</div>
+    <p style="font-size:14px;color:var(--text-dim);max-width:560px;margin:0 auto 24px">
+      Fixed costs are shared equally. Marginal cost is divided by all users. As the network grows, your share shrinks — until it hits the $5 floor.
+    </p>
+    <div class="formula-components" id="formula-components">
+      <div class="formula-component">
+        <div class="comp-label">C_fixed</div>
+        <div class="comp-value" id="comp-fixed">$58</div>
+        <div class="comp-sub">Atlantist $29 + Polsia $29</div>
+      </div>
+      <div class="formula-component">
+        <div class="comp-label">C_marginal</div>
+        <div class="comp-value">$0.20</div>
+        <div class="comp-sub">per user — API, storage, compute</div>
+      </div>
+      <div class="formula-component">
+        <div class="comp-label">Floor</div>
+        <div class="comp-value">$5</div>
+        <div class="comp-sub">no user pays less</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="how-section">
+  <h2>How RECT works</h2>
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="card-num">01</div>
+      <h3>Fixed costs split equally</h3>
+      <p>Infrastructure, support, and compliance cost us $29/mo. Polsia charges us $29/mo for the platform. Both are shared equally across <em>all</em> users — not just paying customers.</p>
+    </div>
+    <div class="how-card">
+      <div class="card-num">02</div>
+      <h3>Marginal cost scales down</h3>
+      <p>API calls, storage, and compute cost us $0.20 per user per month. This is added to the formula: <code>(C_fixed + $0.20×N) / N</code>. At 10 users, each pays $6.00. At 1,000 users, each pays $5.26.</p>
+    </div>
+    <div class="how-card">
+      <div class="card-num">03</div>
+      <h3>$5 floor — always</h3>
+      <p>No user pays less than $5/mo. This protects dormant accounts from being subsidized unfairly and ensures we can keep the service running even for low-usage users.</p>
+    </div>
+    <div class="how-card">
+      <div class="card-num">04</div>
+      <h3>No tiers, no premium version</h3>
+      <p>Every user runs the same formula. No enterprise pricing, no pro add-ons, no feature gates that degrade the cooperative model. The graph above shows exactly what you'd pay at every network size.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Milestones table -->
+<section class="milestones-section">
+  <h2>Cost at every scale</h2>
+  <div class="milestones-table">
+    <table id="milestones-table">
+      <thead>
+        <tr>
+          <th>Users in network</th>
+          <th>Fixed cost share</th>
+          <th>Marginal add-on</th>
+          <th>Your cost</th>
+        </tr>
+      </thead>
+      <tbody id="milestones-tbody">
+        <!-- Populated by JS -->
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Audit / transparency -->
+<section class="audit-section">
+  <div class="audit-card">
+    <h2>Auditable — here's the proof</h2>
+    <div class="audit-grid">
+      <div class="audit-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div>
+          <div class="audit-label">No pricing tiers</div>
+          <div class="audit-desc">Everyone runs the same formula. No pro version, no premium plan, no feature-gated tiers.</div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div>
+          <div class="audit-label">Full cost transparency</div>
+          <div class="audit-desc">Fixed costs (Atlantist + Polsia) and marginal costs are published. Every number is traceable.</div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div>
+          <div class="audit-label">No extraction</div>
+          <div class="audit-desc">The formula distributes cost, not profit. We make money on margin, not on hidden spread.</div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div>
+          <div class="audit-label">Public formula</div>
+          <div class="audit-desc">Everything is in <code>config/plans.js</code> — view it on <a href="https://github.com/atlantist-bim/atlantist" target="_blank" rel="noopener">GitHub</a>. Audit the math yourself.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <span>© 2026 Atlantist. All rights reserved.</span>
+  <div>
+    <a href="/legal/privacy">Privacy</a> &nbsp;·&nbsp;
+    <a href="/legal/terms">Terms</a> &nbsp;·&nbsp;
+    <a href="/legal/cookies">Cookies</a> &nbsp;·&nbsp;
+    <a href="mailto:support@atlantist.cloud">Support</a>
+  </div>
+</footer>
+
+<script>
+(async function() {
+  const chartCanvas = document.getElementById('rect-chart');
+  const chartLoading = document.getElementById('chart-loading');
+  const tbody = document.getElementById('milestones-tbody');
+
+  let chart = null;
+
+  async function loadRECT() {
+    try {
+      const res = await fetch('/api/rect/pricing');
+      if (!res.ok) throw new Error('API error ' + res.status);
+      const data = await res.json();
+
+      const curve = data.curve;           // [{users, cost}]
+      const current = data.current;       // {n_users, cost_per_user}
+      const formula = data.formula;      // {breakdown, rules, interpretation}
+      const milestones = data.milestones;
+
+      // ── Current banner ──────────────────────────────────────
+      document.getElementById('chip-users').textContent = current.n_users.toLocaleString();
+      document.getElementById('chip-cost').textContent = '$' + current.cost_per_user.toFixed(2);
+      const cost1k = curve.find(p => p.users === 1000) || curve[curve.length - 1];
+      document.getElementById('chip-1k').textContent = '$' + cost1k.cost.toFixed(2);
+
+      // ── Formula components ───────────────────────────────────
+      const breakdown = formula.breakdown;
+      document.getElementById('comp-fixed').textContent = '$' + (breakdown.total_fixed || '58').replace('/mo combined', '').replace(' combined (both Atlantist + Polsia fixed costs)', '');
+
+      // ── Chart ────────────────────────────────────────────────
+      chartLoading.style.display = 'none';
+      chartCanvas.style.display = 'block';
+
+      const allCosts = curve.map(p => p.cost);
+      const minCost = Math.min(...allCosts);
+      const maxCost = Math.max(...allCosts);
+      const floor = data.current ? data.milestones.find(m => m.at_floor)?.cost || 5 : 5;
+
+      // Annotation plugin for inline labels
+      const annotationPlugin = {
+        id: 'costAnnotations',
+        afterDatasetsDraw(chart) {
+          const { ctx, chartArea, scales } = chart;
+          if (!chartArea) return;
+
+          // Floor line annotation
+          const floorY = scales.y.getPixelForValue(floor);
+          ctx.save();
+          ctx.strokeStyle = 'rgba(59,186,108,0.5)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(chartArea.left, floorY);
+          ctx.lineTo(chartArea.right, floorY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = 'rgba(59,186,108,0.7)';
+          ctx.font = '11px DM Sans, sans-serif';
+          ctx.fillText('$5 floor', chartArea.right - 44, floorY - 5);
+
+          // Current position dot
+          const currentPoint = curve.find(p => p.users >= current.n_users) || curve[0];
+          const x = scales.x.getPixelForValue(currentPoint.users);
+          const y = scales.y.getPixelForValue(currentPoint.cost);
+          const dotR = 7;
+          ctx.beginPath();
+          ctx.arc(x, y, dotR, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(201,168,76,0.9)';
+          ctx.fill();
+          ctx.strokeStyle = '#0b0c10';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Label
+          ctx.fillStyle = '#c9a84c';
+          ctx.font = 'bold 11px DM Sans, sans-serif';
+          const labelText = `You: $${current.cost_per_user.toFixed(2)} (${current.n_users} users)`;
+          ctx.fillText(labelText, x + 10, y - 6);
+          ctx.restore();
+        }
+      };
+
+      chart = new Chart(chartCanvas, {
+        type: 'line',
+        data: {
+          labels: curve.map(p => p.users),
+          datasets: [
+            {
+              label: 'Cost per user',
+              data: curve.map(p => p.cost),
+              borderColor: '#5b8fd9',
+              backgroundColor: 'rgba(91,143,217,0.08)',
+              borderWidth: 2.5,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0,
+              pointHoverRadius: 6,
+              pointHoverBackgroundColor: '#5b8fd9',
+              pointHoverBorderColor: '#0b0c10',
+              pointHoverBorderWidth: 2,
+            },
+            {
+              label: '$5 floor',
+              data: curve.map(p => floor),
+              borderColor: 'rgba(59,186,108,0.6)',
+              borderWidth: 1.5,
+              borderDash: [6, 4],
+              fill: false,
+              pointRadius: 0,
+              pointHoverRadius: 0,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1a1d27',
+              borderColor: 'rgba(255,255,255,0.1)',
+              borderWidth: 1,
+              titleColor: '#f0eeea',
+              bodyColor: 'rgba(240,238,234,0.7)',
+              titleFont: { family: 'DM Sans', weight: '600' },
+              bodyFont: { family: 'DM Sans' },
+              callbacks: {
+                title: (items) => `N = ${items[0].label} users`,
+                label: (item) => {
+                  if (item.datasetIndex === 0) {
+                    return ` Cost: $${item.raw.toFixed(2)}/mo`;
+                  }
+                  return null;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Number of users in network', color: 'rgba(240,238,234,0.4)', font: { family: 'DM Sans', size: 12 } },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: { color: 'rgba(240,238,234,0.4)', font: { family: 'DM Sans', size: 11 } },
+              border: { color: 'rgba(255,255,255,0.08)' },
+            },
+            y: {
+              title: { display: true, text: 'Cost per user ($/mo)', color: 'rgba(240,238,234,0.4)', font: { family: 'DM Sans', size: 12 } },
+              min: 0,
+              max: Math.min(35, maxCost * 1.15),
+              grid: { color: 'rgba(255,255,255,0.05)' },
+              ticks: {
+                color: 'rgba(240,238,234,0.4)',
+                font: { family: 'DM Sans', size: 11 },
+                callback: v => '$' + v.toFixed(0)
+              },
+              border: { color: 'rgba(255,255,255,0.08)' },
+            }
+          }
+        },
+        plugins: [annotationPlugin]
+      });
+
+      // ── Milestones table ─────────────────────────────────────
+      tbody.innerHTML = milestones.map(m => {
+        const isCurrent = m.users === current.n_users;
+        const isFloor = m.at_floor;
+        const isCeiling = m.below_ceiling === false;
+        return `
+          <tr class="${isCurrent ? 'current' : ''}">
+            <td>${m.users.toLocaleString()} users ${isCurrent ? '(you)' : ''}</td>
+            <td>$${(58 / m.users).toFixed(2)}</td>
+            <td>$0.20</td>
+            <td class="cost-val">
+              $${m.cost_per_user.toFixed(2)}
+              ${isFloor ? '<span class="floor-tag">floor</span>' : ''}
+              ${isCeiling ? '<span class="ceiling-tag">ceiling</span>' : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+    } catch (err) {
+      chartLoading.innerHTML = 'Could not load RECT data. <a href="/api/rect/pricing">View raw data</a>.';
+      console.error('[rect] load error:', err);
+    }
+  }
+
+  loadRECT();
+})();
+</script>
+</body>
+</html>

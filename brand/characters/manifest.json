@@ -1,0 +1,44 @@
+{
+  "characters": [
+    {
+      "id": "char-01-drafter",
+      "name": "The Drafter",
+      "description": "Architect at drafting table with blueprints and 3D model — used on landing hero and onboarding empty state",
+      "usage": ["landing_hero", "onboarding"],
+      "url": "https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_138239/3dadc4d8-24a7-4c13-935f-630aac272b2b.jpg",
+      "style": "navy-ink-cobalt-accent"
+    },
+    {
+      "id": "char-02-inspector",
+      "name": "The Inspectors",
+      "description": "Two engineers reviewing a building cross-section — used on collaboration / issues empty state",
+      "usage": ["issues_empty", "collaboration"],
+      "url": "https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_138239/5fea6ae1-1212-412b-a8f6-8738e54b15cf.jpg",
+      "style": "navy-ink-cobalt-accent"
+    },
+    {
+      "id": "char-03-explorer",
+      "name": "The Explorer",
+      "description": "Architect inside a wireframe building — used on 3D model empty state and feature illustrations",
+      "usage": ["model_empty", "feature_illustration"],
+      "url": "https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_138239/e6e39cb5-4811-419b-8d20-3f3b46976ddf.jpg",
+      "style": "navy-ink-cobalt-accent"
+    },
+    {
+      "id": "char-04-analyst",
+      "name": "The Analyst",
+      "description": "Engineer at holographic workstation with floating 3D floor plan layers — used on energy/MEP analysis empty states",
+      "usage": ["energy_empty", "mep_empty", "analysis"],
+      "url": "https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_138239/358de6bb-5bf2-47ba-9eea-4871eb523f97.jpg",
+      "style": "navy-ink-cobalt-accent"
+    },
+    {
+      "id": "char-05-planner",
+      "name": "The Planner",
+      "description": "Lone architect in vast white room with structural grid ceiling — used on structural grid empty state and new project onboarding",
+      "usage": ["grid_empty", "new_project", "schedules_empty"],
+      "url": "https://pub-629428d185ca4960a0a73c850d32294b.r2.dev/generated-images/company_138239/ececece5-7d14-4b4e-b08e-42a5786c60ed.jpg",
+      "style": "navy-ink-cobalt-accent"
+    }
+  ]
+}

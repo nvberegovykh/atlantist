@@ -1,0 +1,49 @@
+{
+  "section": "ZR §23-432 + §23-633",
+  "title": "Height and Setback Requirements — R6 Through R12 Districts (Quality Housing) + Sky Exposure Plane",
+  "description": "Minimum base height, maximum base height, and maximum building height table for all R6-R12 Quality Housing districts. Sky exposure plane rules for height factor alternative.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_sky": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-633",
+  "source_url_sky_alt": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-731",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-431", "23-432", "23-433", "23-631", "23-632", "23-633", "23-731", "23-736", "23-737"],
+  "content": {
+    "quality_housing_key_rules": [
+      "Per §23-432 table: minimum base height, maximum base height, maximum building height by district",
+      "Setback required at height between minimum and maximum base height — per §23-433",
+      "Quality Housing street wall location: no closer to street than buildings within 150 ft on same block, up to 15 ft depth",
+      "R6B, R7B, R8B are excluded from certain §23-44 alternative location allowances",
+      "Tower regulations §23-435 apply in non-contextual R6-R9 districts",
+      "Mandatory in R6A, R6B, R6D, R7A, R7B, R7D, R7X, R8A, R8B, R8X, R9A, R9D, R9X, R10A, R10X"
+    ],
+    "sky_exposure_plane_rules": [
+      "Applies to Height Factor buildings in R6-R9 non-contextual districts",
+      "Per §23-633: sky exposure plane slope determined by district — building mass cannot penetrate",
+      "In R6-R7 districts: sky exposure plane starts at ~60 ft above street line",
+      "In R8-R10 districts: sky exposure plane starts at ~85 ft above street line",
+      "Slope: 2.5 to 1 (rise to run) in medium density (R6-R7); steeper slope in high density (R8-R10)",
+      "Per §23-736: tower may penetrate sky exposure plane in R9-R10 per §23-737",
+      "Sky exposure plane calculated from street line; different base planes for different building portions"
+    ],
+    "height_setback_table_summary": {
+      "R6A/R6-1": { "min_base": 40, "max_base_std": 65, "max_height_std": 75, "max_base_aff": 65, "max_height_aff": 95 },
+      "R6B": { "min_base": 30, "max_base_std": 45, "max_height_std": 55, "max_base_aff": 45, "max_height_aff": 65 },
+      "R6D/R6-2": { "min_base": 30, "max_base_std": 45, "max_height_std": 65, "max_base_aff": 55, "max_height_aff": 75 },
+      "R7A/R7-1/R7-2 (contextual)": { "min_base": 40, "max_base_std": 75, "max_height_std": 85, "max_base_aff": 85, "max_height_aff": 115 },
+      "R7B": { "min_base": 40, "max_base_std": 65, "max_height_std": 75, "max_base_aff": 65, "max_height_aff": 95 },
+      "R7D": { "min_base": 60, "max_base_std": 85, "max_height_std": 105, "max_base_aff": 95, "max_height_aff": 125 },
+      "R7X/R7-3": { "min_base": 60, "max_base_std": 95, "max_height_std": 125, "max_base_aff": 105, "max_height_aff": 145 },
+      "R8A/R8X": { "min_base": 60, "max_base_std": 95, "max_height_std": 125, "max_base_aff": 105, "max_height_aff": 145 },
+      "R8B": { "min_base": 55, "max_base_std": 65, "max_height_std": 75, "max_base_aff": 85, "max_height_aff": 95 },
+      "R9A/R9-1": { "min_base": 60, "max_base_std": 105, "max_height_std": 145, "max_base_aff": 135, "max_height_aff": 185 },
+      "R9D/R9-1 (D suffix)": { "min_base": 60, "max_base_std": 125, "max_height_std": 175, "max_base_aff": 155, "max_height_aff": 215 },
+      "R10A/R10X/R10 (no suffix)": { "min_base": 60, "max_base_std": 155, "max_height_std": 215, "max_base_aff": 155, "max_height_aff": 235 }
+    }
+  },
+  "dob_filing_notes": [
+    "Verify district type: Quality Housing mandatory vs. Height Factor optional — different envelope calculations",
+    "Sky exposure plane calculated from base plane per §23-631; multiple base planes possible on sloped sites",
+    "Setback depth: 10 ft on wide streets, 15 ft on narrow streets above max base height",
+    "BSA special permit needed for height modifications beyond §23-432 table"
+  ]
+}

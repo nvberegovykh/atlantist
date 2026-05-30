@@ -1,0 +1,53 @@
+{
+  "district": "R6B",
+  "description": "Contextual medium-density residential district. Quality Housing mandatory. Produces lower-rise buildings (4-5 stories) typical of brownstone neighborhoods. Lower FAR than R6A.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "source_url_height": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22", "23-432", "23-34"],
+  "bulk": {
+    "far_standard": 2.00,
+    "far_qualifying": 2.40,
+    "far_note": "UAP standard. R6B is lower-density than R6A. Community facility FAR per ZR §24-11.",
+    "lot_coverage_max": 80,
+    "quality_housing_mandatory": true
+  },
+  "height_setback": {
+    "regulation_type": "Quality Housing (mandatory)",
+    "min_base_height_ft": 30,
+    "max_base_height_ft": 45,
+    "max_building_height_ft": 55,
+    "affordable_max_base_height_ft": 45,
+    "affordable_max_building_height_ft": 65,
+    "street_wall_setback_wide_st": "10 ft depth above max base height",
+    "street_wall_setback_narrow_st": "15 ft depth above max base height",
+    "street_wall_location": "No closer to street line than buildings within 150 ft on same block",
+    "tower_permitted": false,
+    "notes": "Per ZR §23-432 table (R6B row). R6B produces ~4-5 story buildings. Max building height 55 ft standard; 65 ft qualifying."
+  },
+  "yards": {
+    "front": {
+      "requirement": "Per §23-322",
+      "note": "Open area between street wall and street line: permitted obstructions per §23-41"
+    },
+    "side": {
+      "requirement": "Per §23-335: none required for Quality Housing contextual districts",
+      "note": "No rear yard required at lot line coinciding with adjoining side lot line"
+    },
+    "rear": {
+      "requirement": "30 ft min depth per §23-342",
+      "through_lot_alternative": "Rear yard equivalent per §23-343 on through lots ≥180 ft; per §23-343 paragraph (a)"
+    }
+  },
+  "permitted_uses": {
+    "residential": ["Dwelling units per §22-11", "Quality Housing required"],
+    "community_facility": "Per ZR §24-11",
+    "parking": "50% of dwelling units off-street"
+  },
+  "dob_filing_notes": [
+    "Quality Housing Program certification required in DOB NOW",
+    "R6B height and setback per §23-432",
+    "Lower height limit vs R6A — verify zoning map to distinguish R6A vs R6B"
+  ]
+}

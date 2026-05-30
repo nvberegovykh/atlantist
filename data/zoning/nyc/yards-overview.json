@@ -1,0 +1,37 @@
+{
+  "section": "ZR §23-145",
+  "title": "Yard Requirements — Front, Side, and Rear Yards in R Districts",
+  "description": "Yard regulations for Residence Districts: front yards (§23-32), side yards (§23-33), rear yards (§23-34). Includes permitted obstructions and through lot equivalents.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-32",
+  "source_url_rear": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-31", "23-32", "23-33", "23-34", "23-311", "23-312", "23-313", "23-341", "23-342", "23-343", "23-344"],
+  "content": {
+    "front_yards": {
+      "r1_r5": "Per §23-321: basic front yard requirements",
+      "r6_r12": "Per §23-322: front yard requirements for R6 through R12 — generally no front yard required, but open area between street wall and street line has rules",
+      "permitted_obstructions": "Per §23-41 and §23-311/23-312: fences, retaining walls, steps, planting, canopies, etc. permitted in front yards",
+      "notes": "No front yard required in R6 through R12 per §23-342 exception. Open area between street wall and street line may be used for permitted obstructions."
+    },
+    "side_yards": {
+      "r6_r12": "Per §23-335: side yard requirements for R6 through R12 — generally none required for Quality Housing contextual districts",
+      "r1_r5": "Per §23-332: basic side yard requirements",
+      "permitted_obstructions_in_side_yards": "Per §23-311, §23-331: certain obstructions permitted in side yards",
+      "notes": "In Quality Housing contextual districts (R6A, R6B, R6D, R7A, R7B, R7D, R7X, R8A, R8B, R8X, R9A, R9D, R9X, R10A, R10X): no side yard required. Open lot pattern maintained."
+    },
+    "rear_yards": {
+      "r6_r12": "Per §23-342: minimum 30 ft depth required for interior lots",
+      "exception": "No rear yard required where rear lot line coincides with side lot line of an adjoining zoning lot",
+      "through_lots": "Per §23-343: rear yard equivalent required on through lots ≥180 ft depth — provides light and air through mid-block",
+      "rear_yard_equivalent_through_lots": "Options per §23-343: (a) open area along each side lot line ≥30 ft wide, OR (b) front setback areas ≥10 ft wide maintained, OR (c) open area ≥30 ft wide along each side lot line",
+      "certain_districts_through_lot_special_rule": "In R5D, R6A, R6B, R6D, R7A, R7B, R7D, R7X, R8A, R8B, R8X, R9A, R9D, R9X, R10A, R10X, R11A: on through lots ≥180 ft, rear yard equivalent required ONLY per paragraph (a) — open area ≥30 ft along side lot lines",
+      "permitted_obstructions_rear_yard": "Per §23-341: decks, parapets, stairs, porches, window sills, planters, solar panels, etc."
+    }
+  },
+  "dob_filing_notes": [
+    "Verify yard requirements based on district and lot configuration (interior vs. corner vs. through lot)",
+    "Through lots ≥180 ft: confirm whether §23-343 paragraph (a) applies or full rear yard equivalent required",
+    "Contextual districts (Quality Housing): typically no side yard — significant design flexibility",
+    "BSA variance may be needed for reduced rear yard — verify hardship criteria"
+  ]
+}

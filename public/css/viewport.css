@@ -1,0 +1,868 @@
+/**
+ * viewport.css — Multi-pane viewport system styles
+ *
+ * Layout driven by CSS custom properties (never px on flex children):
+ *   --vp-col-split: 0.5  (column split fraction for left pane)
+ *   --vp-row-split: 0.5  (row split fraction for top pane)
+ *
+ * BUG-VPLAYOUT: Legacy fallback canvas wrappers (#canvas-3d-wrap, #canvas-plan-wrap,
+ * #canvas-section-wrap) sit inside #viewport-area as flex:1 column children.
+ * When vp-grid is built, vp-grid replaces them but they remain in the DOM with
+ * non-zero flex height, causing the grid to only fill ~53% of the container.
+ * Solution: when vp-grid exists, hide all legacy canvas wrappers via CSS sibling
+ * selector, and ensure #viewport-area always stretches to fill its flex parent.
+ */
+
+/* ── BUG-VPLAYOUT: Ensure viewport-area fills its flex parent ────────────────── */
+/* vp-grid must stretch to fill all available space; override any min-height constraints */
+#viewport-area {
+  min-height: 0 !important;
+  flex: 1 1 auto !important;
+  height: auto !important; /* allow vp-grid to drive height via flex */
+}
+
+/* ── BUG-VPLAYOUT: Hide legacy canvas wrappers once vp-grid is active ───────── */
+/* The 3 fallback canvas wrappers (#canvas-3d-wrap, #canvas-plan-wrap,
+ * #canvas-section-wrap) sit in viewport-area as flex-direction:column children.
+ * When viewport-manager builds vp-grid, these legacy wrappers remain in the DOM
+ * (they are preserved via .vp-persistent class check in _buildGrid).
+ * Hide them so they don't compete for flex space. */
+#viewport-area > .canvas-wrap {
+  display: none !important;
+}
+
+/* ── Default split fractions ──────────────────────────────────── */
+:root {
+  --vp-col-split: 0.5;
+  --vp-row-split: 0.5;
+}
+
+/* ── Viewport grid container ─────────────────────────────────── */
+.vp-grid {
+  width: 100%;
+  flex: 1 1 auto;         /* fill all available space in viewport-area */
+  min-height: 0;          /* allow flex shrinking to work in column layout */
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Flex row and cell — driven by CSS vars, not inline JS styles ─── */
+.vp-row {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Top row: flex fraction from --vp-row-split; bottom row takes the rest */
+.vp-grid > .vp-row:nth-child(1) { flex: var(--vp-row-split); }
+.vp-grid > .vp-row:nth-child(3) { flex: calc(1 - var(--vp-row-split)); }
+
+/* Cells: first cell in each row uses --vp-col-split; second takes rest */
+.vp-cell {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-viewport, #080d14);
+  border: 1px solid var(--border, rgba(255,255,255,0.05));
+  transition: flex-basis 0.15s ease-out;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* First cell (left pane in each row) */
+.vp-cell:nth-child(odd) { flex: var(--vp-col-split); }
+/* Second cell (right pane in each row) */
+.vp-cell:nth-child(even) { flex: calc(1 - var(--vp-col-split)); }
+
+/* ── Pane wrap ───────────────────────────────────────────────── */
+.vp-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: opacity 0.2s, outline 0.15s;
+}
+
+.vp-wrap:hover { opacity: 1; }
+
+/* ── Per-pane canvas — uses --vp-tab-h (28px) from tab bar height ─── */
+.vp-canvas {
+  position: absolute;
+  top: var(--vp-tab-h, 28px);
+  left: 0; right: 0; bottom: 0;
+  width: 100% !important;
+  height: calc(100% - var(--vp-tab-h, 28px)) !important;
+  display: block;
+}
+
+/* ── Pane toolbar (top-left) ────────────────────────────────── */
+.vp-toolbar {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(8,13,20,0.7);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 4px 6px;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.vp-wrap:hover .vp-toolbar,
+.vp-wrap.in-edit-mode .vp-toolbar {
+  opacity: 1;
+}
+
+.vp-pill {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  padding: 0 4px;
+}
+
+.vp-btn {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+
+.vp-btn:hover {
+  color: rgba(255,255,255,0.9);
+  background: rgba(255,255,255,0.08);
+}
+
+/* ── Hide button (edit mode) ────────────────────────────────── */
+.vp-hide-btn {
+  display: none !important;
+}
+
+/* ── Edit mode ──────────────────────────────────────────────── */
+.vp-wrap.in-edit-mode {
+  outline: 2px solid rgba(74,141,245,0.8);
+  outline-offset: -2px;
+}
+
+.vp-wrap.in-edit-mode .vp-hide-btn {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.vp-wrap.dimmed { opacity: 0.55; }
+
+/* ── Dividers — 2px visual line, 48px hit target via pseudo-element ─── */
+.vp-divider {
+  position: relative;
+  z-index: 10;
+  background: transparent;   /* visual drawn on ::after */
+  flex-shrink: 0;
+  transition: background 0.15s;
+  border: none;
+}
+
+/* Expand hit area to 48px without affecting layout */
+.vp-divider::before {
+  content: '';
+  position: absolute;
+  z-index: 11;
+}
+
+.vp-divider::after {
+  content: '';
+  position: absolute;
+  background: var(--border, rgba(255,255,255,0.08));
+  transition: background 0.15s;
+}
+
+.vp-divider:hover::after,
+.vp-divider.dragging::after,
+.vp-divider.drag-active::after {
+  background: rgba(74,141,245,0.6) !important;
+}
+
+.vp-divider-col {
+  width: 12px;
+  min-width: 12px;
+  cursor: col-resize;
+}
+
+/* Vertical visual bar + wide hit zone */
+.vp-divider-col::before {
+  top: 0; bottom: 0;
+  left: -16px; right: -16px; /* 12px + 16px each side = ~44px total hit zone */
+}
+.vp-divider-col::after {
+  top: 0; bottom: 0;
+  left: 0; right: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,0.12) 20%,
+    rgba(255,255,255,0.12) 80%,
+    transparent 100%
+  );
+}
+
+.vp-divider-row {
+  height: 12px;
+  min-height: 12px;
+  cursor: row-resize;
+}
+
+/* Horizontal visual bar + tall hit zone */
+.vp-divider-row::before {
+  left: 0; right: 0;
+  top: -22px; bottom: -22px;
+}
+.vp-divider-row::after {
+  left: 0; right: 0;
+  top: 0; bottom: 0;
+}
+
+/* ── Add viewport button ─────────────────────────────────────── */
+.vp-add-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 20;
+  width: 28px;
+  height: 28px;
+  background: rgba(74,141,245,0.8);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.vp-add-btn:hover {
+  background: rgba(74,141,245,1);
+  transform: scale(1.1);
+}
+
+/* ── Layout menu ─────────────────────────────────────────────── */
+#vp-layout-menu {
+  display: none;
+}
+
+#vp-layout-menu.open {
+  display: block;
+}
+
+.vp-layout-opt:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.vp-layout-opt.active {
+  color: #6ba3ff;
+  background: rgba(74,141,245,0.15);
+}
+
+/* ── Mobile tab strip ────────────────────────────────────────── */
+.vp-mobile-strip {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(8,13,20,0.85);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  overflow-x: auto;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.vp-tab-btn {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.vp-tab-btn.active {
+  background: rgba(74,141,245,0.3);
+  border-color: rgba(74,141,245,0.5);
+  color: #6ba3ff;
+}
+
+/* ── Fullscreen overlay ─────────────────────────────────────── */
+.vp-fullscreen {
+  position: fixed !important;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: var(--z-overlay);
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+/* ── View label overlay ─────────────────────────────────────── */
+.vp-view-label {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  z-index: 5;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.3);
+  pointer-events: none;
+}
+
+/* ── Pane border indicator (for edit mode border) ─────────────── */
+.vp-border-indicator {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 2px solid transparent;
+  border-radius: 0;
+  transition: border-color 0.15s;
+  z-index: 8;
+}
+
+.vp-wrap.in-edit-mode .vp-border-indicator {
+  border-color: rgba(74,141,245,0.8);
+}
+
+/* ── Long-press cursor ───────────────────────────────────────── */
+.vp-wrap.can-edit {
+  cursor: pointer;
+}
+
+/* ── Swap target highlight ──────────────────────────────────── */
+.vp-wrap.drag-target {
+  outline: 2px solid rgba(74,141,245,0.7) !important;
+  outline-offset: -4px;
+}
+
+/* ── Smooth pane enter/exit transitions (opacity + transform ≤ 300ms) ── */
+.vp-wrap {
+  animation: vp-pane-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes vp-pane-enter {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Pane lift when in edit mode (press-hold) */
+.vp-wrap.in-edit-mode {
+  transform: scale(0.95);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 0 2px rgba(74,141,245,0.8);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.2s ease,
+              opacity 0.2s;
+  z-index: 20;
+}
+
+/* ── Hidden pane right rail ─────────────────────────────────── */
+.vp-hidden-rail {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 0;
+  background: rgba(8,13,20,0.88);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px 0 0 8px;
+  backdrop-filter: blur(10px);
+  min-width: 36px;
+  transition: transform 0.2s ease, opacity 0.2s;
+}
+
+.vp-rail-tab {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.55);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 10px 8px;
+  white-space: nowrap;
+  transition: color 0.15s, background 0.15s;
+  border-radius: 6px;
+  min-height: 44px;
+}
+
+.vp-rail-tab:hover {
+  color: #6ba3ff;
+  background: rgba(74,141,245,0.15);
+}
+
+/* ── Mobile swipe page-dot indicator ───────────────────────── */
+.vp-swipe-dots {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  pointer-events: none;
+}
+
+.vp-swipe-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  transition: background 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+
+.vp-swipe-dot.active {
+  background: #6ba3ff;
+  transform: scale(1.35);
+}
+
+/* ── Floating viewport windows ──────────────────────────────────── */
+.vp-floating {
+  position: fixed;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.06);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #080d14;
+  transition: box-shadow 0.2s;
+}
+
+.vp-floating:hover {
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(74,141,245,0.3);
+}
+
+.vp-floating.overlay-mode {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(74,141,245,0.5);
+}
+
+.vp-float-resize-handle {
+  cursor: nwse-resize;
+}
+
+/* Only show dots on mobile */
+@media (min-width: 768px) {
+  .vp-swipe-dots { display: none; }
+}
+
+/* ── Drag-over drop indicator for pane swap ─────────────────── */
+.vp-wrap.swap-hover {
+  outline: 2px dashed rgba(74,141,245,0.8) !important;
+  outline-offset: -4px;
+  background: rgba(74,141,245,0.05);
+}
+
+/* ── Viewport Tab Bar ─────────────────────────────────────────── */
+.vp-tab-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: stretch;
+  height: 28px;
+  min-height: 28px;
+  background: rgba(8, 13, 20, 0.82);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  user-select: none;
+}
+
+.vp-tab {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.4);
+  background: transparent;
+  border-bottom: 2px solid transparent;
+  transition: color 0.12s, background 0.12s;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.vp-tab:hover {
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.vp-tab-active {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(74, 141, 245, 0.12);
+  border-bottom-color: rgba(74, 141, 245, 0.8);
+}
+
+.vp-tab-active:hover {
+  background: rgba(74, 141, 245, 0.18);
+}
+
+.vp-tab-close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0 1px;
+  border-radius: 3px;
+  transition: color 0.1s;
+}
+
+.vp-tab-close:hover {
+  color: rgba(255, 80, 80, 0.8);
+}
+
+.vp-tab-add {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 0 8px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.vp-tab-add:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ── Context Menu ─────────────────────────────────────────────── */
+@keyframes vp-cm-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#vp-context-menu {
+  position: fixed;
+  z-index: 9999;
+  background: rgba(12, 17, 26, 0.97);
+  border: 1px solid rgba(74, 141, 245, 0.35);
+  border-radius: 8px;
+  padding: 4px;
+  min-width: 180px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  animation: vp-cm-in 0.12s ease-out both;
+}
+
+#vp-context-menu [data-cm-sep] {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.06);
+  margin: 2px 6px;
+}
+
+/* Tab bar context menu items */
+#vp-context-menu .vp-cm-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  transition: background 0.1s, color 0.1s;
+}
+
+#vp-context-menu .vp-cm-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+#vp-context-menu .vp-cm-item.current {
+  color: rgba(74, 141, 245, 0.9);
+  background: rgba(74, 141, 245, 0.08);
+}
+
+/* ── Floating window tab bar ──────────────────────────────────── */
+.vp-floating .vp-tab-bar {
+  cursor: move;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* BUG-G10: Mobile responsive — single viewport, 100dvh, touch gestures       */
+/* Desktop layout unchanged (≥769px). Mobile ≤768px gets single VP.          */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Mobile single-viewport mode (≤768px) ──────────────────── */
+@media (max-width: 768px) {
+  /* viewport-area becomes a single full-screen pane */
+  #viewport-area {
+    width: 100% !important;
+    height: 100dvh !important;  /* dynamic viewport height — accounts for mobile chrome */
+    flex: 1 !important;
+  }
+
+  /* vp-grid: stack into single row, no dividers */
+  .vp-grid {
+    flex-direction: row !important;
+    height: 100% !important;
+  }
+
+  /* Hide all dividers on mobile — no drag-resize */
+  .vp-divider {
+    display: none !important;
+  }
+
+  /* vp-row: single row in the grid, full height */
+  .vp-row {
+    flex: 1 !important;
+    flex-direction: row !important;
+    min-height: 0 !important;
+  }
+
+  /* vp-cell: single cell spans full width */
+  .vp-cell {
+    flex: 1 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    /* Override nth-child: use explicit flex so only first cell shows */
+    flex: 1 !important;
+  }
+
+  /* Second cell (right pane) hidden on mobile — only 3D perspective shows */
+  .vp-row > .vp-cell:nth-child(even) {
+    display: none !important;
+  }
+
+  /* vp-canvas: full cell height, no tab bar offset on mobile */
+  .vp-canvas {
+    top: 0 !important;
+    height: 100% !important;
+  }
+
+  /* vp-wrap toolbar: always visible on mobile (no hover) */
+  .vp-toolbar {
+    opacity: 1 !important;
+    transition: none;
+  }
+
+  /* vp-tab-bar: visible and usable on mobile */
+  .vp-tab-bar {
+    height: 32px !important;
+    min-height: 32px !important;
+  }
+
+  /* Tab labels on mobile: min-width so tabs are tap-friendly */
+  .vp-tab {
+    min-width: 48px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  /* Mobile viewport strip (horizontal scroll for view switching) */
+  .vp-mobile-strip {
+    display: flex !important;
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+
+  /* Swipe page-dot indicator (visible on mobile) */
+  .vp-swipe-dots {
+    display: flex !important;
+  }
+
+  /* Hide viewport layout controls on mobile — single VP, no grid switching */
+  #vp-layout-controls {
+    display: none !important;
+  }
+
+  /* Tab row (right-side tab switches): hide — we use bottom bar instead */
+  #tab-props {
+    display: none !important;
+  }
+
+  /* nav rail: hide on mobile (bottom bar replaces it) */
+  #nav-rail {
+    display: none !important;
+  }
+
+  /* Sidebar left: hide on mobile — bottom sheet replaces */
+  #sidebar-left {
+    display: none !important;
+  }
+
+  /* Sidebar right (properties panel): hide on mobile — bottom sheet replaces */
+  #sidebar-right {
+    display: none !important;
+  }
+
+  /* IM panel: hide on mobile — bottom sheet replaces */
+  #im-panel {
+    display: none !important;
+  }
+
+  /* IM inspector drawer: hide on mobile */
+  #im-inspector {
+    display: none !important;
+  }
+
+  /* Toolbar: hide the horizontal desktop toolbar — bottom bar replaces it */
+  #toolbar {
+    display: none !important;
+  }
+
+  /* Mobile bottom bar: show */
+  #mobile-bottom-bar {
+    display: flex !important;
+  }
+
+  /* Backdrop for bottom sheets on mobile */
+  .bsheet-backdrop {
+    display: block;
+  }
+
+  /* Mobile sheet triggers: visible */
+  .mobile-sheet-trigger {
+    display: flex !important;
+  }
+
+  /* Toolbar mobile FAB: floating action button for tools */
+  #mobile-toolbar-fab {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 769px) {
+  /* Ensure desktop never shows mobile-only elements */
+  #mobile-bottom-bar {
+    display: none !important;
+  }
+
+  .mobile-sheet-trigger {
+    display: none !important;
+  }
+
+  #mobile-toolbar-fab {
+    display: none !important;
+  }
+}
+
+/* ── 375px (iPhone SE) ────────────────────────────────────── */
+@media (max-width: 375px) {
+  .vp-tab {
+    min-width: 44px;
+    padding: 0 6px;
+    font-size: 10px;
+  }
+
+  /* Compact mobile strip for tiny screens */
+  .vp-mobile-strip {
+    height: 40px !important;
+  }
+}
+
+/* ── 1024px (iPad landscape) ───────────────────────────────── */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* On iPad, keep desktop layout as-is (2×2 grid) — this breakpoint is for reference */
+}
+
+/* ── Touch gesture support (pointer: coarse) ───────────────── */
+@media (pointer: coarse) {
+  /* Ensure VP canvas receives touch events for orbit/pan/zoom */
+  .vp-wrap canvas,
+  .vp-canvas canvas {
+    touch-action: none;
+  }
+}
+
+/* ── Mobile toolbar FAB ────────────────────────────────────── */
+/* Floating action button replacing desktop toolbar on mobile */
+#mobile-toolbar-fab {
+  display: none;
+  position: fixed;
+  bottom: calc(56px + env(safe-area-inset-bottom, 0px) + 8px);
+  right: 16px;
+  z-index: var(--z-chrome, 100);
+  width: 52px;
+  height: 52px;
+  background: var(--accent, #4a7dbd);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+#mobile-toolbar-fab:active {
+  transform: scale(0.92);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* Mobile active sheet indicator in VP area */
+.vp-mobile-overlay {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .vp-mobile-overlay {
+    display: block;
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    z-index: var(--z-overlay, 500);
+    font-size: 10px;
+    padding: 4px 8px;
+    background: rgba(8,13,20,0.75);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    color: rgba(255,255,255,0.5);
+    pointer-events: none;
+  }
+}

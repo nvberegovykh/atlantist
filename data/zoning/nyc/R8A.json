@@ -1,0 +1,48 @@
+{
+  "district": "R8A",
+  "description": "Contextual high-density residential district. Quality Housing mandatory. Produces tall buildings (10+ stories) with higher FAR. Common in Manhattan midtown and outer boroughs.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "source_url_height": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22", "23-432", "23-34", "23-435"],
+  "bulk": {
+    "far_standard": 6.02,
+    "far_qualifying": 7.20,
+    "far_note": "UAP standard. Far higher than R7A — significant development potential. Community facility FAR per ZR §24-11.",
+    "lot_coverage_max": 80,
+    "quality_housing_mandatory": true
+  },
+  "height_setback": {
+    "regulation_type": "Quality Housing (mandatory)",
+    "min_base_height_ft": 60,
+    "max_base_height_ft": 95,
+    "max_building_height_ft": 125,
+    "affordable_max_base_height_ft": 105,
+    "affordable_max_building_height_ft": 145,
+    "street_wall_setback_wide_st": "10 ft depth above max base height",
+    "street_wall_setback_narrow_st": "15 ft depth above max base height",
+    "street_wall_location": "No closer than buildings within 150 ft on same block",
+    "tower_permitted": false,
+    "notes": "Per ZR §23-432 table (R8A row). Tall building envelope: min base 60, max base 95, max height 125 ft standard. Qualifying: max height 145 ft."
+  },
+  "yards": {
+    "front": { "requirement": "Per §23-322" },
+    "side": { "requirement": "Per §23-335: none required for Quality Housing contextual" },
+    "rear": {
+      "requirement": "30 ft min depth per §23-342",
+      "through_lot_alternative": "Rear yard equivalent per §23-343 on through lots ≥180 ft"
+    }
+  },
+  "permitted_uses": {
+    "residential": ["Dwelling units per §22-11", "Quality Housing required"],
+    "community_facility": "Per ZR §24-11",
+    "parking": "Parking not permitted in front yard"
+  },
+  "dob_filing_notes": [
+    "Quality Housing Program certification required",
+    "R8A high FAR (6.02/7.20) — significant zoning envelope",
+    "Verify if site is in Mandatory Inclusionary Housing (MIH) area — additional affordability requirements",
+    "DOB NOW: NB or Alt1. Height review at construction document stage"
+  ]
+}

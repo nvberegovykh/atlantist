@@ -1,0 +1,37 @@
+{
+  "district": "R9X",
+  "description": "Contextual extra-high-density residential district. Quality Housing with enhanced bulk. Floor area ratio 9.0. Produces tall bulky 16-18 story buildings. R9X equivalent to C1-8X and C2-7X overlays.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "source_url_height": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22", "23-432", "23-34"],
+  "bulk": {
+    "far_standard": 9.00,
+    "far_qualifying": 10.80,
+    "far_note": "UAP standard. R9X is highest non-R10 contextual district. Community facility FAR per ZR §24-11.",
+    "lot_coverage_max": 80,
+    "quality_housing_mandatory": true
+  },
+  "height_setback": {
+    "regulation_type": "Quality Housing (mandatory)",
+    "r9x1": { "min_base": 105, "max_base_std": 125, "max_height_std": 175, "max_base_aff": 155, "max_height_aff": 215 },
+    "r9x2": { "min_base": 60, "max_base_std": 125, "max_height_std": 165, "max_base_aff": 155, "max_height_aff": 215 },
+    "notes": "Per ZR §23-432 table (R9X1, R9X2 rows). Tall buildings: R9X1 min base 105 ft; R9X2 min base 60 ft. Max building height 175 ft (R9X1) and 165 ft (R9X2) standard. Qualifying extends to 215 ft."
+  },
+  "yards": {
+    "front": { "requirement": "Per §23-322" },
+    "side": { "requirement": "Per §23-335: none required for Quality Housing contextual" },
+    "rear": { "requirement": "30 ft min depth per §23-342", "through_lot_alternative": "Rear yard equivalent per §23-343 on through lots ≥180 ft" }
+  },
+  "permitted_uses": {
+    "residential": "Dwelling units per §22-11",
+    "community_facility": "Per ZR §24-11"
+  },
+  "dob_filing_notes": [
+    "Quality Housing Program certification required",
+    "R9X (FAR 9.0) is very high density — verify district vs R9A vs R9D",
+    "Verify MIH/UAP requirements",
+    "16-18 story buildings typical — structural coordination required in DOB filing"
+  ]
+}

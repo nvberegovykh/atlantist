@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>425 W 34th St — 10-Story NYC Mid-Rise Demo | Atlantist BIM</title>
+  <meta name="description" content="A pre-loaded 10-story Manhattan mid-rise BIM project demonstrating architecture, structure, MEP, energy analysis, and DOB filing — fully interactive in your browser.">
+  <meta property="og:title" content="NYC Mid-Rise Demo — Atlantist BIM">
+  <meta property="og:description" content="Architecture · Structure · MEP · Energy · DOB Filing — all in one browser tab.">
+  <meta property="og:image" content="https://atlantist.cloud/brand/og-image.png">
+  <meta name="theme-color" content="#060a10">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #060a10; --bg-2: #0b1018; --bg-3: #0e1625;
+      --accent: #1d5fa6; --accent-l: #3479c4; --accent-d: #153d6b;
+      --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.12);
+      --text: #e8eaf0; --text-2: #8898b0; --text-3: #5a6b82;
+      --border: rgba(255,255,255,0.06); --border-2: rgba(255,255,255,0.12);
+      --green: #22c55e; --red: #ef4444; --amber: #f59e0b;
+      --serif: 'DM Serif Display', Georgia, serif;
+      --sans: 'DM Sans', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
+    ::selection { background: var(--accent); color: #fff; }
+    a { color: var(--accent-l); text-decoration: none; }
+    a:hover { color: #fff; }
+
+    /* ─── Demo Banner ─────────────────────────────────────────── */
+    .demo-banner {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(29,95,166,0.15); border-bottom: 1px solid rgba(29,95,166,0.4);
+      padding: 8px 24px; display: flex; align-items: center; justify-content: center; gap: 16px;
+      font-size: 13px; font-weight: 500; color: #93c5fd;
+      backdrop-filter: blur(12px);
+    }
+    .demo-banner svg { flex-shrink: 0; }
+    .demo-banner a { color: #bfdbfe; font-weight: 600; border: 1px solid rgba(147,197,253,0.3); padding: 3px 12px; border-radius: 20px; transition: all 0.2s; }
+    .demo-banner a:hover { background: rgba(147,197,253,0.1); color: #fff; border-color: rgba(255,255,255,0.4); }
+
+    /* ─── Nav ─────────────────────────────────────────────────── */
+    nav { position: fixed; top: 40px; left: 0; right: 0; z-index: 90;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 56px; }
+    nav::before { content: ''; position: absolute; inset: 0; background: rgba(6,10,16,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    nav > * { position: relative; z-index: 1; }
+    .nav-brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; color: var(--text); }
+    .nav-brand svg { width: 28px; height: 28px; }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .btn-ghost { padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; color: var(--text-2); border: 1px solid var(--border); background: transparent; font-family: var(--sans); }
+    .btn-ghost:hover { border-color: var(--border-2); color: var(--text); }
+    .btn-solid { padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; color: #fff; background: var(--accent); border: 1px solid var(--accent); font-family: var(--sans); }
+    .btn-solid:hover { background: var(--accent-l); border-color: var(--accent-l); transform: translateY(-1px); }
+
+    /* ─── Hero ────────────────────────────────────────────────── */
+    .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 140px 40px 80px; position: relative; overflow: hidden; }
+    .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(29,95,166,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(29,95,166,0.07) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; }
+    .hero-orb { position: absolute; top: 20%; left: 50%; transform: translate(-50%,-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(29,95,166,0.15) 0%, transparent 70%); pointer-events: none; }
+    .hero-eyebrow { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.15em; color: var(--accent-l); text-transform: uppercase; margin-bottom: 16px; }
+    .hero h1 { font-family: var(--serif); font-size: clamp(2.4rem, 5vw, 4rem); font-weight: 400; line-height: 1.15; letter-spacing: -0.02em; max-width: 780px; margin-bottom: 20px; position: relative; z-index: 1; }
+    .hero h1 em { color: var(--gold); font-style: italic; }
+    .hero-sub { font-size: clamp(1rem, 1.5vw, 1.2rem); color: var(--text-2); max-width: 600px; margin: 0 auto 48px; line-height: 1.75; font-weight: 300; position: relative; z-index: 1; }
+    .hero-cta { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+    .btn-hero { padding: 16px 36px; border-radius: 12px; font-size: 15px; font-weight: 600; display: inline-flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.3s var(--ease); font-family: var(--sans); }
+    .btn-hero-primary { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+    .btn-hero-primary:hover { background: var(--accent-l); border-color: var(--accent-l); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(29,95,166,0.3); }
+    .btn-hero-secondary { background: rgba(255,255,255,0.05); color: var(--text-2); border: 1px solid var(--border-2); }
+    .btn-hero-secondary:hover { color: var(--text); border-color: rgba(255,255,255,0.25); transform: translateY(-2px); }
+
+    /* ─── Stats Bar ───────────────────────────────────────────── */
+    .stats-bar { display: flex; gap: 0; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; margin-top: 64px; }
+    .stat { display: flex; flex-direction: column; align-items: center; padding: 0 40px; border-right: 1px solid var(--border); }
+    .stat:last-child { border-right: none; }
+    .stat-value { font-family: var(--mono); font-size: 1.5rem; font-weight: 500; color: var(--text); }
+    .stat-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+
+    /* ─── Discipline Showcase ─────────────────────────────────── */
+    .section { padding: 100px 40px; }
+    .section-header { text-align: center; margin-bottom: 64px; }
+    .section-label { font-family: var(--mono); font-size: 11px; font-weight: 500; letter-spacing: 0.15em; color: var(--accent-l); text-transform: uppercase; margin-bottom: 12px; }
+    .section-title { font-family: var(--serif); font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 400; line-height: 1.25; max-width: 600px; margin: 0 auto; }
+    .section-sub { font-size: 15px; color: var(--text-2); margin-top: 12px; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+    /* Discipline cards */
+    .disciplines { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+    .disc-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 16px; padding: 28px; transition: all 0.3s var(--ease); cursor: default; }
+    .disc-card:hover { border-color: rgba(29,95,166,0.4); background: var(--bg-3); transform: translateY(-3px); box-shadow: 0 16px 48px rgba(0,0,0,0.3); }
+    .disc-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 16px; }
+    .disc-badge-arch { background: rgba(168,85,247,0.15); color: #c4b5fd; }
+    .disc-badge-struct { background: rgba(59,130,246,0.15); color: #93c5fd; }
+    .disc-badge-mep { background: rgba(34,197,94,0.12); color: #86efac; }
+    .disc-badge-energy { background: rgba(249,115,22,0.15); color: #fdba74; }
+    .disc-badge-dob { background: rgba(245,158,11,0.15); color: #fcd34d; }
+    .disc-name { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .disc-desc { font-size: 13px; color: var(--text-2); line-height: 1.65; margin-bottom: 20px; }
+    .disc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .disc-tag { font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 6px; background: rgba(255,255,255,0.05); color: var(--text-3); border: 1px solid var(--border); }
+
+    /* ─── Version Timeline ─────────────────────────────────────── */
+    .versions { max-width: 800px; margin: 0 auto; }
+    .version-item { display: flex; gap: 24px; padding: 24px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+    .version-item:last-child { border-bottom: none; }
+    .version-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 3px rgba(29,95,166,0.3); flex-shrink: 0; margin-top: 5px; }
+    .version-dot-current { background: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,0.3); }
+    .version-body { flex: 1; }
+    .version-label { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+    .version-desc { font-size: 13px; color: var(--text-2); margin-bottom: 6px; }
+    .version-meta { display: flex; gap: 16px; align-items: center; }
+    .version-meta span { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+    .version-meta .v-current { color: var(--gold); font-weight: 600; }
+
+    /* ─── Collaboration ──────────────────────────────────────── */
+    .collab-section { max-width: 900px; margin: 0 auto; }
+    .presence-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+    .presence-card { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; }
+    .presence-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+    .presence-info { }
+    .presence-name { font-size: 14px; font-weight: 600; }
+    .presence-status { font-size: 12px; color: var(--green); display: flex; align-items: center; gap: 4px; }
+    .presence-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s ease-in-out infinite; }
+    .presence-location { font-size: 11px; color: var(--text-3); }
+
+    .issue-list { display: flex; flex-direction: column; gap: 12px; }
+    .issue-item { display: flex; gap: 16px; padding: 18px 20px; background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; align-items: flex-start; }
+    .issue-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
+    .issue-content { flex: 1; }
+    .issue-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .issue-meta { font-size: 12px; color: var(--text-3); }
+    .priority-high .issue-icon { background: rgba(239,68,68,0.15); }
+    .priority-high .issue-title { color: #fca5a5; }
+    .priority-normal .issue-icon { background: rgba(59,130,246,0.15); }
+    .priority-normal .issue-title { color: #93c5fd; }
+    .priority-low .issue-icon { background: rgba(34,197,94,0.12); }
+    .priority-low .issue-title { color: #86efac; }
+
+    /* ─── DOB Filing ───────────────────────────────────────────── */
+    .dob-progress { max-width: 800px; margin: 0 auto; }
+    .dob-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 16px; padding: 36px; }
+    .dob-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .dob-title { font-size: 18px; font-weight: 600; }
+    .dob-pct { font-family: var(--mono); font-size: 32px; font-weight: 500; color: var(--amber); }
+    .progress-bar { height: 8px; background: rgba(255,255,255,0.06); border-radius: 8px; overflow: hidden; margin-bottom: 32px; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-l)); border-radius: 8px; width: 70%; transition: width 1s var(--ease); }
+    .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .check-item { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: rgba(255,255,255,0.03); border-radius: 10px; font-size: 13px; }
+    .check-icon { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .check-done { background: rgba(34,197,94,0.2); color: var(--green); }
+    .check-pending { background: rgba(255,255,255,0.08); color: var(--text-3); }
+    .check-inprogress { background: rgba(245,158,11,0.2); color: var(--amber); }
+
+    /* ─── Energy Preview ──────────────────────────────────────── */
+    .energy-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 900px; margin: 0 auto; }
+    .energy-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 14px; padding: 24px; text-align: center; }
+    .energy-value { font-family: var(--mono); font-size: 2rem; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .energy-unit { font-size: 13px; color: var(--text-2); }
+    .energy-label { font-size: 12px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 6px; }
+
+    /* ─── CTA Section ─────────────────────────────────────────── */
+    .cta-section { text-align: center; padding: 120px 40px; background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%); }
+    .cta-section h2 { font-family: var(--serif); font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 400; margin-bottom: 16px; }
+    .cta-section p { color: var(--text-2); font-size: 16px; max-width: 480px; margin: 0 auto 40px; }
+
+    /* ─── Footer ──────────────────────────────────────────────── */
+    footer { border-top: 1px solid var(--border); padding: 32px 40px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--text-3); flex-wrap: wrap; gap: 16px; }
+    footer a { color: var(--text-3); }
+    footer a:hover { color: var(--text-2); }
+
+    /* ─── Animations ─────────────────────────────────────────── */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .anim-up { animation: fadeUp 0.7s var(--ease) both; }
+    .anim-up-d1 { animation-delay: 0.1s; }
+    .anim-up-d2 { animation-delay: 0.2s; }
+    .anim-up-d3 { animation-delay: 0.3s; }
+    .anim-up-d4 { animation-delay: 0.4s; }
+    .anim-up-d5 { animation-delay: 0.5s; }
+
+    /* ─── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .stats-bar { gap: 20px; }
+      .stat { border-right: none; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+      .disciplines { grid-template-columns: 1fr; }
+      .checklist { grid-template-columns: 1fr; }
+      nav { padding: 0 20px; }
+      .section, .hero, .cta-section { padding-left: 20px; padding-right: 20px; }
+    }
+    @media (max-width: 480px) {
+      .hero-cta { flex-direction: column; align-items: center; }
+      .btn-hero { width: 100%; max-width: 320px; justify-content: center; }
+      .presence-row { flex-direction: column; }
+    }
+
+    /* ─── Guided Walkthrough Overlay ───────────────────────────── */
+    #tour-overlay {
+      position: fixed; inset: 0; z-index: 500; pointer-events: none;
+      display: none;
+    }
+    #tour-overlay.active { display: block; }
+    #tour-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(6,10,16,0.82);
+      backdrop-filter: blur(4px);
+      pointer-events: all;
+    }
+    /* ── Progress dots (top-right) ── */
+    #tour-dots {
+      position: absolute; top: 24px; right: 24px;
+      display: flex; align-items: center; gap: 8px;
+      pointer-events: all; z-index: 511;
+    }
+    .tour-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.25);
+      cursor: pointer; transition: all 0.25s var(--ease);
+    }
+    .tour-dot.active {
+      background: var(--accent-l); border-color: var(--accent-l);
+      transform: scale(1.35);
+      box-shadow: 0 0 8px rgba(52,121,196,0.6);
+    }
+    .tour-dot:hover:not(.active) { background: rgba(255,255,255,0.35); }
+
+    /* ── Card (bottom-aligned) ── */
+    #tour-caption {
+      position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+      width: min(580px, 92vw);
+      background: var(--bg-3); border: 1px solid var(--border-2);
+      border-radius: 20px; padding: 28px 32px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+      pointer-events: all;
+      /* Cinematic card transition */
+      transition: opacity 0.3s cubic-bezier(0.16,1,0.3,1), transform 0.3s cubic-bezier(0.16,1,0.3,1);
+    }
+    #tour-caption.transitioning {
+      opacity: 0; transform: translateX(-50%) translateY(12px);
+    }
+    /* Mobile: full-width bottom sheet */
+    @media (max-width: 640px) {
+      #tour-caption {
+        bottom: 0; left: 0; right: 0; transform: none; width: 100%;
+        border-radius: 20px 20px 0 0; padding: 22px 20px 28px;
+      }
+      #tour-caption.transitioning { transform: translateY(16px); }
+    }
+    #tour-stage-label {
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+      color: var(--accent-l); text-transform: uppercase; margin-bottom: 10px;
+    }
+    #tour-caption h3 {
+      font-family: var(--serif); font-size: 1.4rem; font-weight: 400;
+      line-height: 1.3; margin-bottom: 8px; color: var(--text);
+    }
+    #tour-caption p {
+      font-size: 14px; color: var(--text-2); line-height: 1.65; margin-bottom: 20px;
+    }
+    #tour-progress-bar {
+      height: 3px; background: rgba(255,255,255,0.1); border-radius: 3px; margin-bottom: 20px; overflow: hidden;
+    }
+    #tour-progress-fill {
+      height: 100%; background: var(--accent-l); border-radius: 3px;
+      transition: width 0.4s cubic-bezier(0.16,1,0.3,1);
+    }
+    #tour-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+    #tour-actions-left { display: flex; align-items: center; gap: 8px; }
+    #tour-step-counter { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+    #tour-prev {
+      padding: 9px 18px; border-radius: 10px; font-size: 13px; font-weight: 500;
+      cursor: pointer; background: rgba(255,255,255,0.06); color: var(--text-2);
+      border: 1px solid var(--border); font-family: var(--sans); transition: all 0.2s;
+    }
+    #tour-prev:hover { color: var(--text); border-color: var(--border-2); }
+    #tour-prev:disabled { opacity: 0.3; cursor: default; }
+    #tour-skip-to-end {
+      padding: 9px 16px; border-radius: 10px; font-size: 12px; font-weight: 500;
+      cursor: pointer; background: transparent; color: var(--text-3);
+      border: 1px solid var(--border); font-family: var(--sans); transition: all 0.2s;
+    }
+    #tour-skip-to-end:hover { color: var(--text-2); border-color: var(--border-2); }
+    #tour-next {
+      padding: 10px 22px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      cursor: pointer; background: var(--accent); color: #fff; border: none;
+      font-family: var(--sans); transition: all 0.2s;
+    }
+    #tour-next:hover { background: var(--accent-l); transform: translateY(-1px); }
+    #tour-skip-btn {
+      position: absolute; top: 20px; right: 20px;
+      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
+      cursor: pointer; color: var(--text-3); border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04); font-family: var(--sans); transition: all 0.2s;
+      pointer-events: all;
+    }
+    #tour-skip-btn:hover { color: var(--text); border-color: var(--border-2); }
+    /* Ghost cursor */
+    #ghost-cursor {
+      position: absolute; width: 22px; height: 22px; pointer-events: none;
+      transition: left 0.9s cubic-bezier(0.34,1.56,0.64,1), top 0.9s cubic-bezier(0.34,1.56,0.64,1),
+                  opacity 0.3s ease;
+      z-index: 510; filter: drop-shadow(0 2px 8px rgba(52,121,196,0.6));
+      display: none;
+    }
+    #ghost-cursor svg { width: 22px; height: 22px; }
+    /* Highlight spotlight */
+    .tour-highlight {
+      outline: 2px solid rgba(52,121,196,0.8) !important;
+      box-shadow: 0 0 0 6px rgba(52,121,196,0.15), 0 0 40px rgba(52,121,196,0.1) !important;
+      border-radius: 12px !important;
+      position: relative; z-index: 501 !important;
+      transition: outline 0.3s ease, box-shadow 0.3s ease !important;
+    }
+
+    /* ─── Booking CTA Modal ─────────────────────────────────────── */
+    #booking-modal-overlay {
+      position: fixed; inset: 0; z-index: 600;
+      background: rgba(6,10,16,0.88); backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    #booking-modal-overlay.active { display: flex; }
+    #booking-modal {
+      background: var(--bg-3); border: 1px solid var(--border-2);
+      border-radius: 24px; padding: 48px 44px; max-width: 520px; width: 100%;
+      box-shadow: 0 32px 100px rgba(0,0,0,0.7);
+      text-align: center;
+      animation: fadeUp 0.4s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .booking-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      background: rgba(34,197,94,0.1); color: var(--green);
+      border: 1px solid rgba(34,197,94,0.25); margin-bottom: 20px;
+    }
+    #booking-modal h2 {
+      font-family: var(--serif); font-size: 1.75rem; font-weight: 400;
+      line-height: 1.25; margin-bottom: 12px;
+    }
+    #booking-modal h2 em { color: var(--gold); font-style: italic; }
+    #booking-modal p {
+      font-size: 15px; color: var(--text-2); line-height: 1.65;
+      margin-bottom: 32px; max-width: 380px; margin-left: auto; margin-right: auto;
+    }
+    .booking-cta-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 16px 28px; border-radius: 14px;
+      font-size: 15px; font-weight: 700; color: #fff;
+      background: var(--accent); border: 1px solid var(--accent);
+      cursor: pointer; transition: all 0.25s var(--ease); font-family: var(--sans);
+      text-decoration: none; margin-bottom: 12px;
+    }
+    .booking-cta-primary:hover {
+      background: var(--accent-l); border-color: var(--accent-l);
+      transform: translateY(-2px); box-shadow: 0 8px 32px rgba(29,95,166,0.35);
+    }
+    .booking-features {
+      display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .booking-feature {
+      font-size: 12px; color: var(--text-3);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .booking-feature::before { content: '✓'; color: var(--green); font-weight: 700; }
+    #btn-booking-dismiss {
+      font-size: 13px; color: var(--text-3); cursor: pointer;
+      background: none; border: none; font-family: var(--sans);
+      transition: color 0.2s; padding: 8px 16px;
+    }
+    #btn-booking-dismiss:hover { color: var(--text-2); }
+    @media (max-width: 640px) {
+      #booking-modal { padding: 32px 24px; }
+      #booking-modal h2 { font-size: 1.4rem; }
+    }
+
+    /* ─── Multiplayer Live Session ──────────────────────────────── */
+    #live-session-bar {
+      background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 16px; padding: 20px 28px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      flex-wrap: wrap; margin: 0 auto 48px; max-width: 900px;
+    }
+    .live-session-left { display: flex; align-items: center; gap: 14px; }
+    .live-dot {
+      width: 10px; height: 10px; border-radius: 50%; background: var(--green);
+      animation: pulse 1.5s ease-in-out infinite; flex-shrink: 0;
+    }
+    .live-session-text strong { font-size: 14px; font-weight: 600; display: block; }
+    .live-session-text span { font-size: 12px; color: var(--text-3); }
+    .ghost-avatars { display: flex; align-items: center; gap: -6px; }
+    .ghost-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 2px solid var(--bg-2); display: flex; align-items: center;
+      justify-content: center; font-size: 11px; font-weight: 700;
+      margin-left: -6px; first:margin-left: 0;
+    }
+    #btn-join-live {
+      padding: 10px 22px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      cursor: pointer; background: rgba(34,197,94,0.15); color: var(--green);
+      border: 1px solid rgba(34,197,94,0.3); font-family: var(--sans); transition: all 0.2s;
+      white-space: nowrap;
+    }
+    #btn-join-live:hover { background: rgba(34,197,94,0.25); transform: translateY(-1px); }
+    /* Live session panel */
+    #live-session-panel {
+      display: none; background: var(--bg-2); border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 16px; padding: 24px 28px; max-width: 900px; margin: 0 auto 48px;
+    }
+    #live-session-panel.open { display: block; }
+    .live-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .live-panel-header h4 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+    #live-visitor-count { font-family: var(--mono); font-size: 12px; color: var(--green); }
+    .live-cursors-area {
+      position: relative; height: 220px; background: var(--bg-3); border-radius: 12px;
+      border: 1px solid var(--border); overflow: hidden; margin-bottom: 16px;
+    }
+    .live-cursors-area-label {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 8px; color: var(--text-3);
+      font-size: 13px; pointer-events: none;
+    }
+    .live-cursor-dot {
+      position: absolute; pointer-events: none; transition: left 0.3s ease, top 0.3s ease;
+    }
+    .live-cursor-dot::before {
+      content: ''; display: block; width: 12px; height: 12px; border-radius: 50%;
+      opacity: 0.9;
+    }
+    .live-cursor-label {
+      position: absolute; top: 14px; left: 4px; font-size: 10px; font-weight: 600;
+      white-space: nowrap; padding: 2px 6px; border-radius: 4px; color: #fff;
+    }
+    .live-idle-notice {
+      font-size: 12px; color: var(--text-3); text-align: center;
+    }
+    #btn-leave-live {
+      margin-top: 12px; padding: 8px 18px; border-radius: 8px; font-size: 12px;
+      font-weight: 500; cursor: pointer; color: var(--text-3); border: 1px solid var(--border);
+      background: transparent; font-family: var(--sans); transition: all 0.2s;
+    }
+    #btn-leave-live:hover { color: var(--text); border-color: var(--border-2); }
+
+    /* ─── Mobile Camera Presets ─────────────────────────────────── */
+    #mobile-presets {
+      display: none;
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      z-index: 200; background: rgba(11,16,24,0.92); border: 1px solid var(--border-2);
+      border-radius: 20px; padding: 10px 14px;
+      backdrop-filter: blur(16px); gap: 8px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+    #mobile-presets.visible { display: flex; }
+    .preset-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04); cursor: pointer; color: var(--text-2);
+      font-family: var(--sans); font-size: 10px; font-weight: 500; transition: all 0.2s;
+      white-space: nowrap; min-width: 62px;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      border-color: var(--accent); color: var(--text); background: rgba(29,95,166,0.12);
+    }
+    .preset-btn svg { width: 18px; height: 18px; }
+
+    /* Take the tour button */
+    #btn-take-tour {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600;
+      cursor: pointer; background: rgba(201,168,76,0.1); color: var(--gold);
+      border: 1px solid rgba(201,168,76,0.3); font-family: var(--sans); transition: all 0.2s;
+    }
+    #btn-take-tour:hover { background: rgba(201,168,76,0.18); transform: translateY(-1px); }
+    #btn-replay-tour {
+      position: fixed; bottom: 24px; right: 24px; z-index: 200;
+      padding: 10px 18px; border-radius: 10px; font-size: 12px; font-weight: 600;
+      cursor: pointer; background: rgba(11,16,24,0.9); border: 1px solid var(--border-2);
+      color: var(--text-2); font-family: var(--sans); transition: all 0.2s;
+      backdrop-filter: blur(8px); display: none; align-items: center; gap: 6px;
+    }
+    #btn-replay-tour.visible { display: flex; }
+    #btn-replay-tour:hover { color: var(--text); border-color: var(--border-2); }
+  </style>
+</head>
+<body>
+
+<!-- ─── Guided Walkthrough Overlay ──────────────────── -->
+<div id="tour-overlay">
+  <div id="tour-backdrop"></div>
+  <!-- Progress dots — top right, clickable -->
+  <div id="tour-dots">
+    <button class="tour-dot active" data-step="0" aria-label="Stage 1: Walls" title="Walls"></button>
+    <button class="tour-dot" data-step="1" aria-label="Stage 2: Levels" title="Levels"></button>
+    <button class="tour-dot" data-step="2" aria-label="Stage 3: MEP" title="MEP"></button>
+    <button class="tour-dot" data-step="3" aria-label="Stage 4: Energy" title="Energy"></button>
+    <button class="tour-dot" data-step="4" aria-label="Stage 5: DOB Filing" title="DOB Filing"></button>
+  </div>
+  <div id="ghost-cursor">
+    <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M4 2L18 12L11 13L8 20L4 2Z" fill="#3479c4" stroke="#1d5fa6" stroke-width="1.2" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div id="tour-caption">
+    <div id="tour-stage-label">Stage 1 of 5 — Walls</div>
+    <h3 id="tour-title">Real-time wall collaboration</h3>
+    <p id="tour-body">Walls auto-constrain to structural grid lines. Place a door — the wall geometry cuts instantly. Change a level elevation and every bound element updates through the DAG solver.</p>
+    <div id="tour-progress-bar"><div id="tour-progress-fill" style="width:20%"></div></div>
+    <div id="tour-actions">
+      <div id="tour-actions-left">
+        <button id="tour-prev" disabled>← Prev</button>
+        <button id="tour-skip-to-end">Skip to end</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span id="tour-step-counter">1 / 5</span>
+        <button id="tour-next">Next →</button>
+      </div>
+    </div>
+  </div>
+  <button id="tour-skip-btn">Skip ✕</button>
+</div>
+
+<!-- ─── Booking CTA Modal ─────────────────────────── -->
+<div id="booking-modal-overlay">
+  <div id="booking-modal">
+    <div class="booking-badge">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Tour Complete
+    </div>
+    <h2>Book a <em>20-minute</em><br>walkthrough with our team</h2>
+    <p>See Atlantist live with your own project data. We'll walk through walls, levels, MEP coordination, energy analysis, and DOB filing — tailored to your firm's workflows.</p>
+    <div class="booking-features">
+      <span class="booking-feature">No prep needed</span>
+      <span class="booking-feature">NYC & national firms</span>
+      <span class="booking-feature">Free for architects</span>
+    </div>
+    <a href="https://cal.com/atlantist/demo" target="_blank" rel="noopener" class="booking-cta-primary" id="btn-book-meeting">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Book a 20-min walkthrough
+    </a>
+    <div>
+      <a href="/app?demo=nyc-midrise" class="btn-ghost" style="display:inline-block;margin-bottom:8px;">Explore the model first →</a>
+    </div>
+    <button id="btn-booking-dismiss">Maybe later</button>
+  </div>
+</div>
+
+<!-- Replay button (post-tour) -->
+<button id="btn-replay-tour">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+  Replay tour
+</button>
+
+<!-- Mobile camera presets (mobile-only) -->
+<div id="mobile-presets">
+  <button class="preset-btn" data-preset="street" onclick="applyPreset('street')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"/><rect x="4" y="12" width="16" height="8"/><path d="M8 12V8a4 4 0 0 1 8 0v4"/></svg>
+    Street
+  </button>
+  <button class="preset-btn" data-preset="aerial" onclick="applyPreset('aerial')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M19.07 4.93l-2.83 2.83M7.76 16.24l-2.83 2.83"/></svg>
+    Aerial
+  </button>
+  <button class="preset-btn" data-preset="section" onclick="applyPreset('section')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18M3 12h18"/></svg>
+    Section
+  </button>
+  <button class="preset-btn" data-preset="interior" onclick="applyPreset('interior')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Interior
+  </button>
+</div>
+
+<!-- Demo banner -->
+<div class="demo-banner">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+  You're viewing a live demo &nbsp;·&nbsp; <strong>425 W 34th St — 10-Story NYC Mid-Rise</strong> &nbsp;·&nbsp;
+  <a href="/app?demo=nyc-midrise">Open in BIM editor →</a>
+</div>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-brand">
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="14" cy="14" r="13" stroke="#1d5fa6" stroke-width="1.5"/>
+      <circle cx="14" cy="14" r="9" stroke="#3479c4" stroke-width="1.5"/>
+      <circle cx="14" cy="14" r="5" fill="#c9a84c"/>
+      <line x1="14" y1="1" x2="14" y2="6" stroke="#1d5fa6" stroke-width="1.5"/>
+      <line x1="14" y1="22" x2="14" y2="27" stroke="#1d5fa6" stroke-width="1.5"/>
+      <line x1="1" y1="14" x2="6" y2="14" stroke="#1d5fa6" stroke-width="1.5"/>
+      <line x1="22" y1="14" x2="27" y2="14" stroke="#1d5fa6" stroke-width="1.5"/>
+    </svg>
+    Atlantist
+  </div>
+  <div class="nav-actions">
+    <a href="/" class="btn-ghost">Home</a>
+    <a href="/docs" class="btn-ghost">Docs</a>
+    <a href="/app?demo=nyc-midrise" class="btn-solid">Open Demo →</a>
+  </div>
+</nav>
+
+<!-- ─── Hero ─────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="hero-orb" aria-hidden="true"></div>
+
+  <p class="hero-eyebrow anim-up anim-up-d1">Live BIM Demo — No Sign-Up Required</p>
+  <h1 class="anim-up anim-up-d2">425 W 34th St<br>10-Story <em>NYC Mid-Rise</em></h1>
+  <p class="hero-sub anim-up anim-up-d3">Architecture · Structure · MEP · Energy · DOB Filing — every discipline, live in your browser. 295,000 sf Manhattan footprint. 10 floors. Steel moment frame. 350 structural members. VAV HVAC. Pre-computed simulations.</p>
+
+  <div class="hero-cta anim-up anim-up-d4">
+    <a href="/app?demo=nyc-midrise" class="btn-hero btn-hero-primary">
+      Explore the Model
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+    </a>
+    <button id="btn-take-tour">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Take the tour (~45s)
+    </button>
+    <a href="#disciplines" class="btn-hero btn-hero-secondary">See what's inside ↓</a>
+  </div>
+
+  <div class="stats-bar anim-up anim-up-d5">
+    <div class="stat">
+      <span class="stat-value">11</span>
+      <span class="stat-label">Building Levels</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">350</span>
+      <span class="stat-label">Structural Members</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">40</span>
+      <span class="stat-label">VAV HVAC Zones</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">144k</span>
+      <span class="stat-label">kWh/year (EnergyPlus)</span>
+    </div>
+    <div class="stat">
+      <span class="stat-value">295k</span>
+      <span class="stat-label">sf Floor Area</span>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Disciplines ──────────────────────────────────── -->
+<section class="section" id="disciplines">
+  <div class="section-header">
+    <p class="section-label anim-up">Five Disciplines. One Model.</p>
+    <h2 class="section-title anim-up">Every engineering domain, coordinated in real-time</h2>
+    <p class="section-sub anim-up">Toggle each view in the 3D editor. DAG constraint propagation keeps every discipline in sync.</p>
+  </div>
+
+  <div class="disciplines">
+    <div class="disc-card anim-up">
+      <div class="disc-badge disc-badge-arch">🏛 Architecture</div>
+      <div class="disc-name">Architecture</div>
+      <div class="disc-desc">Exterior envelope (80′ × 120′ Manhattan footprint), curtain wall north/east, brick masonry south/west, interior partitions. 11 levels (ground + mezz + 8 typical + roof) with parametric level binding. 80 rooms, 2 stair cores.</div>
+      <div class="disc-tags">
+        <span class="disc-tag">80 rooms</span>
+        <span class="disc-tag">10 floor plates</span>
+        <span class="disc-tag">2 stairs</span>
+        <span class="disc-tag">DAG-solved</span>
+      </div>
+    </div>
+
+    <div class="disc-card anim-up">
+      <div class="disc-badge disc-badge-struct">🔩 Structure</div>
+      <div class="disc-name">Structural Engineering</div>
+      <div class="disc-desc">W14x90 steel columns on 5×7 grid, W18x35 spandrel beams at each floor, W24x76 transfer beams at podium level (3.658m). ASCE 7-22 code checks with pre-computed DCR stress values. 350 members, all PASS. Max DCR 0.89 — within limit.</div>
+      <div class="disc-tags">
+        <span class="disc-tag">350 members</span>
+        <span class="disc-tag">DCR ≤ 0.90</span>
+        <span class="disc-tag">ASCE 7-22</span>
+        <span class="disc-tag">AISC 360-22</span>
+      </div>
+    </div>
+
+    <div class="disc-card anim-up">
+      <div class="disc-badge disc-badge-mep">🔧 MEP</div>
+      <div class="disc-name">Mechanical, Electrical, Plumbing</div>
+      <div class="disc-desc">VAV HVAC (40 zones, supply/return/exhaust risers, branch ducts + diffusers per floor). Wet-wall plumbing: cold/hot water, soil, vent stacks. NFPA 13 wet sprinkler: ring main + 240 heads. 400A MDP panels + EMT conduit + lighting/receptacle circuits.</div>
+      <div class="disc-tags">
+        <span class="disc-tag">40 VAV zones</span>
+        <span class="disc-tag">240 sprinkler heads</span>
+        <span class="disc-tag">4 plumbing risers</span>
+        <span class="disc-tag">400A electrical</span>
+      </div>
+    </div>
+
+    <div class="disc-card anim-up">
+      <div class="disc-badge disc-badge-energy">⚡ Energy</div>
+      <div class="disc-name">Energy Analysis</div>
+      <div class="disc-desc">ASHRAE 90.1-2019-compliant EnergyPlus simulation. 40 VAV zones, NYC climate zone 4A (IcyBox). Annual consumption, 8760-hour hourly profile, peak cooling/heating loads, EUI 48.7. EN-001 through EN-008 compliance all PASS.</div>
+      <div class="disc-tags">
+        <span class="disc-tag">144,420 kWh/yr</span>
+        <span class="disc-tag">48.7 EUI kBtu/sf</span>
+        <span class="disc-tag">EnergyPlus</span>
+        <span class="disc-tag">40 zones</span>
+      </div>
+    </div>
+
+    <div class="disc-card anim-up">
+      <div class="disc-badge disc-badge-dob">📋 DOB Filing</div>
+      <div class="disc-name">NYC DOB Compliance</div>
+      <div class="disc-desc">DOB energy filing package — 9 PDFs (EN-001 through EN-008 + Document Index) generated from pre-computed EnergyPlus results. ASHRAE 90.1-2019 baseline vs. proposed model. Download the complete package directly.</div>
+      <div class="disc-tags">
+        <span class="disc-tag">EN-001 to EN-008</span>
+        <span class="disc-tag">BC §27-292</span>
+        <span class="disc-tag">LL97 / NYStretch</span>
+        <span class="disc-tag">9-PDF bundle</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Version Timeline ─────────────────────────────── -->
+<section class="section" style="background: var(--bg-2);">
+  <div class="section-header">
+    <p class="section-label">Version History</p>
+    <h2 class="section-title">Eight milestones from massing to filing</h2>
+  </div>
+  <div class="versions">
+    <div class="version-item anim-up">
+      <div class="version-dot"></div>
+      <div class="version-body">
+        <div class="version-label">Initial massing</div>
+        <div class="version-desc">Exterior envelope created — 80ft × 120ft Manhattan footprint. Curtain wall north/east (1" IG, thermally broken), brick on CMU south/west. 11 levels: ground floor + mezzanine + 8 typical floors + roof.</div>
+        <div class="version-meta">
+          <span>6 days ago · Sarah K.</span>
+        </div>
+      </div>
+    </div>
+    <div class="version-item anim-up">
+      <div class="version-dot"></div>
+      <div class="version-body">
+        <div class="version-label">Structural grid finalized</div>
+        <div class="version-desc">Steel column grid placed — W14x90 primary columns at 12.5ft spacing, W18x35 beams at each floor level. Structural FEA run completed.</div>
+        <div class="version-meta">
+          <span>4 days ago · Mike R.</span>
+        </div>
+      </div>
+    </div>
+    <div class="version-item anim-up">
+      <div class="version-dot"></div>
+      <div class="version-body">
+        <div class="version-label">Interior layout v1</div>
+        <div class="version-desc">Level 1 interior partition layout created — lobby, open office, electrical room, stair core. 6.5" metal stud partitions.</div>
+        <div class="version-meta">
+          <span>3 days ago · Elena T.</span>
+        </div>
+      </div>
+    </div>
+    <div class="version-item anim-up">
+      <div class="version-dot"></div>
+      <div class="version-body">
+        <div class="version-label">Doors and windows added</div>
+        <div class="version-desc">Entry doors, windows added to all elevations. NYC double-hung on east/west facades. 60-min fire-rated doors at stair. Low-E glazing on L2.</div>
+        <div class="version-meta">
+          <span>2 days ago · Sarah K.</span>
+        </div>
+      </div>
+    </div>
+    <div class="version-item anim-up">
+      <div class="version-dot"></div>
+      <div class="version-body">
+        <div class="version-label">MEP routing v1</div>
+        <div class="version-desc">HVAC supply/return ducts, plumbing wet-wall risers and fixture branches, NFPA 13 sprinkler mains and pendent heads. 400A electrical panel + conduit runs.</div>
+        <div class="version-meta">
+          <span>1 day ago · Dave L.</span>
+        </div>
+      </div>
+    </div>
+    <div class="version-item anim-up">
+      <div class="version-dot version-dot-current"></div>
+      <div class="version-body">
+        <div class="version-label">Current model</div>
+        <div class="version-desc">DOB filing check in progress. Egress width verified at 48" — passes NYC BC §27-292. Energy simulation running. Window head height confirmed per BC §1206.</div>
+        <div class="version-meta">
+          <span>12 hours ago · Sarah K.</span>
+          <span class="v-current">Current version</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Collaboration / Issues ───────────────────────── -->
+<section class="section">
+  <div class="section-header">
+    <p class="section-label">Live Collaboration</p>
+    <h2 class="section-title">3 others are here — and 4 open issues</h2>
+  </div>
+  <div class="collab-section">
+
+    <!-- Live multiplayer session bar -->
+    <div id="live-session-bar" class="anim-up">
+      <div class="live-session-left">
+        <div class="live-dot"></div>
+        <div>
+          <div class="live-session-text">
+            <strong>Live session open — <span id="visitor-count">3</span> visitors browsing now</strong>
+            <span>Read-only · Pan, zoom &amp; click elements · Ghost cursors visible</span>
+          </div>
+        </div>
+        <div class="ghost-avatars" id="ghost-avatars-row">
+          <div class="ghost-avatar" style="background:#7c3aed;color:#e9d5ff;">A</div>
+          <div class="ghost-avatar" style="background:#059669;color:#a7f3d0;">E</div>
+          <div class="ghost-avatar" style="background:#b45309;color:#fde68a;">T</div>
+        </div>
+      </div>
+      <button id="btn-join-live">
+        Join live session →
+      </button>
+    </div>
+
+    <!-- Live session panel (shown after join) -->
+    <div id="live-session-panel">
+      <div class="live-panel-header">
+        <h4>
+          <span class="live-dot" style="width:8px;height:8px;display:inline-block;border-radius:50%;background:var(--green);animation:pulse 1.5s ease-in-out infinite;"></span>
+          NYC Mid-Rise — Live Session
+        </h4>
+        <span id="live-visitor-count">3 visitors here</span>
+      </div>
+      <div class="live-cursors-area" id="cursors-area">
+        <div class="live-cursors-area-label">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+          <span>Model viewport — ghost cursors visible</span>
+        </div>
+        <!-- Ghost cursors injected by JS -->
+      </div>
+      <p class="live-idle-notice" id="idle-notice">Auto-disconnect after 5 min idle · Read-only — sign up to edit</p>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px;">
+        <a href="/app?demo=nyc-midrise" style="font-size:13px;color:var(--accent-l);font-weight:500;">Open full editor with live cursors →</a>
+        <button id="btn-leave-live">Leave session</button>
+      </div>
+    </div>
+
+    <div class="presence-row anim-up">
+      <div class="presence-card">
+        <div class="presence-avatar" style="background:#7c3aed;color:#e9d5ff;">SK</div>
+        <div class="presence-info">
+          <div class="presence-name">Sarah K.</div>
+          <div class="presence-status">Editing — Level 1</div>
+          <div class="presence-location">Arch view</div>
+        </div>
+      </div>
+      <div class="presence-card">
+        <div class="presence-avatar" style="background:#1d5fa6;color:#93c5fd;">MR</div>
+        <div class="presence-info">
+          <div class="presence-name">Mike R.</div>
+          <div class="presence-status">Editing — Structural</div>
+          <div class="presence-location">Beam view</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="issue-list anim-up">
+      <div class="issue-item priority-high">
+        <div class="issue-icon">⚠</div>
+        <div class="issue-content">
+          <div class="issue-title">Window head height — verify NYC BC compliance</div>
+          <div class="issue-meta">Open · High priority · Elena T. · 1d ago · 1 comment</div>
+        </div>
+      </div>
+      <div class="issue-item priority-normal">
+        <div class="issue-icon">📐</div>
+        <div class="issue-content">
+          <div class="issue-title">Confirm beam spec with structural</div>
+          <div class="issue-meta">Open · Normal priority · Sarah K. · 2d ago · 2 comments</div>
+        </div>
+      </div>
+      <div class="issue-item priority-normal">
+        <div class="issue-icon">📋</div>
+        <div class="issue-content">
+          <div class="issue-title">DOB egress width check — Section 27-292</div>
+          <div class="issue-meta">Open · Normal priority · Sarah K. · 6h ago · 2 comments</div>
+        </div>
+      </div>
+      <div class="issue-item priority-low">
+        <div class="issue-icon">🪟</div>
+        <div class="issue-content">
+          <div class="issue-title">Low-E glazing specification needs updating</div>
+          <div class="issue-meta">Open · Low priority · Elena T. · 12h ago · 0 comments</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DOB Filing ─────────────────────────────────────── -->
+<section class="section" style="background: var(--bg-2);">
+  <div class="section-header">
+    <p class="section-label">NYC DOB Filing</p>
+    <h2 class="section-title">DOB Energy Filing Package — Ready to Download</h2>
+    <p class="section-sub">9-PDF submission bundle generated from pre-computed EnergyPlus results. All 8 compliance metrics PASS. Download the complete package below.</p>
+  </div>
+  <div class="dob-progress">
+    <div class="dob-card anim-up">
+      <div class="dob-header">
+        <div>
+          <div class="dob-title">425 W 34th St — NB Application</div>
+          <div style="font-size:13px;color:var(--text-3);margin-top:4px;">BIN 1084889 · Block 758, Lot 17 · B-2 Occupancy · 10-Story · 29,500 sf/floor</div>
+        </div>
+        <div class="dob-pct" style="color:var(--green)">100%</div>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:100%;background:linear-gradient(90deg,#22c55e,#16a34a)"></div></div>
+      <div style="text-align:center;margin:20px 0 24px">
+        <a href="/api/demo/nyc-midrise/dob-package" class="btn-hero btn-hero-primary" style="display:inline-flex;padding:14px 32px;font-size:14px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download DOB Package (.zip, 9 PDFs)
+        </a>
+        <div style="font-size:11px;color:var(--text-3);margin-top:8px;">EN-001 → EN-008 · ASHRAE 90.1-2019 · LL97 · NYStretch · NYC ECC</div>
+      </div>
+      <div class="checklist">
+        <div class="check-item"><div class="check-icon check-done">✓</div> EN-001 Building Energy Use — 48.7 EUI (limit 52.0) PASS</div>
+        <div class="check-item"><div class="check-icon check-done">✓</div> EN-002 Interior Lighting Power — 0.55 W/sf (limit 0.60) PASS</div>
+        <div class="check-item"><div class="check-icon check-done">✓</div> EN-003 NYStretch Energy — 41 kBtu/sf (limit 45) PASS</div>
+        <div class="check-item"><div class="check-icon check-done">✓</div> EN-004 LL97 Carbon — 51 kgCO2/sf (limit 55) PASS</div>
+        <div class="check-item"><div class="check-icon check-done">✓</div> EN-005 LPD — 0.08 W/sf (limit 0.10) PASS</div>
+        <div class="check-item"><div class="check-icon check-done">✓</div> EN-006 COP ≥ 3.0 — actual 3.2 PASS</div>
+        <div class="check-item"><div class="check-icon check-done">✓</div> EN-007 SCOP — 0.74 (limit 0.75) PASS</div>
+        <div class="check-item"><div class="check-icon check-done">✓</div> EN-008 HVAC Systems — ASHRAE 90.1-2019 PASS</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Energy Preview ─────────────────────────────────── -->
+<section class="section">
+  <div class="section-header">
+    <p class="section-label">Energy Simulation</p>
+    <h2 class="section-title">Annual energy profile — EnergyPlus, 8760 hours</h2>
+    <p class="section-sub">NYC climate zone 4A (IcyBox), 40 VAV zones, VAV with reheat HVAC, composite deck floor</p>
+  </div>
+  <div class="energy-grid">
+    <div class="energy-card anim-up">
+      <div class="energy-value">144,420</div>
+      <div class="energy-unit">kWh/year</div>
+      <div class="energy-label">Total Consumption</div>
+    </div>
+    <div class="energy-card anim-up">
+      <div class="energy-value">218</div>
+      <div class="energy-unit">kW</div>
+      <div class="energy-label">Peak Cooling Load</div>
+    </div>
+    <div class="energy-card anim-up">
+      <div class="energy-value">185</div>
+      <div class="energy-unit">kW</div>
+      <div class="energy-label">Peak Heating Load</div>
+    </div>
+    <div class="energy-card anim-up">
+      <div class="energy-value">48.7</div>
+      <div class="energy-unit">kBtu/sf/yr</div>
+      <div class="energy-label">Energy Use Index (EUI)</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Final CTA ──────────────────────────────────────── -->
+<section class="cta-section">
+  <h2>Ready to explore?</h2>
+  <p>The full 3D model is live in your browser — all discipline toggles, presence cursors, and the issue thread are interactive.</p>
+  <div class="hero-cta" style="justify-content:center;">
+    <a href="/app?demo=nyc-midrise" class="btn-hero btn-hero-primary" style="padding:18px 42px;font-size:16px;">
+      Open 425 W 34th St Demo
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="/" class="btn-hero btn-hero-secondary">Back to Home</a>
+  </div>
+  <p style="margin-top:24px;font-size:12px;color:var(--text-3);">Read-only demo · <a href="/app">Sign up free</a> to fork and edit · No install required</p>
+</section>
+
+<!-- ─── Footer ─────────────────────────────────────────── -->
+<footer>
+  <span>© 2026 Atlantist · <a href="/legal/privacy">Privacy</a> · <a href="/legal/terms">Terms</a></span>
+  <span>Demo data is illustrative · Not for construction use</span>
+</footer>
+
+<!-- Demo interactive features: tour, multiplayer, mobile presets -->
+<script src="/js/boot-safety.js"></script>
+<script src="/js/demo-features.js" defer></script>
+</body>
+</html>

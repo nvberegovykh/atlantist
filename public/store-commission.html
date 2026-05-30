@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How Pricing Works — Atlantist Asset Store</title>
+  <meta name="description" content="Transparent pricing on the Atlantist Asset Store. 2% platform fee + itemized Stripe processing fees. No hidden costs.">
+  <meta property="og:title" content="How Pricing Works — Atlantist Asset Store">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0c10; --bg-card: #13151c; --bg-card2: #1a1d27; --bg-raised: #1e2130;
+      --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+      --text: #f0eeea; --text-dim: rgba(240,238,234,0.55); --text-mid: rgba(240,238,234,0.35);
+      --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.15); --blue: #5b8fd9;
+      --green: #3bba6c; --red: #e84855; --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+      --radius: 12px; --radius-sm: 8px;
+    }
+    html, body { min-height: 100vh; overflow-x: hidden; }
+    body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    ::selection { background: var(--blue); color: white; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────── */
+    nav { display: flex; align-items: center; padding: 20px 48px; border-bottom: 1px solid var(--border); background: rgba(11,12,16,0.95); position: sticky; top: 0; z-index: 50; }
+    nav .logo { font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    nav .logo svg { width: 28px; height: 28px; }
+    nav .breadcrumb { color: var(--text-mid); font-size: 14px; margin-left: 16px; }
+    nav .breadcrumb span { color: var(--text-dim); }
+    nav .nav-links { margin-left: auto; display: flex; gap: 24px; }
+    nav .nav-links a { color: var(--text-dim); font-size: 14px; font-weight: 500; transition: color 0.15s; }
+    nav .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero { text-align: center; padding: 80px 24px 60px; }
+    .hero .eyebrow { font-size: 12px; font-weight: 600; color: var(--gold); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px; }
+    .hero h1 { font-size: clamp(36px, 6vw, 56px); font-weight: 700; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p { font-size: 18px; color: var(--text-dim); max-width: 600px; margin: 0 auto; }
+
+    /* ── Example Box ──────────────────────────────────────── */
+    .example-section { max-width: 680px; margin: 0 auto; padding: 0 24px 60px; }
+    .example-card { background: var(--bg-card); border: 1px solid var(--border2); border-radius: 16px; padding: 32px; margin-bottom: 24px; }
+    .example-card h3 { font-size: 14px; font-weight: 600; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 24px; }
+    .example-total { font-size: 42px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .example-total-label { font-size: 14px; color: var(--text-dim); margin-bottom: 28px; }
+    .breakdown { border-top: 1px solid var(--border); padding-top: 24px; }
+    .breakdown-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; font-size: 15px; }
+    .breakdown-row .label { color: var(--text-dim); }
+    .breakdown-row .value { font-weight: 600; }
+    .breakdown-row .value.highlight { color: var(--green); }
+    .breakdown-row .value.dim { color: var(--text-mid); }
+    .breakdown-row .sub { font-size: 12px; color: var(--text-mid); margin-left: 8px; }
+    .breakdown-row.total-row { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 16px; }
+    .breakdown-row.total-row .label { font-weight: 600; color: var(--text); }
+    .breakdown-row.total-row .value { color: var(--text); font-size: 17px; }
+    .breakdown-row.receipt { background: rgba(59,186,108,0.08); border-radius: 8px; padding: 12px 16px; margin-top: 16px; border: 1px solid rgba(59,186,108,0.2); }
+
+    /* ── How It Works ─────────────────────────────────────── */
+    .section { max-width: 680px; margin: 0 auto; padding: 0 24px 60px; }
+    .section h2 { font-size: 28px; font-weight: 700; margin-bottom: 32px; }
+    .step-grid { display: grid; gap: 16px; }
+    .step { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; display: flex; gap: 16px; }
+    .step-num { width: 36px; height: 36px; border-radius: 50%; background: var(--gold-dim); border: 1px solid var(--gold); color: var(--gold); font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-content h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .step-content p { font-size: 14px; color: var(--text-dim); line-height: 1.6; }
+
+    /* ── Commission Table ─────────────────────────────────── */
+    .table-wrap { overflow-x: auto; margin: 24px 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; padding: 12px 16px; color: var(--text-mid); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); }
+    td { padding: 14px 16px; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+    tr:last-child td { border-bottom: none; }
+    td:nth-child(2) { color: var(--text); font-weight: 600; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* ── Smart Pricing ───────────────────────────────────── */
+    .callout { background: var(--bg-card); border: 1px solid var(--border2); border-radius: var(--radius); padding: 24px; margin-top: 16px; }
+    .callout h4 { font-size: 15px; font-weight: 600; margin-bottom: 10px; color: var(--gold); }
+    .callout p { font-size: 14px; color: var(--text-dim); }
+    .callout code { background: rgba(201,168,76,0.12); color: var(--gold); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+    /* ── FAQ ──────────────────────────────────────────────── */
+    .faq-item { padding: 20px 0; border-bottom: 1px solid var(--border); }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .faq-a { font-size: 14px; color: var(--text-dim); line-height: 1.7; }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    footer { border-top: 1px solid var(--border); padding: 32px 48px; text-align: center; color: var(--text-mid); font-size: 13px; }
+
+    @media (max-width: 600px) {
+      nav { padding: 16px 20px; }
+      .hero { padding: 60px 20px 40px; }
+      nav .breadcrumb { display: none; }
+      .example-card { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="20" r="19" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.3"/>
+      <circle cx="20" cy="20" r="14" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.5"/>
+      <circle cx="20" cy="20" r="9" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M20 8 L20 11 M20 29 L20 32 M8 20 L11 20 M29 20 L32 20" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="20" cy="20" r="3" fill="#c9a84c"/>
+    </svg>
+    Atlantist Asset Store
+  </div>
+  <div class="breadcrumb"> <span>/</span> How Pricing Works </div>
+  <div class="nav-links">
+    <a href="/store">Browse Store</a>
+    <a href="/store/dashboard">Creator Dashboard</a>
+    <a href="/store/library">My Library</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="eyebrow">Transparent by Design</div>
+  <h1>How Asset Pricing Works</h1>
+  <p>Two fees, clearly shown. No hidden margins. No surprises.</p>
+</div>
+
+<!-- Worked Example -->
+<div class="example-section">
+  <div class="example-card">
+    <h3>Worked Example — $20 BIM Family</h3>
+    <div class="example-total">$20.88</div>
+    <div class="example-total-label">Total amount charged to buyer</div>
+
+    <div class="breakdown">
+      <div class="breakdown-row">
+        <span class="label">Asset price</span>
+        <span class="value">$20.00</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="label">Stripe processing fee <span class="sub">2.9% + $0.30</span></span>
+        <span class="value dim">$0.88</span>
+      </div>
+      <div class="breakdown-row receipt">
+        <span class="label" style="color:var(--green)">Buyer pays</span>
+        <span class="value" style="color:var(--green)">$20.88</span>
+      </div>
+    </div>
+
+    <div style="margin-top:28px; padding-top:24px; border-top:1px solid var(--border)">
+      <div class="breakdown-row">
+        <span class="label">Gross sale</span>
+        <span class="value">$20.00</span>
+      </div>
+      <div class="breakdown-row">
+        <span class="label">Platform commission <span class="sub">2% flat</span></span>
+        <span class="value" style="color:var(--red)">− $0.40</span>
+      </div>
+      <div class="breakdown-row receipt" style="background:rgba(59,186,108,0.08); border-color:rgba(59,186,108,0.2)">
+        <span class="label" style="color:var(--green)">Creator receives</span>
+        <span class="value highlight" style="font-size:17px">$19.60</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- How It Works -->
+<div class="section">
+  <h2>The Two-Fee Model</h2>
+
+  <div class="step-grid">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Itemized Stripe Fee</h3>
+        <p>We pass Stripe's processing fee (2.9% + $0.30 per transaction) to the buyer as a visible line item. This is Stripe's actual cost — Atlantist keeps zero of it.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>2% Platform Commission</h3>
+        <p>Atlantist retains exactly 2% of the listing price as our platform fee. This funds platform maintenance, hosting, and continued development. No variable markups, no hidden margins.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Creator Receives 98%</h3>
+        <p>The creator receives the listing price minus the 2% platform commission. Payouts are automated via Stripe Connect — creators get paid directly to their Stripe account.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Commission table -->
+<div class="section">
+  <h2>Creator Earnings by Price Point</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Listing Price</th>
+          <th>Buyer Pays (incl. Stripe fee)</th>
+          <th>Platform (2%)</th>
+          <th>Stripe Fee</th>
+          <th>Creator Receives</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>$5.00</td><td>$5.45</td><td>$0.10</td><td>$0.35</td><td style="color:var(--green)">$4.90</td></tr>
+        <tr><td>$10.00</td><td>$10.59</td><td>$0.20</td><td>$0.59</td><td style="color:var(--green)">$9.80</td></tr>
+        <tr><td>$20.00</td><td>$20.88</td><td>$0.40</td><td>$0.88</td><td style="color:var(--green)">$19.60</td></tr>
+        <tr><td>$50.00</td><td>$51.45</td><td>$1.00</td><td>$1.75</td><td style="color:var(--green)">$49.00</td></tr>
+        <tr><td>$100.00</td><td>$102.20</td><td>$2.00</td><td>$3.20</td><td style="color:var(--green)">$98.00</td></tr>
+        <tr><td>$250.00</td><td>$254.55</td><td>$5.00</td><td>$7.55</td><td style="color:var(--green)">$245.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <h4>Smart Pricing for Low-Cost Assets</h4>
+    <p>For assets priced under $5, the fixed $0.30 Stripe fee can erode creator margins. Our smart pricing tier uses a self-correcting formula that ensures creators always earn a minimum meaningful amount even on low-price items. The adjustment is automatic — creators don't need to set it manually.</p>
+  </div>
+</div>
+
+<!-- Free Assets -->
+<div class="section">
+  <h2>Free Assets</h2>
+  <p style="color:var(--text-dim); margin-bottom:16px">Assets priced at $0.00 are always free for buyers and carry <strong style="color:var(--text)">zero commission</strong>. Creators can use free assets as lead generators or community contributions.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Price</th><th>Stripe Fee</th><th>Platform</th><th>Creator Receives</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>$0.00 (Free)</td><td style="color:var(--green)">$0.00</td><td style="color:var(--green)">$0.00</td><td style="color:var(--green)">$0.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="section">
+  <h2>Common Questions</h2>
+
+  <div class="faq-item">
+    <div class="faq-q">Who pays the Stripe processing fee?</div>
+    <div class="faq-a">The buyer pays it — it's shown as a separate line item at checkout. Creators never absorb Stripe's fees. This keeps creator payouts clean and predictable.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">How do creators get paid?</div>
+    <div class="faq-a">Creators connect their Stripe account via the Creator Dashboard. Payments are sent directly to their Stripe account via Stripe Connect destination charges. Payout timing follows Stripe's standard schedule (typically 2 business days).</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">What's the 2% commission used for?</div>
+    <div class="faq-a">Platform maintenance, server costs, CDN bandwidth, payment processing infrastructure, and continued development of Atlantist BIM. It's intentionally kept low so creators keep more of their earnings.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Are refunds available?</div>
+    <div class="faq-a">Buyers can request a refund within 7 days of purchase if the asset is defective or not as described. Creator payouts are adjusted accordingly. Contact <a href="mailto:support@atlantist.cloud">support@atlantist.cloud</a> for refund requests.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Can creators set their own prices?</div>
+    <div class="faq-a">Yes. Creators set their own listing price. Smart pricing provides a suggested minimum for sub-$5 assets to ensure margins remain healthy, but it's optional guidance — creators choose their own prices.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Do external assets (BIMObject, Poliigon, etc.) follow this model?</div>
+    <div class="faq-a">External assets are listed at the distributor's pricing and link out to the external platform. Atlantist does not process payments for external assets — no commission applies.</div>
+  </div>
+</div>
+
+<footer>
+  <p>Atlantist Asset Store &mdash; Built on transparent pricing. Questions? <a href="mailto:support@atlantist.cloud">support@atlantist.cloud</a></p>
+</footer>
+
+</body>
+</html>

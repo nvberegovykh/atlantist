@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Library — Atlantist Asset Store</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0c10; --bg-card: #13151c; --bg-card2: #1a1d27; --bg-raised: #1e2130;
+      --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+      --text: #f0eeea; --text-dim: rgba(240,238,234,0.55); --text-mid: rgba(240,238,234,0.35);
+      --gold: #c9a84c; --gold-dim: rgba(201,168,76,0.15); --blue: #5b8fd9; --blue-dim: rgba(91,143,217,0.15);
+      --green: #3bba6c; --green-dim: rgba(59,186,108,0.1); --red: #e84855; --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+      --radius: 12px; --radius-sm: 8px;
+    }
+    html, body { min-height: 100vh; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    ::selection { background: var(--blue); color: white; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ─────────────────────────────────────────────── */
+    nav { display: flex; align-items: center; padding: 16px 48px; border-bottom: 1px solid var(--border); background: rgba(11,12,16,0.95); position: sticky; top: 0; z-index: 50; }
+    nav .logo { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    nav .logo svg { width: 26px; height: 26px; }
+    nav .breadcrumb { color: var(--text-mid); font-size: 13px; margin-left: 16px; }
+    nav .nav-links { margin-left: auto; display: flex; gap: 20px; align-items: center; }
+    nav .nav-links a { color: var(--text-dim); font-size: 13px; font-weight: 500; transition: color 0.15s; }
+    nav .nav-links a:hover { color: var(--text); text-decoration: none; }
+    nav .nav-links .active { color: var(--text); }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+    /* ── Page header ──────────────────────────────────────── */
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+    .page-header p { color: var(--text-dim); font-size: 14px; }
+
+    /* ── Search bar ──────────────────────────────────────── */
+    .search-wrap { position: relative; max-width: 400px; margin-bottom: 28px; }
+    .search-wrap input { width: 100%; padding: 10px 16px 10px 40px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 14px; outline: none; transition: border-color 0.15s; }
+    .search-wrap input:focus { border-color: var(--blue); }
+    .search-wrap input::placeholder { color: var(--text-mid); }
+    .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; stroke: var(--text-mid); }
+
+    /* ── Asset cards ─────────────────────────────────────── */
+    .asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .asset-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s; }
+    .asset-card:hover { border-color: var(--border2); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+    .asset-card .preview { height: 160px; background: var(--bg-card2); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+    .asset-card .preview img { width: 100%; height: 100%; object-fit: cover; }
+    .asset-card .preview .placeholder-icon { width: 48px; height: 48px; stroke: var(--text-mid); opacity: 0.4; }
+    .asset-card .preview .badge { position: absolute; top: 10px; right: 10px; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .badge.paid { background: var(--blue-dim); color: var(--blue); }
+    .badge.free { background: var(--green-dim); color: var(--green); }
+    .card-body { padding: 16px; }
+    .card-body .category { font-size: 11px; font-weight: 600; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .card-body .title { font-size: 16px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .card-body .creator { font-size: 12px; color: var(--text-mid); margin-bottom: 12px; }
+    .card-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+    .meta-tag { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: var(--bg-raised); color: var(--text-dim); border: 1px solid var(--border); }
+    .card-footer { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); }
+    .card-footer .acquired-date { font-size: 11px; color: var(--text-mid); margin-right: auto; display: flex; align-items: center; }
+
+    /* ── Buttons ──────────────────────────────────────────── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+    .btn-primary { background: var(--blue); color: white; }
+    .btn-primary:hover { background: #6fa3e8; text-decoration: none; }
+    .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--text-dim); }
+    .btn-outline:hover { color: var(--text); border-color: var(--border2); text-decoration: none; }
+    .btn-sm { padding: 6px 10px; font-size: 12px; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Rating stars ──────────────────────────────────────── */
+    .stars { color: var(--gold); font-size: 13px; letter-spacing: 1px; }
+    .stars .empty { color: var(--text-mid); }
+
+    /* ── Loading / empty states ─────────────────────────── */
+    .loading { text-align: center; padding: 64px; color: var(--text-mid); font-size: 14px; }
+    .empty-state { text-align: center; padding: 64px; }
+    .empty-state svg { width: 56px; height: 56px; stroke: var(--text-mid); margin-bottom: 16px; opacity: 0.4; }
+    .empty-state h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .empty-state p { font-size: 14px; color: var(--text-dim); margin-bottom: 20px; }
+
+    /* ── Toast ───────────────────────────────────────────── */
+    .toast { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; background: var(--bg-card2); border: 1px solid var(--border2); border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.success { border-color: rgba(59,186,108,0.5); color: var(--green); }
+    .toast.error { border-color: rgba(232,72,85,0.5); color: var(--red); }
+
+    /* ── Count badge ──────────────────────────────────────── */
+    .count-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; background: var(--blue-dim); color: var(--blue); margin-left: 8px; }
+
+    @media (max-width: 600px) {
+      nav { padding: 14px 20px; }
+      .container { padding: 24px 16px; }
+      .asset-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <svg viewBox="0 0 40 40" fill="none">
+      <circle cx="20" cy="20" r="19" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.3"/>
+      <circle cx="20" cy="20" r="14" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.5"/>
+      <circle cx="20" cy="20" r="9" stroke="#c9a84c" stroke-width="1.5" fill="none" opacity="0.7"/>
+      <path d="M20 8 L20 11 M20 29 L20 32 M8 20 L11 20 M29 20 L32 20" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="20" cy="20" r="3" fill="#c9a84c"/>
+    </svg>
+    Atlantist Store
+  </div>
+  <div class="breadcrumb"> / My Library </div>
+  <div class="nav-links">
+    <a href="/store">Browse</a>
+    <a href="/store/dashboard">Dashboard</a>
+    <a href="/store/library" class="active">My Library</a>
+    <a href="/store/commission">Pricing Info</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <h1>My Library <span class="count-badge" id="asset-count" style="display:none"></span></h1>
+    <p>Assets you've acquired. Download at any time.</p>
+  </div>
+
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="search-input" placeholder="Search your library...">
+  </div>
+
+  <div id="loading-state" class="loading">Loading your library...</div>
+  <div id="empty-state" class="empty-state" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+    </svg>
+    <h3>No assets yet</h3>
+    <p>Browse the store and acquire assets to build your library.</p>
+    <a href="/store" class="btn btn-primary">Browse the Store</a>
+  </div>
+  <div id="error-state" class="empty-state" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <h3>Could not load library</h3>
+    <p>Make sure you're signed in, then <a href="/app">open the app</a> to refresh your session.</p>
+    <button class="btn btn-outline" onclick="init()">Retry</button>
+  </div>
+  <div class="asset-grid" id="asset-grid" style="display:none"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/js/boot-safety.js"></script>
+<script>
+let allAssets = [];
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+function renderStars(avg) {
+  const n = Math.round(avg || 0);
+  return Array.from({ length: 5 }, (_, i) => i < n
+    ? '<span>★</span>'
+    : '<span class="empty">★</span>'
+  ).join('');
+}
+
+function formatBytes(bytes) {
+  if (!bytes) return '';
+  const mb = bytes / (1024 * 1024);
+  return mb >= 1 ? mb.toFixed(1) + ' MB' : (bytes / 1024).toFixed(0) + ' KB';
+}
+
+function formatDate(ts) {
+  return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function renderAssets(assets) {
+  const grid = document.getElementById('asset-grid');
+  if (!assets.length) {
+    grid.style.display = 'none';
+    document.getElementById('empty-state').style.display = 'block';
+    return;
+  }
+  grid.style.display = 'grid';
+  grid.innerHTML = assets.map(a => {
+    const badge = a.was_paid
+      ? '<span class="badge paid">Paid</span>'
+      : '<span class="badge free">Free</span>';
+    const stars = a.rating_avg ? renderStars(a.rating_avg) : '';
+    const starsHtml = stars ? `<div class="stars" style="margin-bottom:4px">${stars}</div>` : '';
+    const preview = a.preview_url
+      ? `<img src="${a.preview_url}" alt="${a.title}" onerror="this.parentElement.innerHTML='<svg class=\\'placeholder-icon\\' viewBox=\\'0 0 24 24\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\'><rect x=\\'3\\' y=\\'3\\' width=\\'18\\' height=\\'18\\' rx=\\'2\\'/><circle cx=\\'8.5\\' cy=\\'8.5\\' r=\\'1.5\\'/><polyline points=\\'21 15 16 10 5 21\\'/></svg>'">`
+      : `<svg class="placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+
+    return `<div class="asset-card">
+      <div class="preview">${preview}${badge}</div>
+      <div class="card-body">
+        <div class="category">${a.category || 'Asset'}</div>
+        ${starsHtml}
+        <div class="title">${a.title || 'Untitled'}</div>
+        <div class="creator">by ${a.creator_name || 'Unknown creator'}</div>
+        <div class="card-meta">
+          ${a.license ? `<span class="meta-tag">${a.license}</span>` : ''}
+          ${a.file_type ? `<span class="meta-tag">${a.file_type.toUpperCase()}</span>` : ''}
+          ${a.version ? `<span class="meta-tag">v${a.version}</span>` : ''}
+          ${a.compatibility ? `<span class="meta-tag">${a.compatibility}</span>` : ''}
+        </div>
+        <div class="card-footer">
+          <div class="acquired-date">Acquired ${formatDate(a.acquired_at)}</div>
+          <button class="btn btn-primary btn-sm" onclick="downloadAsset(${a.asset_id}, '${encodeURIComponent(a.title)}')">Download</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function downloadAsset(assetId, title) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Preparing...';
+  try {
+    const res = await fetch(`/api/store/assets/${assetId}/download`, {
+      credentials: 'include',
+    });
+    if (!res.ok) { showToast('Download failed — acquire the asset first', 'error'); return; }
+    const data = await res.json();
+    const filename = data.filename || `${decodeURIComponent(title)}.zip`;
+    const a = document.createElement('a');
+    a.href = data.download_url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('Download started!');
+  } catch (err) {
+    showToast('Download failed: ' + err.message, 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Download';
+}
+
+async function init() {
+  document.getElementById('loading-state').style.display = 'block';
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('error-state').style.display = 'none';
+  document.getElementById('asset-grid').style.display = 'none';
+
+  try {
+    const res = await fetch('/api/store/library', { credentials: 'include' });
+    if (!res.ok) {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('error-state').style.display = 'block';
+      return;
+    }
+    allAssets = await res.json();
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('asset-count').textContent = allAssets.length;
+    document.getElementById('asset-count').style.display = allAssets.length ? 'inline-block' : 'none';
+    renderAssets(allAssets);
+  } catch (err) {
+    document.getElementById('loading-state').style.display = 'none';
+    document.getElementById('error-state').style.display = 'block';
+    console.error('[library] load error:', err);
+  }
+}
+
+// Search filter
+document.getElementById('search-input')?.addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase().trim();
+  if (!q) { renderAssets(allAssets); return; }
+  const filtered = allAssets.filter(a =>
+    (a.title || '').toLowerCase().includes(q) ||
+    (a.description || '').toLowerCase().includes(q) ||
+    (a.category || '').toLowerCase().includes(q) ||
+    (a.creator_name || '').toLowerCase().includes(q) ||
+    (a.file_type || '').toLowerCase().includes(q)
+  );
+  renderAssets(filtered);
+});
+
+init();
+</script>
+</body>
+</html>

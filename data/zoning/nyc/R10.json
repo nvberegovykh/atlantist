@@ -1,0 +1,46 @@
+{
+  "district": "R10",
+  "description": "Highest density residential district in NYC. Quality Housing mandatory for contextual R10A and R10X. Allows very tall towers (15+ stories). Maximum FAR in the city.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "source_url_height": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22", "23-432", "23-34", "23-435"],
+  "bulk": {
+    "far_standard": 10.00,
+    "far_qualifying": 12.00,
+    "far_note": "UAP standard. Highest residential FAR in NYC. Community facility FAR per ZR §24-11. Note: in Manhattan CD7, R10 (no suffix) limited to 10.0 FAR per ZR §23-733.",
+    "lot_coverage_max": 80,
+    "quality_housing_mandatory": "true for R10A and R10X; optional for R10 without suffix"
+  },
+  "height_setback": {
+    "regulation_type": "Quality Housing (mandatory for R10A/R10X; optional for R10)",
+    "quality_housing_r10a": {
+      "min_base_height_ft": 60,
+      "max_base_height_ft": 155,
+      "max_building_height_ft": 215,
+      "affordable_max_base_height_ft": 155,
+      "affordable_max_building_height_ft": 235
+    },
+    "notes": "Per ZR §23-432 table (R10X1, R10X2, R10-1, R10-2, R10A1, R10A2 rows). R10A2 / R10X2 / R10-2: min base 60, max base 125, max height 185 ft standard. R10A1 / R10X1 / R10-1: max base 155, max height 215 ft standard. All: qualifying extends max height to 235 ft. Tower regulations (§23-435) permit tower penetrations in non-contextual R10."
+  },
+  "yards": {
+    "front": { "requirement": "Per §23-322" },
+    "side": { "requirement": "Per §23-335: none required for Quality Housing contextual" },
+    "rear": {
+      "requirement": "30 ft min depth per §23-342",
+      "through_lot_alternative": "Rear yard equivalent per §23-343 on through lots ≥180 ft"
+    }
+  },
+  "permitted_uses": {
+    "residential": "Dwelling units per §22-11",
+    "community_facility": "Per ZR §24-11",
+    "parking": "Parking not permitted in front yard"
+  },
+  "dob_filing_notes": [
+    "Highest density district — major development potential",
+    "Verify if in Mandatory Inclusionary Housing (MIH) or UAP area — affordability requirements",
+    "DOB NOW: NB or Alt1. Full zoning analysis required for tower envelope",
+    "In Manhattan CD7: R10 (no suffix) capped at 10.0 FAR per ZR §23-733"
+  ]
+}

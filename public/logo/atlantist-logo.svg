@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Atlantist">
+  <title>Atlantist</title>
+  <desc>Architect's drawing compass forming the letter A with concentric Atlantis citadel rings and four-pointed compass star — approved mark (200px)</desc>
+
+  <!-- === CONCENTRIC RINGS === -->
+  <circle cx="100" cy="110" r="80" fill="none" stroke="#d0d4da" stroke-width="0.8" opacity="0.22"/>
+  <circle cx="100" cy="110" r="66" fill="none" stroke="#d0d4da" stroke-width="0.9" opacity="0.28"/>
+  <circle cx="100" cy="110" r="52" fill="none" stroke="#d0d4da" stroke-width="1.0" opacity="0.35"/>
+  <circle cx="100" cy="110" r="38" fill="none" stroke="#d0d4da" stroke-width="1.2" opacity="0.44"/>
+  <circle cx="100" cy="110" r="24" fill="none" stroke="#d0d4da" stroke-width="1.4" opacity="0.55"/>
+
+  <!-- === DRAWING COMPASS === -->
+  <line x1="100" y1="26" x2="56" y2="185" stroke="#e0e4ea" stroke-width="2.6" stroke-linecap="round"/>
+  <line x1="100" y1="26" x2="144" y2="185" stroke="#e0e4ea" stroke-width="2.6" stroke-linecap="round"/>
+  <line x1="72" y1="140" x2="128" y2="140" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+
+  <!-- === COMPASS HEAD === -->
+  <line x1="100" y1="14" x2="93" y2="33" stroke="#e0e4ea" stroke-width="1.4" stroke-linecap="round"/>
+  <line x1="100" y1="14" x2="107" y2="33" stroke="#e0e4ea" stroke-width="1.4" stroke-linecap="round"/>
+  <circle cx="100" cy="14" r="2.2" fill="none" stroke="#e0e4ea" stroke-width="1"/>
+  <circle cx="100" cy="14" r="0.8" fill="#e0e4ea"/>
+
+  <!-- === FOUR-POINTED STAR === -->
+  <path d="M 100 97 L 102.5 110 L 100 123 L 97.5 110 Z" fill="#e0e4ea" opacity="0.9"/>
+  <path d="M 87 110 L 100 107.5 L 113 110 L 100 112.5 Z" fill="#e0e4ea" opacity="0.9"/>
+  <circle cx="100" cy="110" r="1.8" fill="#e0e4ea"/>
+</svg>

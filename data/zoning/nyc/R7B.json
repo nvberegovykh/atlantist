@@ -1,0 +1,47 @@
+{
+  "district": "R7B",
+  "description": "Contextual medium-density residential district. Quality Housing mandatory. Produces 6-7 story buildings, lower than R7A. R6B through R9 excluded from certain alternative location allowances.",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "source_url_height": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-432",
+  "source_url_yards": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-34",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22", "23-432", "23-34"],
+  "bulk": {
+    "far_standard": 3.00,
+    "far_qualifying": 3.90,
+    "far_note": "UAP standard. Lower than R7A. Community facility FAR per ZR §24-11.",
+    "lot_coverage_max": 80,
+    "quality_housing_mandatory": true
+  },
+  "height_setback": {
+    "regulation_type": "Quality Housing (mandatory)",
+    "min_base_height_ft": 40,
+    "max_base_height_ft": 65,
+    "max_building_height_ft": 75,
+    "affordable_max_base_height_ft": 65,
+    "affordable_max_building_height_ft": 95,
+    "street_wall_setback_wide_st": "10 ft depth above max base height",
+    "street_wall_setback_narrow_st": "15 ft depth above max base height",
+    "street_wall_location": "No closer than buildings within 150 ft on same block",
+    "tower_permitted": false,
+    "notes": "Per ZR §23-432 table (R7B row). Base height 40-65 ft; max building 75 ft standard. Note: R7B excluded from certain §23-44 alternative location allowances."
+  },
+  "yards": {
+    "front": { "requirement": "Per §23-322" },
+    "side": { "requirement": "Per §23-335: none required for Quality Housing contextual" },
+    "rear": {
+      "requirement": "30 ft min depth per §23-342",
+      "through_lot_alternative": "Rear yard equivalent per §23-343 on through lots ≥180 ft"
+    }
+  },
+  "permitted_uses": {
+    "residential": ["Dwelling units per §22-11", "Quality Housing required"],
+    "community_facility": "Per ZR §24-11",
+    "parking": "Parking not permitted in front yard"
+  },
+  "dob_filing_notes": [
+    "Quality Housing Program certification required",
+    "R7B is lower FAR than R7A — confirm correct district designation",
+    "R7B excluded from §23-44 alternative provisions — verify applicability"
+  ]
+}

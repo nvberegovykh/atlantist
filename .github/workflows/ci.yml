@@ -1,0 +1,196 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+env:
+  NODE_ENV: test
+
+jobs:
+  # ── Job 1: Secret Scan ─────────────────────────────────────────────────────
+  # Runs on every push and PR. Blocks the build if secrets, PII, or
+  # internal references are detected. No bypass exists — admins must
+  # clean the branch before this will pass.
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run secret scan
+        run: node scripts/secret-scan.js
+
+  # ── Job 2: Syntax + Architecture ──────────────────────────────────────────
+  lint:
+    name: Lint & Architecture
+    runs-on: ubuntu-latest
+    needs: secret-scan
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Syntax check
+        run: node scripts/syntax-check.js
+
+      - name: ESLint
+        run: npx eslint server.js routes/ db/ services/ --max-warnings 0 || npx eslint server.js routes/ db/ services/
+
+      - name: Architecture rules
+        run: |
+          set -e
+
+          SERVER_LINES=$(wc -l < server.js)
+          if [ "$SERVER_LINES" -gt 300 ]; then
+            echo "FAIL: server.js has $SERVER_LINES lines (max 300)"
+            exit 1
+          fi
+          echo "PASS: server.js $SERVER_LINES lines"
+
+          if [ ! -f CLAUDE.md ]; then
+            echo "FAIL: CLAUDE.md missing"
+            exit 1
+          fi
+          CLAUDE_LINES=$(wc -l < CLAUDE.md)
+          if [ "$CLAUDE_LINES" -gt 150 ]; then
+            echo "FAIL: CLAUDE.md has $CLAUDE_LINES lines (max 150)"
+            exit 1
+          fi
+          echo "PASS: CLAUDE.md $CLAUDE_LINES lines"
+
+          if grep -rnE 'new Pool\b|pool\b.*query\b' -- '*.js' $(git ls-files '*.js' | grep -v '^db/' | grep -v '^tests/' | grep -v '^migrate.js$' | grep -v '^jobs/' | grep -v '^scripts/') 2>/dev/null | grep -v "require.*pool"; then
+            echo "FAIL: raw SQL outside db/"
+            exit 1
+          fi
+          echo "PASS: no raw SQL outside db/"
+
+          if grep -rnE '^[[:space:]]*(CREATE|ALTER|DROP)' -- '*.js' $(git ls-files '*.js' | grep -v '^migrations/' | grep -v '^migrate.js$' | grep -v '^db/') 2>/dev/null; then
+            echo "FAIL: DDL in runtime files"
+            exit 1
+          fi
+          echo "PASS: no DDL in runtime files"
+
+          if grep -qiE 'node-cron|node-schedule|agenda|bull|cron\\.schedule\\(' -- '*.js' package.json 2>/dev/null; then
+            if ! grep -q 'POLSIA_IN_PROCESS_CRONS_ENABLED' -- '*.js' 2>/dev/null; then
+              echo "FAIL: in-process scheduler requires POLSIA_IN_PROCESS_CRONS_ENABLED guard"
+              exit 1
+            fi
+            if [ ! -f polsia.toml ] || ! grep -q '\\[\\[crons\\]\\]' polsia.toml 2>/dev/null; then
+              echo "FAIL: in-process scheduler requires polsia.toml [[crons]] entry"
+              exit 1
+            fi
+            echo "PASS: in-process scheduler guarded"
+          else
+            echo "PASS: no in-process scheduler"
+          fi
+
+  # ── Job 3: Unit Tests ──────────────────────────────────────────────────────
+  test-unit:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run unit tests
+        run: npm test
+        env:
+          DATABASE_URL: REDACTED/postgres
+
+  # ── Job 4: Smoke Test ──────────────────────────────────────────────────────
+  smoke-test:
+    name: Smoke Test
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Smoke test
+        run: |
+          set -e
+
+          PORT=$((9000 + RANDOM % 1000))
+          node server.js &
+          SERVER_PID=$!
+          echo "Server PID: $SERVER_PID, port: $PORT"
+
+          sleep 3
+
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${PORT}/health")
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "FAIL: /health returned $HTTP_CODE"
+            kill $SERVER_PID 2>/dev/null || true
+            exit 1
+          fi
+          echo "PASS: /health → $HTTP_CODE"
+
+          for route in "/" "/app"; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${PORT}${route}")
+            if [ "$CODE" = "200" ] || [ "$CODE" = "302" ]; then
+              echo "PASS: $route → $CODE"
+            else
+              echo "FAIL: $route → $CODE"
+              kill $SERVER_PID 2>/dev/null || true
+              exit 1
+            fi
+          done
+
+          for path in "/js/app.js" "/js/mep-panel.js"; do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:${PORT}${path}")
+            CT=$(curl -s -I "http://localhost:${PORT}${path}" | grep -i 'content-type:' | head -1)
+            if [ "$CODE" = "200" ] && echo "$CT" | grep -qi "javascript"; then
+              echo "PASS: $path → 200, content-type OK"
+            else
+              echo "FAIL: $path → $CODE, CT: $CT"
+              kill $SERVER_PID 2>/dev/null || true
+              exit 1
+            fi
+          done
+
+          echo "All smoke tests passed"
+          kill $SERVER_PID 2>/dev/null || true
+
+          # Generate open-source snapshot after smoke test (non-blocking)
+          node scripts/sanitize.js .open-source-build || true

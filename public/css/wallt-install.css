@@ -1,0 +1,180 @@
+/* Wallt Install Prompt Styles (Phase 34E)
+   Non-intrusive install banner + iOS instructions modal. */
+
+/* ── Install Banner ───────────────────────────────────────────────────── */
+#wallt-install-banner {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  background: #0f1620;
+  border: 1px solid #1e2d3d;
+  border-radius: 12px;
+  padding: 14px 16px;
+  max-width: 300px;
+  width: calc(100vw - 48px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, .5);
+  z-index: var(--z-widget, 700);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .3s ease, transform .3s ease;
+  pointer-events: none;
+}
+
+#wallt-install-banner.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+.wallt-install-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #cfe3f5;
+  margin-bottom: 4px;
+}
+
+.wallt-install-sub {
+  font-size: 11px;
+  color: #5b8ab5;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.wallt-install-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.wallt-install-actions button {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  cursor: pointer;
+  border: none;
+}
+
+#wallt-install-cta {
+  background: linear-gradient(135deg, #1a3050, #2a4a70);
+  border: 1px solid #4a7dbd;
+  color: #cfe3f5;
+}
+
+#wallt-install-cta:hover {
+  background: linear-gradient(135deg, #2a4a70, #3a5a90);
+}
+
+#wallt-install-dismiss {
+  background: transparent;
+  border: 1px solid #1e2d3d;
+  color: #5b8ab5;
+}
+
+#wallt-install-dismiss:hover {
+  border-color: #4a7dbd;
+  color: #cfe3f5;
+}
+
+/* ── iOS Instructions Modal ─────────────────────────────────────────── */
+#wallt-ios-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 10, 16, .88);
+  z-index: var(--z-modal, 600);
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+#wallt-ios-modal.visible {
+  display: flex;
+  opacity: 1;
+}
+
+.wallt-ios-modal-box {
+  background: #0f1620;
+  border: 1px solid #1e2d3d;
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .6);
+  transform: translateY(10px);
+  transition: transform .25s ease;
+}
+
+#wallt-ios-modal.visible .wallt-ios-modal-box {
+  transform: translateY(0);
+}
+
+.wallt-ios-modal-title {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 20px;
+  color: #cfe3f5;
+  margin-bottom: 14px;
+}
+
+.wallt-ios-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.wallt-ios-steps li {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: #cfe3f5;
+  line-height: 1.5;
+  align-items: flex-start;
+}
+
+.wallt-ios-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #4a7dbd;
+  color: #cfe3f5;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.wallt-ios-close {
+  width: 100%;
+  padding: 10px;
+  background: #131d2a;
+  border: 1px solid #1e2d3d;
+  border-radius: 8px;
+  color: #5b8ab5;
+  font-size: 13px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+
+.wallt-ios-close:hover {
+  border-color: #4a7dbd;
+  color: #cfe3f5;
+}
+
+/* ── Dock mode (PWA standalone) ─────────────────────────────────────── */
+@media (max-width: 600px) {
+  #wallt-install-banner {
+    bottom: 80px;
+    right: 12px;
+    left: 12px;
+    max-width: none;
+  }
+}

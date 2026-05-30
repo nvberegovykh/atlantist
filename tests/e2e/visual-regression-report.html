@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atlantist — Visual Regression Report · 2026-05-24</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0d;
+      --panel: #1a1a1a;
+      --border: #2a2a2a;
+      --text: #e8e8e8;
+      --muted: #888;
+      --pass: #3ebd6e;
+      --fail: #e84855;
+      --warn: #f5a623;
+      --accent: #4a7dbd;
+    }
+
+    html { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; background: var(--bg); color: var(--text); }
+    body { max-width: 1440px; margin: 0 auto; padding: 40px 32px 80px; }
+
+    /* ── Header ─────────────────────────────────────────────────── */
+    .report-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 40px; border-bottom: 1px solid var(--border); padding-bottom: 32px; }
+    .report-header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .report-header p { color: var(--muted); font-size: 13px; }
+    .report-badge { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; }
+    .report-badge .count { font-size: 22px; font-weight: 700; color: var(--pass); }
+    .report-badge .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* ── Summary bar ────────────────────────────────────────────── */
+    .summary-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 48px; }
+    .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; text-align: center; }
+    .stat-card .stat-value { font-size: 28px; font-weight: 700; margin-bottom: 2px; }
+    .stat-card .stat-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+
+    /* ── Section heading ────────────────────────────────────────── */
+    .page-section { margin-bottom: 56px; }
+    .section-title { font-size: 16px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ── Status row ─────────────────────────────────────────────── */
+    .status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 13px; font-weight: 600; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .pass { background: var(--pass); }
+    .fail { background: var(--fail); }
+    .warn { background: var(--warn); }
+
+    /* ── Device grid ────────────────────────────────────────────── */
+    .device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .device-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .device-card-header { padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+    .device-name { font-size: 12px; font-weight: 600; color: var(--text); }
+    .device-meta { font-size: 11px; color: var(--muted); }
+    .device-card-body { position: relative; background: #0a0a0a; }
+    .device-card-body img { display: block; width: 100%; height: auto; max-height: 280px; object-fit: cover; }
+    .device-card-footer { padding: 10px 14px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); }
+
+    /* ── Fix badge ─────────────────────────────────────────────── */
+    .fix-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(62,189,110,0.15); color: var(--pass); border: 1px solid rgba(62,189,110,0.3); }
+
+    /* ── Issue note ─────────────────────────────────────────────── */
+    .issue-note { background: rgba(232,72,85,0.08); border: 1px solid rgba(232,72,85,0.2); border-radius: 6px; padding: 10px 14px; margin-top: 12px; font-size: 12px; color: #e84855; }
+
+    /* ── Full-width screenshot ─────────────────────────────────── */
+    .full-width-screenshot { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 24px; }
+    .full-width-screenshot img { display: block; width: 100%; height: auto; max-height: 600px; object-fit: cover; }
+    .screenshot-meta { padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); }
+
+    /* ── Fix summary table ─────────────────────────────────────── */
+    .fix-table { width: 100%; border-collapse: collapse; margin: 32px 0; font-size: 13px; }
+    .fix-table th { text-align: left; padding: 10px 14px; background: var(--panel); border: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .fix-table td { padding: 10px 14px; border: 1px solid var(--border); vertical-align: top; }
+    .fix-table tr:nth-child(even) td { background: rgba(255,255,255,0.01); }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+    .report-footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; }
+
+    /* ── Two column layout for large screenshots ─────────────── */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  </style>
+</head>
+<body>
+
+<!-- ══ REPORT HEADER ═══════════════════════════════════════════════════ -->
+<div class="report-header">
+  <div>
+    <h1>Atlantist — Visual Regression Report</h1>
+    <p>Cross-device visual testing · Atlantist BIM 2.0 &nbsp;|&nbsp; https://atlantist.polsia.app &nbsp;|&nbsp; 2026-05-24</p>
+  </div>
+  <div class="report-badge">
+    <div class="count">0</div>
+    <div class="label">failures &nbsp;/&nbsp; ship-ready</div>
+  </div>
+</div>
+
+<!-- ══ SUMMARY BAR ═══════════════════════════════════════════════════ -->
+<div class="summary-bar">
+  <div class="stat-card"><div class="stat-value" style="color:var(--pass)">31</div><div class="stat-label">Screens Tested</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:var(--pass)">11</div><div class="stat-label">Devices Covered</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:var(--pass)">0</div><div class="stat-label">Failures</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:var(--warn)">2</div><div class="stat-label">Issues Found &amp; Fixed</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:var(--pass)">29</div><div class="stat-label">Clean Passes</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:var(--pass)">PASS</div><div class="stat-label">Overall Verdict</div></div>
+</div>
+
+<!-- ══ FIXES APPLIED ═════════════════════════════════════════════════ -->
+<div class="page-section">
+  <div class="section-title">Fixes Applied During This Run</div>
+  <table class="fix-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Issue</th>
+        <th>File</th>
+        <th>Fix</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>Landing nav links overflow on mobile (375px) — no hamburger menu</td>
+        <td><code>landing.html</code></td>
+        <td>Added hamburger button + mobile menu at ≤600px; nav links hidden behind toggle</td>
+        <td><span class="fix-badge">Fixed &amp; Deployed</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Pricing grid (minmax 280px 1fr) overflows at ≤400px — 2 cards can't fit</td>
+        <td><code>landing.html</code></td>
+        <td>Added CSS rule: at ≤400px grid switches to single-column layout</td>
+        <td><span class="fix-badge">Fixed &amp; Deployed</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ LANDING PAGE ════════════════════════════════════════════════════ -->
+<div class="page-section">
+  <div class="section-title">Landing Page (/)</div>
+
+  <!-- Mobile screenshots -->
+  <div class="device-grid">
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">iPhone SE</span>
+        <span class="device-meta">375 × 667</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/d358bf50-b0e9-42eb-846c-6bf28eebed95-atlantist.polsia.app.png" alt="iPhone SE 375×667">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Hamburger menu visible, nav links collapsed, hero text readable</span>
+        <span class="fix-badge" style="margin-top:4px">Fixed</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">iPhone 15 Pro</span>
+        <span class="device-meta">393 × 852</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/c76debd2-9bd5-4e14-9e13-6ad6ed6f7d06-atlantist.polsia.app.png" alt="iPhone 15 Pro 393×852">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Hamburger menu visible, CTA buttons visible, no overflow</span>
+        <span class="fix-badge" style="margin-top:4px">Fixed</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">Samsung Galaxy S24</span>
+        <span class="device-meta">360 × 780</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/99cf44af-b4fc-43a5-9ada-83b8c490bde6-atlantist.polsia.app.png" alt="Galaxy S24 360×780">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Responsive layout, nav hamburger, all text readable</span>
+        <span class="fix-badge" style="margin-top:4px">Fixed</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">Pixel 8</span>
+        <span class="device-meta">412 × 915</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/2ddcc9b0-5329-4474-a5a2-8d145223398f-atlantist.polsia.app.png" alt="Pixel 8 412×915">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Hero text scales via clamp(), navigation responsive</span>
+        <span class="fix-badge" style="margin-top:4px">Fixed</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tablet -->
+  <div class="two-col" style="margin-top:16px">
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">iPad</span>
+        <span class="device-meta">768 × 1024</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/323bc810-8732-4197-8c0d-4e56d625e2bf-atlantist.polsia.app.png" alt="iPad 768×1024">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Full nav, features grid 3-col, pricing 2-col side by side</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">iPad Pro</span>
+        <span class="device-meta">1024 × 1366</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/903f65ad-eb5d-485a-8daf-4e9487aae9d1-atlantist.polsia.app.png" alt="iPad Pro 1024×1366">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Layout expands naturally, large typography, feature grid clean</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desktop -->
+  <div class="two-col" style="margin-top:16px">
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">MacBook 13"</span>
+        <span class="device-meta">1440 × 900</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/a0048729-ae9f-47f1-a04c-c0c7b8d1d550-atlantist.polsia.app.png" alt="MacBook 13 1440×900">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Full layout, nav in-tact, all sections scroll correctly</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">MacBook 15"</span>
+        <span class="device-meta">1680 × 1050</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/4000e2ac-cc6d-4ec4-91ab-ddb80a6cc4c3-atlantist.polsia.app.png" alt="MacBook 15 1680×1050">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Full layout, pricing cards side-by-side, no overflow</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">27" Monitor</span>
+        <span class="device-meta">2560 × 1440</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/02378d81-7154-4afc-b040-2d5645e73b85-atlantist.polsia.app.png" alt="27in 2560×1440">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Clean at max desktop width, text legible, buttons reachable</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">4K Display</span>
+        <span class="device-meta">3840 × 2160</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/0d809464-b02e-4c18-ad8e-cfffc9116975-atlantist.polsia.app.png" alt="4K 3840×2160">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Layout at maximum resolution, padding scales with width</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP — BIM EDITOR ════════════════════════════════════════════════ -->
+<div class="page-section">
+  <div class="section-title">App — BIM Editor (/app)</div>
+
+  <div class="device-grid">
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">iPhone SE</span>
+        <span class="device-meta">375 × 667</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/fa2ac465-6bce-4317-9ee9-a965121018c4-atlantist.polsia.app.png" alt="App iPhone SE">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Three.js canvas fills viewport, mobile CSS active: level panel hidden, properties panel slides up as bottom sheet</span>
+        <span style="font-size:10px;color:var(--muted);margin-top:4px">CSS: max-width:768px mobile layout active</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">iPhone 15 Pro</span>
+        <span class="device-meta">393 × 852</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/29208cd9-0c92-4a37-ad47-c634837ba798-atlantist.polsia.app.png" alt="App iPhone 15 Pro">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Three.js renders, bottom sheet panel, toolbar toggle visible</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">Pixel 8</span>
+        <span class="device-meta">412 × 915</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/dc4e3482-2e8e-48d3-8b5d-a19de32f431f-atlantist.polsia.app.png" alt="App Pixel 8">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Canvas fills remaining height, touch targets 44px, panels slide</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">iPad</span>
+        <span class="device-meta">768 × 1024</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/d08ad037-a674-46f5-ac0b-cc51fe047d52-atlantist.polsia.app.png" alt="App iPad">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Three.js full canvas, level panel visible (180px), properties panel (260px)</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">iPad Pro</span>
+        <span class="device-meta">1024 × 1366</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/9d3be1c7-95dd-49c6-af1f-13c0ec7ca359-atlantist.polsia.app.png" alt="App iPad Pro">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Full app layout, all 3 views (3D/Plan/Section) visible in split, toolbar complete</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">MacBook 13"</span>
+        <span class="device-meta">1440 × 900</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/fc0be41d-83cb-4318-819f-de2a4f5f9962-atlantist.polsia.app.png" alt="App MacBook 13">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Full 3-panel layout (level/props/side), elevation buttons, all toolbars visible</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">4K Display</span>
+        <span class="device-meta">3840 × 2160</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/4f444ef4-87db-4a64-a89c-ca47ec2d4e59-atlantist.polsia.app.png" alt="App 4K">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Full layout, canvas scales to fill viewport, side panels at full width</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;padding:14px 18px;background:var(--panel);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--muted)">
+    <strong style="color:var(--text)">App mobile architecture (≤768px):</strong> &nbsp;
+    Level panel hidden → triggered via hamburger/panel toggle → slides in from left.
+    Properties panel transforms to bottom sheet (translateY 100% → 0) → dismiss via × button or swipe down.
+    Toolbar collapses to 44px strip → tap toggle button to expand.
+    ui-responsive.js handles all transitions; CSS max-width:768px media query controls positioning.
+  </div>
+</div>
+
+<!-- ══ LANDING.HTML VARIANT ═══════════════════════════════════════════ -->
+<div class="page-section">
+  <div class="section-title">Landing.html (Standalone variant)</div>
+  <div class="device-grid">
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">iPhone SE</span>
+        <span class="device-meta">375 × 667</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/62a23a19-ee6e-49bc-a8b0-6a2f7ab57962-atlantist.polsia.app.png" alt="landing.html iPhone SE">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Hamburger menu, feature grid single-col, pricing stacks, no overflow</span>
+        <span class="fix-badge" style="margin-top:4px">Fixed</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">MacBook 13"</span>
+        <span class="device-meta">1440 × 900</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/3adb89f7-0efc-4dbc-89fb-99b3d128bed4-atlantist.polsia.app.png" alt="landing.html MacBook 13">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Full nav, 3-col features, pricing side-by-side, roadmap timeline</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">iPad</span>
+        <span class="device-meta">768 × 1024</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/ea5867d7-1954-49b3-a28f-47725a859ae5-atlantist.polsia.app.png" alt="landing.html iPad">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Nav stays full, feature grid 2-col, CTA and pricing visible</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DOCS + ADMIN + SUBSCRIBE ═══════════════════════════════════════ -->
+<div class="page-section">
+  <div class="section-title">Secondary Screens</div>
+  <div class="device-grid">
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">Docs Site — MacBook</span>
+        <span class="device-meta">1440 × 900</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/e6af6f1d-83b6-4aac-99ee-e88be08898e7-atlantist.polsia.app.png" alt="Docs 1440×900">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Sidebar nav, search modal, content area clean, no overflow</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">Docs Site — iPad</span>
+        <span class="device-meta">768 × 1024</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/62859559-e30a-46f1-86d1-0311f65fa945-atlantist.polsia.app.png" alt="Docs iPad">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Sidebar + content stacks, text readable, no horizontal scroll</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">Admin Docs — MacBook</span>
+        <span class="device-meta">1440 × 900</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/3ea79b3c-6d68-400c-a0d4-f09647973fca-atlantist.polsia.app.png" alt="Admin docs 1440×900">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Admin UI renders correctly with doc management controls</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">Admin Docs — iPad</span>
+        <span class="device-meta">768 × 1024</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/eafa9bf5-fac4-40fc-a83e-6ebb91e66404-atlantist.polsia.app.png" alt="Admin docs iPad">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Admin UI stacks and remains functional at tablet width</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">Subscribe Ack — MacBook</span>
+        <span class="device-meta">1440 × 900</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/0cecffc5-73cd-4fed-9ab8-847be84254f2-atlantist.polsia.app.png" alt="Subscribe-ack 1440×900">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Gate page centered, checkbox + CTA visible, no overflow</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">Subscribe Ack — iPhone SE</span>
+        <span class="device-meta">375 × 667</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/e26ac8e4-bc35-4ffc-9b8a-da1ef5165dbb-atlantist.polsia.app.png" alt="Subscribe-ack 375×667">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Full-page form readable, checkbox + CTA touch-friendly (≥44px)</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">Privacy Policy — MacBook</span>
+        <span class="device-meta">1440 × 900</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/f5c9dcf5-e1ca-439f-a5aa-d0cc3cfc4e9e-atlantist.polsia.app.png" alt="Privacy 1440×900">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Legal page renders, header nav visible, content readable</span>
+      </div>
+    </div>
+
+    <div class="device-card">
+      <div class="device-card-header">
+        <span class="device-name">Privacy Policy — iPhone SE</span>
+        <span class="device-meta">375 × 667</span>
+      </div>
+      <div class="device-card-body">
+        <img src="https://anchor-browser.services.sapiom.ai/v1/tools/screenshots/screenshots/f2ed1f02-412e-43d5-8db2-254d44ae129f-atlantist.polsia.app.png" alt="Privacy 375×667">
+      </div>
+      <div class="device-card-footer">
+        <span class="status-row"><span class="status-dot pass"></span> PASS — Legal text readable at mobile width, no overflow or truncation</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SUMMARY TABLE ══════════════════════════════════════════════════ -->
+<div class="page-section">
+  <div class="section-title">Full Test Matrix</div>
+  <table class="fix-table">
+    <thead>
+      <tr>
+        <th>Page</th>
+        <th>Device</th>
+        <th>Viewport</th>
+        <th>Result</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Landing (/)</td><td>iPhone SE</td><td>375×667</td><td><span class="fix-badge">PASS</span></td><td>Nav hamburger deployed; no overflow</td></tr>
+      <tr><td>Landing (/)</td><td>iPhone 15 Pro</td><td>393×852</td><td><span class="fix-badge">PASS</span></td><td>Nav hamburger; hero CTA visible</td></tr>
+      <tr><td>Landing (/)</td><td>Samsung Galaxy S24</td><td>360×780</td><td><span class="fix-badge">PASS</span></td><td>Nav hamburger; text clamp() scales correctly</td></tr>
+      <tr><td>Landing (/)</td><td>Pixel 8</td><td>412×915</td><td><span class="fix-badge">PASS</span></td><td>Responsive; all content visible</td></tr>
+      <tr><td>Landing (/)</td><td>iPad</td><td>768×1024</td><td><span class="fix-badge">PASS</span></td><td>3-col features, nav full, pricing 2-col</td></tr>
+      <tr><td>Landing (/)</td><td>iPad Pro</td><td>1024×1366</td><td><span class="fix-badge">PASS</td><td>Layout expands cleanly</td></tr>
+      <tr><td>Landing (/)</td><td>MacBook 13"</td><td>1440×900</td><td><span class="fix-badge">PASS</span></td><td>Full nav, all sections correct</td></tr>
+      <tr><td>Landing (/)</td><td>MacBook 15"</td><td>1680×1050</td><td><span class="fix-badge">PASS</span></td><td>Pricing cards side-by-side, no overflow</td></tr>
+      <tr><td>Landing (/)</td><td>27" Monitor</td><td>2560×1440</td><td><span class="fix-badge">PASS</span></td><td>Text legible, buttons reachable</td></tr>
+      <tr><td>Landing (/)</td><td>4K Display</td><td>3840×2160</td><td><span class="fix-badge">PASS</span></td><td>Clean at max desktop width</td></tr>
+      <tr><td>App (/app)</td><td>iPhone SE</td><td>375×667</td><td><span class="fix-badge">PASS</span></td><td>Mobile CSS active, panels as sheets</td></tr>
+      <tr><td>App (/app)</td><td>iPhone 15 Pro</td><td>393×852</td><td><span class="fix-badge">PASS</span></td><td>Bottom sheet, toolbar toggle present</td></tr>
+      <tr><td>App (/app)</td><td>Pixel 8</td><td>412×915</td><td><span class="fix-badge">PASS</span></td><td>Canvas fills viewport, touch targets ≥44px</td></tr>
+      <tr><td>App (/app)</td><td>iPad</td><td>768×1024</td><td><span class="fix-badge">PASS</td><td>Level panel 180px + canvas</td></tr>
+      <tr><td>App (/app)</td><td>iPad Pro</td><td>1024×1366</td><td><span class="fix-badge">PASS</td><td>3-view split visible, toolbar complete</td></tr>
+      <tr><td>App (/app)</td><td>MacBook 13"</td><td>1440×900</td><td><span class="fix-badge">PASS</span></td><td>3-panel layout, all tools visible</td></tr>
+      <tr><td>App (/app)</td><td>4K Display</td><td>3840×2160</td><td><span class="fix-badge">PASS</span></td><td>Canvas scales, panels full width</td></tr>
+      <tr><td>landing.html</td><td>iPhone SE</td><td>375×667</td><td><span class="fix-badge">PASS</span></td><td>Hamburger + single-col pricing</td></tr>
+      <tr><td>landing.html</td><td>MacBook 13"</td><td>1440×900</td><td><span class="fix-badge">PASS</td><td>3-col features, pricing 2-col, roadmap</td></tr>
+      <tr><td>landing.html</td><td>iPad</td><td>768×1024</td><td><span class="fix-badge">PASS</td><td>Nav full, features 2-col, CTA visible</td></tr>
+      <tr><td>Docs (/docs)</td><td>MacBook 13"</td><td>1440×900</td><td><span class="fix-badge">PASS</span></td><td>Sidebar nav, search modal, content clean</td></tr>
+      <tr><td>Docs (/docs)</td><td>iPad</td><td>768×1024</td><td><span class="fix-badge">PASS</span></td><td>Sidebar + content stacks, no scroll</td></tr>
+      <tr><td>Admin Docs (/admin/docs)</td><td>MacBook 13"</td><td>1440×900</td><td><span class="fix-badge">PASS</span></td><td>Admin controls render correctly</td></tr>
+      <tr><td>Admin Docs (/admin/docs)</td><td>iPad</td><td>768×1024</td><td><span class="fix-badge">PASS</span></td><td>Admin UI functional at tablet width</td></tr>
+      <tr><td>Subscribe Ack</td><td>MacBook 13"</td><td>1440×900</td><td><span class="fix-badge">PASS</span></td><td>Gate page centered, checkbox + CTA</td></tr>
+      <tr><td>Subscribe Ack</td><td>iPhone SE</td><td>375×667</td><td><span class="fix-badge">PASS</span></td><td>Form readable, touch-friendly (≥44px)</td></tr>
+      <tr><td>Subscribe Ack</td><td>iPad</td><td>768×1024</td><td><span class="fix-badge">PASS</span></td><td>Checkbox + button centered, clear</td></tr>
+      <tr><td>Privacy Policy</td><td>MacBook 13"</td><td>1440×900</td><td><span class="fix-badge">PASS</span></td><td>Legal page renders, nav visible</td></tr>
+      <tr><td>Privacy Policy</td><td>iPhone SE</td><td>375×667</td><td><span class="fix-badge">PASS</td><td>Text readable, no overflow/truncation</td></tr>
+      <tr><td>Subscribe Ack</td><td>Samsung Galaxy S24</td><td>360×780</td><td><span class="fix-badge">PASS</span></td><td>Form fills narrow width</td></tr>
+      <tr><td>Subscribe Ack</td><td>Pixel 8</td><td>412×915</td><td><span class="fix-badge">PASS</span></td><td>CTA button and checkbox clear</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ FOOTER ═════════════════════════════════════════════════════════ -->
+<div class="report-footer">
+  <div>Atlantist Visual Regression Report &nbsp;|&nbsp; 2026-05-24 &nbsp;|&nbsp; 31 screen × device combinations tested &nbsp;|&nbsp; 0 failures</div>
+  <div>Generated by Polsia Engineering Agent &nbsp;|&nbsp; Sapiom browser automation &nbsp;|&nbsp; Ship-ready ✅</div>
+</div>
+
+</body>
+</html>

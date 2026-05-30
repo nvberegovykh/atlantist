@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cost-Based Pricing — Atlantist BIM</title>
+  <meta name="description" content="Transparent pricing. You pay exactly what it costs us — plus 100% markup so we can keep building. No hidden fees, no overcharging.">
+  <meta property="og:title" content="Cost-Based Pricing — Atlantist BIM">
+  <meta property="og:description" content="Transparent pricing. You pay exactly what it costs us — plus 100%. No hidden fees.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://atlantist.cloud/pricing">
+  <meta name="theme-color" content="#0c1420">
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0b0c10;
+      --bg-card:   #13151c;
+      --bg-card2:  #1a1d27;
+      --border:    rgba(255,255,255,0.07);
+      --border2:   rgba(255,255,255,0.12);
+      --text:      #f0eeea;
+      --text-dim:  rgba(240,238,234,0.55);
+      --text-mid:  rgba(240,238,234,0.35);
+      --gold:      #c9a84c;
+      --gold-dim:  rgba(201,168,76,0.18);
+      --blue:      #5b8fd9;
+      --blue-dim:  rgba(91,143,217,0.15);
+      --green:     #3bba6c;
+      --red:       #e84855;
+      --shadow-lg: 0 24px 64px rgba(0,0,0,0.5);
+      --radius:    12px;
+      --radius-sm: 8px;
+    }
+
+    html, body { min-height: 100vh; overflow-x: hidden; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection { background: var(--blue); color: white; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Nav ──────────────────────────────────────────── */
+    nav {
+      display: flex; align-items: center;
+      padding: 20px 48px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(11,12,16,0.95);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 50;
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 16px; color: var(--text); text-decoration: none; }
+    .nav-logo:hover { text-decoration: none; }
+    .nav-links { display: flex; gap: 32px; margin-left: 48px; list-style: none; }
+    .nav-links a { font-size: 14px; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .btn-outline {
+      padding: 8px 20px; border: 1px solid var(--border2); border-radius: 8px;
+      background: transparent; color: var(--text); font-size: 14px; font-family: inherit;
+      cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-outline:hover { background: var(--bg-card); text-decoration: none; }
+    .btn-primary {
+      padding: 8px 20px; background: var(--blue); border: none; border-radius: 8px;
+      color: white; font-size: 14px; font-family: inherit; font-weight: 600;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; text-decoration: none; }
+
+    /* ── Hero ─────────────────────────────────────────── */
+    .hero-section {
+      text-align: center; padding: 72px 24px 48px; max-width: 700px; margin: 0 auto;
+    }
+    .hero-section .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 500; color: var(--gold);
+      background: var(--gold-dim); padding: 6px 14px;
+      border-radius: 100px; margin-bottom: 20px;
+      border: 1px solid rgba(201,168,76,0.25);
+    }
+    .hero-section .eyebrow svg { flex-shrink: 0; }
+    .hero-section h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(36px, 5vw, 56px); font-weight: 400;
+      line-height: 1.1; color: var(--text); margin-bottom: 20px;
+    }
+    .hero-section p { font-size: 18px; color: var(--text-dim); line-height: 1.65; }
+
+    /* ── Formula strip ─────────────────────────────────── */
+    .formula-strip {
+      max-width: 700px; margin: 0 auto 56px; padding: 0 24px;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px 32px;
+      text-align: center;
+    }
+    .formula-strip .formula {
+      font-family: 'DM Mono', monospace; font-size: 15px;
+      color: var(--gold); letter-spacing: 0.02em; margin-bottom: 12px;
+    }
+    .formula-strip .pitch {
+      font-size: 14px; color: var(--text-dim); max-width: 500px; margin: 0 auto;
+    }
+    .formula-strip .floor-note {
+      font-size: 12px; color: var(--text-mid); margin-top: 8px;
+    }
+
+    /* ── Logged-in dashboard (shown to authenticated users) ─────────── */
+    .your-bill-section {
+      max-width: 860px; margin: 0 auto 64px; padding: 0 24px;
+    }
+    .your-bill-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .your-bill-header h2 {
+      font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400;
+    }
+    .month-badge {
+      font-size: 12px; color: var(--gold); background: var(--gold-dim);
+      padding: 4px 12px; border-radius: 100px; border: 1px solid rgba(201,168,76,0.25);
+    }
+
+    .bill-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+    }
+
+    .bill-mtd .bill-total {
+      font-family: 'DM Serif Display', serif; font-size: 48px; color: var(--text);
+      line-height: 1;
+    }
+    .bill-mtd .bill-label { font-size: 13px; color: var(--text-dim); margin-bottom: 4px; }
+    .bill-mtd .bill-raw { font-size: 12px; color: var(--text-mid); margin-top: 6px; }
+    .bill-mtd .bill-breakdown { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .bill-category {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 13px;
+    }
+    .bill-category .cat-name { color: var(--text-dim); display: flex; align-items: center; gap: 6px; }
+    .bill-category .cat-name::before {
+      content: ''; display: block; width: 8px; height: 8px;
+      border-radius: 2px; background: var(--blue);
+    }
+    .bill-category .cat-val { color: var(--text); font-weight: 500; }
+
+    .bill-prediction .pred-label { font-size: 13px; color: var(--text-dim); margin-bottom: 6px; }
+    .bill-prediction .pred-value {
+      font-family: 'DM Serif Display', serif; font-size: 36px; color: var(--text); line-height: 1;
+    }
+    .bill-prediction .pred-note { font-size: 12px; color: var(--text-mid); margin-top: 8px; }
+
+    .divider-v { width: 1px; background: var(--border); align-self: stretch; }
+
+    .bill-loading { text-align: center; padding: 48px; color: var(--text-dim); }
+    .bill-loading.hidden { display: none; }
+    .bill-loaded.hidden { display: none; }
+
+    /* ── Cost Calculator ──────────────────────────────── */
+    .calculator-section {
+      max-width: 860px; margin: 0 auto 80px; padding: 0 24px;
+    }
+    .calculator-section h2 {
+      font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400;
+      text-align: center; margin-bottom: 8px;
+    }
+    .calc-subhead { text-align: center; font-size: 15px; color: var(--text-dim); margin-bottom: 40px; }
+
+    .calc-grid {
+      display: grid; grid-template-columns: 1fr 380px; gap: 32px; align-items: start;
+    }
+
+    .calc-inputs {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      display: flex; flex-direction: column; gap: 24px;
+    }
+
+    .calc-input-group label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 10px;
+    }
+    .calc-input-group label .range-label { font-size: 12px; color: var(--text-dim); font-weight: 400; }
+
+    .slider-track {
+      position: relative; height: 6px;
+      background: var(--bg-card2); border-radius: 3px;
+    }
+    .slider-fill {
+      position: absolute; left: 0; top: 0; height: 100%;
+      background: var(--blue); border-radius: 3px;
+      transition: width 0.1s;
+    }
+    input[type="range"] {
+      position: absolute; top: -4px; left: 0; width: 100%;
+      -webkit-appearance: none; appearance: none;
+      background: transparent; cursor: pointer;
+      height: 14px; margin: 0;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--blue); border: 2px solid var(--bg);
+      box-shadow: 0 0 0 1px var(--blue);
+      cursor: grab;
+    }
+    input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; }
+    input[type="range"]::-moz-range-thumb {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--blue); border: 2px solid var(--bg);
+      cursor: grab;
+    }
+    .calc-input-group .range-values {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: var(--text-mid); margin-top: 6px;
+    }
+
+    .calc-result {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px;
+      position: sticky; top: 100px;
+    }
+    .calc-result .result-label { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; }
+    .calc-result .result-price {
+      font-family: 'DM Serif Display', serif; font-size: 52px; line-height: 1; color: var(--text);
+    }
+    .calc-result .result-price .currency { font-size: 28px; align-self: flex-start; margin-top: 6px; }
+    .calc-result .result-period { font-size: 13px; color: var(--text-dim); margin-top: 4px; margin-bottom: 20px; }
+    .calc-result .result-breakdown {
+      border-top: 1px solid var(--border); padding-top: 16px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .calc-result .result-breakdown .r-row {
+      display: flex; justify-content: space-between; font-size: 12px;
+    }
+    .calc-result .result-breakdown .r-row .r-name { color: var(--text-dim); }
+    .calc-result .result-breakdown .r-row .r-val { color: var(--text-mid); }
+    .calc-result .result-raw {
+      margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+      font-size: 11px; color: var(--text-mid); text-align: center;
+    }
+    .calc-result .result-cta {
+      margin-top: 20px; display: block;
+      width: 100%; padding: 14px; border-radius: var(--radius-sm);
+      background: var(--blue); color: white; font-size: 15px;
+      font-weight: 600; font-family: inherit; text-align: center;
+      cursor: pointer; border: none; transition: opacity 0.2s;
+    }
+    .calc-result .result-cta:hover { opacity: 0.85; text-decoration: none; }
+    .calc-result .result-cta:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── Cost transparency section ─────────────────────── */
+    .transparency-section {
+      max-width: 860px; margin: 0 auto 64px; padding: 0 24px;
+    }
+    .transparency-section h2 {
+      font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400;
+      text-align: center; margin-bottom: 40px;
+    }
+    .cost-categories {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;
+    }
+    .cost-cat-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .cost-cat-card:hover { border-color: var(--border2); }
+    .cost-cat-card .cat-icon {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: var(--blue-dim); display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px;
+    }
+    .cost-cat-card .cat-icon svg { color: var(--blue); }
+    .cost-cat-card h3 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .cost-cat-card p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+    .cost-cat-card .cat-rate {
+      margin-top: 12px; font-size: 12px; color: var(--text-mid);
+      background: var(--bg-card2); padding: 4px 10px; border-radius: 4px;
+      display: inline-block;
+    }
+
+    /* ── Features (retain from old page) ─────────────────── */
+    .features-section {
+      max-width: 860px; margin: 0 auto 80px; padding: 0 24px;
+    }
+    .features-section h2 {
+      font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400;
+      text-align: center; margin-bottom: 32px;
+    }
+    .features-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .feature-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 16px; background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+    }
+    .feature-item svg { flex-shrink: 0; color: var(--green); margin-top: 2px; }
+    .feature-item span { font-size: 14px; color: var(--text-dim); }
+
+    /* ── Integrations ─────────────────────────────────── */
+    .integrations-section {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 40px;
+      max-width: 860px; margin: 0 auto 80px; text-align: center;
+    }
+    .integrations-section h2 {
+      font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400;
+      color: var(--text); margin-bottom: 12px;
+    }
+    .integrations-section > p { font-size: 15px; color: var(--text-dim); margin-bottom: 32px; }
+    .integrations-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+    .integration-badge {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 18px; background: var(--bg-card2);
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 14px; font-weight: 500; color: var(--text);
+    }
+    .integration-badge svg { color: var(--blue); }
+
+    /* ── FAQ ─────────────────────────────────────────── */
+    .faq-section {
+      max-width: 640px; margin: 0 auto 80px; padding: 0 24px;
+    }
+    .faq-section h2 {
+      font-family: 'DM Serif Display', serif; font-size: 28px; font-weight: 400;
+      text-align: center; margin-bottom: 40px; color: var(--text);
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border); padding: 24px 0;
+      cursor: pointer;
+    }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-question {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 16px; font-weight: 500; color: var(--text);
+    }
+    .faq-item.open .faq-question { margin-bottom: 12px; }
+    .faq-toggle {
+      width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+      color: var(--text-dim); transition: transform 0.2s; flex-shrink: 0;
+    }
+    .faq-item.open .faq-toggle { transform: rotate(45deg); }
+    .faq-answer { font-size: 14px; color: var(--text-dim); line-height: 1.65; display: none; }
+    .faq-item.open .faq-answer { display: block; }
+
+    /* ── Footer ───────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border); padding: 32px 48px;
+      display: flex; justify-content: space-between; align-items: center;
+      color: var(--text-mid); font-size: 13px;
+    }
+    footer a { color: var(--text-dim); }
+    footer a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── Responsive ───────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .hero-section { padding: 48px 20px 36px; }
+      .formula-strip { padding: 20px; }
+      .bill-card { grid-template-columns: 1fr; }
+      .divider-v { display: none; }
+      .calculator-section { padding: 0 16px; }
+      .calc-grid { grid-template-columns: 1fr; }
+      .calc-result { position: static; }
+      .cost-categories { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .integrations-section { padding: 28px 20px; }
+      .faq-section { padding: 0 20px 60px; }
+      footer { padding: 24px 20px; flex-direction: column; gap: 8px; text-align: center; }
+    }
+
+    /* ── Feedback banner ──────────────────────────────── */
+    #feedback-banner {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--bg-card); border-top: 1px solid var(--border);
+      padding: 12px 24px; text-align: center; font-size: 13px;
+      color: var(--text-dim); z-index: 200;
+    }
+    #feedback-banner.error { color: var(--red); }
+    #feedback-banner.success { color: var(--green); }
+
+    /* ── Auth gate (for sign-in) ─────────────────────────── */
+    .sign-in-prompt {
+      text-align: center; padding: 16px;
+      font-size: 13px; color: var(--text-dim);
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); margin-bottom: 0;
+    }
+    .sign-in-prompt a { color: var(--blue); font-weight: 500; }
+
+    /* ── Spinner ─────────────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 20px; height: 20px; border: 2px solid var(--border);
+      border-top-color: var(--blue); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a href="/" class="nav-logo">
+    <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
+      <rect width="64" height="64" rx="8" fill="#0a0e14"/>
+      <circle cx="32" cy="35" r="26" fill="none" stroke="#c8cdd6" stroke-width="1.0" opacity="0.22"/>
+      <circle cx="32" cy="35" r="21" fill="none" stroke="#c8cdd6" stroke-width="1.1" opacity="0.30"/>
+      <circle cx="32" cy="35" r="16" fill="none" stroke="#c8cdd6" stroke-width="1.3" opacity="0.38"/>
+      <circle cx="32" cy="35" r="11" fill="none" stroke="#c8cdd6" stroke-width="1.5" opacity="0.48"/>
+      <circle cx="32" cy="35" r="6" fill="none" stroke="#c8cdd6" stroke-width="1.6" opacity="0.58"/>
+      <line x1="32" y1="6" x2="18" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="32" y1="6" x2="46" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+      <line x1="23" y1="45" x2="41" y2="45" stroke="#e0e4ea" stroke-width="1.8" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="29" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <line x1="32" y1="3" x2="35" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+      <circle cx="32" cy="3" r="1.8" fill="none" stroke="#e0e4ea" stroke-width="1"/>
+      <path d="M 32 30 L 33.5 35 L 32 40 L 30.5 35 Z" fill="#e0e4ea" opacity="0.9"/>
+      <path d="M 27 35 L 32 33.5 L 37 35 L 32 36.5 Z" fill="#e0e4ea" opacity="0.9"/>
+      <circle cx="32" cy="35" r="1.5" fill="#e0e4ea"/>
+    </svg>
+    Atlantist
+  </a>
+  <ul class="nav-links">
+    <li><a href="/#features">Features</a></li>
+    <li><a href="/docs">Docs</a></li>
+    <li><a href="/pricing" style="color:var(--text)">Pricing</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="/app" class="btn-outline">Open app</a>
+    <a href="/app" class="btn-primary">Start free →</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero-section">
+  <div class="eyebrow">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Cost-based pricing — transparent, predictable, fair
+  </div>
+  <h1>You pay exactly what it costs us — plus 100%.</h1>
+  <p>No hidden fees. No overcharging. No pay-per-feature. Every dollar is traceable to a real cost we incur running your workspace.</p>
+</section>
+
+<!-- Formula strip -->
+<div class="formula-strip">
+  <div class="formula">your_bill = max($5, actual_infrastructure_cost × 2)</div>
+  <p class="pitch">We double our actual costs. That's our margin — it funds development so Atlantist keeps getting better.</p>
+  <div class="floor-note">$5/mo minimum floor — even dormant accounts cost us money to keep running.</div>
+</div>
+
+<!-- Your current bill (logged-in users only) -->
+<div class="your-bill-section" id="your-bill-section" style="display:none">
+  <div class="your-bill-header">
+    <h2>Your current bill</h2>
+    <span class="month-badge" id="current-month-label">May 2026</span>
+  </div>
+
+  <!-- Loading state -->
+  <div class="bill-loading" id="bill-loading">
+    <div class="spinner" style="margin-bottom:8px"></div>
+    Loading your usage…
+  </div>
+
+  <!-- Loaded state -->
+  <div class="bill-card bill-loaded hidden" id="bill-card">
+    <div>
+      <div class="bill-label">Month-to-date (raw infrastructure cost)</div>
+      <div class="bill-total">$<span id="mtd-raw">0.00</span></div>
+      <div class="bill-raw">Your bill: <strong>$<span id="mtd-bill">0.00</span></strong> (2× markup applied)</div>
+
+      <div class="bill-breakdown" id="bill-breakdown">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <div class="divider-v" style="display:none"></div>
+    <div class="bill-prediction" id="bill-prediction" style="display:none">
+      <div class="pred-label">Predicted next month</div>
+      <div class="pred-value">$<span id="pred-bill">—</span></div>
+      <div class="pred-note">Based on your last 3 months of usage (weighted avg)</div>
+    </div>
+  </div>
+</div>
+
+<!-- Sign-in prompt (unauthenticated) -->
+<div class="your-bill-section" id="sign-in-prompt" style="display:none">
+  <div class="sign-in-prompt">
+    <a href="/app">Sign in to your account</a> to see your actual running bill and cost breakdown.
+  </div>
+</div>
+
+<!-- Cost Calculator -->
+<section class="calculator-section">
+  <h2>Estimate your bill</h2>
+  <p class="calc-subhead">Adjust the sliders to match your workflow — your projected bill updates instantly.</p>
+
+  <div class="calc-grid">
+    <div class="calc-inputs">
+
+      <div class="calc-input-group">
+        <label>
+          Simulations / month
+          <span class="range-label">EnergyPlus, OpenSees, FDS, MEP</span>
+        </label>
+        <div style="position:relative">
+          <div class="slider-track">
+            <div class="slider-fill" id="sim-fill" style="width:20%"></div>
+          </div>
+          <input type="range" min="0" max="50" value="5" id="sim-slider">
+        </div>
+        <div class="range-values"><span>0</span><span>10</span><span>25</span><span>50</span></div>
+        <div style="text-align:right; font-size:12px; color:var(--blue); font-weight:600; margin-top:4px">
+          <span id="sim-val">5</span> × $0.05 = $<span id="sim-cost">0.25</span>
+        </div>
+      </div>
+
+      <div class="calc-input-group">
+        <label>
+          Storage (GB)
+          <span class="range-label">PostgreSQL — model data, event ledger</span>
+        </label>
+        <div style="position:relative">
+          <div class="slider-track">
+            <div class="slider-fill" id="storage-fill" style="width:10%"></div>
+          </div>
+          <input type="range" min="0" max="20" step="0.5" value="0.5" id="storage-slider">
+        </div>
+        <div class="range-values"><span>0 GB</span><span>10 GB</span><span>20 GB</span></div>
+        <div style="text-align:right; font-size:12px; color:var(--blue); font-weight:600; margin-top:4px">
+          <span id="storage-val">0.5</span> GB × $0.25 = $<span id="storage-cost">0.13</span>
+        </div>
+      </div>
+
+      <div class="calc-input-group">
+        <label>
+          Team size (users)
+          <span class="range-label">All users share hosting amort</span>
+        </label>
+        <div style="position:relative">
+          <div class="slider-track">
+            <div class="slider-fill" id="team-fill" style="width:10%"></div>
+          </div>
+          <input type="range" min="1" max="20" value="1" id="team-slider">
+        </div>
+        <div class="range-values"><span>1</span><span>10</span><span>20</span></div>
+        <div style="text-align:right; font-size:12px; color:var(--blue); font-weight:600; margin-top:4px">
+          <span id="team-val">1</span> × $0.15 = $<span id="team-cost">0.15</span>
+        </div>
+      </div>
+
+      <div class="calc-input-group">
+        <label>
+          API calls / month
+          <span class="range-label">Forge conversions, Veras renders</span>
+        </label>
+        <div style="position:relative">
+          <div class="slider-track">
+            <div class="slider-fill" id="api-fill" style="width:20%"></div>
+          </div>
+          <input type="range" min="0" max="200" value="10" id="api-slider">
+        </div>
+        <div class="range-values"><span>0</span><span>50</span><span>100</span><span>200</span></div>
+        <div style="text-align:right; font-size:12px; color:var(--blue); font-weight:600; margin-top:4px">
+          <span id="api-val">10</span> × $0.002 = $<span id="api-cost">0.02</span>
+        </div>
+      </div>
+
+      <div class="calc-input-group">
+        <label>
+          Tax rate
+          <span class="range-label">Configurable — ENV TAX_RATE</span>
+        </label>
+        <div style="position:relative">
+          <div class="slider-track">
+            <div class="slider-fill" id="tax-fill" style="width:0%"></div>
+          </div>
+          <input type="range" min="0" max="25" step="0.25" value="0" id="tax-slider">
+        </div>
+        <div class="range-values"><span>0%</span><span>10%</span><span>20%</span><span>25%</span></div>
+        <div style="text-align:right; font-size:12px; color:var(--gold); font-weight:600; margin-top:4px">
+          <span id="tax-val">0.00</span>% on infra cost = $<span id="tax-cost">0.00</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Result panel -->
+    <div class="calc-result">
+      <div class="result-label">Estimated monthly bill</div>
+      <div class="result-price">
+        <span class="currency">$</span>
+        <span id="result-total">0.50</span>
+      </div>
+      <div class="result-period">per month</div>
+
+      <div class="result-breakdown" id="calc-breakdown">
+        <div class="r-row">
+          <span class="r-name">Compute (simulations)</span>
+          <span class="r-val" id="r-compute">$0.25</span>
+        </div>
+        <div class="r-row">
+          <span class="r-name">Storage</span>
+          <span class="r-val" id="r-storage">$0.13</span>
+        </div>
+        <div class="r-row">
+          <span class="r-name">Bandwidth (avg/user)</span>
+          <span class="r-val" id="r-bandwidth">$0.15</span>
+        </div>
+        <div class="r-row">
+          <span class="r-name">API calls</span>
+          <span class="r-val" id="r-api">$0.02</span>
+        </div>
+        <div class="r-row">
+          <span class="r-name" style="font-size:11px;color:var(--text-mid)">Hosting amort (base)</span>
+          <span class="r-val" style="font-size:11px">$0.12</span>
+        </div>
+        <div class="r-row" style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border)">
+          <span class="r-name" style="font-weight:600;color:var(--text)">Infra cost</span>
+          <span class="r-val" style="font-weight:600;color:var(--text)" id="r-raw">$0.67</span>
+        </div>
+        <div class="r-row" id="r-tax-row" style="display:none">
+          <span class="r-name" style="font-size:11px;color:var(--gold)">+ Tax (<span id="r-tax-rate-display">0%</span>)</span>
+          <span class="r-val" style="font-size:11px;color:var(--gold)" id="r-tax">$0.00</span>
+        </div>
+        <div class="r-row" id="r-taxed-base-row" style="display:none;margin-top:4px">
+          <span class="r-name" style="font-size:11px;color:var(--text-mid)">= Taxed base</span>
+          <span class="r-val" style="font-size:11px;color:var(--text-mid)" id="r-taxed-base">$0.67</span>
+        </div>
+        <div class="r-row">
+          <span class="r-name" style="font-size:11px">× 2 markup</span>
+          <span class="r-val" style="font-size:11px">+</span>
+        </div>
+      </div>
+
+      <div class="result-raw">floor: max($5, (infra + tax) × 2) = $<span id="r-final">0.50</span></div>
+
+      <button class="result-cta" id="calc-cta">Start free trial →</button>
+    </div>
+  </div>
+</section>
+
+<!-- Cost transparency categories -->
+<div class="transparency-section">
+  <h2>What you're paying for</h2>
+  <div class="cost-categories">
+
+    <div class="cost-cat-card">
+      <div class="cat-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <h3>Compute</h3>
+      <p>EnergyPlus energy simulations, OpenSees structural analysis, NIST FDS fire simulation, MEP HVAC/plumbing/electrical runs.</p>
+      <div class="cat-rate">$0.05 / simulation run</div>
+    </div>
+
+    <div class="cost-cat-card">
+      <div class="cat-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      </div>
+      <h3>Storage</h3>
+      <p>PostgreSQL row storage — event ledger (every parameter change), model geometry, shadow page history, render assets.</p>
+      <div class="cat-rate">$0.25 / GB / month</div>
+    </div>
+
+    <div class="cost-cat-card">
+      <div class="cat-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <h3>Bandwidth</h3>
+      <p>WebSocket real-time sync, IFC/DXF/DWG/gbXML file exports, .rvt import transfers, live collaboration data.</p>
+      <div class="cat-rate">$0.15 / user / month (avg)</div>
+    </div>
+
+    <div class="cost-cat-card">
+      <div class="cat-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41"/><path d="M4.93 19.07l-1.41 1.41"/><path d="M4.93 4.93l1.41 1.41"/><path d="M19.07 19.07l1.41 1.41"/></svg>
+      </div>
+      <h3>3rd-party APIs</h3>
+      <p>Autodesk Forge Model Derivative API (Revit .rvt import), Veras AI render API, OpenAI embeddings for forum moderation.</p>
+      <div class="cat-rate">$0.002 / API call</div>
+    </div>
+
+    <div class="cost-cat-card">
+      <div class="cat-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+      </div>
+      <h3>Hosting</h3>
+      <p>Render service — Node.js + PostgreSQL (Neon), WebSocket server, CDN assets, SSL certificates, maintenance.</p>
+      <div class="cat-rate">$3.50 / month (base) ÷ active users</div>
+    </div>
+
+    <div class="cost-cat-card">
+      <div class="cat-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <h3>Our markup (100%)</h3>
+      <p>Every dollar you pay above our actual costs is our revenue. It funds development, infrastructure, and support — no hidden games.</p>
+      <div class="cat-rate">100% markup = 2× actual cost</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Features -->
+<div class="features-section">
+  <h2>Everything included — always</h2>
+  <div class="features-grid">
+    <div class="feature-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Full 3D BIM editor — walls, columns, doors, windows, stairs, railings</span></div>
+    <div class="feature-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>IFC 2x3 &amp; IFC 4 import/export</span></div>
+    <div class="feature-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Energy simulation (EN-001 to EN-008) + DOB filing</span></div>
+    <div class="feature-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>MEP: HVAC, plumbing, electrical runs</span></div>
+    <div class="feature-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Floors, ceilings, rooms, grids, curved surfaces</span></div>
+    <div class="feature-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Fire protection (NFPA 13/101/92) + FDS simulation</span></div>
+    <div class="feature-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Geotechnical analysis + OpenSees export</span></div>
+    <div class="feature-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Issue tracking, AI renders, design book, community forum</span></div>
+    <div class="feature-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>Annotations, dimensions, schedules, section views</span></div>
+    <div class="feature-item"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>All integrations — VERAS, Finch3D, Motif, Drive, Forma, Polycam</span></div>
+  </div>
+</div>
+
+<!-- Integrations -->
+<div class="integrations-section">
+  <h2>All integrations included — always</h2>
+  <p>No tiered add-ons. No pay-per-feature. The cost you see is what you pay.</p>
+  <div class="integrations-grid">
+    <div class="integration-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> VERAS</div>
+    <div class="integration-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Finch3D</div>
+    <div class="integration-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Motif</div>
+    <div class="integration-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Drive</div>
+    <div class="integration-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Forma</div>
+    <div class="integration-badge"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Polycam</div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-section">
+  <h2>Questions</h2>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">How is my actual bill calculated?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">Every day we track your real infrastructure usage across 5 categories: compute (simulation runs), storage (PostgreSQL bytes), bandwidth (file transfers + WebSocket), 3rd-party API calls (Forge, Veras), and hosting amort. At month end, we sum it all and multiply by 2. If you're on a yearly plan, we divide $330 by 12 and apply that as your monthly credit against actual usage.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">What's the $5 minimum floor?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">Even dormant accounts cost us money to keep running — the database is still there, the service is still up. So we charge a $5/mo minimum regardless of actual usage. Active users effectively pay $0 for hosting since it amortizes across their simulation and storage costs.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">What happens if my usage is very high?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">If total monthly infrastructure cost across all users hits $150/mo, our system automatically triggers a cost optimization analysis. We identify the top cost driver and generate engineering tasks to reduce it by 5-10×. You'll be notified of any changes that affect your billing. You always have the right to cancel if the model doesn't work for you.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">Can I see my real-time cost?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">Yes — sign in and visit your account dashboard. You'll see a live month-to-date cost breakdown by category (compute, storage, bandwidth, API, hosting) plus a predicted bill for next month based on your last 3 months of usage.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">What if I'm on a yearly plan?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">Yearly plans ($330/yr = $27.50/mo) pre-pay 12 months at a fixed rate. We track your actual usage and apply any credits to your next billing cycle. If your actual monthly cost is lower than $27.50, you keep the surplus. If higher, the difference is absorbed by the yearly discount.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">Is the 30-day trial really free?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">Yes — no credit card required to start. You'll only be charged if you choose to continue after the trial ends. During the trial you'll see your actual running cost in your account so there are no surprises.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">Can I change plans or cancel anytime?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">Yes — cancel anytime via the billing portal. Your subscription holds for 1 year, then your account enters a read-only hold before deletion. Reactivate anytime before deletion at no extra cost.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">Do you offer team or enterprise pricing?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">Team collaboration is on the roadmap. For enterprise needs (SSO, dedicated support, custom integrations), contact us at support@atlantist.cloud. Enterprise accounts get a dedicated cost breakdown and custom pricing negotiations based on actual usage patterns.</div>
+  </div>
+
+  <div class="faq-item" onclick="toggleFaq(this)">
+    <div class="faq-question">Who owns the models I create?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">You do. All project data belongs to you. We don't claim any rights to your work. See our <a href="/legal/terms">Terms of Service</a> for details.</div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <span>© 2026 Atlantist. All rights reserved.</span>
+  <div>
+    <a href="/legal/privacy">Privacy</a> &nbsp;·&nbsp;
+    <a href="/legal/terms">Terms</a> &nbsp;·&nbsp;
+    <a href="/legal/cookies">Cookies</a> &nbsp;·&nbsp;
+    <a href="mailto:support@atlantist.cloud">Support</a>
+  </div>
+</footer>
+
+<!-- Feedback banner -->
+<div id="feedback-banner"></div>
+
+<script src="/js/boot-safety.js"></script>
+<script>
+// ── Cost Calculator ─────────────────────────────────────────────────────────
+
+const RATES = {
+  compute_per_sim:  0.05,
+  storage_per_gb:    0.25,
+  bandwidth_per_user: 0.15,
+  api_per_call:     0.002,
+  hosting_base:     3.50,
+  multiplier:        2,
+  floor:             5,
+  tax_rate:          0 // loaded from /api/cost/calculator in initCostConfig()
+};
+
+const sliders = {
+  sim:     { el: 'sim-slider',     fill: 'sim-fill',     val: 'sim-val',     cost: 'sim-cost',    max: 50,  mult: RATES.compute_per_sim },
+  storage: { el: 'storage-slider', fill: 'storage-fill', val: 'storage-val', cost: 'storage-cost', max: 20,  mult: RATES.storage_per_gb },
+  team:    { el: 'team-slider',    fill: 'team-fill',    val: 'team-val',    cost: 'team-cost',   max: 20,  mult: RATES.bandwidth_per_user },
+  api:     { el: 'api-slider',     fill: 'api-fill',     val: 'api-val',     cost: 'api-cost',    max: 200, mult: RATES.api_per_call },
+  tax:     { el: 'tax-slider',     fill: 'tax-fill',     val: 'tax-val',     cost: 'tax-cost',    max: 25,  mult: 0.01, suffix: '%' }
+};
+
+function updateSlider(name, opts) {
+  const slider = document.getElementById(opts.el);
+  const fill   = document.getElementById(opts.fill);
+  const valEl  = document.getElementById(opts.val);
+  const costEl = document.getElementById(opts.cost);
+
+  const val = parseFloat(slider.value);
+  const cost = val * opts.mult;
+  const pct = (val / opts.max) * 100;
+
+  fill.style.width = pct + '%';
+  if (opts.suffix === '%') {
+    valEl.textContent = val.toFixed(2);
+  } else {
+    valEl.textContent = name === 'storage' ? val.toFixed(1) : val;
+  }
+  costEl.textContent = cost < 0.01 ? cost.toFixed(3) : cost.toFixed(2);
+
+  updateResult();
+}
+
+function updateResult() {
+  const sim     = parseFloat(document.getElementById('sim-slider').value);
+  const storage = parseFloat(document.getElementById('storage-slider').value);
+  const team    = parseFloat(document.getElementById('team-slider').value);
+  const api     = parseFloat(document.getElementById('api-slider').value);
+  const taxRate = parseFloat(document.getElementById('tax-slider').value);
+
+  const compute   = sim * RATES.compute_per_sim;
+  const storCost  = storage * RATES.storage_per_gb;
+  const bandCost  = team * RATES.bandwidth_per_user;
+  const apiCost   = api * RATES.api_per_call;
+  const hostCost  = RATES.hosting_base / Math.max(team, 1);
+
+  const infraCost = compute + storCost + bandCost + apiCost + hostCost;
+  const taxes = parseFloat((infraCost * (taxRate / 100)).toFixed(4));
+  const taxedBase = infraCost + taxes;
+  const billed = Math.max(RATES.floor, taxedBase * RATES.multiplier);
+
+  document.getElementById('result-total').textContent = billed.toFixed(2);
+  document.getElementById('r-compute').textContent   = '$' + compute.toFixed(2);
+  document.getElementById('r-storage').textContent   = '$' + storCost.toFixed(2);
+  document.getElementById('r-bandwidth').textContent = '$' + bandCost.toFixed(2);
+  document.getElementById('r-api').textContent       = '$' + apiCost.toFixed(2);
+  document.getElementById('r-raw').textContent       = '$' + infraCost.toFixed(2);
+
+  // Tax breakdown
+  const taxRow = document.getElementById('r-tax-row');
+  const taxedBaseRow = document.getElementById('r-taxed-base-row');
+  if (taxRate > 0) {
+    taxRow.style.display = 'flex';
+    taxedBaseRow.style.display = 'flex';
+    document.getElementById('r-tax-rate-display').textContent = taxRate.toFixed(2) + '%';
+    document.getElementById('r-tax').textContent = '$' + taxes.toFixed(2);
+    document.getElementById('r-taxed-base').textContent = '$' + taxedBase.toFixed(2);
+  } else {
+    taxRow.style.display = 'none';
+    taxedBaseRow.style.display = 'none';
+  }
+
+  document.getElementById('r-final').textContent = billed.toFixed(2);
+}
+
+Object.entries(sliders).forEach(([name, opts]) => {
+  const slider = document.getElementById(opts.el);
+  slider?.addEventListener('input', () => updateSlider(name, opts));
+  updateSlider(name, opts);
+});
+
+// Fetch tax rate from backend (respects TAX_RATE env var; default 0)
+async function initCostConfig() {
+  try {
+    const res = await fetch('/api/cost/calculator');
+    if (res.ok) {
+      const data = await res.json();
+      if (data.tax_rate !== undefined && data.tax_rate !== null) {
+        RATES.tax_rate = typeof data.tax_rate === 'number' ? data.tax_rate : 0;
+        const taxSlider = document.getElementById('tax-slider');
+        if (taxSlider && RATES.tax_rate > 0) {
+          taxSlider.value = Math.min(RATES.tax_rate * 100, 25);
+          updateSlider('tax', sliders.tax);
+        }
+      }
+    }
+  } catch (_) { /* use default 0 */ }
+}
+
+// ── Checkout flow ────────────────────────────────────────────────────────────
+document.getElementById('calc-cta')?.addEventListener('click', startCheckout);
+
+async function startCheckout() {
+  const btn = document.getElementById('calc-cta');
+  showFeedback('', '');
+  btn.disabled = true;
+  btn.textContent = 'Preparing…';
+
+  try {
+    const meRes = await fetch('/api/auth/me');
+    let user = null;
+    if (meRes.ok) {
+      const meData = await meRes.json();
+      user = meData.user;
+    }
+
+    if (!user || user.anonymous) {
+      window.location.href = '/app?plan=monthly';
+      return;
+    }
+
+    const res = await fetch('/api/billing/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: 'monthly' })
+    });
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || 'Failed to start checkout');
+    window.location.href = data.url;
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Start free trial →';
+    showFeedback(err.message || 'Something went wrong. Please try again.', 'error');
+  }
+}
+
+// ── Load logged-in user's actual bill ───────────────────────────────────────
+async function loadUserBill() {
+  try {
+    const meRes = await fetch('/api/auth/me');
+    if (!meRes.ok) {
+      document.getElementById('sign-in-prompt').style.display = 'block';
+      return;
+    }
+    const meData = await meRes.json();
+    const user = meData.user;
+    if (!user || user.anonymous) {
+      document.getElementById('sign-in-prompt').style.display = 'block';
+      return;
+    }
+
+    document.getElementById('your-bill-section').style.display = 'block';
+
+    const costRes = await fetch('/api/cost/me');
+    if (!costRes.ok) {
+      document.getElementById('bill-loading').style.display = 'none';
+      document.getElementById('bill-card').style.display = 'grid';
+      return;
+    }
+
+    const costData = await costRes.json();
+    const mtd = costData.month_to_date;
+    const pred = costData.prediction;
+
+    document.getElementById('bill-loading').style.display = 'none';
+    const card = document.getElementById('bill-card');
+    card.style.display = 'grid';
+
+    document.getElementById('mtd-raw').textContent = mtd.infra_cost.toFixed(2);
+    document.getElementById('mtd-bill').textContent = mtd.your_bill.toFixed(2);
+
+    // Append tax breakdown if taxes > 0
+    if (mtd.taxes_applicable > 0) {
+      const rawEl = document.getElementById('mtd-raw');
+      const rate = costData.formula?.tax_rate;
+      const ratePct = rate ? (rate * 100).toFixed(2) : '?';
+      rawEl.parentElement.querySelector('.bill-raw').innerHTML =
+        'Infra: <strong>$' + mtd.infra_cost.toFixed(2) + '</strong> + ' +
+        'tax (<strong>' + ratePct + '%</strong>) = <strong>$' + mtd.taxes_applicable.toFixed(2) + '</strong> &rarr; ' +
+        'your bill: <strong>$' + mtd.your_bill.toFixed(2) + '</strong>';
+    }
+
+    // Set current month label
+    const now = new Date();
+    const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('current-month-label').textContent = monthNames[now.getMonth()] + ' ' + now.getFullYear();
+
+    // Breakdown rows
+    const breakdown = document.getElementById('bill-breakdown');
+    const categories = [
+      { key: 'compute',   label: 'Compute',   val: mtd.compute_cost },
+      { key: 'storage',   label: 'Storage',   val: mtd.storage_cost },
+      { key: 'bandwidth', label: 'Bandwidth', val: mtd.bandwidth_cost },
+      { key: 'api',       label: '3rd-party APIs', val: mtd.api_cost },
+      { key: 'hosting',   label: 'Hosting amort', val: mtd.hosting_amort }
+    ];
+    breakdown.innerHTML = categories.map(c => `
+      <div class="bill-category">
+        <span class="cat-name">${c.label}</span>
+        <span class="cat-val">$${c.val.toFixed(2)}</span>
+      </div>
+    `).join('');
+
+    // Prediction
+    if (pred && pred.predicted_bill) {
+      const predDiv = document.getElementById('bill-prediction');
+      predDiv.style.display = 'block';
+      predDiv.style.gridColumn = '2';
+      card.style.gridTemplateColumns = '1fr 1fr';
+      card.querySelector('.divider-v').style.display = 'block';
+      document.getElementById('pred-bill').textContent = pred.predicted_bill.toFixed(2);
+    }
+  } catch (err) {
+    console.error('[pricing] loadUserBill error:', err);
+    document.getElementById('bill-loading').textContent = 'Could not load cost data.';
+  }
+}
+
+// ── FAQ ─────────────────────────────────────────────────────────────────────
+function toggleFaq(el) {
+  document.querySelectorAll('.faq-item.open').forEach(item => {
+    if (item !== el) item.classList.remove('open');
+  });
+  el.classList.toggle('open');
+}
+
+// ── Feedback banner ─────────────────────────────────────────────────────────
+function showFeedback(msg, type) {
+  const banner = document.getElementById('feedback-banner');
+  if (!msg) { banner.style.display = 'none'; return; }
+  banner.textContent = msg;
+  banner.className = type || '';
+  banner.style.display = 'block';
+  if (type) setTimeout(() => { banner.style.display = 'none'; }, 6000);
+}
+
+// ── Init ────────────────────────────────────────────────────────────────────
+loadUserBill();
+initCostConfig();
+</script>
+</body>
+</html>

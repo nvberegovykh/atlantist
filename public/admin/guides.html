@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide Management — Atlantist Admin</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+<meta name="theme-color" content="#0c1420">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #0d0d0f; color: #e2e8f0; min-height: 100vh; }
+  .header { background: #1a1a2e; border-bottom: 1px solid #2d2d4a; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .header h1 { font-size: 16px; font-weight: 600; color: #e2e8f0; }
+  .header a { color: #5b9bd5; text-decoration: none; font-size: 13px; }
+  .header a:hover { text-decoration: underline; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card { background: #1a1a2e; border: 1px solid #2d2d4a; border-radius: 8px; padding: 18px; }
+  .stat-card .label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .stat-card .value { font-size: 26px; font-weight: 700; }
+  .stat-card .value.accent { color: #5b9bd5; }
+  .stat-card .value.green { color: #22c55e; }
+  .stat-card .value.orange { color: #f97316; }
+  .stat-card .value.red { color: #ef4444; }
+
+  .section-title { font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: space-between; }
+
+  .tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid #2d2d4a; }
+  .tab { padding: 10px 20px; font-size: 13px; cursor: pointer; color: #64748b; border-bottom: 2px solid transparent; }
+  .tab.active { color: #5b9bd5; border-bottom-color: #5b9bd5; font-weight: 600; }
+  .tab:hover { color: #94a3b8; }
+
+  table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; border-bottom: 1px solid #2d2d4a; }
+  td { padding: 12px; border-bottom: 1px solid #1a1a2e; font-size: 13px; }
+  tr:hover td { background: #1a1a2e; }
+  tr:hover.submission-pending td { background: rgba(91,155,213,.05); }
+
+  .diff-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+  .diff-badge.Beginner { background: rgba(34,197,94,.15); color: #4ade80; }
+  .diff-badge.Intermediate { background: rgba(249,115,22,.15); color: #fb923c; }
+  .diff-badge.Advanced { background: rgba(239,68,68,.12); color: #f87171; }
+
+  .featured-toggle { width: 36px; height: 20px; border-radius: 10px; border: none; cursor: pointer; transition: background .2s; position: relative; }
+  .featured-toggle.on { background: #5b9bd5; }
+  .featured-toggle.off { background: #2d2d4a; }
+  .featured-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: white; transition: left .2s; }
+  .featured-toggle.on::after { left: 18px; }
+
+  .status-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .status-badge.pending { background: #1e1b4b; color: #a5b4fc; }
+  .status-badge.approved { background: #14532d; color: #86efac; }
+  .status-badge.rejected { background: #450a0a; color: #fca5a5; }
+
+  .btn { border: none; padding: 6px 14px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600; font-family: inherit; }
+  .btn-approve { background: #14532d; color: #86efac; }
+  .btn-approve:hover { background: #166534; }
+  .btn-reject { background: #450a0a; color: #fca5a5; }
+  .btn-reject:hover { background: #7f1d1d; }
+  .btn-edit { background: #1e3a5f; color: #93c5fd; }
+  .btn-edit:hover { background: #1e40af; }
+
+  .loading { text-align: center; padding: 40px; color: #64748b; font-size: 14px; }
+  .error-msg { background: #450a0a; border: 1px solid #7f1d1d; border-radius: 8px; padding: 16px; color: #fca5a5; margin-bottom: 20px; font-size: 13px; }
+  .success-msg { background: #14532d; border: 1px solid #166534; border-radius: 8px; padding: 16px; color: #86efac; margin-bottom: 20px; font-size: 13px; }
+
+  .guide-row-actions { white-space: nowrap; }
+  .guide-row-title { font-weight: 600; color: #e2e8f0; }
+  .guide-row-meta { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+  .submission-card {
+    background: #1a1a2e; border: 1px solid #2d2d4a; border-radius: 8px; padding: 16px;
+    margin-bottom: 12px;
+  }
+  .submission-card.pending { border-color: rgba(91,155,213,.3); }
+  .submission-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .submission-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .submission-meta { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+  .submission-steps { font-size: 12px; color: #94a3b8; margin-bottom: 12px; padding: 8px; background: #0d0d0f; border-radius: 4px; }
+  .submission-actions { display: flex; gap: 8px; align-items: center; }
+  .review-notes { width: 100%; background: #0d0d0f; border: 1px solid #2d2d4a; color: #e2e8f0; border-radius: 4px; padding: 6px 8px; font-size: 12px; font-family: inherit; margin-right: 8px; }
+
+  .no-submissions { text-align: center; padding: 48px; color: #475569; font-size: 14px; }
+  .no-submissions-icon { font-size: 32px; margin-bottom: 12px; }
+
+  .sort-handle { cursor: grab; color: #475569; font-size: 14px; }
+
+  @media (max-width: 768px) {
+    .container { padding: 16px; }
+    .header { padding: 12px 16px; }
+    .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .stat-card .value { font-size: 22px; }
+    .tabs { overflow-x: auto; white-space: nowrap; }
+    .tab { padding: 10px 14px; font-size: 12px; }
+    table { display: block; overflow-x: auto; white-space: nowrap; }
+    th, td { padding: 8px 10px; }
+    .guide-row-actions { display: flex; gap: 4px; }
+    .submission-card { padding: 12px; }
+    .submission-actions { flex-wrap: wrap; }
+  }
+
+  @media (max-width: 480px) {
+    .container { padding: 12px; }
+    .header { padding: 10px 12px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-card .value { font-size: 20px; }
+    .stat-card .label { font-size: 10px; }
+    .submission-steps { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>📚 Guide Management</h1>
+    <div>
+      <a href="/app">← Back to App</a> &nbsp;|&nbsp;
+      <a href="/admin/abuse">Abuse Scan</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="msg" style="display:none" class="error-msg"></div>
+
+    <!-- Stats -->
+    <div class="stat-grid" id="stats"></div>
+
+    <!-- Tabs -->
+    <div class="tabs" id="tabs">
+      <div class="tab active" onclick="switchTab('submissions')">Pending Submissions</div>
+      <div class="tab" onclick="switchTab('guides')">All Guides</div>
+      <div class="tab" onclick="switchTab('stats')">Stats</div>
+    </div>
+
+    <!-- Pending Submissions -->
+    <div id="tab-submissions"></div>
+
+    <!-- All Guides -->
+    <div id="tab-guides" style="display:none"></div>
+
+    <!-- Stats -->
+    <div id="tab-stats" style="display:none"></div>
+  </div>
+
+  <script src="/js/boot-safety.js"></script>
+  <script>
+    const API = '/api/guides';
+
+    async function loadData() {
+      await Promise.all([loadStats(), loadSubmissions(), loadGuides()]);
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch(API + '/admin/stats');
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const gs = data.guide_stats || [];
+        const ss = data.submission_stats || [];
+
+        const totalGuides = gs.length;
+        const totalLearners = new Set(gs.map(g => g.total_learners ? parseInt(g.total_learners) : 0)).size;
+        const totalCompletions = gs.reduce((s, g) => s + (parseInt(g.completions) || 0), 0);
+        const pending = ss.find(s => s.status === 'pending');
+        const pendingCount = pending ? parseInt(pending.count) : 0;
+
+        document.getElementById('stats').innerHTML = `
+          <div class="stat-card"><div class="label">Total Guides</div><div class="value accent">${totalGuides}</div></div>
+          <div class="stat-card"><div class="label">Total Learners</div><div class="value">${totalLearners}</div></div>
+          <div class="stat-card"><div class="label">Completions</div><div class="value green">${totalCompletions}</div></div>
+          <div class="stat-card"><div class="label">Pending Submissions</div><div class="value ${pendingCount > 0 ? 'orange' : ''}">${pendingCount}</div></div>
+        `;
+      } catch(e) { showError('Failed to load stats: ' + e.message); }
+    }
+
+    async function loadSubmissions() {
+      const el = document.getElementById('tab-submissions');
+      el.innerHTML = '<div class="loading">Loading…</div>';
+      try {
+        const res = await fetch(API + '/admin/submissions');
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const subs = data.submissions || [];
+        if (!subs.length) {
+          el.innerHTML = '<div class="no-submissions"><div class="no-submissions-icon">✅</div>No pending submissions</div>';
+          return;
+        }
+        el.innerHTML = subs.map(s => {
+          const steps = typeof s.steps === 'string' ? JSON.parse(s.steps) : (s.steps || []);
+          return `<div class="submission-card pending">
+            <div class="submission-header">
+              <div>
+                <div class="submission-title">${escapeHtml(s.title)}</div>
+                <div class="submission-meta">
+                  <span class="diff-badge ${s.difficulty}">${s.difficulty}</span>
+                  &nbsp;${s.category_slug} &nbsp;·&nbsp; ${s.time_estimate || ''} &nbsp;·&nbsp; by ${escapeHtml(s.author_name || s.author_email || 'Unknown')}
+                  &nbsp;·&nbsp; ${steps.length} step${steps.length !== 1 ? 's' : ''}
+                  &nbsp;·&nbsp; ${timeAgo(s.created_at)}
+                </div>
+              </div>
+              <span class="status-badge pending">Pending</span>
+            </div>
+            <div class="submission-steps">${steps.map((st, i) => `${i+1}. ${escapeHtml(st.title)}`).join('<br>')}</div>
+            <div class="submission-actions">
+              <input type="text" class="review-notes" id="notes-${s.id}" placeholder="Review notes (optional)">
+              <button class="btn btn-approve" onclick="approveSubmission(${s.id})">Approve ✓</button>
+              <button class="btn btn-reject" onclick="rejectSubmission(${s.id})">Reject ✕</button>
+            </div>
+          </div>`;
+        }).join('');
+      } catch(e) { el.innerHTML = `<div class="error-msg">${escapeHtml(e.message)}</div>`; }
+    }
+
+    async function loadGuides() {
+      const el = document.getElementById('tab-guides');
+      el.innerHTML = '<div class="loading">Loading…</div>';
+      try {
+        const res = await fetch(API + '/all');
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const guides = data.guides || [];
+
+        const catsRes = await fetch(API + '/categories');
+        const catsData = await catsRes.json();
+        const cats = catsData.categories || [];
+
+        if (!guides.length) {
+          el.innerHTML = '<div class="no-submissions"><div class="no-submissions-icon">📚</div>No guides yet</div>';
+          return;
+        }
+
+        el.innerHTML = `<table>
+          <thead>
+            <tr>
+              <th>Title</th><th>Category</th><th>Difficulty</th><th>Time</th><th>Tags</th>
+              <th>Featured</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${guides.map(g => {
+              const tags = (g.tags || []).join(', ') || '—';
+              return `<tr>
+                <td>
+                  <div class="guide-row-title">${escapeHtml(g.title)}</div>
+                  <div class="guide-row-meta">${g.slug}</div>
+                </td>
+                <td>${g.category_slug}</td>
+                <td><span class="diff-badge ${g.difficulty}">${g.difficulty}</span></td>
+                <td style="color:#64748b;font-size:12px">${g.time_estimate || '—'}</td>
+                <td style="color:#64748b;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${tags}</td>
+                <td>
+                  <button class="featured-toggle ${g.featured ? 'on' : 'off'}"
+                    onclick="toggleFeatured(${g.id}, ${!g.featured})"
+                    title="${g.featured ? 'Remove featured' : 'Set featured'}">
+                  </button>
+                </td>
+                <td class="guide-row-actions">
+                  <button class="btn btn-edit" onclick="alert('Edit: open inline editor (Phase 21 future)')">Edit</button>
+                </td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+      } catch(e) { el.innerHTML = `<div class="error-msg">${escapeHtml(e.message)}</div>`; }
+    }
+
+    async function approveSubmission(id) {
+      const notes = document.getElementById('notes-' + id)?.value || '';
+      try {
+        const res = await fetch(API + `/admin/submission/${id}/approve`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        showSuccess('Submission approved!');
+        await Promise.all([loadStats(), loadSubmissions()]);
+      } catch(e) { showError('Approve failed: ' + e.message); }
+    }
+
+    async function rejectSubmission(id) {
+      const notes = document.getElementById('notes-' + id)?.value || '';
+      try {
+        const res = await fetch(API + `/admin/submission/${id}/reject`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        showSuccess('Submission rejected.');
+        await Promise.all([loadStats(), loadSubmissions()]);
+      } catch(e) { showError('Reject failed: ' + e.message); }
+    }
+
+    async function toggleFeatured(guideId, featured) {
+      try {
+        const res = await fetch(API + `/admin/featured/${guideId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ featured })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        await loadGuides();
+      } catch(e) { showError('Failed to update featured: ' + e.message); }
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.textContent.toLowerCase().includes(tab) || (tab === 'submissions' && t.textContent === 'Pending Submissions'));
+      document.querySelectorAll('.tab').forEach(t => {
+        const name = t.getAttribute('onclick')?.match(/'(\\w+)'/)?.[1];
+        const el = document.getElementById('tab-' + name);
+        if (el) el.style.display = name === tab ? 'block' : 'none';
+      });
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('msg');
+      el.textContent = msg; el.className = 'error-msg'; el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 5000);
+    }
+    function showSuccess(msg) {
+      const el = document.getElementById('msg');
+      el.textContent = msg; el.className = 'success-msg'; el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 4000);
+    }
+
+    function escapeHtml(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function timeAgo(ts) {
+      if (!ts) return '';
+      const diff = (Date.now() - new Date(ts)) / 1000;
+      if (diff < 60) return 'just now';
+      if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+      return Math.floor(diff/86400) + 'd ago';
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

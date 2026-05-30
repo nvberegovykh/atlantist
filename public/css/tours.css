@@ -1,0 +1,364 @@
+/**
+ * tours.css — Phase 33 guided tour overlay styles.
+ * Owns: craft-tour overlay, ghost cursor, tap pulse, highlight ring, progress bar, caption card.
+ * Does NOT own: app shell layout, Wallt widget, loading states.
+ */
+
+/* ── Overlay backdrop ──────────────────────────────────────────────────────── */
+#craft-tour-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  /* Dark vignette around highlighted elements */
+  background: rgba(5, 10, 18, 0.72);
+  z-index: var(--z-banner, 800); /* above toolbar + wallt widget, below toast */
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+#craft-tour-overlay.ct-active {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Caption card ─────────────────────────────────────────────────────────── */
+#craft-tour-caption {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(520px, calc(100vw - 32px));
+  background: #0d1520;
+  border: 1px solid rgba(74, 125, 189, 0.4);
+  border-radius: 16px;
+  padding: 20px 22px 16px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(74, 125, 189, 0.15);
+  z-index: calc(var(--z-banner) + 10);
+  pointer-events: auto;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+#craft-tour-caption.ct-transitioning {
+  opacity: 0;
+  transform: translateX(-50%) translateY(8px);
+}
+
+/* ── Progress bar ─────────────────────────────────────────────────────────── */
+#craft-tour-progress-track {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+#craft-tour-progress-fill {
+  height: 100%;
+  background: #4a7dbd;
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
+  width: 0%;
+}
+
+/* ── Stage header ─────────────────────────────────────────────────────────── */
+#craft-tour-stage-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#craft-tour-icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+#craft-tour-stage-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.38);
+  text-transform: uppercase;
+}
+
+#craft-tour-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0 0 6px;
+  line-height: 1.3;
+}
+
+#craft-tour-body {
+  font-size: 13px;
+  color: rgba(200, 215, 230, 0.78);
+  line-height: 1.6;
+  margin: 0 0 12px;
+}
+
+/* ── Demo area (recognizer, DAG, sourcing) ─────────────────────────────────── */
+#craft-tour-demo-area {
+  margin-bottom: 12px;
+}
+
+.ct-demo-card {
+  animation: ct-demo-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes ct-demo-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Viewport hint (stage 4) ──────────────────────────────────────────────── */
+#craft-tour-viewport-hint {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+#craft-tour-viewport-hint::before {
+  content: '📦';
+  font-size: 16px;
+}
+
+/* ── CTA card (stage 6) ──────────────────────────────────────────────────── */
+#craft-tour-cta {
+  display: none;
+  background: linear-gradient(135deg, rgba(74, 125, 189, 0.15), rgba(124, 58, 237, 0.1));
+  border: 1px solid rgba(74, 125, 189, 0.4);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.ct-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #3479c4;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-decoration: none;
+  margin-top: 10px;
+  margin-right: 8px;
+}
+.ct-cta-primary:hover { background: #2d6ab8; }
+
+.ct-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  text-decoration: none;
+  margin-top: 10px;
+}
+.ct-cta-secondary:hover { border-color: rgba(255,255,255,0.35); color: #fff; }
+
+/* ── Navigation row ──────────────────────────────────────────────────────── */
+#craft-tour-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.ct-nav-btn {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.ct-nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.12); color: #fff; }
+.ct-nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+.ct-nav-btn-primary {
+  background: #3479c4;
+  border-color: transparent;
+  color: #fff;
+  margin-left: auto;
+}
+.ct-nav-btn-primary:hover { background: #2d6ab8; }
+
+#craft-tour-counter {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+}
+
+/* Step dots */
+#craft-tour-dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  margin-left: auto;
+}
+
+.craft-tour-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: background 0.2s, transform 0.2s;
+}
+.craft-tour-dot.active {
+  background: #4a7dbd;
+  transform: scale(1.4);
+}
+
+/* ── Skip button ─────────────────────────────────────────────────────────── */
+#craft-tour-skip {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.28);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+#craft-tour-skip:hover { color: rgba(255,255,255,0.6); }
+
+/* ── Ghost cursor (desktop) ──────────────────────────────────────────────── */
+#craft-tour-ghost-cursor {
+  display: none;
+  position: fixed;
+  pointer-events: none;
+  z-index: calc(var(--z-banner) + 20);
+  transform: translate(-2px, -2px);
+  transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), top 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+}
+
+/* ── Tap pulse indicator (mobile) ─────────────────────────────────────────── */
+#craft-tour-tap-pulse {
+  display: none;
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(74, 125, 189, 0.25);
+  border: 2px solid rgba(74, 125, 189, 0.7);
+  pointer-events: none;
+  z-index: calc(var(--z-banner) + 20);
+  transform: translate(-50%, -50%);
+  transition: left 0.6s ease, top 0.6s ease;
+  animation: ct-tap-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes ct-tap-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(74,125,189,0.5); }
+  70%  { box-shadow: 0 0 0 18px rgba(74,125,189,0); }
+  100% { box-shadow: 0 0 0 0 rgba(74,125,189,0); }
+}
+
+/* ── Element highlight ring ──────────────────────────────────────────────── */
+.craft-tour-highlight {
+  outline: 2px solid rgba(74, 125, 189, 0.9) !important;
+  outline-offset: 3px;
+  border-radius: 6px;
+  box-shadow: 0 0 0 4px rgba(74, 125, 189, 0.2), 0 0 24px rgba(74, 125, 189, 0.3) !important;
+  transition: outline 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  z-index: calc(var(--z-banner) + 1);
+}
+
+/* ── Resume floating button (shown while paused) ─────────────────────────── */
+#craft-tour-resume {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: calc(var(--z-banner) - 10);
+  align-items: center;
+  gap: 6px;
+  background: #0d1520;
+  border: 1px solid rgba(74, 125, 189, 0.5);
+  border-radius: 24px;
+  color: #7db3e0;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 10px 18px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  transition: background 0.15s, transform 0.15s;
+  animation: ct-resume-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+#craft-tour-resume:hover { background: #14213a; transform: scale(1.03); }
+
+@keyframes ct-resume-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.95); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Replay button (in Craft panel header area) ──────────────────────────── */
+#craft-tour-replay-btn {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: 1px solid rgba(74, 125, 189, 0.4);
+  border-radius: 6px;
+  color: #7db3e0;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+#craft-tour-replay-btn:hover { border-color: rgba(74,125,189,0.7); color: #a8d1f0; }
+
+/* ── Mobile caption moves to top ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+  #craft-tour-caption {
+    bottom: auto;
+    top: 56px; /* below topbar */
+    width: calc(100vw - 16px);
+    left: 8px;
+    transform: none;
+    border-radius: 12px;
+    padding: 16px 16px 12px;
+  }
+
+  #craft-tour-caption.ct-transitioning {
+    transform: translateY(-8px);
+  }
+
+  #craft-tour-title { font-size: 15px; }
+  #craft-tour-body  { font-size: 12px; }
+
+  .ct-demo-card { overflow-x: auto; }
+}

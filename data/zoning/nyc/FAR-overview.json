@@ -1,0 +1,52 @@
+{
+  "section": "ZR §23-22",
+  "title": "Floor Area Regulations for R6 Through R12 Districts",
+  "description": "Master FAR table for all R6-R12 districts. Standard residences and qualifying affordable/senior housing get separate columns. Updated with Universal Affordability Preference (UAP).",
+  "source_url": "https://zr.planning.nyc.gov/article-ii/chapter-3/23-22",
+  "last_verified": "2026-05-27",
+  "zr_sections": ["23-22"],
+  "content": {
+    "key_rules": [
+      "Maximum residential FAR set per district per table in §23-22",
+      "Separate FARs for standard residences vs. qualifying affordable/senior housing",
+      "UAP (Universal Affordability Preference) increases FAR for qualifying affordable or senior housing",
+      "Community facility FAR in R6-R12 per ZR §24-11 — shall not exceed residential FAR unless modified",
+      "Floor area regulations for R1-R5 per §23-21 (separate table)",
+      "Special floor area provisions for multiple dwelling residences per §23-23"
+    ],
+    "far_table_r6_r12": {
+      "R6A, R6-1": { "standard": 3.00, "qualifying": 3.90 },
+      "R6 (wide st)": { "standard": 3.00, "qualifying": 3.90 },
+      "R6 (narrow st)": { "standard": 2.20, "qualifying": 3.90 },
+      "R6B": { "standard": 2.00, "qualifying": 2.40 },
+      "R6D, R6-2": { "standard": 2.50, "qualifying": 3.00 },
+      "R7-1, R7-2": { "standard": 3.44, "qualifying": 5.01 },
+      "R7A, R7-1, R7-2 (contextual)": { "standard": 4.00, "qualifying": 5.01 },
+      "R7B": { "standard": 3.00, "qualifying": 3.90 },
+      "R7D": { "standard": 4.66, "qualifying": 5.60 },
+      "R7X, R7-3": { "standard": 5.00, "qualifying": 6.00 },
+      "R8A, R8X, R8 (no suffix)": { "standard": 6.02, "qualifying": 7.20 },
+      "R8B": { "standard": 4.00, "qualifying": 4.80 },
+      "R9A, R9 (no suffix)": { "standard": 7.52, "qualifying": 9.02 },
+      "R9D, R9-1, R9X": { "standard": 9.00, "qualifying": 10.80 },
+      "R10A, R10X, R10 (no suffix)": { "standard": 10.00, "qualifying": 12.00 },
+      "R11": { "standard": 12.00, "qualifying": 15.00 },
+      "R12": { "standard": 15.00, "qualifying": 18.00 }
+    },
+    "notes": [
+      "R8 (no suffix) within 100 ft of wide street: FAR 7.20 standard / 8.64 qualifying per footnote 1",
+      "R9/R10 within Mandatory Inclusionary Housing areas: separate MIH requirements apply",
+      "Per §23-22, community facility FAR shall not exceed residential FAR in R6-R12",
+      "Special provisions for certain community districts per §23-242 (e.g., Manhattan CD7: R8 within certain areas)"
+    ],
+    "footnotes": [
+      "1: Within 100 ft of a wide street",
+      "2: Outside of MIH areas, for zoning lots within 100 ft of wide street containing UAP or qualifying senior housing"
+    ]
+  },
+  "dob_filing_notes": [
+    "Confirm district designation on NYC DCP zoning map ( ZoLa: zoningmaps.cityofnewyork.us )",
+    "If UAP affordable housing: document eligibility per ZR §23-22",
+    "Community facility FAR vs. residential FAR requires analysis per §24-11"
+  ]
+}

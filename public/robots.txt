@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+Sitemap: https://atlantist.cloud/sitemap.xml
+<\!-- deployed: 2026-05-29T03:26 -->

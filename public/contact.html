@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — Atlantist</title>
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0b0c10;
+      color: #f0eeea;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .contact-wrap {
+      width: 100%;
+      max-width: 520px;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+    .topbar svg { width: 28px; height: 28px; }
+    .topbar span { font-size: 16px; font-weight: 600; color: #f0eeea; }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      font-size: 15px;
+      color: rgba(240,238,234,0.55);
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+    .card {
+      background: #13151c;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 32px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(240,238,234,0.55);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    input, textarea, select {
+      width: 100%;
+      background: #1a1d27;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #f0eeea;
+      font-size: 14px;
+      padding: 10px 14px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: #5b8fd9;
+    }
+    textarea { resize: vertical; min-height: 100px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .field { margin-bottom: 16px; }
+    select { cursor: pointer; }
+    button[type="submit"] {
+      width: 100%;
+      background: #5b8fd9;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+    button[type="submit"]:hover { opacity: 0.9; transform: translateY(-1px); }
+    button[type="submit"]:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .error { color: #e84855; font-size: 12px; margin-top: 6px; }
+    .success {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .success-icon { font-size: 48px; margin-bottom: 16px; }
+    .success h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+    .success p { color: rgba(240,238,234,0.55); font-size: 14px; }
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #5b8fd9;
+      text-decoration: none;
+      font-size: 13px;
+    }
+    .back-link:hover { text-decoration: underline; }
+    .consent-note {
+      font-size: 11px;
+      color: rgba(240,238,234,0.35);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+    .alt-contact {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 13px;
+      color: rgba(240,238,234,0.4);
+    }
+    .alt-contact a { color: #5b8fd9; text-decoration: none; }
+    .alt-contact a:hover { text-decoration: underline; }
+    @media (max-width: 480px) {
+      .row { grid-template-columns: 1fr; }
+      .card { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="contact-wrap" id="contact-wrap">
+    <div class="topbar">
+      <svg viewBox="0 0 64 64" fill="none">
+        <rect width="64" height="64" rx="8" fill="#0a0e14"/>
+        <circle cx="32" cy="35" r="26" fill="none" stroke="#c8cdd6" stroke-width="1.0" opacity="0.22"/>
+        <circle cx="32" cy="35" r="21" fill="none" stroke="#c8cdd6" stroke-width="1.1" opacity="0.30"/>
+        <circle cx="32" cy="35" r="16" fill="none" stroke="#c8cdd6" stroke-width="1.3" opacity="0.38"/>
+        <circle cx="32" cy="35" r="11" fill="none" stroke="#c8cdd6" stroke-width="1.5" opacity="0.48"/>
+        <circle cx="32" cy="35" r="6" fill="none" stroke="#c8cdd6" stroke-width="1.6" opacity="0.58"/>
+        <line x1="32" y1="6" x2="18" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+        <line x1="32" y1="6" x2="46" y2="59" stroke="#e0e4ea" stroke-width="3" stroke-linecap="round"/>
+        <line x1="23" y1="45" x2="41" y2="45" stroke="#e0e4ea" stroke-width="1.8" stroke-linecap="round"/>
+        <line x1="32" y1="3" x2="29" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="32" y1="3" x2="35" y2="10" stroke="#e0e4ea" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="32" cy="3" r="1.8" fill="none" stroke="#e0e4ea" stroke-width="1"/>
+        <path d="M 32 30 L 33.5 35 L 32 40 L 30.5 35 Z" fill="#e0e4ea" opacity="0.9"/>
+        <path d="M 27 35 L 32 33.5 L 37 35 L 32 36.5 Z" fill="#e0e4ea" opacity="0.9"/>
+        <circle cx="32" cy="35" r="1.5" fill="#e0e4ea"/>
+      </svg>
+      <span>Atlantist</span>
+    </div>
+
+    <div id="form-state">
+      <h1>Talk to us</h1>
+      <p class="subtitle">Questions about pricing, enterprise, or integration? Send us a note and we'll get back within 1 business day.</p>
+      <div class="card">
+        <form id="contact-form" novalidate>
+          <div class="row">
+            <div class="field">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" placeholder="Your name" autocomplete="name">
+            </div>
+            <div class="field">
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="email" placeholder="you@company.com" required autocomplete="email">
+              <div class="error" id="email-error" style="display:none"></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="company">Company</label>
+              <input type="text" id="company" name="company" placeholder="Firm name" autocomplete="organization">
+            </div>
+            <div class="field">
+              <label for="subject">Subject</label>
+              <select id="subject" name="subject">
+                <option value="">Select a topic</option>
+                <option value="pricing">Pricing & Plans</option>
+                <option value="enterprise">Enterprise / Teams</option>
+                <option value="integration">Integration</option>
+                <option value="support">Technical Support</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="message">Message *</label>
+            <textarea id="message" name="message" placeholder="Tell us what's on your mind..." required></textarea>
+            <div class="error" id="message-error" style="display:none"></div>
+          </div>
+          <div class="field">
+            <input type="checkbox" id="consent" name="consent" style="width:auto;accent-color:#5b8fd9">
+            <label for="consent" style="display:inline;text-transform:none;letter-spacing:0;font-size:12px;color:rgba(240,238,234,0.5);margin-left:6px;vertical-align:middle">
+              Send me occasional product updates (you can unsubscribe anytime)
+            </label>
+          </div>
+          <div class="error" id="form-error" style="display:none;margin-bottom:12px"></div>
+          <button type="submit" id="submit-btn">Send Message</button>
+          <p class="consent-note">By submitting, you agree to our <a href="/legal/privacy" style="color:inherit">Privacy Policy</a>. We'll never sell your data.</p>
+        </form>
+      </div>
+      <p class="alt-contact">
+        Prefer email? <a href="mailto:support@atlantist.cloud">support@atlantist.cloud</a>
+      </p>
+      <a href="/" class="back-link">← Back to Atlantist</a>
+    </div>
+
+    <div id="success-state" class="card success" style="display:none">
+      <div class="success-icon">✓</div>
+      <h2>Message sent</h2>
+      <p>We'll be in touch within 1 business day.</p>
+      <a href="/" class="back-link" style="margin-top:24px">← Back to Atlantist</a>
+    </div>
+  </div>
+
+  <script src="/js/boot-safety.js"></script>
+  <script>
+    const form = document.getElementById('contact-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const formError = document.getElementById('form-error');
+    const emailError = document.getElementById('email-error');
+    const messageError = document.getElementById('message-error');
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      formError.style.display = 'none';
+      emailError.style.display = 'none';
+      messageError.style.display = 'none';
+
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const company = document.getElementById('company').value.trim();
+      const subject = document.getElementById('subject').value;
+      const message = document.getElementById('message').value.trim();
+      const consent = document.getElementById('consent').checked;
+
+      // Validate
+      if (!email) { emailError.textContent = 'Email is required'; emailError.style.display = 'block'; return; }
+      if (!/^[^\t\n\r@]+@[^\t\n\r@]+\\.[^\t\n\r@]+$/.test(email)) {
+        emailError.textContent = 'Please enter a valid email address'; emailError.style.display = 'block'; return;
+      }
+      if (!message) { messageError.textContent = 'Message is required'; messageError.style.display = 'block'; return; }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+
+      try {
+        const res = await fetch('/api/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name,
+            email,
+            company,
+            source: 'contact-form',
+            consent_given: consent,
+            // Extra fields for contact form context
+            message,
+            subject
+          })
+        });
+
+        if (res.ok || res.status === 201) {
+          document.getElementById('form-state').style.display = 'none';
+          document.getElementById('success-state').style.display = 'block';
+        } else {
+          const data = await res.json().catch(() => ({}));
+          formError.textContent = data.error || 'Something went wrong. Please try again.';
+          formError.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+        }
+      } catch (err) {
+        formError.textContent = 'Network error. Please check your connection and try again.';
+        formError.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send Message';
+      }
+    });
+  </script>
+</body>
+</html>

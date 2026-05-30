@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docs Management — Atlantist Admin</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+<meta name="theme-color" content="#0c1420">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#0d0d0f;color:#e2e8f0;min-height:100vh}
+.header{background:#1a1a2e;border-bottom:1px solid #2d2d4a;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:16px;font-weight:600}
+.header a{color:#5b9bd5;text-decoration:none;font-size:13px}
+.header a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:24px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:#1a1a2e;border:1px solid #2d2d4a;border-radius:8px;padding:18px}
+.stat-card .label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.stat-card .value{font-size:26px;font-weight:700}
+.stat-card .value.accent{color:#5b9bd5}
+.tabs{display:flex;gap:0;margin-bottom:24px;border-bottom:1px solid #2d2d4a}
+.tab{padding:10px 20px;font-size:13px;cursor:pointer;color:#64748b;border-bottom:2px solid transparent;transition:all .15s}
+.tab.active{color:#5b9bd5;border-bottom-color:#5b9bd5;font-weight:600}
+.tab:hover{color:#94a3b8}
+table{width:100%;border-collapse:collapse;margin-bottom:24px}
+th{text-align:left;padding:10px 12px;font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;border-bottom:1px solid #2d2d4a}
+td{padding:12px;border-bottom:1px solid #1a1a2e;font-size:13px}
+tr:hover td{background:#1a1a2e}
+.published{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;background:#14532d;color:#86efac}
+.draft{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;background:#1e1b4b;color:#a5b4fc}
+.btn{border:none;padding:6px 14px;border-radius:4px;font-size:12px;cursor:pointer;font-weight:600;font-family:inherit}
+.btn-edit{background:#1e3a5f;color:#93c5fd}
+.btn-edit:hover{background:#1e40af}
+.btn-publish{background:#14532d;color:#86efac}
+.btn-publish:hover{background:#166534}
+.page-card{background:#1a1a2e;border:1px solid #2d2d4a;border-radius:8px;padding:18px;margin-bottom:12px;transition:border-color .2s}
+.page-card:hover{border-color:#5b9bd5}
+.page-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.page-title{font-size:15px;font-weight:600;color:#e2e8f0}
+.page-path{font-size:11px;color:#6b7280;margin-top:2px}
+.page-meta{display:flex;gap:16px;font-size:12px;color:#6b7280;margin-bottom:10px}
+.history-list{margin-top:8px;border-top:1px solid #2d2d4a;padding-top:8px}
+.history-item{display:flex;align-items:center;gap:10px;font-size:12px;color:#6b7280;padding:4px 0}
+.history-item .avatar{width:20px;height:20px;border-radius:50%;background:#5b9bd5;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#0d0d0f}
+.edit-panel{background:#1a1a2e;border:1px solid #2d2d4a;border-radius:8px;padding:20px;margin-top:20px;display:none}
+.edit-panel.open{display:block}
+.edit-panel textarea{width:100%;min-height:200px;background:#111118;border:1px solid #2d2d4a;border-radius:6px;padding:12px;color:#e2e8f0;font-family:monospace;font-size:12px;resize:vertical}
+.edit-panel .editor-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.edit-panel .editor-toolbar span{font-size:12px;color:#6b7280}
+.save-status{font-size:12px;color:#22c55e;margin-top:8px;min-height:20px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📄 Docs Management</h1>
+  <a href="/docs" target="_blank">View live docs ↗</a>
+</div>
+
+<div class="container">
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="label">Total Pages</div>
+    <div class="value accent" id="stat-total">–</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Sections</div>
+    <div class="value">10</div>
+  </div>
+  <div class="stat-card">
+    <div class="label">Last Updated</div>
+    <div class="value" style="font-size:14px;color:#6b7280" id="stat-last">–</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" data-tab="all" onclick="switchTab('all')">All Pages</div>
+  <div class="tab" data-tab="architecture" onclick="switchTab('architecture')">Architecture</div>
+  <div class="tab" data-tab="mep" onclick="switchTab('mep')">MEP</div>
+  <div class="tab" data-tab="energy" onclick="switchTab('energy')">Energy Analysis</div>
+  <div class="tab" data-tab="api" onclick="switchTab('api')">API Reference</div>
+</div>
+
+<div id="page-list"></div>
+
+<div class="edit-panel" id="edit-panel">
+  <div class="editor-toolbar">
+    <span>Editing: <strong id="edit-title"></strong></span>
+    <span style="margin-left:auto">Auto-save disabled — use Save button below</span>
+  </div>
+  <textarea id="edit-area" placeholder="Page content (markdown-ish)…"></textarea>
+  <div style="margin-top:12px;display:flex;align-items:center;gap:10px">
+    <button class="btn btn-publish" onclick="savePage()">Save Changes</button>
+    <button class="btn" style="background:#2d2d4a;color:#94a3b8" onclick="closeEditor()">Cancel</button>
+    <div class="save-status" id="save-status"></div>
+  </div>
+</div>
+
+</div>
+
+<script src="/js/boot-safety.js"></script>
+<script>
+const ALL_PAGES = [
+  {id:'quick-start',title:'Quick Start',section:'Getting Started',path:'/docs#quick-start',updated:'2026-05-24'},
+  {id:'first-project',title:'Creating Your First Project',section:'Getting Started',path:'/docs#first-project',updated:'2026-05-24'},
+  {id:'video-tutorial',title:'Video Tutorial',section:'Getting Started',path:'/docs#video-tutorial',updated:'2026-05-24'},
+  {id:'what-is-bim',title:'What is BIM?',section:'BIM Fundamentals',path:'/docs#what-is-bim',updated:'2026-05-24'},
+  {id:'event-ledger',title:'Event Ledger Architecture',section:'BIM Fundamentals',path:'/docs#event-ledger',updated:'2026-05-24'},
+  {id:'dag-solver',title:'DAG Constraint Solver',section:'BIM Fundamentals',path:'/docs#dag-solver',updated:'2026-05-24'},
+  {id:'ifc-import-export',title:'IFC Import / Export',section:'BIM Fundamentals',path:'/docs#ifc-import-export',updated:'2026-05-24'},
+  {id:'walls',title:'Walls',section:'Architecture',path:'/docs#walls',updated:'2026-05-24'},
+  {id:'doors-windows',title:'Doors & Windows',section:'Architecture',path:'/docs#doors-windows',updated:'2026-05-24'},
+  {id:'columns',title:'Columns',section:'Architecture',path:'/docs#columns',updated:'2026-05-24'},
+  {id:'levels',title:'Levels',section:'Architecture',path:'/docs#levels',updated:'2026-05-24'},
+  {id:'structural-framing',title:'Framing',section:'Structure',path:'/docs#structural-framing',updated:'2026-05-24'},
+  {id:'connections',title:'Connections',section:'Structure',path:'/docs#connections',updated:'2026-05-24'},
+  {id:'mep-hvac',title:'HVAC & Ducts',section:'MEP',path:'/docs#mep-hvac',updated:'2026-05-24'},
+  {id:'mep-plumbing',title:'Plumbing & Pipes',section:'MEP',path:'/docs#mep-plumbing',updated:'2026-05-24'},
+  {id:'mep-electrical',title:'Electrical',section:'MEP',path:'/docs#mep-electrical',updated:'2026-05-24'},
+  {id:'mep-rcp',title:'Room Ceiling Plans',section:'MEP',path:'/docs#mep-rcp',updated:'2026-05-24'},
+  {id:'energy-overview',title:'Energy Simulation Overview',section:'Energy Analysis',path:'/docs#energy-overview',updated:'2026-05-24'},
+  {id:'gbxml-export',title:'gbXML Export',section:'Energy Analysis',path:'/docs#gbxml-export',updated:'2026-05-24'},
+  {id:'idf-generation',title:'IDF Generation',section:'Energy Analysis',path:'/docs#idf-generation',updated:'2026-05-24'},
+  {id:'en1-workflow',title:'EN-1 Form Guide',section:'Energy Analysis',path:'/docs#en1-workflow',updated:'2026-05-24'},
+  {id:'dob-filing',title:'DOB Filing Checklist',section:'Energy Analysis',path:'/docs#dob-filing',updated:'2026-05-24'},
+  {id:'realtime-sync',title:'Real-time Sync',section:'Collaboration',path:'/docs#realtime-sync',updated:'2026-05-24'},
+  {id:'issues',title:'Issues & Comments',section:'Collaboration',path:'/docs#issues',updated:'2026-05-24'},
+  {id:'presence',title:'Presence & Sharing',section:'Collaboration',path:'/docs#presence',updated:'2026-05-24'},
+  {id:'integrations',title:'Integrations Overview',section:'Integrations',path:'/docs#integrations',updated:'2026-05-24'},
+  {id:'api-auth',title:'Authentication',section:'API Reference',path:'/docs#api-auth',updated:'2026-05-24'},
+  {id:'api-endpoints',title:'API Endpoints',section:'API Reference',path:'/docs#api-endpoints',updated:'2026-05-24'},
+  {id:'api-webhooks',title:'Webhooks',section:'API Reference',path:'/docs#api-webhooks',updated:'2026-05-24'},
+  {id:'troubleshooting',title:'Troubleshooting',section:'Troubleshooting',path:'/docs#troubleshooting',updated:'2026-05-24'},
+];
+
+let currentTab = 'all';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  renderPages();
+}
+
+function renderPages() {
+  const list = document.getElementById('page-list');
+  const filtered = currentTab === 'all'
+    ? ALL_PAGES
+    : ALL_PAGES.filter(p => p.section.toLowerCase().replace(/ & /g,'-').replace(/ /g,'-') === currentTab ||
+      (currentTab === 'api' && p.section === 'API Reference') ||
+      (currentTab === 'energy' && p.section === 'Energy Analysis') ||
+      (currentTab === 'mep' && p.section === 'MEP') ||
+      (currentTab === 'architecture' && p.section === 'Architecture'));
+
+  // Group by section
+  const sections = {};
+  filtered.forEach(p => {
+    if (!sections[p.section]) sections[p.section] = [];
+    sections[p.section].push(p);
+  });
+
+  let html = '';
+  Object.entries(sections).forEach(([section, pages]) => {
+    html += `<div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;margin:20px 0 10px;letter-spacing:.05em">${section}</div>`;
+    pages.forEach(p => {
+      html += `<div class="page-card">
+        <div class="page-card-header">
+          <div>
+            <div class="page-title">${p.title}</div>
+            <div class="page-path">${p.path}</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="published">Published</span>
+            <button class="btn btn-edit" onclick="openEditor('${p.id}','${p.title}')">Edit</button>
+          </div>
+        </div>
+        <div class="page-meta">
+          <span>Updated: ${p.updated}</span>
+          <span>Author: Polsia</span>
+        </div>
+        <div class="history-list">
+          <div class="history-item">
+            <div class="avatar">P</div>
+            <span>Published initial version — 2026-05-24</span>
+          </div>
+        </div>
+      </div>`;
+    });
+  });
+
+  list.innerHTML = html || '<p style="color:#64748b;padding:20px">No pages in this section.</p>';
+}
+
+let editingId = null;
+
+function openEditor(id, title) {
+  editingId = id;
+  document.getElementById('edit-title').textContent = title;
+  document.getElementById('edit-area').value = '<!-- Edit page content here -->';
+  document.getElementById('edit-panel').classList.add('open');
+  document.getElementById('edit-area').focus();
+  document.getElementById('save-status').textContent = '';
+}
+
+function closeEditor() {
+  document.getElementById('edit-panel').classList.remove('open');
+  editingId = null;
+}
+
+async function savePage() {
+  const status = document.getElementById('save-status');
+  status.textContent = 'Saving…';
+  // TODO: wire to PATCH /api/docs/page/:id when editor storage is implemented
+  await new Promise(r => setTimeout(r, 800));
+  status.textContent = '✓ Saved — changes will appear on next page refresh';
+  setTimeout(() => { status.textContent = ''; }, 4000);
+}
+
+document.getElementById('stat-total').textContent = ALL_PAGES.length;
+document.getElementById('stat-last').textContent = '2026-05-24';
+renderPages();
+</script>
+</body>
+</html>

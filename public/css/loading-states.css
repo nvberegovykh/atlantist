@@ -1,0 +1,353 @@
+/**
+ * loading-states.css — Viewport spinners, BIM skeleton screens, simulation
+ * progress bars, .rvt import progress, save indicator pill.
+ * Does NOT own: app-loading-overlay (inline in app.html), Three.js canvas.
+ */
+
+/* ── Skeleton pulse animation ──────────────────────────────────────────────── */
+@keyframes atl-skeleton-pulse {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes atl-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes atl-saved-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.92); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+
+@keyframes atl-saved-out {
+  from { opacity: 1; transform: translateY(0)   scale(1); }
+  to   { opacity: 0; transform: translateY(-6px) scale(0.92); }
+}
+
+@keyframes atl-progress-indeterminate {
+  0%   { left: -40%; width: 40%; }
+  60%  { left: 100%; width: 40%; }
+  100% { left: 100%; width: 40%; }
+}
+
+/* ── Viewport init spinner ─────────────────────────────────────────────────── */
+.vp-spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--bg-viewport, #0d1117);
+  z-index: 20;
+  pointer-events: none;
+  /* crossfade out in <100ms when scene is ready */
+  transition: opacity 80ms ease, visibility 80ms ease;
+}
+
+.vp-spinner.vp-spinner--gone {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.vp-spinner__ring {
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top-color: rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+}
+
+.vp-spinner__label {
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.04em;
+  font-family: 'DM Mono', monospace, sans-serif;
+}
+
+/* Animate ring unless user prefers reduced motion */
+@media (prefers-reduced-motion: no-preference) {
+  .vp-spinner__ring {
+    animation: atl-spin 0.9s linear infinite;
+  }
+}
+
+/* ── BIM model skeleton screens ────────────────────────────────────────────── */
+.atl-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.09) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 400px 100%;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .atl-skeleton {
+    animation: atl-skeleton-pulse 1.4s ease-in-out infinite;
+  }
+}
+
+/* Skeleton wrapper overlay — covers panel until real content is ready */
+.atl-skeleton-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-panel, #10151d);
+  transition: opacity 200ms ease, visibility 200ms ease;
+  pointer-events: none;
+}
+
+.atl-skeleton-overlay.atl-skeleton-overlay--gone {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Pre-shaped skeleton blocks for project tree */
+.atl-skel-tree-row {
+  height: 20px;
+  border-radius: 4px;
+}
+.atl-skel-tree-row--indent {
+  margin-left: 20px;
+  width: calc(100% - 20px);
+}
+
+/* Properties panel skeleton — label + value pairs */
+.atl-skel-prop {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.atl-skel-prop__label {
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.atl-skel-prop__value {
+  height: 14px;
+  border-radius: 3px;
+  flex: 1;
+}
+
+/* Viewport skeleton — dark fill with subtle rule marks */
+.atl-skel-viewport {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: var(--bg-viewport, #0d1117);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: opacity 200ms ease, visibility 200ms ease;
+  pointer-events: none;
+}
+
+.atl-skel-viewport.atl-skel-viewport--gone {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* ── Simulation / analysis progress bar ────────────────────────────────────── */
+.atl-sim-progress {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(460px, calc(100vw - 48px));
+  background: var(--bg-panel, #10151d);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 10px;
+  padding: 14px 18px;
+  z-index: var(--z-toast, 2000);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  /* Slide up on open */
+  animation: atl-saved-in 0.2s ease both;
+}
+
+.atl-sim-progress.atl-sim-progress--hidden {
+  display: none;
+}
+
+.atl-sim-progress__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.atl-sim-progress__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text, #e0e4ea);
+  letter-spacing: 0.02em;
+}
+
+.atl-sim-progress__elapsed {
+  font-size: 11px;
+  color: var(--text-muted, rgba(255,255,255,0.4));
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.04em;
+}
+
+.atl-sim-progress__track {
+  position: relative;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.atl-sim-progress__fill {
+  height: 100%;
+  background: #3479c4;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Indeterminate bar (no real percent) */
+.atl-sim-progress__fill--indeterminate {
+  width: 40% !important;
+  position: absolute;
+  left: -40%;
+  background: linear-gradient(90deg, transparent, #3479c4, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .atl-sim-progress__fill--indeterminate {
+    animation: atl-progress-indeterminate 1.6s ease-in-out infinite;
+  }
+}
+
+.atl-sim-progress__stage {
+  font-size: 11px;
+  color: var(--text-muted, rgba(255,255,255,0.45));
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Stage dots */
+.atl-sim-progress__stages {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.atl-sim-progress__stage-dot {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+}
+
+.atl-sim-progress__stage-dot--active {
+  color: #3479c4;
+  background: rgba(52,121,196,0.15);
+}
+
+.atl-sim-progress__stage-dot--done {
+  color: #4aad6e;
+  background: rgba(74,173,110,0.12);
+}
+
+.atl-sim-progress__stage-dot::before {
+  content: '○';
+  font-size: 8px;
+}
+.atl-sim-progress__stage-dot--active::before { content: '◉'; }
+.atl-sim-progress__stage-dot--done::before   { content: '✓'; font-size: 9px; }
+
+/* ── Save indicator pill ───────────────────────────────────────────────────── */
+#atl-save-pill {
+  position: fixed;
+  top: 12px;
+  right: 16px;
+  z-index: var(--z-toast, 2000);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  opacity: 0;
+  transition: none;
+}
+
+#atl-save-pill.atl-save-pill--visible {
+  opacity: 1;
+  animation: atl-saved-in 0.18s ease both;
+}
+
+#atl-save-pill.atl-save-pill--fading {
+  animation: atl-saved-out 0.3s ease both;
+}
+
+/* States */
+#atl-save-pill[data-state="saved"] {
+  background: rgba(74,173,110,0.18);
+  border: 1px solid rgba(74,173,110,0.35);
+  color: #4aad6e;
+}
+
+#atl-save-pill[data-state="retrying"] {
+  background: rgba(220,160,60,0.18);
+  border: 1px solid rgba(220,160,60,0.35);
+  color: #dca03c;
+}
+
+#atl-save-pill[data-state="offline"] {
+  background: rgba(220,80,60,0.18);
+  border: 1px solid rgba(220,80,60,0.35);
+  color: #e05040;
+}
+
+/* Pill icon dot */
+#atl-save-pill::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ── RVT import multi-stage ────────────────────────────────────────────────── */
+#atl-rvt-progress {
+  /* Re-uses .atl-sim-progress layout; unique ID for JS targeting */
+}
+
+/* ── prefers-reduced-motion: disable all animation, show static text ─────── */
+@media (prefers-reduced-motion: reduce) {
+  .vp-spinner__ring,
+  .atl-skeleton,
+  .atl-sim-progress__fill--indeterminate {
+    animation: none !important;
+  }
+
+  .vp-spinner__label {
+    /* Static fallback text already in DOM — no extra change needed */
+  }
+}
