@@ -1,10 +1,64 @@
 services:
   - type: web
+    name: atlantist
     runtime: node
-    name: app
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    plan: free
+    branch: main
+    buildCommand: npm install && npm run migrate && npm run build:verify
+    startCommand: node server.js
     healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3000
+      - key: CANONICAL_ORIGIN
+        value: https://atlantist.cloud
+      - key: DATABASE_URL
+        fromDatabase:
+          name: atlantist-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: atlantist-redis
+          type: redis
+          property: connectionString
+      - key: WALLT_API_TOKEN
+        sync: false
+      - key: WALLT_MASTER_SECRET
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_PRICE_MONTHLY
+        sync: false
+      - key: STRIPE_PRICE_YEARLY
+        sync: false
+      - key: POLSIA_EMAIL_PROXY_URL
+        sync: false
+      - key: SUPPORT_FORWARD_1
+        value: atlantist@polsia.com
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_SECRET
+        sync: false
+
+databases:
+  - name: atlantist-db
+    plan: free
+    databaseName: atlantist
+    user: atlantist
+
+  - name: atlantist-redis
+    plan: free
+    type: redis
+    ipAllowList: []
