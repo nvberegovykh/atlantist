@@ -135,6 +135,117 @@
   </style>
 </div>
 
+<!-- ── Entry Screen Overlay ────────────────────────────────────────────────
+     Project explorer shown to unauthenticated / fresh sessions.
+     entry-screen.js owns this element — initEntryScreen() binds all interactions.
+──────────────────────────────────────────────────────────────────────────── -->
+<div id="entry-screen-overlay" style="position:fixed;inset:0;z-index:var(--z-entry,8000);background:#080d14;display:none;flex-direction:row;opacity:0">
+
+  <!-- Sidebar -->
+  <nav style="width:200px;min-width:160px;background:#0d1520;border-right:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;padding:24px 0;flex-shrink:0">
+    <div style="padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:12px">
+      <div style="font-size:18px;font-weight:700;color:#e2e8f0;letter-spacing:-0.3px">Atlantist</div>
+      <div style="font-size:11px;color:#4a6080;margin-top:2px">Browser BIM</div>
+    </div>
+    <div style="padding:0 10px;flex:1">
+      <button data-dir="recent"  class="dir-active" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:none;background:rgba(255,255,255,0.08);color:#e2e8f0;cursor:pointer;font-size:13px;text-align:left;margin-bottom:2px">
+        <span id="es-icon-recent"></span>Recent
+      </button>
+      <button data-dir="personal" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:none;background:transparent;color:#8898b0;cursor:pointer;font-size:13px;text-align:left;margin-bottom:2px">
+        <span id="es-icon-personal"></span>Personal
+      </button>
+      <button data-dir="work" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:none;background:transparent;color:#8898b0;cursor:pointer;font-size:13px;text-align:left;margin-bottom:2px">
+        <span id="es-icon-work"></span>Work
+      </button>
+      <button data-dir="templates" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:none;background:transparent;color:#8898b0;cursor:pointer;font-size:13px;text-align:left;margin-bottom:2px">
+        <span id="es-icon-templates"></span>Templates
+      </button>
+      <button data-dir="archived" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;border:none;background:transparent;color:#8898b0;cursor:pointer;font-size:13px;text-align:left;margin-bottom:2px">
+        <span id="es-icon-archived"></span>Archived
+      </button>
+    </div>
+    <div style="padding:12px 16px 0;border-top:1px solid rgba(255,255,255,0.07);margin-top:12px">
+      <div style="font-size:11px;color:#2a3a50">Beta — early access</div>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+
+    <!-- Header bar -->
+    <div style="display:flex;align-items:center;gap:12px;padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0">
+      <input id="entry-search" type="text" placeholder="Search projects…"
+        style="flex:1;max-width:360px;padding:8px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#e2e8f0;font-size:13px;outline:none" />
+      <button id="entry-new-project-btn"
+        style="display:flex;align-items:center;gap:6px;padding:8px 16px;background:#3479c4;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">
+        + New Project
+      </button>
+    </div>
+
+    <!-- Project grid -->
+    <div style="flex:1;overflow-y:auto;padding:20px 24px">
+      <div id="entry-project-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px">
+        <!-- Cards injected by entry-screen.js -->
+      </div>
+      <div id="entry-empty-state" style="display:none;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;text-align:center">
+        <div style="font-size:40px;margin-bottom:16px">📐</div>
+        <div class="entry-empty-msg" style="font-size:16px;color:#8898b0;margin-bottom:8px">No projects yet</div>
+        <div style="font-size:13px;color:#4a6080">Create your first project to get started</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New project type selector modal -->
+  <div id="entry-type-backdrop" class="hidden" style="position:fixed;inset:0;z-index:9100;background:rgba(0,0,0,0.6)"></div>
+  <div id="entry-type-modal" class="hidden" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9200;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px;min-width:360px;max-width:480px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-size:17px;font-weight:700;color:#e2e8f0">New Project</div>
+      <button id="entry-type-close" style="background:transparent;border:none;color:#8898b0;cursor:pointer;font-size:20px;line-height:1">×</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button data-project-type="Residential" style="padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;cursor:pointer;text-align:left">
+        <div style="font-size:20px;margin-bottom:6px">🏠</div>
+        <div style="font-size:13px;font-weight:600">Residential</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px">House, apartment, townhouse</div>
+      </button>
+      <button data-project-type="Commercial" style="padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;cursor:pointer;text-align:left">
+        <div style="font-size:20px;margin-bottom:6px">🏢</div>
+        <div style="font-size:13px;font-weight:600">Commercial</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px">Office, retail, hospitality</div>
+      </button>
+      <button data-project-type="Industrial" style="padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;cursor:pointer;text-align:left">
+        <div style="font-size:20px;margin-bottom:6px">🏭</div>
+        <div style="font-size:13px;font-weight:600">Industrial</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px">Warehouse, manufacturing, lab</div>
+      </button>
+      <button data-project-type="Mixed-Use" style="padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;cursor:pointer;text-align:left">
+        <div style="font-size:20px;margin-bottom:6px">🌆</div>
+        <div style="font-size:13px;font-weight:600">Mixed-Use</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px">Multi-purpose development</div>
+      </button>
+      <button data-project-type="Custom" style="grid-column:1/-1;padding:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;color:#e2e8f0;cursor:pointer;text-align:left">
+        <div style="font-size:20px;margin-bottom:6px">✨</div>
+        <div style="font-size:13px;font-weight:600">Custom</div>
+        <div style="font-size:11px;color:#6b7280;margin-top:2px">Start from a blank project</div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Project name modal -->
+  <div id="entry-name-backdrop" class="hidden" style="position:fixed;inset:0;z-index:9300;background:rgba(0,0,0,0.6)"></div>
+  <div id="entry-name-modal" class="hidden" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9400;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px;min-width:340px;max-width:440px">
+    <div style="font-size:17px;font-weight:700;color:#e2e8f0;margin-bottom:6px">Name your project</div>
+    <div id="entry-name-type-label" style="font-size:12px;color:#8898b0;margin-bottom:18px"></div>
+    <input id="entry-name-input" type="text" placeholder="e.g. 250 Midwood — Phase 1"
+      style="width:100%;padding:10px 12px;background:#111118;border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e2e8f0;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:16px" />
+    <div style="display:flex;gap:10px">
+      <button id="entry-name-cancel" onclick="document.getElementById('entry-name-modal').classList.add('hidden');document.getElementById('entry-name-backdrop').classList.add('hidden')" style="flex:1;padding:10px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:transparent;color:#8898b0;cursor:pointer;font-size:14px">Cancel</button>
+      <button id="entry-name-submit" style="flex:2;padding:10px;border:none;border-radius:8px;background:#3479c4;color:#fff;cursor:pointer;font-size:14px;font-weight:600">Create Project →</button>
+    </div>
+  </div>
+
+</div>
+
 <!-- Toast container — app.js appends toasts here -->
 <div id="toast-container"></div>
 
