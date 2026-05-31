@@ -60,13 +60,13 @@ module.exports = {
         user_id     INTEGER NOT NULL REFERENCES app_users(id) ON DELETE CASCADE,
         token_hash  VARCHAR(512) NOT NULL,
         expires_at  TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '30 days'),
+        last_active TIMESTAMPTZ DEFAULT NOW(),
         created_at  TIMESTAMPTZ DEFAULT NOW()
       )
     `);
-    // Add last_active defensively — table may already exist without it
-    await client.query(`ALTER TABLE auth_sessions ADD COLUMN IF NOT EXISTS last_active TIMESTAMPTZ DEFAULT NOW()`);
     await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_auth_sessions_token ON auth_sessions(token_hash)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_auth_sessions_user ON auth_sessions(user_id)`);
+    await client.query(`CREATE INDEX IF NOT EXISTS idx_auth_sessions_last_active ON auth_sessions(last_active DESC)`);
 
     // ── email_verification_tokens ─────────────────────────────────────────────
     await client.query(`
