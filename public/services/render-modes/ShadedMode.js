@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /**
  * ShadedMode.js — RP-3: PBR shaded render mode (mode 3)
  *

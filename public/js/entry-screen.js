@@ -193,8 +193,43 @@ async function _loadProjects() {
     projectList = projects || [];
     _renderGrid();
   } catch (err) {
+    // 401 = not authenticated — show login prompt
+    if (err.message && err.message.includes('HTTP 401')) {
+      _showLoginPrompt();
+      return;
+    }
     projectList = [];
     _renderGrid();
+  }
+}
+
+function _showLoginPrompt() {
+  // Show sign-in CTA in the project grid area
+  const grid = document.getElementById('entry-project-grid');
+  const empty = document.getElementById('entry-empty-state');
+  if (grid) grid.innerHTML = '';
+  if (empty) {
+    empty.style.display = 'flex';
+    const msg = empty.querySelector('.entry-empty-msg');
+    if (msg) msg.textContent = 'Sign in to see your projects';
+    // Add sign-in button if not already there
+    if (!empty.querySelector('.es-signin-btn')) {
+      const btn = document.createElement('button');
+      btn.className = 'es-signin-btn';
+      btn.textContent = 'Sign in / Create account →';
+      btn.style.cssText = 'margin-top:16px;padding:10px 24px;background:#3479c4;border:none;border-radius:8px;color:#fff;font-size:14px;font-weight:600;cursor:pointer';
+      btn.onclick = () => {
+        // Trigger the main app signup modal
+        const loginBtn = document.getElementById('account-login-prompt');
+        const signupModal = document.getElementById('modal-signup');
+        if (loginBtn) loginBtn.click();
+        else if (signupModal) {
+          signupModal.style.display = 'flex';
+          signupModal.classList.remove('hidden');
+        }
+      };
+      empty.appendChild(btn);
+    }
   }
 }
 

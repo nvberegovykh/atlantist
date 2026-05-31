@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 /**
  * TexturedMode.js — RP-4: Full PBR textured render mode (mode 4)
  *

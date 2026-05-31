@@ -5,6 +5,8 @@
  * DOES NOT OWN: scene graph construction, renderer lifecycle, pane layout.
  */
 
+import * as THREE from 'three';
+
 // ── Category → line color map ─────────────────────────────────────────────────
 export const SKETCH_COLORS = {
   wall:    0x2a2a2a,

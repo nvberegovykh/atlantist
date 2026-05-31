@@ -10,6 +10,7 @@
  *   full PBR (atlas + procedural), HDRI environment, envMap binding.
  */
 
+import * as THREE from 'three';
 import {
   applySketchMode,
   restoreSolidMode,
