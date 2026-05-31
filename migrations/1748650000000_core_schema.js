@@ -27,6 +27,7 @@
 
 module.exports = {
   name: 'core_schema',
+  skipTransaction: true, // DDL-heavy migration — run in autocommit to avoid txn-level DDL issues
 
   up: async (client) => {
 
@@ -64,6 +65,8 @@ module.exports = {
         created_at  TIMESTAMPTZ DEFAULT NOW()
       )
     `);
+    // Ensure last_active exists on auth_sessions even if table was pre-created without it
+    await client.query(`ALTER TABLE auth_sessions ADD COLUMN IF NOT EXISTS last_active TIMESTAMPTZ DEFAULT NOW()`);
     await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_auth_sessions_token ON auth_sessions(token_hash)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_auth_sessions_user ON auth_sessions(user_id)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_auth_sessions_last_active ON auth_sessions(last_active DESC)`);

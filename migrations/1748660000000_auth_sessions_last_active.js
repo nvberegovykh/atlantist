@@ -4,6 +4,7 @@
  */
 module.exports = {
   name: 'auth_sessions_last_active',
+  skipTransaction: true,
   up: async (client) => {
     await client.query(`
       ALTER TABLE auth_sessions
