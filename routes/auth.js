@@ -220,6 +220,7 @@ router.post('/verify-step1', async (req, res) => {
 });
 
 // POST /api/auth/init — Initialize anonymous session (creates user record if needed)
+// Hardened: returns 503 with retryable:true on DB errors so frontend shows retry state.
 router.post('/init', async (req, res) => {
   try {
     const raw = req.body?.session_uuid;
@@ -236,8 +237,9 @@ router.post('/init', async (req, res) => {
     }
     res.json({ user_id: user.id, session_uuid: user.session_uuid });
   } catch (err) {
-    console.error('[auth] POST /init', err);
-    res.status(500).json({ error: err.message });
+    console.error('[auth] POST /init error:', err.message);
+    // Return 503 so the frontend can show a retry/degraded state instead of spinning forever
+    res.status(503).json({ error: 'auth_init_unavailable', message: err.message, retryable: true });
   }
 });
 

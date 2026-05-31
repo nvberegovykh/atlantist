@@ -26,12 +26,13 @@ const { logAudit } = require('../db/wallt-api');
 
 // ── Config ────────────────────────────────────────────────────────────────────
 const crypto = require('crypto');
-if (!process.env.WALLT_API_TOKEN || !process.env.WALLT_MASTER_SECRET) {
-  console.error('[wallt-api] FATAL: WALLT_API_TOKEN and WALLT_MASTER_SECRET must be set in environment. Refusing to start with default credentials.');
-  process.exit(1);
+// NOTE: WALLT_API_TOKEN and WALLT_MASTER_SECRET are checked per-request (graceful 503).
+// Do NOT use process.exit() at module load — it crashes the entire server.
+const API_TOKEN = process.env.WALLT_API_TOKEN || null;
+const MASTER_SECRET = process.env.WALLT_MASTER_SECRET || null;
+if (!API_TOKEN || !MASTER_SECRET) {
+  console.warn('[wallt-api] WALLT_API_TOKEN or WALLT_MASTER_SECRET not set — Wallt API endpoints will return 503 until env vars are configured.');
 }
-const API_TOKEN = process.env.WALLT_API_TOKEN;
-const MASTER_SECRET = process.env.WALLT_MASTER_SECRET;
 const RATE_LIMIT = 100;
 const WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const INGEST_TIMEOUT_MS = 10_000;  // P99 hard cap
@@ -282,6 +283,17 @@ function validateProjectKey(projectId, providedKey) {
  * Skips key check if X-Project-Key is absent — callers must enforce key requirement
  * for routes that need it.
  */
+// ── 503 guard middleware — returns 503 if env vars are not configured ─────────────
+function requireWalltConfig(req, res, next) {
+  if (!API_TOKEN || !MASTER_SECRET) {
+    return res.status(503).json({
+      error: 'Wallt API is not configured on this server (missing env vars)',
+      code: 'SERVICE_UNAVAILABLE',
+    });
+  }
+  next();
+}
+
 function authenticate(req, res, next) {
   const header = req.headers.authorization || '';
   if (!header.startsWith('Bearer ')) {
@@ -326,7 +338,7 @@ function authenticate(req, res, next) {
  *   "timeout": false
  * }
  */
-router.post('/ingest', corsAllow, authenticate, async (req, res) => {
+router.post('/ingest', corsAllow, requireWalltConfig, authenticate, async (req, res) => {
   // Rate limit
   const rate = checkRateLimit(req.authToken);
   if (!rate.allowed) {
@@ -489,7 +501,7 @@ router.get('/health', corsAllow, async (req, res) => {
  *   - Only READS project-scoped encrypted memory for the validated project_id.
  *   - Cross-project key reuse (key for project A used with project B) → 403 + audit log with key_valid=false.
  */
-router.post('/project-query', corsAllow, authenticate, async (req, res) => {
+router.post('/project-query', corsAllow, requireWalltConfig, authenticate, async (req, res) => {
   // Rate limit — counts against the same 100 req/hr limit.
   const rate = checkRateLimit(req.authToken);
   if (!rate.allowed) {

@@ -61,18 +61,37 @@
   <script>
     // BUG-R5: HARD FALLBACK — splash must dismiss regardless of any JS failure.
     // If loadAll() never resolves (crash, network, parse error), the user should
-    // still see the UI within 5 seconds, not be trapped on a splash screen forever.
+    // still see the entry screen within 5 seconds, not be trapped on a spinner forever.
     (function() {
       var dismissed = false;
       function forceDismiss() {
         if (dismissed) return;
         dismissed = true;
+        console.warn('[splash-fallback] loadAll() did not resolve in 5s — force-dismissing splash, showing entry screen');
+        // Dismiss loading overlay
         var overlay = document.getElementById('app-loading-overlay');
         if (overlay) {
           overlay.classList.add('fade-out');
-          setTimeout(function() { overlay.remove(); }, 450);
+          setTimeout(function() { overlay.style.display = 'none'; }, 450);
         }
-        console.warn('[splash-fallback] loadAll() did not resolve in 5s — force-dismissing splash');
+        // Show entry screen so user is not trapped on a blank page
+        var entryOverlay = document.getElementById('entry-screen-overlay');
+        if (entryOverlay) {
+          entryOverlay.style.display = 'flex';
+          entryOverlay.style.opacity = '0';
+          requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+              entryOverlay.style.transition = 'opacity .3s ease-out';
+              entryOverlay.style.opacity = '1';
+            });
+          });
+        }
+        // If initEntryScreen is available (ES module loaded), call it
+        if (typeof window.initEntryScreen === 'function') {
+          window.initEntryScreen().catch(function(e) {
+            console.warn('[splash-fallback] initEntryScreen error:', e);
+          });
+        }
       }
       // App JS injects at end of body, after cache cleanup. 5s should cover the worst case.
       setTimeout(forceDismiss, 5000);

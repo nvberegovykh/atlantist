@@ -649,8 +649,9 @@ function toast(msg, type = 'info', duration = 2500) {
   setTimeout(() => el.remove(), duration);
 }
 
-// Expose globally for onclick
+// Expose globally for onclick and boot-safety fallback
 window.openEntryScreen = initEntryScreen;
+window.initEntryScreen = initEntryScreen;
 
 // Auto-init when module loads (entry screen is default view)
 initEntryScreen();
