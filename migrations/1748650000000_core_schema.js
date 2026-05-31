@@ -45,12 +45,18 @@ module.exports = {
         email_verified        BOOLEAN DEFAULT FALSE,
         onboarding_complete   BOOLEAN DEFAULT FALSE,
         onboarding_checklist  JSONB DEFAULT '{}',
-        billing_state         VARCHAR(50) DEFAULT 'beta_free', -- dev: all users free until release
+        billing_state         VARCHAR(50) DEFAULT 'beta_free',
         last_active           TIMESTAMPTZ DEFAULT NOW(),
         created_at            TIMESTAMPTZ DEFAULT NOW(),
         updated_at            TIMESTAMPTZ DEFAULT NOW()
       )
     `);
+    // Patch any columns that may be missing from an older app_users table
+    await client.query(`ALTER TABLE app_users ADD COLUMN IF NOT EXISTS last_active TIMESTAMPTZ DEFAULT NOW()`);
+    await client.query(`ALTER TABLE app_users ADD COLUMN IF NOT EXISTS billing_state VARCHAR(50) DEFAULT 'beta_free'`);
+    await client.query(`ALTER TABLE app_users ADD COLUMN IF NOT EXISTS onboarding_checklist JSONB DEFAULT '{}'`);
+    await client.query(`ALTER TABLE app_users ADD COLUMN IF NOT EXISTS email_verified BOOLEAN DEFAULT FALSE`);
+    await client.query(`ALTER TABLE app_users ADD COLUMN IF NOT EXISTS onboarding_complete BOOLEAN DEFAULT FALSE`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_app_users_email ON app_users(email) WHERE email IS NOT NULL`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_app_users_last_active ON app_users(last_active DESC)`);
 
@@ -143,6 +149,18 @@ module.exports = {
         updated_at        TIMESTAMPTZ DEFAULT NOW()
       )
     `);
+    // Patch columns that may be missing from an older projects table
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_demo BOOLEAN DEFAULT FALSE`);
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS demo_slug VARCHAR(255)`);
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS is_template BOOLEAN DEFAULT FALSE`);
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS archived BOOLEAN DEFAULT FALSE`);
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS project_type VARCHAR(100) DEFAULT 'Mixed-Use'`);
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS filing_status VARCHAR(100)`);
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS inspector_notes TEXT`);
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS seismic_category VARCHAR(50)`);
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS building_code VARCHAR(100)`);
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS jurisdiction VARCHAR(255)`);
+    await client.query(`ALTER TABLE projects ADD COLUMN IF NOT EXISTS last_opened_at TIMESTAMPTZ`);
     await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_projects_demo_slug ON projects(demo_slug) WHERE demo_slug IS NOT NULL`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_projects_owner ON projects(owner_id) WHERE owner_id IS NOT NULL`);
 
