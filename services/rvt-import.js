@@ -218,9 +218,10 @@ function mapRevitParamsToAtlantist(params, category, familyType) {
   if (params.Name) mapped.name = params.Name;
   if (params['Unique Id']) mapped.revit_guid = params['Unique Id'];
 
-  // Wall-specific
+  // Wall-specific (only set wall_height for wall categories)
   if (params['Length']) mapped.length = params['Length'] / 3.281; // ft → m
-  if (params['Height']) mapped.wall_height = params['Height'] / 3.281;
+  const isWallCategory = category === 'OST_Walls';
+  if (isWallCategory && params['Height']) mapped.wall_height = params['Height'] / 3.281;
   if (params['Base Constraint']) mapped.base_constraint = params['Base Constraint'];
   if (params['Top Constraint']) mapped.top_constraint = params['Top Constraint'];
   if (params['Base Offset']) mapped.base_offset = params['Base Offset'] / 3.281;
@@ -232,9 +233,11 @@ function mapRevitParamsToAtlantist(params, category, familyType) {
   if (params['Height Type']) mapped.height_type = params['Height Type'];
   if (params['Column Style']) mapped.column_style = params['Column Style'];
 
-  // Door/Window
+  // Door/Window (only set height for door/window categories, not walls)
+  const isDoorWindow = ['OST_Doors', 'OST_Windows'].includes(category) ||
+                       ['door', 'window'].includes(familyType);
   if (params['Width']) mapped.width = params['Width'] / 3.281;
-  if (params['Height']) mapped.height = params['Height'] / 3.281;
+  if (isDoorWindow && params['Height']) mapped.height = params['Height'] / 3.281;
   if (params['Sill Height']) mapped.sillHeight = params['Sill Height'] / 3.281;
   if (params['Fire Rating']) mapped.fireRating = params['Fire Rating'];
   if (params['Material']) mapped.material = params['Material'];

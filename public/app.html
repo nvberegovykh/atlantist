@@ -21,6 +21,9 @@
   <link rel="stylesheet" href="/css/app.css?v=27"><!-- must be last — dark override -->
   <link rel="stylesheet" href="/css/mobile.css"><!-- mobile/responsive layer -->
   <link rel="stylesheet" href="/css/ui-motion.css?v=2"><!-- Phase 35: dynamic element enter/exit system -->
+  <!-- Sentry DSN — not a secret; used by browser SDK to report errors -->
+  <meta name="sentry-dsn" content="https://a9fef13217fa4ca1630b5f7ddd439eba@o4511481399934976.ingest.us.sentry.io/4511482589806592">
+  <script>window.__SENTRY_DSN__ = "https://a9fef13217fa4ca1630b5f7ddd439eba@o4511481399934976.ingest.us.sentry.io/4511482589806592"; window.__SENTRY_ENV__ = "production";</script>
   <script src="/js/boot-safety.js"></script>
   <script type="importmap">
   {
@@ -29,8 +32,8 @@
       "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
       "three-mesh-bvh": "https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.7.6/+esm",
       "stats.js": "https://cdn.jsdelivr.net/npm/stats.js@0.17.0/+esm",
-      "web-ifc-three": "https://cdn.jsdelivr.net/npm/web-ifc-three@0.0.160/+esm",
-      "web-ifc": "https://cdn.jsdelivr.net/npm/web-ifc@0.0.127/+esm"
+      "web-ifc-three": "https://cdn.jsdelivr.net/npm/web-ifc-three@0.0.126/+esm",
+      "web-ifc": "https://cdn.jsdelivr.net/npm/web-ifc@0.0.39/+esm"
     }
   }
   </script>
@@ -215,8 +218,8 @@
   </div>
 
   <!-- New project type selector modal -->
-  <div id="entry-type-backdrop" class="hidden" style="position:fixed;inset:0;z-index:9100;background:rgba(0,0,0,0.6)"></div>
-  <div id="entry-type-modal" class="hidden" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9200;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px;min-width:360px;max-width:480px">
+  <div id="entry-type-backdrop" class="hidden" style="position:fixed;inset:0;z-index:var(--z-entry-backdrop,8100);background:rgba(0,0,0,0.6)"></div>
+  <div id="entry-type-modal" class="hidden" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:var(--z-entry-modal,8200);background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px;min-width:360px;max-width:480px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div style="font-size:17px;font-weight:700;color:#e2e8f0">New Project</div>
       <button id="entry-type-close" style="background:transparent;border:none;color:#8898b0;cursor:pointer;font-size:20px;line-height:1">×</button>
@@ -251,8 +254,8 @@
   </div>
 
   <!-- Project name modal -->
-  <div id="entry-name-backdrop" class="hidden" style="position:fixed;inset:0;z-index:9300;background:rgba(0,0,0,0.6)"></div>
-  <div id="entry-name-modal" class="hidden" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9400;background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px;min-width:340px;max-width:440px">
+  <div id="entry-name-backdrop" class="hidden" style="position:fixed;inset:0;z-index:var(--z-entry-name-backdrop,8300);background:rgba(0,0,0,0.6)"></div>
+  <div id="entry-name-modal" class="hidden" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:var(--z-entry-name-modal,8400);background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px;min-width:340px;max-width:440px">
     <div style="font-size:17px;font-weight:700;color:#e2e8f0;margin-bottom:6px">Name your project</div>
     <div id="entry-name-type-label" style="font-size:12px;color:#8898b0;margin-bottom:18px"></div>
     <input id="entry-name-input" type="text" placeholder="e.g. 250 Midwood — Phase 1"
@@ -1754,8 +1757,12 @@
       <input type="file" id="ifc-file-input" accept=".ifc,.ifcZIP,.zip" style="display:none">
     </div>
     <div id="ifc-import-progress" style="display:none;margin-bottom:12px">
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px" id="ifc-import-status">Uploading...</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px" id="ifc-import-status" >Uploading...</div>
+      <!-- ifc-import-msg is an alias for ifc-import-status used by app.ifc-import.js -->
+      <div style="display:none" id="ifc-import-msg"></div>
       <div style="height:4px;background:var(--bg-viewport);border-radius:2px;overflow:hidden"><div id="ifc-import-bar" style="height:100%;background:var(--accent);width:0%;transition:width 0.3s"></div></div>
+      <!-- ifc-progress-bar is an alias for ifc-import-bar used by app.ifc-import.js -->
+      <div style="display:none" id="ifc-progress-bar"></div>
     </div>
     <div id="ifc-import-results" style="display:none;margin-bottom:12px;font-size:13px;color:var(--text)"></div>
     <div style="margin-bottom:16px">

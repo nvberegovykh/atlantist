@@ -132,13 +132,14 @@ export async function initEntryScreen() {
 
   await _bindEntryScreen();
 
+  // Hide the app-loading overlay NOW (before _loadProjects) so user sees entry screen
+  // while projects are fetching. Don't wait for project list load to dismiss the spinner.
+  const appLoading = document.getElementById('app-loading-overlay');
+  if (appLoading) { appLoading.style.opacity = '0'; setTimeout(() => { appLoading.style.display = 'none'; }, 300); }
+
   _setLoadingBar(80);
   await _loadProjects();
   _setLoadingBar(100);
-
-  // Hide the app-loading overlay since entry screen is now shown
-  const appLoading = document.getElementById('app-loading-overlay');
-  if (appLoading) { appLoading.style.opacity = '0'; setTimeout(() => { appLoading.style.display = 'none'; }, 300); }
 }
 
 function _injectSidebarIcons() {

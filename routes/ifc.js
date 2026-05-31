@@ -218,11 +218,22 @@ router.post('/export', async (req, res) => {
       schema: schema || 'IFC2X3',
     });
 
+    // Write IFC content to /tmp for the download endpoint to serve.
+    // Render uses ephemeral /tmp — file survives for the process lifetime.
+    const fs = require('fs');
+    const tmpPath = `/tmp/ifc-export-${run.id}.ifc`;
+    fs.writeFileSync(tmpPath, ifcContent, 'utf8');
+
+    // Store file_path in DB so download endpoint can find the file.
+    await ifcDb.updateExportRunStatus(run.id, 'completed', tmpPath);
+
+    // Schedule cleanup after 1h (Render process may restart anyway).
+    setTimeout(() => { try { fs.unlinkSync(tmpPath); } catch (_) {} }, 60 * 60 * 1000);
+
     res.json({
       run_id: run.id,
       status: 'completed',
-      // Base64-encode the IFC content so the browser can decode it client-side
-      // without any filesystem dependency (Render uses ephemeral /tmp)
+      // Also return base64 for direct client-side download as fallback
       ifc_content: Buffer.from(ifcContent, 'utf8').toString('base64'),
       file_name: `atlantist-export-${run.id}.ifc`,
       stats: {

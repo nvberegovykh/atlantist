@@ -20,19 +20,25 @@ let _ifcManager = null;
 let _ifcReady = false;
 
 // ─── IFC type → Atlantist element category mapping ───────────────────────────
+// Fixed: removed incorrect IFCSI* prefix (buildingSMART uses IFC* not IFCSI*)
 const IFC_TYPE_MAP = {
-  IFCSIWALL:       'element',
-  IFCSIWALLSTANDARDCASE: 'element',
-  IFCSICOLUMN:     'element',
-  IFCSISLAB:       'floor',
-  IFCSIDOOR:       'family',
-  IFCSIWINDOW:     'family',
-  IFCSIBEAM:       'element',
-  IFCSISTAIR:      'stair',
-  IFCSIRAMP:       'stair',
-  IFCSIROOF:       'element',
-  IFCSISPACE:      'room',
-  IFCSIBUILDINGELEMENTPROXY: 'element',
+  IFCWALL:                  'element',
+  IFCWALLSTANDARDCASE:      'element',
+  IFCCOLUMN:                'element',
+  IFCSLAB:                  'floor',
+  IFCDOOR:                  'family',
+  IFCWINDOW:                'family',
+  IFCBEAM:                  'element',
+  IFCSTAIR:                 'stair',
+  IFCSTAIRFLIGHT:           'stair',
+  IFCRAMP:                  'stair',
+  IFCROOF:                  'element',
+  IFCSPACE:                 'room',
+  IFCBUILDINGELEMENTPROXY:  'element',
+  IFCPLATE:                 'element',
+  IFCMEMBER:                'element',
+  IFCCURTAINWALL:           'element',
+  IFCRAILING:               'element',
 };
 
 // ─── Pset property name normalization ─────────────────────────────────────────
@@ -41,15 +47,19 @@ function normalizePropertyName(raw) {
 }
 
 // ─── Extract properties from IFC model ─────────────────────────────────────────
-function extractProperties(model, ifcManager) {
+// Fixed: web-ifc-three@0.0.126 getAllItemsOfType(modelID, typeCode, verbose)
+// typeCode comes from web-ifc constants (e.g., IFCWALL). Called lazily after parse().
+async function extractProperties(modelID, ifcManager) {
   const props = {};
-  // web-ifc-three GetAllItemsOfType API
   try {
-    const walls = ifcManager.GetAllItemsOfType(model, 1, true); // IFCWALL etc — get geometry + props
-    walls.forEach(item => {
-      const name = ifcManager.getItemName(model, item);
-      props[item] = { name: name || 'IFC Element' };
-    });
+    const { IFCWALL } = await import('web-ifc');
+    const walls = await ifcManager.getAllItemsOfType(modelID, IFCWALL, false);
+    for (const id of (walls || [])) {
+      try {
+        const item = await ifcManager.getItemProperties(modelID, id, false);
+        props[id] = { name: item?.Name?.value || 'IFC Wall' };
+      } catch (_) {}
+    }
   } catch (_) {}
   return props;
 }
@@ -57,14 +67,19 @@ function extractProperties(model, ifcManager) {
 // ─── Import an IFC file from an ArrayBuffer ───────────────────────────────────
 async function doImportIFC(buffer, filename, onProgress) {
   if (!_ifcReady) {
-    _ifcManager = new (await import('web-ifc-three')).WebIFCManager();
-    await _ifcManager.setWasmPath('https://cdn.jsdelivr.net/npm/web-ifc@0.0.127/wasm/');
+    // web-ifc-three@0.0.126 exports IFCLoader (not WebIFCManager)
+    // It imports web-ifc@0.0.39 internally via jsdelivr
+    const { IFCLoader } = await import('web-ifc-three');
+    _ifcManager = new IFCLoader();
+    // WASM path must match web-ifc version used by web-ifc-three@0.0.126 (= 0.0.39)
+    await _ifcManager.ifcManager.setWasmPath('https://cdn.jsdelivr.net/npm/web-ifc@0.0.39/');
     _ifcReady = true;
   }
 
   onProgress?.('Parsing IFC geometry…');
-  const model = await _ifcManager.openModel(buffer);
-  // model is an IFCModel (THREE.Group) — add directly to scene
+  // IFCLoader.parse(buffer) returns an IFCModel (THREE.Group subclass)
+  const model = await _ifcManager.ifcManager.parse(buffer);
+  // model is an IFCModel — model.modelID is the integer model ID
 
   // Tag all meshes as IFC for layer counting
   const meshes = [];

@@ -216,7 +216,7 @@ app.use('/api/guides', require('./routes/guides'));
 app.use('/api/mep', require('./routes/sims-mep'));
 app.use('/api/mep-fixtures', require('./routes/mep-fixtures'));
 app.use('/api/mep-elements', require('./routes/mep-elements'));
-app.use('/api/rvt-import', require('./routes/rvt-import'));
+app.use('/api/rvt-import', requireBimAuth, require('./routes/rvt-import'));
 app.use('/api/ifc', require('./routes/ifc'));
 app.use('/api/annotations', requireBimAuth, require('./routes/annotations'));
 app.use('/api/grids', requireBimAuth, require('./routes/grids'));

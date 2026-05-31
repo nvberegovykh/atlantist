@@ -22,17 +22,23 @@
   supreme   --z-supreme                9999    Loading overlay (first paint only)
 */
 :root {
-  --z-base:      1;
-  --z-viewport:  10;
-  --z-chrome:    100;
-  --z-panel:     200;
-  --z-dropdown:  300;
-  --z-overlay:   500;
-  --z-modal:     600;
-  --z-widget:    700;
-  --z-banner:    800;
-  --z-toast:     2000;
-  --z-supreme:   9999;
+  --z-base:            1;
+  --z-viewport:        10;
+  --z-chrome:          100;
+  --z-panel:           200;
+  --z-dropdown:        300;
+  --z-overlay:         500;
+  --z-modal:           600;
+  --z-widget:          700;
+  --z-banner:          800;
+  --z-toast:           2000;
+  /* Entry screen stack — must be above app chrome but below supreme loading overlay */
+  --z-entry:           8000;
+  --z-entry-backdrop:  8100;
+  --z-entry-modal:     8200;
+  --z-entry-name-backdrop: 8300;
+  --z-entry-name-modal:    8400;
+  --z-supreme:         9999;
 }
 
 /* Retrofit key fixed/absolute elements to layer scale.

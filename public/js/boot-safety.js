@@ -182,3 +182,45 @@
     };
   }, { once: true });
 })();
+
+// ── Sentry Browser SDK init ──────────────────────────────────────────────────
+// Loaded from CDN to capture errors before app.js fully initializes.
+// DSN is injected by the server via a <meta> tag or window.__SENTRY_DSN__.
+// If DSN is not set, this is a no-op (Sentry will not initialize).
+(function initSentryBrowser() {
+  var dsn = (typeof window.__SENTRY_DSN__ !== 'undefined' && window.__SENTRY_DSN__) ||
+            (document.querySelector('meta[name="sentry-dsn"]') || {}).content;
+  if (!dsn) return; // no DSN configured — skip
+
+  // Load Sentry browser SDK dynamically after page load to not block rendering
+  window.addEventListener('load', function() {
+    var s = document.createElement('script');
+    s.src = 'https://browser.sentry-cdn.com/8.0.0/bundle.min.js';
+    s.crossOrigin = 'anonymous';
+    s.onload = function() {
+      if (window.Sentry && typeof window.Sentry.init === 'function') {
+        window.Sentry.init({
+          dsn: dsn,
+          environment: window.__SENTRY_ENV__ || 'production',
+          // Capture 10% of sessions for performance monitoring
+          tracesSampleRate: 0.1,
+          // Integrate with existing onerror/unhandledrejection handlers
+          integrations: [],
+          beforeSend: function(event) {
+            // Strip cookies and auth headers from events
+            if (event.request) {
+              delete event.request.cookies;
+              if (event.request.headers) {
+                delete event.request.headers['authorization'];
+                delete event.request.headers['cookie'];
+              }
+            }
+            return event;
+          },
+        });
+        console.log('[boot-safety] Sentry browser SDK initialized');
+      }
+    };
+    document.head.appendChild(s);
+  });
+})();
