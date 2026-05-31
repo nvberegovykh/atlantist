@@ -44,7 +44,14 @@ const PROJECT_TYPES = [
 // Guards against HTML error pages (deploys, 302 to login, crashes) parsing as JSON.
 // Throws a descriptive error pointing at the actual failing endpoint.
 async function _api(method, path, body) {
-  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  const sessionUuid = localStorage.getItem('atlantist_session_uuid');
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(sessionUuid ? { 'X-Session-UUID': sessionUuid } : {}),
+    },
+  };
   if (body) opts.body = JSON.stringify(body);
   const res = await fetch(path, opts);
   if (!res.ok) {

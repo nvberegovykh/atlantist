@@ -17,10 +17,20 @@ const authRateLimit = rateLimit({ max: 20, windowSec: 60, keyPrefix: 'rl:auth' }
 const aiRateLimit   = rateLimit({ max: 30, windowSec: 60, keyPrefix: 'rl:ai',
   keyFn: req => (req.user && req.user.id) ? String(req.user.id) : (req.ip || 'anon') });
 
-// Demo project UUIDs — GETs on these are always public, no auth required.
-const DEMO_PROJECT_IDS = new Set([
-  'aabbccdd-0001-4000-8000-000000000001',
-]);
+// Demo project IDs — GETs on these are always public, no auth required.
+// Seeded at startup from the DB (projects.is_demo = TRUE) so we handle
+// integer IDs correctly instead of relying on a hardcoded UUID.
+const DEMO_PROJECT_IDS = new Set();
+const pool = require('./db/index');
+(async () => {
+  try {
+    const res = await pool.query('SELECT id FROM projects WHERE is_demo = TRUE');
+    for (const row of res.rows) DEMO_PROJECT_IDS.add(String(row.id));
+    console.log('[requireBimAuth] demo project IDs loaded:', [...DEMO_PROJECT_IDS]);
+  } catch (e) {
+    console.warn('[requireBimAuth] failed to load demo IDs at startup:', e.message);
+  }
+})();
 
 // BIM auth gate: 401 if no session token.
 // Exception: GET requests for demo projects pass through unauthenticated.
@@ -33,6 +43,7 @@ function requireBimAuth(req, res, next) {
       return next();
     }
   }
+  // Also allow anon sessions (X-Session-UUID) through for auth resolution
   _authMiddleware(req, res, () => {
     if (!req.user) return res.status(401).json({ error: 'Authentication required' });
     next();

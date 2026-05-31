@@ -2851,8 +2851,12 @@ function buildMEPMesh(el, isSelected) {
 }
 
 // ── Phase 4.2: Render annotation overlays from state.annotations ─────────────
+// currentView: the active Three.js scene ('3d'|'plan'|'section'|null).
+// Driven by viewport-manager when user switches views; defaults to '3d'.
+let currentView = '3d';
 function renderAnnotations() {
   if (!state.annotations || !Array.isArray(state.annotations)) return;
+  if (!currentView) return;
   try {
     syncAnnotationOverlays(state.annotations, scene3d, scenePlan, sceneSection, currentView);
   } catch (e) {
@@ -18355,7 +18359,7 @@ async function runGeoAnalysis() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        project_id: currentProjectId || 1,
+        project_id: window.currentProjectId || currentProjectId,
         name: `Geo ${activeTab} — ${new Date().toLocaleString()}`,
         run_type,
         parameters: { ...params, soil_layers: actualLayers, groundwater_depth: gwDepth },
