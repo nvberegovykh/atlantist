@@ -3293,13 +3293,13 @@ window._swBannerArmedAt = Date.now();
   // Load entry-screen.js first (checks ?demo= param and auto-loads if set)
   var s0 = document.createElement('script');
   s0.type = 'module';
-  s0.src = '/js/entry-screen.js?v=3';
+  s0.src = '/js/entry-screen.js?v=4';
   document.body.appendChild(s0);
 
   // Load app.js AFTER cache cleanup completes — prevents stale SW serving old JS
   var s1 = document.createElement('script');
   s1.type = 'module';
-  s1.src = '/js/app.js?v=26';
+  s1.src = '/js/app.js?v=27';
   var sBvh = document.createElement('script');
   sBvh.type = 'module';
   sBvh.src = '/js/app.bvh-raycaster.js?v=3';

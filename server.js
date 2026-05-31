@@ -17,8 +17,22 @@ const authRateLimit = rateLimit({ max: 20, windowSec: 60, keyPrefix: 'rl:auth' }
 const aiRateLimit   = rateLimit({ max: 30, windowSec: 60, keyPrefix: 'rl:ai',
   keyFn: req => (req.user && req.user.id) ? String(req.user.id) : (req.ip || 'anon') });
 
-// BIM auth gate: 401 if no session token. Anonymous sessions allowed for demo projects.
+// Demo project UUIDs — GETs on these are always public, no auth required.
+const DEMO_PROJECT_IDS = new Set([
+  'aabbccdd-0001-4000-8000-000000000001',
+]);
+
+// BIM auth gate: 401 if no session token.
+// Exception: GET requests for demo projects pass through unauthenticated.
 function requireBimAuth(req, res, next) {
+  // Allow unauthenticated GET reads for demo projects
+  if (req.method === 'GET') {
+    const pid = req.query.project_id || req.params.project_id || req.params.id;
+    if (pid && DEMO_PROJECT_IDS.has(String(pid))) {
+      req.user = req.user || null; // may be null — routes must handle
+      return next();
+    }
+  }
   _authMiddleware(req, res, () => {
     if (!req.user) return res.status(401).json({ error: 'Authentication required' });
     next();

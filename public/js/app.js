@@ -9671,95 +9671,105 @@ window.addEventListener('atlantist:crafting-palette:place', (e) => {
   console.log('[crafting-palette] placement activated:', type, variantId, label);
 });
 
-// ─── Demo project detection ─────────────────────────────────────────────────
-// Check ?demo= URL param and auto-load the canonical demo project
+// ─── Boot gate — entry-screen.js owns the project-open flow ─────────────────
+// app.js does NOT redirect to demo or call loadAll() on its own.
+// entry-screen.js shows the project picker, then fires atlantist:project:open
+// which triggers loadAll() below. The only exception: a direct ?demo= URL
+// link, which bypasses the entry screen and loads the demo immediately.
+//
+// This prevents the redirect loop: no-project-id → redirect to demo → app.js
+// boots again → redirect to demo → infinite loop.
 (async () => {
   const params = new URLSearchParams(window.location.search);
   const demoSlug = params.get('demo');
 
   if (demoSlug) {
+    // Direct demo link — skip entry screen, auto-load
     try {
       const res = await fetch(`/api/demo/${encodeURIComponent(demoSlug)}`);
-      if (!res.ok) return;
+      if (!res.ok) { console.warn('[boot] demo fetch failed:', res.status); return; }
       const demo = await res.json().catch(() => null);
-      if (!demo) {
-        console.warn('[demo] non-JSON response, skipping auto-load');
-        return;
+      if (!demo || !demo.id) { console.warn('[boot] demo bad response'); return; }
+
+      window.currentProjectId = demo.id;
+      window.isDemoProject = true;
+      window.atlantistActiveProjectId = demo.id;
+
+      // Show demo badge
+      const badge = document.createElement('div');
+      badge.id = 'demo-badge';
+      badge.style.cssText = 'font-size:11px;font-weight:600;color:#f59e0b;background:rgba(245,158,11,0.12);padding:3px 10px;border-radius:12px;letter-spacing:0.03em;cursor:default;margin-left:12px';
+      badge.title = 'Demo Project — Read Only. Fork to edit.';
+      badge.textContent = '🔒 Demo — Read Only';
+      document.getElementById('topbar-logo')?.appendChild(badge);
+      document.getElementById('btn-fork-demo')?.addEventListener('click', forkDemoProject);
+      const banner = document.getElementById('demo-banner');
+      if (banner) {
+        banner.style.display = 'flex';
+        const topbarFork = document.getElementById('btn-fork-demo');
+        if (topbarFork) topbarFork.style.display = 'none';
       }
-      // Project IDs are UUIDs (VARCHAR) — never parseInt
-        window.currentProjectId = demo.id;
-        window.isDemoProject = true;
-        window.atlantistActiveProjectId = window.currentProjectId;
 
-        // Show demo badge in topbar
-        const badge = document.createElement('div');
-        badge.id = 'demo-badge';
-        badge.style.cssText = 'font-size:11px;font-weight:600;color:#f59e0b;background:rgba(245,158,11,0.12);padding:3px 10px;border-radius:12px;letter-spacing:0.03em;cursor:default;margin-left:12px';
-        badge.title = 'Demo Project — Read Only. Click Fork to create your own editable copy.';
-        badge.textContent = '🔒 Demo Project — Click Fork to Edit';
-        document.getElementById('topbar-logo')?.appendChild(badge);
+      // Load BIM data directly
+      const _treePanel = document.getElementById('level-list');
+      const _propsPanel = document.getElementById('properties-panel') || document.getElementById('props-panel');
+      const _treeSkel = _treePanel ? injectSkeletonOverlay(_treePanel, 'tree') : null;
+      const _propsSkel = _propsPanel ? injectSkeletonOverlay(_propsPanel, 'props') : null;
 
-        // Wire fork button and show demo banner
-        document.getElementById('btn-fork-demo')?.addEventListener('click', forkDemoProject);
-        // Show the full-width demo banner
-        const banner = document.getElementById('demo-banner');
-        if (banner) {
-          banner.style.display = 'flex';
-          // Hide the topbar fork button — fork button is in the banner now
-          const topbarFork = document.getElementById('btn-fork-demo');
-          if (topbarFork) topbarFork.style.display = 'none';
+      loadAll().then(() => {
+        if (_treeSkel) dismissSkeletonOverlay(_treeSkel);
+        if (_propsSkel) dismissSkeletonOverlay(_propsSkel);
+        const overlay = document.getElementById('app-loading-overlay');
+        if (overlay) { overlay.classList.add('fade-out'); setTimeout(() => overlay.remove(), 450); }
+        if (window.isDemoProject) {
+          const forkBtn = document.getElementById('btn-fork-demo');
+          if (forkBtn) forkBtn.style.display = 'inline-block';
         }
+      }).catch(err => {
+        if (_treeSkel) dismissSkeletonOverlay(_treeSkel);
+        if (_propsSkel) dismissSkeletonOverlay(_propsSkel);
+        console.error('[boot] loadAll failed:', err);
+        const overlay = document.getElementById('app-loading-overlay');
+        if (overlay) { overlay.classList.add('fade-out'); setTimeout(() => overlay.remove(), 450); }
+      });
     } catch (err) {
-      console.warn('[demo] failed to load demo project:', err);
+      console.warn('[boot] demo auto-load error:', err);
     }
+    return; // demo handled — don't fall through to entry screen
   }
 
-  // Set project ID from localStorage if not set by demo detection
-  if (!window.currentProjectId) {
-    const saved = localStorage.getItem('atlantist_active_project_id');
-    // Project IDs are UUIDs — store/retrieve as strings, never parseInt
-    if (saved && saved !== 'NaN' && saved !== '1') window.currentProjectId = saved;
-    if (!window.currentProjectId) {
-      // Anonymous first-visit: redirect to demo project so /app is never empty
-      window.location.replace('/app?demo=nyc-midrise');
-      return;
-    }
-  }
+  // No ?demo= param — entry-screen.js will handle showing the project picker
+  // and will call loadAll() via atlantist:project:open when user picks a project.
+  // Nothing to do here — the app-loading-overlay stays up until entry-screen.js
+  // dismisses it after showing the entry screen.
+  console.log('[boot] waiting for entry-screen.js to open a project');
+})();
 
-  // Inject skeleton overlays into panels while BIM data loads
+// ─── Project open event — fired by entry-screen.js after user picks a project ─
+// entry-screen.js calls: window.dispatchEvent(new CustomEvent('atlantist:project:open', { detail: { projectId } }))
+// app.js listens here and calls loadAll() with the selected project.
+window.addEventListener('atlantist:project:open', async (e) => {
+  const projectId = e.detail?.projectId;
+  if (!projectId) return;
+  window.currentProjectId = projectId;
+  localStorage.setItem('atlantist_active_project_id', String(projectId));
+
   const _treePanel = document.getElementById('level-list');
   const _propsPanel = document.getElementById('properties-panel') || document.getElementById('props-panel');
-  let _treeSkel = null, _propsSkel = null;
-  if (_treePanel) _treeSkel = injectSkeletonOverlay(_treePanel, 'tree');
-  if (_propsPanel) _propsSkel = injectSkeletonOverlay(_propsPanel, 'props');
+  const _treeSkel = _treePanel ? injectSkeletonOverlay(_treePanel, 'tree') : null;
+  const _propsSkel = _propsPanel ? injectSkeletonOverlay(_propsPanel, 'props') : null;
 
-  // Now load data
-  loadAll().then(() => {
-    // Dismiss skeletons (200ms crossfade)
+  try {
+    await loadAll();
     if (_treeSkel) dismissSkeletonOverlay(_treeSkel);
     if (_propsSkel) dismissSkeletonOverlay(_propsSkel);
-
-    // Dismiss loading overlay once data is in
-    const overlay = document.getElementById('app-loading-overlay');
-    if (overlay) {
-      overlay.classList.add('fade-out');
-      setTimeout(() => overlay.remove(), 450);
-    }
-    // Show fork button for demo projects
-    if (window.isDemoProject) {
-      const forkBtn = document.getElementById('btn-fork-demo');
-      if (forkBtn) forkBtn.style.display = 'inline-block';
-    }
-  }).catch(err => {
-    // Dismiss skeletons on error too
+  } catch (err) {
     if (_treeSkel) dismissSkeletonOverlay(_treeSkel);
     if (_propsSkel) dismissSkeletonOverlay(_propsSkel);
-    console.error('Failed to load BIM data:', err);
-    toast('Failed to load model data: ' + err.message, 'error', 5000);
-    const overlay = document.getElementById('app-loading-overlay');
-    if (overlay) { overlay.classList.add('fade-out'); setTimeout(() => overlay.remove(), 450); }
-  });
-})();
+    console.error('[boot] loadAll after project:open failed:', err);
+    toast('Failed to load project: ' + err.message, 'error', 5000);
+  }
+});
 
 // ─── Discipline View Toggle ─────────────────────────────────────────────────
 // Switch between Architecture / Structural / MEP / Energy views.

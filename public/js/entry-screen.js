@@ -105,11 +105,44 @@ async function _autoLoadDemo() {
   }
 }
 
+// ─── Loading bar helper ────────────────────────────────────────────────────
+function _setLoadingBar(pct) {
+  const bar = document.getElementById('loading-bar');
+  if (bar) bar.style.width = Math.min(100, pct) + '%';
+}
+
+// ─── Anonymous session init ────────────────────────────────────────────────
+// Ensures the backend has an app_users row for this browser session so
+// non-auth API calls (e.g. demo project reads) don't 500 on missing user context.
+async function _initAnonSession() {
+  try {
+    let uuid = localStorage.getItem('atlantist_session_uuid');
+    if (!uuid) {
+      uuid = crypto.randomUUID ? crypto.randomUUID() : (Math.random().toString(36).slice(2) + Date.now());
+      localStorage.setItem('atlantist_session_uuid', uuid);
+    }
+    await fetch('/api/auth/init', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_uuid: uuid }),
+    });
+  } catch (_) { /* non-fatal */ }
+}
+
 // ─── Entry Screen Bootstrap ──────────────────────────────────────────────────
 export async function initEntryScreen() {
+  _setLoadingBar(15);
+
   // Check for demo slug first — auto-load without showing entry screen
   const demoLoaded = await _autoLoadDemo();
   if (demoLoaded) return;
+
+  _setLoadingBar(35);
+
+  // Init anonymous session so backend recognises this browser
+  await _initAnonSession();
+
+  _setLoadingBar(55);
 
   const overlay = document.getElementById('entry-screen-overlay');
   if (!overlay) return;
@@ -129,7 +162,10 @@ export async function initEntryScreen() {
   });
 
   await _bindEntryScreen();
+
+  _setLoadingBar(80);
   await _loadProjects();
+  _setLoadingBar(100);
 
   // Hide the app-loading overlay since entry screen is now shown
   const appLoading = document.getElementById('app-loading-overlay');
