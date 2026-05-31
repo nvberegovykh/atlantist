@@ -246,7 +246,7 @@ async function api(method, path, body) {
 }
 
 // ─── Data loading ─────────────────────────────────────────────────────────────
-async function loadAll() {
+export async function loadAll() {
   // Skeleton injection is handled by the boot IIFE (~line 8150) via
   // injectSkeletonOverlay(_treePanel, 'tree') / injectSkeletonOverlay(_propsPanel, 'props').
   // This function must NOT call injectSkeletonOverlay() — it requires (panelEl, kind).

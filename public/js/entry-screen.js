@@ -61,48 +61,10 @@ async function _api(method, path, body) {
 
 // ─── Demo Auto-Load ────────────────────────────────────────────────────────────
 async function _autoLoadDemo() {
+  // If ?demo= is present, app.js boot IIFE handles the full load.
+  // Return true here so initEntryScreen() skips the project picker.
   const params = new URLSearchParams(window.location.search);
-  const demoSlug = params.get('demo');
-  if (!demoSlug) return false;
-
-  try {
-    const resp = await fetch(`/api/demo/${demoSlug}`);
-    if (!resp.ok) return false;
-    const demo = await resp.json();
-
-    // Show demo banner in the app shell
-    const banner = document.getElementById('demo-banner');
-    if (banner) {
-      banner.style.display = 'flex';
-      const label = banner.querySelector('.demo-banner-label');
-      if (label) label.textContent = `📌 ${demo.name} — Read-Only Demo`;
-    }
-    const forkBtn = document.getElementById('btn-fork-demo');
-    if (forkBtn) forkBtn.style.display = 'inline-flex';
-
-    // Hide entry screen, set project ID, load BIM directly
-    const overlay = document.getElementById('entry-screen-overlay');
-    if (overlay) overlay.style.display = 'none';
-    const appLoading = document.getElementById('app-loading-overlay');
-    if (appLoading) appLoading.style.display = 'flex';
-
-    window.currentProjectId = demo.id;
-    window.isDemoProject = true;
-
-    // Load BIM data directly (skip entry screen)
-    const { loadAll } = await import('./app.js');
-    await loadAll();
-
-    if (appLoading) {
-      appLoading.style.transition = 'opacity .4s ease-out';
-      appLoading.style.opacity = '0';
-      setTimeout(() => appLoading.style.display = 'none', 400);
-    }
-    return true;
-  } catch (err) {
-    console.error('[entry-screen] demo auto-load failed:', err);
-    return false;
-  }
+  return !!params.get('demo');
 }
 
 // ─── Loading bar helper ────────────────────────────────────────────────────
@@ -543,23 +505,14 @@ async function _openProject(projectId, isTemplate = false) {
   // Mark last opened
   fetch(`/api/projects/${projectId}/touch`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }).catch(() => {});
 
-  // Dispatch event so app.js knows a project is open
+  // Dispatch event — app.js listener calls loadAll() and dismisses the loading overlay
   window.dispatchEvent(new CustomEvent('atlantist:project:open', {
     detail: { projectId }
   }));
 
-  // Now import and run the BIM app
-  const { loadAll } = await import('./app.js');
-  await loadAll();
-
-  // Fade in app, hide entry overlay
+  // Fade out entry overlay after a short delay
   setTimeout(() => {
     overlay.style.display = 'none';
-    if (appLoading) {
-      appLoading.style.transition = 'opacity .4s ease-out';
-      appLoading.style.opacity = '0';
-      setTimeout(() => appLoading.style.display = 'none', 400);
-    }
   }, 300);
 }
 
