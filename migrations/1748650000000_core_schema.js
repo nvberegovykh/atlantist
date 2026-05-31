@@ -55,6 +55,21 @@ module.exports = {
     await client.query(`CREATE INDEX IF NOT EXISTS idx_app_users_last_active ON app_users(last_active DESC)`);
 
     // ── 2. auth_sessions → app_users ──────────────────────────────────────────
+    // Drop and recreate if last_active column is missing (handles botched earlier deploys)
+    await client.query(`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.tables
+          WHERE table_name = 'auth_sessions'
+        ) AND NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'auth_sessions' AND column_name = 'last_active'
+        ) THEN
+          DROP TABLE auth_sessions CASCADE;
+        END IF;
+      END $$;
+    `);
     await client.query(`
       CREATE TABLE IF NOT EXISTS auth_sessions (
         id          SERIAL PRIMARY KEY,
@@ -65,8 +80,6 @@ module.exports = {
         created_at  TIMESTAMPTZ DEFAULT NOW()
       )
     `);
-    // Ensure last_active exists on auth_sessions even if table was pre-created without it
-    await client.query(`ALTER TABLE auth_sessions ADD COLUMN IF NOT EXISTS last_active TIMESTAMPTZ DEFAULT NOW()`);
     await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_auth_sessions_token ON auth_sessions(token_hash)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_auth_sessions_user ON auth_sessions(user_id)`);
     await client.query(`CREATE INDEX IF NOT EXISTS idx_auth_sessions_last_active ON auth_sessions(last_active DESC)`);

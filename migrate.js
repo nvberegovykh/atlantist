@@ -187,6 +187,8 @@ async function runFolderMigrations(client) {
       console.log(`Migration complete: ${name}`);
     } catch (err) {
       try { await client.query('ROLLBACK'); } catch (_) {}
+      console.error(`Migration error detail — query hint: ${err.hint || 'none'} | position: ${err.position || 'none'} | detail: ${err.detail || 'none'}`);
+      console.error(`Full error:`, err);
       throw new Error(`Migration failed (${name}): ${err.message}`);
     }
   }
