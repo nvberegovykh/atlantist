@@ -151,6 +151,7 @@ app.get('/rect', (_req, res) => {
 
 // ─── Contribute page — open source contributor program ──────────────────────
 app.get('/contribute', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'contribute.html')));
+app.get('/tax-forms', requireBimAuth, (_req, res) => res.sendFile(path.join(__dirname, 'public', 'tax-forms.html')));
 
 // ─── App route — resolves session role, serves SPA ─────────────────────────
 app.get('/app', async (req, res) => {

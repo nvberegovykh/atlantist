@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tax Forms — Atlantist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --color-navy:       #0f1923;
+      --color-navy-mid:   #1a2e45;
+      --color-blue:       #1d5fa6;
+      --color-blue-light: #3479c4;
+      --color-sky:        #7fb3de;
+      --color-sand:       #f7f6f3;
+      --color-muted:      #8a8680;
+      --color-border:     #e2e0dc;
+      --font-main:        'DM Sans', Arial, sans-serif;
+      --radius:           8px;
+      --max-width:        680px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-main);
+      background: var(--color-sand);
+      color: var(--color-navy);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    /* ── Header ─────────────────────────────────────────────────────────── */
+    .site-header {
+      background: var(--color-navy);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .site-header .brand-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--color-sand);
+      letter-spacing: -0.3px;
+    }
+
+    /* ── Page layout ─────────────────────────────────────────────────────── */
+    .page-wrap {
+      max-width: var(--max-width);
+      margin: 40px auto 80px;
+      padding: 0 20px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      margin-bottom: 4px;
+    }
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--color-muted);
+      margin-bottom: 28px;
+    }
+
+    /* ── Tab switcher ────────────────────────────────────────────────────── */
+    .tab-row {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 12px 16px;
+      font-family: var(--font-main);
+      font-size: 14px;
+      font-weight: 500;
+      background: #fff;
+      border: none;
+      cursor: pointer;
+      color: var(--color-muted);
+      transition: background 0.15s, color 0.15s;
+      border-right: 1px solid var(--color-border);
+    }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn.active {
+      background: var(--color-blue);
+      color: #fff;
+    }
+    .tab-btn:hover:not(.active) {
+      background: var(--color-sand);
+      color: var(--color-navy);
+    }
+
+    /* ── Card ────────────────────────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 12px rgba(15,25,35,0.08);
+      overflow: hidden;
+    }
+    .card-accent { height: 4px; background: var(--color-blue); }
+    .card-body { padding: 36px 40px; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Form elements ───────────────────────────────────────────────────── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-grid .full { grid-column: 1 / -1; }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    label.field-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-navy-mid);
+      letter-spacing: 0.2px;
+    }
+    label.field-label .required {
+      color: #e53e3e;
+      margin-left: 2px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select,
+    textarea {
+      font-family: var(--font-main);
+      font-size: 14px;
+      padding: 10px 12px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      background: var(--color-sand);
+      color: var(--color-navy);
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--color-blue);
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 72px; }
+
+    /* Masked SSN input */
+    input[type="password"] {
+      letter-spacing: 2px;
+    }
+
+    .section-heading {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--color-blue);
+      margin: 28px 0 14px;
+    }
+    .section-heading:first-child { margin-top: 0; }
+
+    /* ── Treaty claim section ────────────────────────────────────────────── */
+    .treaty-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .treaty-toggle input { width: 16px; height: 16px; accent-color: var(--color-blue); }
+    .treaty-toggle label { font-size: 14px; cursor: pointer; }
+    .treaty-fields { display: none; }
+    .treaty-fields.visible { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* ── Perjury notice ──────────────────────────────────────────────────── */
+    .perjury-notice {
+      background: #eff6ff;
+      border-left: 3px solid var(--color-blue-light);
+      border-radius: 0 4px 4px 0;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--color-navy-mid);
+      margin: 24px 0 20px;
+      line-height: 1.55;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--color-blue);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .checkbox-row label {
+      font-size: 14px;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    /* ── Submit button ───────────────────────────────────────────────────── */
+    .submit-btn {
+      display: inline-block;
+      background: var(--color-blue);
+      color: #fff;
+      font-family: var(--font-main);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 13px 32px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      letter-spacing: -0.2px;
+      transition: background 0.15s;
+    }
+    .submit-btn:hover:not(:disabled) { background: var(--color-blue-light); }
+    .submit-btn:disabled {
+      background: var(--color-muted);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    /* ── Status message ──────────────────────────────────────────────────── */
+    .status-msg {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .status-msg.success { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+    .status-msg.error   { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+
+    /* ── Withholding info banner ─────────────────────────────────────────── */
+    .withholding-info {
+      display: none;
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 13.5px;
+      color: #166534;
+      margin-top: 16px;
+    }
+    .withholding-info.warn { background: #fefce8; border-color: #fde047; color: #713f12; }
+
+    @media (max-width: 560px) {
+      .card-body { padding: 24px 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-grid .full { grid-column: 1; }
+      .treaty-fields.visible { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header class="site-header">
+    <svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="64" height="64" rx="10" fill="#1a2e45"/>
+      <circle cx="32" cy="33" r="25" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.2"/>
+      <circle cx="32" cy="33" r="18" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.38"/>
+      <circle cx="32" cy="33" r="11" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.6"/>
+      <circle cx="32" cy="33" r="4" fill="#3479c4"/>
+      <line x1="18" y1="48" x2="32" y2="14" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="46" y1="48" x2="32" y2="14" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="22" y1="36" x2="42" y2="36" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+    </svg>
+    <span class="brand-name">Atlantist</span>
+  </header>
+
+  <!-- ── Page ── -->
+  <div class="page-wrap">
+    <h1 class="page-title">Tax Information</h1>
+    <p class="page-subtitle">
+      Required before your first payout. All data is encrypted at rest using AES-256-GCM.
+    </p>
+
+    <!-- Tab switcher -->
+    <div class="tab-row" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="panel-w9" id="tab-w9" onclick="switchTab('w9')">
+        I am a US person (W-9)
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false" aria-controls="panel-w8ben" id="tab-w8ben" onclick="switchTab('w8ben')">
+        I am not a US person (W-8BEN)
+      </button>
+    </div>
+
+    <!-- Card -->
+    <div class="card">
+      <div class="card-accent"></div>
+      <div class="card-body">
+
+        <!-- ── W-9 Panel ── -->
+        <div class="tab-panel active" id="panel-w9" role="tabpanel" aria-labelledby="tab-w9">
+          <form id="form-w9" novalidate>
+
+            <p class="section-heading">Identity &amp; Tax ID</p>
+            <div class="form-grid">
+              <div class="field full">
+                <label class="field-label" for="w9-legal-name">Legal Name <span class="required">*</span></label>
+                <input type="text" id="w9-legal-name" name="legal_name" placeholder="As it appears on your tax return" required />
+              </div>
+              <div class="field full">
+                <label class="field-label" for="w9-tax-id">
+                  SSN / EIN / ITIN <span class="required">*</span>
+                  <span style="font-weight:400;color:var(--color-muted);margin-left:4px;">(masked — not stored in plaintext)</span>
+                </label>
+                <input type="password" id="w9-tax-id" name="tax_id"
+                       placeholder="XXX-XX-XXXX" autocomplete="off"
+                       inputmode="numeric" maxlength="11" required />
+              </div>
+            </div>
+
+            <p class="section-heading">Address</p>
+            <div class="form-grid">
+              <div class="field full">
+                <label class="field-label" for="w9-address">Street Address <span class="required">*</span></label>
+                <input type="text" id="w9-address" name="address" placeholder="123 Main St" required />
+              </div>
+              <div class="field">
+                <label class="field-label" for="w9-city">City <span class="required">*</span></label>
+                <input type="text" id="w9-city" name="city" required />
+              </div>
+              <div class="field">
+                <label class="field-label" for="w9-state">State <span class="required">*</span></label>
+                <select id="w9-state" name="state" required>
+                  <option value="">— Select state —</option>
+                  <option value="AL">Alabama</option><option value="AK">Alaska</option>
+                  <option value="AZ">Arizona</option><option value="AR">Arkansas</option>
+                  <option value="CA">California</option><option value="CO">Colorado</option>
+                  <option value="CT">Connecticut</option><option value="DE">Delaware</option>
+                  <option value="FL">Florida</option><option value="GA">Georgia</option>
+                  <option value="HI">Hawaii</option><option value="ID">Idaho</option>
+                  <option value="IL">Illinois</option><option value="IN">Indiana</option>
+                  <option value="IA">Iowa</option><option value="KS">Kansas</option>
+                  <option value="KY">Kentucky</option><option value="LA">Louisiana</option>
+                  <option value="ME">Maine</option><option value="MD">Maryland</option>
+                  <option value="MA">Massachusetts</option><option value="MI">Michigan</option>
+                  <option value="MN">Minnesota</option><option value="MS">Mississippi</option>
+                  <option value="MO">Missouri</option><option value="MT">Montana</option>
+                  <option value="NE">Nebraska</option><option value="NV">Nevada</option>
+                  <option value="NH">New Hampshire</option><option value="NJ">New Jersey</option>
+                  <option value="NM">New Mexico</option><option value="NY">New York</option>
+                  <option value="NC">North Carolina</option><option value="ND">North Dakota</option>
+                  <option value="OH">Ohio</option><option value="OK">Oklahoma</option>
+                  <option value="OR">Oregon</option><option value="PA">Pennsylvania</option>
+                  <option value="RI">Rhode Island</option><option value="SC">South Carolina</option>
+                  <option value="SD">South Dakota</option><option value="TN">Tennessee</option>
+                  <option value="TX">Texas</option><option value="UT">Utah</option>
+                  <option value="VT">Vermont</option><option value="VA">Virginia</option>
+                  <option value="WA">Washington</option><option value="WV">West Virginia</option>
+                  <option value="WI">Wisconsin</option><option value="WY">Wyoming</option>
+                  <option value="DC">District of Columbia</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label" for="w9-zip">ZIP Code <span class="required">*</span></label>
+                <input type="text" id="w9-zip" name="zip" placeholder="10001" maxlength="10" required />
+              </div>
+            </div>
+
+            <div class="perjury-notice">
+              Under penalties of perjury, I certify that: (1) The taxpayer identification number shown on this form is my
+              correct TIN; (2) I am not subject to backup withholding; (3) I am a US person (including a resident alien);
+              and (4) The information provided is true, correct, and complete.
+            </div>
+
+            <div class="checkbox-row">
+              <input type="checkbox" id="w9-certify" required />
+              <label for="w9-certify">
+                I certify the above statement under penalties of perjury and confirm that all information is accurate.
+              </label>
+            </div>
+
+            <button type="submit" class="submit-btn" id="btn-w9" disabled>Submit W-9</button>
+            <div class="status-msg" id="status-w9"></div>
+          </form>
+        </div>
+
+        <!-- ── W-8BEN Panel ── -->
+        <div class="tab-panel" id="panel-w8ben" role="tabpanel" aria-labelledby="tab-w8ben">
+          <form id="form-w8ben" novalidate>
+
+            <p class="section-heading">Identity</p>
+            <div class="form-grid">
+              <div class="field full">
+                <label class="field-label" for="w8-legal-name">Legal Name <span class="required">*</span></label>
+                <input type="text" id="w8-legal-name" name="legal_name" placeholder="As it appears on your government-issued ID" required />
+              </div>
+              <div class="field">
+                <label class="field-label" for="w8-country">Country of Residence <span class="required">*</span></label>
+                <select id="w8-country" name="tax_country" required>
+                  <option value="">— Select country —</option>
+                  <option value="AF">Afghanistan</option><option value="AL">Albania</option>
+                  <option value="DZ">Algeria</option><option value="AD">Andorra</option>
+                  <option value="AO">Angola</option><option value="AG">Antigua &amp; Barbuda</option>
+                  <option value="AR">Argentina</option><option value="AM">Armenia</option>
+                  <option value="AU">Australia</option><option value="AT">Austria</option>
+                  <option value="AZ">Azerbaijan</option><option value="BS">Bahamas</option>
+                  <option value="BH">Bahrain</option><option value="BD">Bangladesh</option>
+                  <option value="BB">Barbados</option><option value="BY">Belarus</option>
+                  <option value="BE">Belgium</option><option value="BZ">Belize</option>
+                  <option value="BJ">Benin</option><option value="BT">Bhutan</option>
+                  <option value="BO">Bolivia</option><option value="BA">Bosnia &amp; Herzegovina</option>
+                  <option value="BW">Botswana</option><option value="BR">Brazil</option>
+                  <option value="BN">Brunei</option><option value="BG">Bulgaria</option>
+                  <option value="BF">Burkina Faso</option><option value="BI">Burundi</option>
+                  <option value="CV">Cabo Verde</option><option value="KH">Cambodia</option>
+                  <option value="CM">Cameroon</option><option value="CA">Canada</option>
+                  <option value="CF">Central African Republic</option><option value="TD">Chad</option>
+                  <option value="CL">Chile</option><option value="CN">China</option>
+                  <option value="CO">Colombia</option><option value="KM">Comoros</option>
+                  <option value="CG">Congo</option><option value="CR">Costa Rica</option>
+                  <option value="HR">Croatia</option><option value="CU">Cuba</option>
+                  <option value="CY">Cyprus</option><option value="CZ">Czech Republic</option>
+                  <option value="DK">Denmark</option><option value="DJ">Djibouti</option>
+                  <option value="DM">Dominica</option><option value="DO">Dominican Republic</option>
+                  <option value="EC">Ecuador</option><option value="EG">Egypt</option>
+                  <option value="SV">El Salvador</option><option value="GQ">Equatorial Guinea</option>
+                  <option value="ER">Eritrea</option><option value="EE">Estonia</option>
+                  <option value="SZ">Eswatini</option><option value="ET">Ethiopia</option>
+                  <option value="FJ">Fiji</option><option value="FI">Finland</option>
+                  <option value="FR">France</option><option value="GA">Gabon</option>
+                  <option value="GM">Gambia</option><option value="GE">Georgia</option>
+                  <option value="DE">Germany</option><option value="GH">Ghana</option>
+                  <option value="GR">Greece</option><option value="GD">Grenada</option>
+                  <option value="GT">Guatemala</option><option value="GN">Guinea</option>
+                  <option value="GW">Guinea-Bissau</option><option value="GY">Guyana</option>
+                  <option value="HT">Haiti</option><option value="HN">Honduras</option>
+                  <option value="HU">Hungary</option><option value="IS">Iceland</option>
+                  <option value="IN">India</option><option value="ID">Indonesia</option>
+                  <option value="IR">Iran</option><option value="IQ">Iraq</option>
+                  <option value="IE">Ireland</option><option value="IL">Israel</option>
+                  <option value="IT">Italy</option><option value="JM">Jamaica</option>
+                  <option value="JP">Japan</option><option value="JO">Jordan</option>
+                  <option value="KZ">Kazakhstan</option><option value="KE">Kenya</option>
+                  <option value="KI">Kiribati</option><option value="KW">Kuwait</option>
+                  <option value="KG">Kyrgyzstan</option><option value="LA">Laos</option>
+                  <option value="LV">Latvia</option><option value="LB">Lebanon</option>
+                  <option value="LS">Lesotho</option><option value="LR">Liberia</option>
+                  <option value="LY">Libya</option><option value="LI">Liechtenstein</option>
+                  <option value="LT">Lithuania</option><option value="LU">Luxembourg</option>
+                  <option value="MG">Madagascar</option><option value="MW">Malawi</option>
+                  <option value="MY">Malaysia</option><option value="MV">Maldives</option>
+                  <option value="ML">Mali</option><option value="MT">Malta</option>
+                  <option value="MH">Marshall Islands</option><option value="MR">Mauritania</option>
+                  <option value="MU">Mauritius</option><option value="MX">Mexico</option>
+                  <option value="FM">Micronesia</option><option value="MD">Moldova</option>
+                  <option value="MC">Monaco</option><option value="MN">Mongolia</option>
+                  <option value="ME">Montenegro</option><option value="MA">Morocco</option>
+                  <option value="MZ">Mozambique</option><option value="MM">Myanmar</option>
+                  <option value="NA">Namibia</option><option value="NR">Nauru</option>
+                  <option value="NP">Nepal</option><option value="NL">Netherlands</option>
+                  <option value="NZ">New Zealand</option><option value="NI">Nicaragua</option>
+                  <option value="NE">Niger</option><option value="NG">Nigeria</option>
+                  <option value="NO">Norway</option><option value="OM">Oman</option>
+                  <option value="PK">Pakistan</option><option value="PW">Palau</option>
+                  <option value="PA">Panama</option><option value="PG">Papua New Guinea</option>
+                  <option value="PY">Paraguay</option><option value="PE">Peru</option>
+                  <option value="PH">Philippines</option><option value="PL">Poland</option>
+                  <option value="PT">Portugal</option><option value="QA">Qatar</option>
+                  <option value="RO">Romania</option><option value="RU">Russia</option>
+                  <option value="RW">Rwanda</option><option value="KN">Saint Kitts &amp; Nevis</option>
+                  <option value="LC">Saint Lucia</option><option value="VC">Saint Vincent &amp; Grenadines</option>
+                  <option value="WS">Samoa</option><option value="SM">San Marino</option>
+                  <option value="ST">São Tomé &amp; Príncipe</option><option value="SA">Saudi Arabia</option>
+                  <option value="SN">Senegal</option><option value="RS">Serbia</option>
+                  <option value="SC">Seychelles</option><option value="SL">Sierra Leone</option>
+                  <option value="SG">Singapore</option><option value="SK">Slovakia</option>
+                  <option value="SI">Slovenia</option><option value="SB">Solomon Islands</option>
+                  <option value="SO">Somalia</option><option value="ZA">South Africa</option>
+                  <option value="SS">South Sudan</option><option value="ES">Spain</option>
+                  <option value="LK">Sri Lanka</option><option value="SD">Sudan</option>
+                  <option value="SR">Suriname</option><option value="SE">Sweden</option>
+                  <option value="CH">Switzerland</option><option value="SY">Syria</option>
+                  <option value="TW">Taiwan</option><option value="TJ">Tajikistan</option>
+                  <option value="TZ">Tanzania</option><option value="TH">Thailand</option>
+                  <option value="TL">Timor-Leste</option><option value="TG">Togo</option>
+                  <option value="TO">Tonga</option><option value="TT">Trinidad &amp; Tobago</option>
+                  <option value="TN">Tunisia</option><option value="TR">Turkey</option>
+                  <option value="TM">Turkmenistan</option><option value="TV">Tuvalu</option>
+                  <option value="UG">Uganda</option><option value="UA">Ukraine</option>
+                  <option value="AE">United Arab Emirates</option><option value="GB">United Kingdom</option>
+                  <option value="UY">Uruguay</option><option value="UZ">Uzbekistan</option>
+                  <option value="VU">Vanuatu</option><option value="VE">Venezuela</option>
+                  <option value="VN">Vietnam</option><option value="YE">Yemen</option>
+                  <option value="ZM">Zambia</option><option value="ZW">Zimbabwe</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field-label" for="w8-tin">
+                  Foreign TIN <span class="required">*</span>
+                  <span style="font-weight:400;color:var(--color-muted);margin-left:4px;">(tax ID number in your country)</span>
+                </label>
+                <input type="password" id="w8-tin" name="foreign_tin" autocomplete="off" placeholder="Your country's tax ID" required />
+              </div>
+            </div>
+
+            <p class="section-heading">Permanent Address</p>
+            <div class="form-grid">
+              <div class="field full">
+                <label class="field-label" for="w8-address">Permanent Residence Address <span class="required">*</span></label>
+                <textarea id="w8-address" name="permanent_address" placeholder="Full address including city, postal code, and country" required></textarea>
+              </div>
+            </div>
+
+            <p class="section-heading">Treaty Claim (Optional)</p>
+            <div class="treaty-toggle">
+              <input type="checkbox" id="w8-treaty-check" onchange="toggleTreaty(this.checked)" />
+              <label for="w8-treaty-check">
+                I am claiming a reduced withholding rate under a US income tax treaty
+              </label>
+            </div>
+            <div class="treaty-fields" id="treaty-fields">
+              <div class="field">
+                <label class="field-label" for="w8-treaty-article">Treaty Article</label>
+                <input type="text" id="w8-treaty-article" name="treaty_article" placeholder="e.g. Article XII" />
+              </div>
+              <div class="field">
+                <label class="field-label" for="w8-treaty-rate">Claimed Withholding Rate (%)</label>
+                <input type="text" id="w8-treaty-rate" name="treaty_rate_claimed" placeholder="e.g. 0 or 10" />
+              </div>
+            </div>
+
+            <div class="perjury-notice">
+              Under penalties of perjury, I declare that I have examined the information on this form and to the best
+              of my knowledge and belief it is true, correct, and complete. I further certify under penalties of perjury
+              that I am the beneficial owner of all the income to which this form relates, I am not a US person, the
+              income to which this form relates is not effectively connected with the conduct of a trade or business in
+              the United States, and that I meet the requirements of the applicable treaty.
+            </div>
+
+            <div class="checkbox-row">
+              <input type="checkbox" id="w8-certify" required />
+              <label for="w8-certify">
+                I certify the above statement under penalties of perjury and confirm that all information is accurate.
+              </label>
+            </div>
+
+            <button type="submit" class="submit-btn" id="btn-w8ben" disabled>Submit W-8BEN</button>
+            <div class="status-msg" id="status-w8ben"></div>
+            <div class="withholding-info" id="withholding-result"></div>
+          </form>
+        </div>
+
+      </div><!-- /card-body -->
+    </div><!-- /card -->
+  </div><!-- /page-wrap -->
+
+  <script>
+    // ── Tab switching ──────────────────────────────────────────────────────────
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b.id === 'tab-' + tab);
+        b.setAttribute('aria-selected', b.id === 'tab-' + tab ? 'true' : 'false');
+      });
+      document.querySelectorAll('.tab-panel').forEach(p => {
+        p.classList.toggle('active', p.id === 'panel-' + (tab === 'w9' ? 'w9' : 'w8ben'));
+      });
+    }
+
+    // ── Treaty fields toggle ───────────────────────────────────────────────────
+    function toggleTreaty(show) {
+      document.getElementById('treaty-fields').classList.toggle('visible', show);
+    }
+
+    // ── Enable/disable submit on checkbox change ───────────────────────────────
+    document.getElementById('w9-certify').addEventListener('change', function () {
+      document.getElementById('btn-w9').disabled = !this.checked;
+    });
+    document.getElementById('w8-certify').addEventListener('change', function () {
+      document.getElementById('btn-w8ben').disabled = !this.checked;
+    });
+
+    // ── W-9 submission ─────────────────────────────────────────────────────────
+    document.getElementById('form-w9').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-w9');
+      const statusEl = document.getElementById('status-w9');
+
+      const data = {
+        legal_name: document.getElementById('w9-legal-name').value.trim(),
+        tax_id:     document.getElementById('w9-tax-id').value.trim(),
+        address:    document.getElementById('w9-address').value.trim(),
+        city:       document.getElementById('w9-city').value.trim(),
+        state:      document.getElementById('w9-state').value,
+        zip:        document.getElementById('w9-zip').value.trim(),
+        is_us_person: true
+      };
+
+      // Basic validation
+      const missing = ['legal_name','tax_id','address','city','state','zip'].filter(k => !data[k]);
+      if (missing.length) {
+        return showStatus(statusEl, 'error', 'Please fill in all required fields.');
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Submitting…';
+
+      try {
+        const res = await fetch('/api/contributors/tax/w9', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if (res.ok) {
+          showStatus(statusEl, 'success', '✓ W-9 submitted successfully. Your form is pending admin verification.');
+          btn.textContent = 'Submitted ✓';
+          this.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
+        } else {
+          showStatus(statusEl, 'error', json.error || 'Submission failed. Please try again.');
+          btn.disabled = false;
+          btn.textContent = 'Submit W-9';
+        }
+      } catch (err) {
+        showStatus(statusEl, 'error', 'Network error — please check your connection.');
+        btn.disabled = false;
+        btn.textContent = 'Submit W-9';
+      }
+    });
+
+    // ── W-8BEN submission ──────────────────────────────────────────────────────
+    document.getElementById('form-w8ben').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-w8ben');
+      const statusEl = document.getElementById('status-w8ben');
+      const withholdingEl = document.getElementById('withholding-result');
+
+      const treatyClaim = document.getElementById('w8-treaty-check').checked;
+
+      const data = {
+        legal_name:       document.getElementById('w8-legal-name').value.trim(),
+        tax_country:      document.getElementById('w8-country').value,
+        foreign_tin:      document.getElementById('w8-tin').value.trim(),
+        permanent_address: document.getElementById('w8-address').value.trim()
+      };
+      if (treatyClaim) {
+        data.treaty_article      = document.getElementById('w8-treaty-article').value.trim() || null;
+        data.treaty_rate_claimed = document.getElementById('w8-treaty-rate').value.trim() || null;
+      }
+
+      const missing = ['legal_name','tax_country','foreign_tin','permanent_address'].filter(k => !data[k]);
+      if (missing.length) {
+        return showStatus(statusEl, 'error', 'Please fill in all required fields.');
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Submitting…';
+
+      try {
+        const res = await fetch('/api/contributors/tax/w8ben', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if (res.ok) {
+          showStatus(statusEl, 'success', '✓ W-8BEN submitted successfully. Your form is pending admin verification.');
+          btn.textContent = 'Submitted ✓';
+          this.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
+
+          // Show withholding rate info
+          const ratePct = (json.withholding_rate * 100).toFixed(0);
+          const isGood = json.withholding_rate === 0;
+          withholdingEl.className = 'withholding-info' + (isGood ? '' : ' warn');
+          withholdingEl.style.display = 'block';
+          withholdingEl.textContent = `Your applicable withholding rate: ${ratePct}% (${json.withholding_reason}). This will apply until your form is verified.`;
+        } else {
+          showStatus(statusEl, 'error', json.error || 'Submission failed. Please try again.');
+          btn.disabled = false;
+          btn.textContent = 'Submit W-8BEN';
+        }
+      } catch (err) {
+        showStatus(statusEl, 'error', 'Network error — please check your connection.');
+        btn.disabled = false;
+        btn.textContent = 'Submit W-8BEN';
+      }
+    });
+
+    function showStatus(el, type, msg) {
+      el.className = 'status-msg ' + type;
+      el.style.display = 'block';
+      el.textContent = msg;
+      el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  </script>
+
+</body>
+</html>

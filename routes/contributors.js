@@ -44,6 +44,7 @@ const {
 
 const { encrypt } = require('../lib/encrypt');
 const { canonicalUrl } = require('../lib/canonical-url');
+const { getWithholdingRate, needs1099, checkW8BENExpiry } = require('../services/tax-compliance');
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -389,6 +390,265 @@ router.post('/points/award', requireAuth, requireAdmin, async (req, res) => {
   } catch (err) {
     console.error('[contributors] points award error:', err);
     return res.status(500).json({ error: 'Failed to award points.' });
+  }
+});
+
+// ─── POST /api/contributors/tax/w9 ──────────────────────────────────────────
+// Submit W-9 information (US persons).
+
+router.post('/tax/w9', requireAuth, async (req, res) => {
+  try {
+    const contributor = await getContributorByUserId(req.user.id);
+    if (!contributor) {
+      return res.status(404).json({ error: 'Not registered as a contributor.' });
+    }
+
+    const { legal_name, tax_id, address, city, state, zip } = req.body;
+    if (!legal_name || !tax_id || !address || !city || !state || !zip) {
+      return res.status(400).json({ error: 'legal_name, tax_id, address, city, state, and zip are required.' });
+    }
+
+    // Encrypt tax_id (SSN/EIN/ITIN) and form PII
+    const tax_id_enc = process.env.ENCRYPTION_KEY ? encrypt(tax_id) : null;
+    const formData = { legal_name, address, city, state, zip, is_us_person: true };
+    const form_data_enc = process.env.ENCRYPTION_KEY ? encrypt(JSON.stringify(formData)) : JSON.stringify(formData);
+
+    const pool = require('../db/index');
+
+    // Insert tax form record
+    await pool.query(
+      `INSERT INTO contributor_tax_forms
+         (contributor_id, form_type, form_data_enc, status)
+       VALUES ($1, 'W-9', $2, 'pending')`,
+      [contributor.id, form_data_enc]
+    );
+
+    // Update contributor record
+    await pool.query(
+      `UPDATE contributors SET
+         is_us_person     = TRUE,
+         tax_form_status  = 'w9_submitted',
+         us_state         = $1,
+         legal_name       = $2,
+         tax_id_enc       = $3,
+         updated_at       = NOW()
+       WHERE id = $4`,
+      [state.toUpperCase().slice(0, 2), legal_name, tax_id_enc, contributor.id]
+    );
+
+    console.log(`[contributors] W-9 submitted by contributor ${contributor.id}`);
+    return res.json({ submitted: true, next: 'awaiting_verification' });
+  } catch (err) {
+    console.error('[contributors] W-9 submission error:', err);
+    return res.status(500).json({ error: 'Failed to submit W-9.' });
+  }
+});
+
+// ─── POST /api/contributors/tax/w8ben ────────────────────────────────────────
+// Submit W-8BEN (foreign individuals).
+
+router.post('/tax/w8ben', requireAuth, async (req, res) => {
+  try {
+    const contributor = await getContributorByUserId(req.user.id);
+    if (!contributor) {
+      return res.status(404).json({ error: 'Not registered as a contributor.' });
+    }
+
+    const { legal_name, tax_country, foreign_tin, permanent_address, treaty_article, treaty_rate_claimed } = req.body;
+    if (!legal_name || !tax_country || !foreign_tin || !permanent_address) {
+      return res.status(400).json({ error: 'legal_name, tax_country, foreign_tin, and permanent_address are required.' });
+    }
+    if (!/^[A-Z]{2}$/i.test(tax_country)) {
+      return res.status(400).json({ error: 'tax_country must be a valid ISO 3166-1 alpha-2 code (e.g. GB, DE, CA).' });
+    }
+
+    // Encrypt TIN and address
+    const tin_enc = process.env.ENCRYPTION_KEY ? encrypt(foreign_tin) : null;
+    const formData = { legal_name, tax_country: tax_country.toUpperCase(), permanent_address, treaty_article, treaty_rate_claimed };
+    const form_data_enc = process.env.ENCRYPTION_KEY ? encrypt(JSON.stringify(formData)) : JSON.stringify(formData);
+
+    // W-8BEN expires 3 years from now (end of 3rd calendar year)
+    const now = new Date();
+    const expiryYear = now.getFullYear() + 3;
+    const expires_at = new Date(expiryYear, 11, 31).toISOString();
+
+    const pool = require('../db/index');
+
+    await pool.query(
+      `INSERT INTO contributor_tax_forms
+         (contributor_id, form_type, form_data_enc, status, expires_at)
+       VALUES ($1, 'W-8BEN', $2, 'pending', $3)`,
+      [contributor.id, form_data_enc, expires_at]
+    );
+
+    const countryCode = tax_country.toUpperCase();
+    await pool.query(
+      `UPDATE contributors SET
+         is_us_person     = FALSE,
+         tax_form_status  = 'w8ben_submitted',
+         tax_country      = $1,
+         legal_name       = $2,
+         tax_id_enc       = $3,
+         needs_w8ben      = TRUE,
+         updated_at       = NOW()
+       WHERE id = $4`,
+      [countryCode, legal_name, tin_enc, contributor.id]
+    );
+
+    // Return withholding rate based on current status
+    const updated = { ...contributor, is_us_person: false, tax_form_status: 'w8ben_submitted', tax_country: countryCode };
+    const withholdingInfo = getWithholdingRate(updated);
+
+    console.log(`[contributors] W-8BEN submitted by contributor ${contributor.id} (country=${countryCode})`);
+    return res.json({
+      submitted: true,
+      next: 'awaiting_verification',
+      withholding_rate: withholdingInfo.rate,
+      withholding_reason: withholdingInfo.reason
+    });
+  } catch (err) {
+    console.error('[contributors] W-8BEN submission error:', err);
+    return res.status(500).json({ error: 'Failed to submit W-8BEN.' });
+  }
+});
+
+// ─── GET /api/contributors/tax/status ────────────────────────────────────────
+// Get the authenticated contributor's own tax compliance status.
+
+router.get('/tax/status', requireAuth, async (req, res) => {
+  try {
+    const contributor = await getContributorByUserId(req.user.id);
+    if (!contributor) {
+      return res.status(404).json({ error: 'Not registered as a contributor.' });
+    }
+
+    const withholdingInfo = getWithholdingRate(contributor);
+    const needs1099Flag   = needs1099(contributor);
+    const w8benExpiry     = contributor.is_us_person === false ? checkW8BENExpiry(contributor) : null;
+
+    return res.json({
+      form_status:       contributor.tax_form_status || 'not_submitted',
+      is_us_person:      contributor.is_us_person,
+      tax_country:       contributor.tax_country,
+      withholding_rate:  withholdingInfo.rate,
+      withholding_reason: withholdingInfo.reason,
+      needs_1099:        needs1099Flag,
+      ytd_payout_cents:  contributor.ytd_payout_cents || 0,
+      required_action:   withholdingInfo.requiresAction || null,
+      w8ben_expiry:      w8benExpiry
+    });
+  } catch (err) {
+    console.error('[contributors] tax status error:', err);
+    return res.status(500).json({ error: 'Failed to fetch tax status.' });
+  }
+});
+
+// ─── GET /api/contributors/tax/summary/:year (admin only) ────────────────────
+// Year-end tax summary for 1099 / FATCA reporting.
+
+router.get('/tax/summary/:year', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const year = parseInt(req.params.year, 10);
+    if (!year || year < 2020 || year > 2100) {
+      return res.status(400).json({ error: 'Invalid tax year.' });
+    }
+
+    const pool = require('../db/index');
+    const { rows } = await pool.query(
+      `SELECT
+         c.id, c.github_login, c.legal_name, c.is_us_person, c.tax_country,
+         c.tax_form_status, c.withholding_rate, c.needs_1099, c.ytd_payout_cents,
+         cts.total_paid_cents, cts.total_withheld_cents, cts.form_type,
+         cts.reported_to_irs, cts.reported_at
+       FROM contributors c
+       LEFT JOIN contributor_tax_summaries cts
+         ON cts.contributor_id = c.id AND cts.tax_year = $1
+       WHERE c.ytd_payout_cents > 0
+          OR cts.total_paid_cents > 0
+       ORDER BY COALESCE(cts.total_paid_cents, 0) DESC`,
+      [year]
+    );
+
+    // Flag contributors needing 1099 or FATCA attention
+    const annotated = rows.map(r => ({
+      ...r,
+      needs_1099:   !!(r.is_us_person && (r.total_paid_cents || 0) >= 60000),
+      fatca_flag:   !r.is_us_person && (r.total_paid_cents || 0) >= 5000000
+    }));
+
+    const summary = {
+      tax_year:          year,
+      total_contributors: rows.length,
+      total_paid_cents:   rows.reduce((s, r) => s + Number(r.total_paid_cents || 0), 0),
+      total_withheld_cents: rows.reduce((s, r) => s + Number(r.total_withheld_cents || 0), 0),
+      need_1099_count:    annotated.filter(r => r.needs_1099).length,
+      fatca_count:        annotated.filter(r => r.fatca_flag).length,
+      contributors:       annotated
+    };
+
+    return res.json(summary);
+  } catch (err) {
+    console.error('[contributors] tax summary error:', err);
+    return res.status(500).json({ error: 'Failed to fetch tax summary.' });
+  }
+});
+
+// ─── POST /api/contributors/tax/verify/:contributorId (admin only) ────────────
+// Mark a contributor's tax form as verified and recalculate withholding.
+
+router.post('/tax/verify/:contributorId', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const contributorId = parseInt(req.params.contributorId, 10);
+    const contributor = await getContributorById(contributorId);
+    if (!contributor) {
+      return res.status(404).json({ error: 'Contributor not found.' });
+    }
+
+    const pool = require('../db/index');
+
+    // Update the latest pending tax form to verified
+    await pool.query(
+      `UPDATE contributor_tax_forms SET
+         status       = 'verified',
+         verified_at  = NOW(),
+         verified_by  = $1
+       WHERE contributor_id = $2
+         AND status = 'pending'
+         AND id = (
+           SELECT id FROM contributor_tax_forms
+           WHERE contributor_id = $2 AND status = 'pending'
+           ORDER BY submitted_at DESC
+           LIMIT 1
+         )`,
+      [req.user.id, contributorId]
+    );
+
+    // Compute new withholding rate
+    const verifiedContributor = { ...contributor, tax_form_status: 'verified' };
+    const withholdingInfo = getWithholdingRate(verifiedContributor);
+
+    // Update contributor record
+    await pool.query(
+      `UPDATE contributors SET
+         tax_form_status  = 'verified',
+         withholding_rate = $1,
+         updated_at       = NOW()
+       WHERE id = $2`,
+      [withholdingInfo.rate, contributorId]
+    );
+
+    // Notification placeholder — replace with email service when available
+    console.log(`[contributors] Tax form verified for contributor ${contributorId} by admin ${req.user.id}. New withholding rate: ${withholdingInfo.rate}`);
+
+    return res.json({
+      verified: true,
+      contributor_id: contributorId,
+      new_withholding_rate: withholdingInfo.rate,
+      withholding_reason: withholdingInfo.reason
+    });
+  } catch (err) {
+    console.error('[contributors] tax verify error:', err);
+    return res.status(500).json({ error: 'Failed to verify tax form.' });
   }
 });
 
