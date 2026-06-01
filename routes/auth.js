@@ -235,6 +235,15 @@ router.post('/init', async (req, res) => {
     if (!user) {
       user = await createAnonymousUser(session_uuid);
     }
+    // Set httpOnly cookie for server-side session persistence.
+    // The frontend JS reads the JSON token; the cookie ensures subsequent
+    // server-side requests are recognised without the X-Session-UUID header.
+    res.cookie('session_uuid', user.session_uuid, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    });
     res.json({ user_id: user.id, session_uuid: user.session_uuid });
   } catch (err) {
     console.error('[auth] POST /init error:', err.message);

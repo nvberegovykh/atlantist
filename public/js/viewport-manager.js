@@ -673,6 +673,7 @@ function _makePane(pane, index) {
   // WebGL canvas
   const canvas = document.createElement('canvas');
   canvas.id = `vp-canvas-${pane.id}`;
+  canvas.className = 'vp-canvas'; // ensures CSS width/height 100% + absolute position
   wrap.appendChild(canvas);
 
   // Loading spinner — injected into pane wrap

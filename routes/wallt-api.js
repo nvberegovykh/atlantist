@@ -43,6 +43,7 @@ const QUERY_TIMEOUT_MS = 15_000;  // P99 hard cap for project-query
 const CORS_ALLOWED = [
   'https://atlantist.cloud',
   'https://www.atlantist.cloud',
+  'https://wallt-scanner-production.up.railway.app', // Wallt external scanner on Railway
   // GitHub Actions IP ranges (approximate — update as needed)
   'https://github.com',
 ];
@@ -51,13 +52,25 @@ function corsAllow(req, res, next) {
   if (!origin) return next();
   if (CORS_ALLOWED.includes(origin)) {
     res.set('Access-Control-Allow-Origin', origin);
+    res.set('Access-Control-Allow-Credentials', 'true');
     res.set('Access-Control-Allow-Headers', 'Authorization, Content-Type, X-Project-Key');
     res.set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.set('Vary', 'Origin');
+    // Handle preflight
+    if (req.method === 'OPTIONS') {
+      res.set('Access-Control-Max-Age', '86400');
+      return res.sendStatus(204);
+    }
   }
   next();
 }
 
 // ── Rate limiter (in-memory, per-token) ──────────────────────────────────────
+// NOTE: This in-memory Map is intentionally scoped to this process.
+// Under multi-instance deployments (e.g. Render horizontal scale), each instance
+// tracks its own window independently — the effective limit per token is
+// max * N_instances. Acceptable for low-traffic external API; if stricter
+// enforcement is needed, replace with the Redis-backed lib/rate-limit.js pattern.
 const rateLimitStore = new Map();
 function checkRateLimit(token) {
   const key = token || 'anon';

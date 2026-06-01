@@ -109,7 +109,7 @@ app.use((_req, res, next) => { // no-cache HTML pages
 
 // CSP — allow Three.js CDN, Google Fonts, R2 images, inline scripts, and importmap eval
 app.use((_req, res, next) => {
-  res.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://frontend-cdn.perplexity.ai; img-src 'self' data: blob: https://pub-629428d185ca4960a0a73c850d32294b.r2.dev https://*.r2.dev https://*.bimobject.com https://*.grabcad.com https://*.sketchup.com https://*.polantis.com https://*.revitcity.com; connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://unpkg.com https://frontend-cdn.perplexity.ai; worker-src 'self' blob:");
+  res.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://browser.sentry-cdn.com https://js.sentry-cdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://frontend-cdn.perplexity.ai; img-src 'self' data: blob: https://pub-629428d185ca4960a0a73c850d32294b.r2.dev https://*.r2.dev https://*.bimobject.com https://*.grabcad.com https://*.sketchup.com https://*.polantis.com https://*.revitcity.com; connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://unpkg.com https://frontend-cdn.perplexity.ai https://browser.sentry-cdn.com https://js.sentry-cdn.com https://o*.ingest.sentry.io; worker-src 'self' blob:");
   next();
 });
 

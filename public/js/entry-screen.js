@@ -174,8 +174,11 @@ async function _bindEntryScreen() {
     _renderGrid();
   });
 
-  // New Project button
+  // New Project button (header bar)
   document.getElementById('entry-new-project-btn')?.addEventListener('click', _showTypeSelector);
+
+  // New Project button (empty state CTA — wired after render, but also on bind for safety)
+  document.getElementById('entry-empty-new-btn')?.addEventListener('click', _showTypeSelector);
 
   // Type selector close
   document.getElementById('entry-type-backdrop')?.addEventListener('click', _hideTypeSelector);
@@ -283,7 +286,12 @@ function _renderGrid() {
           ? 'Templates coming soon'
           : activeDir === 'archived'
           ? 'No archived projects'
-          : 'No projects yet. Create one above!';
+          : 'No projects yet';
+      }
+      // Wire empty-state CTA button each time grid re-renders
+      const emptyNewBtn = empty.querySelector('#entry-empty-new-btn');
+      if (emptyNewBtn) {
+        emptyNewBtn.onclick = _showTypeSelector;
       }
     }
     return;
