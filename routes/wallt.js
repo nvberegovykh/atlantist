@@ -37,6 +37,11 @@ const {
 const COST_PER_1K_TOKENS_USD = 0.00015;
 
 function getAI() {
+  if (!process.env.OPENAI_API_KEY) {
+    const err = new Error('OPENAI_API_KEY is not configured on this server.');
+    err.code = 'AI_NOT_CONFIGURED';
+    throw err;
+  }
   return new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
     baseURL: process.env.OPENAI_BASE_URL,
@@ -638,6 +643,10 @@ router.post('/chat', optionalAuth, async (req, res) => {
       },
     });
   } catch (err) {
+    if (err.code === 'AI_NOT_CONFIGURED') {
+      console.warn('[wallt] /chat: OPENAI_API_KEY not set — returning 503');
+      return res.status(503).json({ error: 'AI not configured', detail: 'Set OPENAI_API_KEY on the server.' });
+    }
     console.error('[wallt] /chat error:', err.message);
     res.status(500).json({ error: 'AI call failed' });
   }
