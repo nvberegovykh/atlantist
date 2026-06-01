@@ -110,3 +110,23 @@ Points are automatically scored after each merge. View your balance and rank on 
 
 ## Questions
 Open an issue or email support@atlantist.cloud
+
+## Information Security and Confidentiality
+
+By contributing to this repository, you agree to:
+
+- **Not disclose** repository contents, architecture, implementation details, or roadmap to unauthorized parties
+- **Not share** code, queries, or discussions from this repository through any AI assistant, public forum, or external service without explicit approval from the repository owner
+- **Conduct all development discussions** exclusively through:
+  - GitHub Issues and Pull Requests within this repository
+  - Direct private channels designated by @nvberegovykh
+- **Report any suspected data leak** immediately to security@atlantist.cloud
+
+Access to this repository does not grant permission to discuss its contents publicly. Violation of this policy may result in removal of repository access and, where applicable, legal remedies under the Contributor Agreement.
+
+## Security setup (required for contributors)
+Install the pre-commit secret scanner:
+```
+cp scripts/pre-commit-check.js .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+```
+This prevents accidentally committing API keys, SSNs, or other sensitive data.
