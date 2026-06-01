@@ -318,8 +318,10 @@ async function createPayout(data) {
   const { rows } = await pool.query(
     `INSERT INTO contributor_payouts
        (distribution_id, contributor_id, points_snapshot, share_pct,
-        gross_amount_cents, tax_withheld_cents, net_amount_cents, status)
-     VALUES ($1,$2,$3,$4,$5,0,$6,'pending')
+        gross_amount_cents, tax_withheld_cents, net_amount_cents, status,
+        payout_year)
+     VALUES ($1,$2,$3,$4,$5,0,$6,'pending',
+        EXTRACT(YEAR FROM NOW() AT TIME ZONE 'UTC')::SMALLINT)
      RETURNING *`,
     [distribution_id, contributor_id, points_snapshot, share_pct,
      gross_amount_cents, net_amount_cents]

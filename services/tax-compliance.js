@@ -42,6 +42,14 @@ if (_core) {
       exp.setFullYear(exp.getFullYear() + 3);
       return new Date() > exp;
     },
+    // Alias used by routes/contributors.js
+    checkW8BENExpiry(c) {
+      if (!c.w8ben_signed_at) return { expired: true, expires_at: null };
+      const exp = new Date(c.w8ben_signed_at);
+      exp.setFullYear(exp.getFullYear() + 3);
+      const expired = new Date() > exp;
+      return { expired, expires_at: exp.toISOString() };
+    },
     getStateFlag() { return null; },
   };
 }

@@ -52,10 +52,20 @@ module.exports = {
     `);
 
     // ── 3. contributor_payouts: track calendar year for 1099 resets ──────────
+    // NOTE: We use a plain SMALLINT (not GENERATED ALWAYS AS) because PostgreSQL
+    // requires generated-column expressions to be IMMUTABLE. EXTRACT(YEAR FROM
+    // timestamptz) depends on session timezone → volatile → rejected by PG.
+    // The application (db/contributors.js createPayout) sets this at insert time.
     await pool.query(`
       ALTER TABLE contributor_payouts
-        ADD COLUMN IF NOT EXISTS payout_year SMALLINT GENERATED ALWAYS AS
-          (EXTRACT(YEAR FROM created_at)::SMALLINT) STORED
+        ADD COLUMN IF NOT EXISTS payout_year SMALLINT
+    `);
+
+    // Back-fill any existing rows that have a NULL payout_year
+    await pool.query(`
+      UPDATE contributor_payouts
+         SET payout_year = EXTRACT(YEAR FROM created_at AT TIME ZONE 'UTC')::SMALLINT
+       WHERE payout_year IS NULL
     `);
 
     await pool.query(`
