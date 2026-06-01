@@ -113,7 +113,7 @@ app.use((_req, res, next) => { // no-cache HTML pages
 
 // CSP — allow Three.js CDN, Google Fonts, R2 images, inline scripts, and importmap eval
 app.use((_req, res, next) => {
-  res.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://browser.sentry-cdn.com https://js.sentry-cdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://frontend-cdn.perplexity.ai; img-src 'self' data: blob: https://pub-629428d185ca4960a0a73c850d32294b.r2.dev https://*.r2.dev https://*.bimobject.com https://*.grabcad.com https://*.sketchup.com https://*.polantis.com https://*.revitcity.com; connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://unpkg.com https://frontend-cdn.perplexity.ai https://browser.sentry-cdn.com https://js.sentry-cdn.com https://o*.ingest.sentry.io; worker-src 'self' blob:");
+  res.set('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://browser.sentry-cdn.com https://js.sentry-cdn.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://frontend-cdn.perplexity.ai; img-src 'self' data: blob: https://pub-629428d185ca4960a0a73c850d32294b.r2.dev https://*.r2.dev https://*.bimobject.com https://*.grabcad.com https://*.sketchup.com https://*.polantis.com https://*.revitcity.com; connect-src 'self' ws: wss: https://cdn.jsdelivr.net https://unpkg.com https://frontend-cdn.perplexity.ai https://browser.sentry-cdn.com https://js.sentry-cdn.com https://o4507.ingest.sentry.io https://o4508.ingest.sentry.io https://o4509.ingest.sentry.io https://o4510.ingest.sentry.io https://o4511.ingest.sentry.io https://o4512.ingest.sentry.io https://sentry.io; worker-src 'self' blob:");
   next();
 });
 
@@ -185,6 +185,28 @@ app.use(require('./routes/status'));
 
 // Legal pages + shortcut aliases + docs + subscribe acknowledge
 app.use(require('./routes/static-pages'));
+
+// ─── R2 image proxy — avoids browser CORS blocks on direct R2 URLs ─────────
+// Images from pub-629428d185ca4960a0a73c850d32294b.r2.dev lack CORS headers.
+// Frontend should use /api/r2-proxy?key=<path> instead of direct R2 URLs.
+app.get('/api/r2-proxy', async (req, res) => {
+  const key = req.query.key;
+  if (!key || typeof key !== 'string' || key.includes('..')) {
+    return res.status(400).json({ error: 'key required' });
+  }
+  const R2_BASE = process.env.POLSIA_R2_BASE_URL || 'https://pub-629428d185ca4960a0a73c850d32294b.r2.dev';
+  try {
+    const upstream = await fetch(`${R2_BASE}/${encodeURIComponent(key)}`);
+    if (!upstream.ok) return res.status(upstream.status).end();
+    const ct = upstream.headers.get('content-type') || 'application/octet-stream';
+    res.set('Content-Type', ct);
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.set('Access-Control-Allow-Origin', '*');
+    upstream.body.pipe(res);
+  } catch (e) {
+    res.status(502).json({ error: 'R2 proxy error', detail: e.message });
+  }
+});
 
 // ─── API routes ─────────────────────────────────────────────────────────────
 // WHY: Surrogate-Control + no-store prevents Cloudflare CDN from caching API

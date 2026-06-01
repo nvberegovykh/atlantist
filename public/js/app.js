@@ -11236,7 +11236,10 @@ const renderState = {
 };
 
 // ─── Import FBXExporter ───────────────────────────────────────
-import('https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/exporters/FBXExporter.js')
+// NOTE: FBXExporter is not part of Three.js core — it must be handled
+// gracefully when unavailable. The catch below already handles this.
+// Version pinned to r160 to match the app importmap (was mismatched at r158).
+import('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/exporters/FBXExporter.js')
   .then(m => { window.__FBXExporter = m.FBXExporter; })
   .catch(() => { /* FBX export not available */ });
 
