@@ -1,8 +1,13 @@
 /**
  * Owns: /api/webhooks/* — external webhook ingestion (DOB filing, fire protection, etc.).
  * Does NOT own: Stripe webhooks (routes/billing.js handles those).
+ *
+ * Signature verification: callers must sign the raw JSON body with HMAC-SHA256
+ * using WEBHOOK_SECRET and send the hex digest in X-Webhook-Signature-256.
+ * Falls back to legacy X-Webhook-Secret header check for backward compatibility.
  */
 const router = require('express').Router();
+const crypto = require('crypto');
 const {
   upsertProjectFromFiling,
   logWebhookEvent,
@@ -13,14 +18,46 @@ const {
 
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || 'test-webhook-secret';
 
-async function verifyWebhook(req) {
+/**
+ * Verify webhook authenticity.
+ * Prefers X-Webhook-Signature-256 (HMAC-SHA256 of raw body).
+ * Falls back to legacy X-Webhook-Secret plaintext header.
+ * Uses timing-safe comparison to prevent timing attacks.
+ */
+function verifyWebhook(req) {
+  const sigHeader = req.headers['x-webhook-signature-256'];
+  if (sigHeader) {
+    // rawBody is set by express.raw() — must be Buffer
+    const rawBody = req.rawBody || Buffer.from(JSON.stringify(req.body));
+    const expected = 'sha256=' + crypto
+      .createHmac('sha256', WEBHOOK_SECRET)
+      .update(rawBody)
+      .digest('hex');
+    try {
+      return crypto.timingSafeEqual(
+        Buffer.from(sigHeader),
+        Buffer.from(expected)
+      );
+    } catch {
+      return false;
+    }
+  }
+  // Legacy fallback: plaintext secret header
   const secret = req.headers['x-webhook-secret'];
-  return secret === WEBHOOK_SECRET;
+  if (!secret) return false;
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(secret),
+      Buffer.from(WEBHOOK_SECRET)
+    );
+  } catch {
+    return false;
+  }
 }
 
 router.post('/dob', async (req, res) => {
   try {
-    const valid = await verifyWebhook(req);
+    const valid = verifyWebhook(req);
     if (!valid) return res.status(401).json({ error: 'Invalid webhook secret' });
 
     const { filing } = req.body;
@@ -64,7 +101,7 @@ router.post('/dob', async (req, res) => {
 
 router.post('/fire-protection', async (req, res) => {
   try {
-    const valid = await verifyWebhook(req);
+    const valid = verifyWebhook(req);
     if (!valid) return res.status(401).json({ error: 'Invalid webhook secret' });
 
     const { event, run_id, results, pdf_url } = req.body;
@@ -89,7 +126,7 @@ router.post('/fire-protection', async (req, res) => {
 
 router.post('/geotechnical', async (req, res) => {
   try {
-    const valid = await verifyWebhook(req);
+    const valid = verifyWebhook(req);
     if (!valid) return res.status(401).json({ error: 'Invalid webhook secret' });
 
     const { event, run_id, analysis_type, results } = req.body;

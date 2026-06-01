@@ -79,3 +79,17 @@ Apache License 2.0 — see [LICENSE](./LICENSE). Third-party licenses are listed
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md). All contributors must agree to the DCO (sign-off on commits).
+
+Want to help shape the platform? Visit [atlantist.cloud/contribute](https://atlantist.cloud/contribute) to join the contributor program.
+
+## Community Ownership
+
+Atlantist is built on a community ownership model. Contributors earn points for every merged PR, closed issue, and commit. Points convert to profit shares — the more you contribute, the larger your stake in the platform's success.
+
+**How it works:**
+- Contribute code, fixes, or documentation
+- Earn points automatically after each merge
+- Points accumulate and convert to profit shares at each distribution cycle
+- View your balance and rank on the [contributor leaderboard](https://atlantist.cloud/contribute)
+
+Register at [atlantist.cloud/contribute](https://atlantist.cloud/contribute) to connect your GitHub account, sign the Contributor Agreement, and set up payouts.

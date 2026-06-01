@@ -90,3 +90,23 @@ Be constructive and respectful. We don't tolerate harassment. Violations result 
 ## License
 
 By contributing, you agree your work will be licensed under the Apache License 2.0 (see [LICENSE](./LICENSE)).
+## Contributor Program — Points & Profit Shares
+
+Atlantist is a community-owned BIM platform. Contributors earn points that convert to profit shares.
+
+### Point system
+- Merged PR: 50 points
+- Closed issue (with fix): 20 points
+- Commit to main: 10 points/commit
+- Exceptional contributions: manual bonus (at maintainer discretion)
+
+### How to join the contributor program
+1. Register at https://atlantist.cloud/contribute to connect your GitHub account
+2. Complete identity verification
+3. Sign the Contributor Agreement
+4. Set up Stripe for payouts
+
+Points are automatically scored after each merge. View your balance and rank on the [contributor leaderboard](https://atlantist.cloud/contribute).
+
+## Questions
+Open an issue or email support@atlantist.cloud

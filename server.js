@@ -53,6 +53,10 @@ function requireBimAuth(req, res, next) {
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Trust Render's load balancer so req.ip is the real client IP (not 127.0.0.1).
+// Required for rate limiting to work correctly behind Render's proxy.
+app.set('trust proxy', 1);
+
 // ─── Sentry — init before routes, no-op if SENTRY_DSN unset ─────────────────
 sentry.init(app);
 app.use(sentry.requestHandler());
@@ -113,6 +117,15 @@ app.use((_req, res, next) => {
   next();
 });
 
+// ─── Security headers ────────────────────────────────────────────────────────
+app.use((_req, res, next) => {
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('X-Frame-Options', 'SAMEORIGIN');
+  res.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
 // Health check
 app.get('/health', (_req, res) => res.json({ status: 'healthy' }));
 
@@ -135,6 +148,9 @@ app.get('/pricing', (_req, res) => {
 app.get('/rect', (_req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'rect.html'));
 });
+
+// ─── Contribute page — open source contributor program ──────────────────────
+app.get('/contribute', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'contribute.html')));
 
 // ─── App route — resolves session role, serves SPA ─────────────────────────
 app.get('/app', async (req, res) => {
