@@ -68,7 +68,16 @@ router.post('/', async (req, res) => {
       return res.status(403).json({ error: 'Demo projects are read-only. Fork to create your own copy.' });
     }
 
-    const railing = await createRailing({ ...req.body, project_id: project_id || 1 });
+    const {
+      name, railing_type, height, top_rail_width,
+      baluster_spacing, glass_thickness, side, material, glass_finish,
+    } = req.body;
+    const railing = await createRailing({
+      project_id: project_id || 1,
+      host_stair_id,
+      name, railing_type, height, top_rail_width,
+      baluster_spacing, glass_thickness, side, material, glass_finish,
+    });
     await appendEvent({ entity_type: 'railing', entity_id: railing.id, event_type: 'create', before_data: null, after_data: railing });
     broadcastRailingCreated(railing);
     res.status(201).json(railing);

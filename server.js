@@ -219,7 +219,7 @@ app.use('/api/geotechnical', require('./routes/geotechnical'));
 app.use('/api/guardrails', require('./routes/guardrails'));
 app.use('/api/design-book', require('./routes/design-book'));
 app.use('/api/sheets', require('./routes/sheets'));
-app.use('/api/ads', require('./routes/ads'));
+app.use('/api/ads', requireBimAuth, require('./routes/ads'));
 app.use('/api/billing', require('./routes/billing'));
 app.use('/api/client-errors', require('./routes/client-errors'));
 app.use('/api/cost', require('./routes/cost-ledger'));

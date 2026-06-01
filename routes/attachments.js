@@ -42,7 +42,10 @@ router.put('/module/:projectId', async (req, res) => {
         locked_value: existing.M_value,
       });
     }
-    const mp = await attachmentDB.moduleProjects.upsert({ project_id: projectId, ...req.body });
+    const { system_name, system_label, M_value, M_raw_input, is_locked, is_nyc, show_multiples } = req.body;
+    const mp = await attachmentDB.moduleProjects.upsert({
+      project_id: projectId, system_name, system_label, M_value, M_raw_input, is_locked, is_nyc, show_multiples
+    });
     const derived = moduleSystem.getModuleDerived(mp.M_value, { name: mp.system_name, M_input: mp.M_value, label: mp.system_label });
     res.json({ module_project: mp, derived });
   } catch (err) {

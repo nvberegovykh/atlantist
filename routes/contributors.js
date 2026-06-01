@@ -4,11 +4,7 @@
  *       and profit distribution runs.
  *
  * Does NOT own: billing subscriptions (see routes/billing.js).
- *
- * Stripe master account: acct_1QObHbJfDJuPadAF (Liber Creative LLC)
- * Products:
- *   Wallt AI Development Fund:        prod_UcdPcDTajwsJ16
- *   Atlantist Contributor Payout Pool: prod_UcdPtje9qCXKvi
+ * Stripe account details and product IDs are managed in @atlantist/core (private).
  */
 'use strict';
 
@@ -38,12 +34,13 @@ const {
   checkAndFlagTaxThresholds
 } = require('../db/contributors');
 
+const stripeDist = require('../services/stripe-distribution');
 const {
   calculateDistribution,
   payoutContributor,
   createConnectAccount,
   createOnboardingLink
-} = require('../services/stripe-distribution');
+} = stripeDist;
 
 const { encrypt } = require('../lib/encrypt');
 const { canonicalUrl } = require('../lib/canonical-url');
@@ -297,10 +294,8 @@ router.get('/stripe/callback', requireAuth, async (req, res) => {
       return res.redirect(canonicalUrl('/app?stripe=error'));
     }
 
-    // Lazily import Stripe here to reuse the live-mode key
-    const Stripe    = require('stripe');
-    const stripe    = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-04-10' });
-    const account   = await stripe.accounts.retrieve(contributor.stripe_account_id);
+    // Delegate account retrieval to stripe-distribution stub/core — no direct Stripe init here
+    const account   = await stripeDist.retrieveAccount(contributor.stripe_account_id);
     const newStatus = account.details_submitted ? 'active' : 'pending';
 
     const dbPool = require('../db/index');
@@ -471,7 +466,7 @@ router.post('/distributions/run', requireAuth, requireAdmin, async (req, res) =>
 
   try {
     // ── Step 1: Calculate net profit + split ─────────────────────────────────
-    const { estimateStripeFees } = require('../services/stripe-distribution');
+    const { estimateStripeFees } = stripeDist;
     const stripeFeeCents = manualStripeFeeCents != null
       ? manualStripeFeeCents
       : estimateStripeFees(gross_revenue_cents);
@@ -607,7 +602,7 @@ router.post('/distributions/run', requireAuth, requireAdmin, async (req, res) =>
       payouts:               payoutSummary,
       tax_flagged_count:     flagged.length,
       note: walltFund > 0
-        ? `Wallt AI Development Fund reserve: $${(walltFund / 100).toFixed(2)} stays in Liber Creative LLC Stripe account (acct_1QObHbJfDJuPadAF).`
+        ? `Wallt AI Development Fund reserve: $${(walltFund / 100).toFixed(2)} stays in the platform Stripe account.`
         : undefined
     });
   } catch (err) {

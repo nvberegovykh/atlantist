@@ -67,3 +67,18 @@ shell-snapshots/
 statsig/
 todos/
 *.jsonl
+
+# Private package — never commit
+node_modules/@atlantist/
+# Env files — never commit
+.env
+.env.*
+!.env.example
+# Tax form data — should never be in files
+*.w9
+*.w8ben
+tax-data/
+# Logs that might contain PII
+logs/
+*.log
+npm-debug.log*

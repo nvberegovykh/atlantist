@@ -10,6 +10,8 @@ const { upsertLead } = require('../db/leads');
 const { createMagicToken, getMagicTokenData, consumeMagicToken } = require('../db/magic-tokens');
 const { getUserRole } = require('../db/roles');
 const { canonicalUrl } = require('../lib/canonical-url');
+const { rateLimit: _rateLimit } = require('../lib/rate-limit');
+const _verifyStep1Limit = _rateLimit({ max: 10, windowSec: 60, keyPrefix: 'rl:verify-step1' });
 
 // ─── Email sending via Polsia proxy ──────────────────────────────────────────
 
@@ -197,7 +199,8 @@ router.get('/me', authMiddleware, async (req, res) => {
 // The token is consumed in complete-signup when the user actually signs up.
 // This allows verify-step1 to be called after the user clicks the magic link
 // (which marks the token as used), while still allowing complete-signup to work.
-router.post('/verify-step1', async (req, res) => {
+// Rate-limited: 10 req/min per IP (stricter than mount-level authRateLimit).
+router.post('/verify-step1', _verifyStep1Limit, async (req, res) => {
   try {
     const { token } = req.body;
     if (!token) {

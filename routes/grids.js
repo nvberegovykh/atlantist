@@ -107,7 +107,8 @@ router.delete('/:id', async (req, res) => {
 router.post('/:id/lines', async (req, res) => {
   try {
     const { createGridLine } = require('../db/grids');
-    const line = await createGridLine({ grid_id: req.params.id, ...req.body });
+    const { axis, label, coordinate, bubble_end_a, bubble_end_b } = req.body;
+    const line = await createGridLine({ grid_id: req.params.id, axis, label, coordinate, bubble_end_a, bubble_end_b });
     broadcast({ type: 'grid_line.created', data: line });
     res.status(201).json(line);
   } catch (err) {
