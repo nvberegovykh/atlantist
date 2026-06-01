@@ -229,8 +229,8 @@
   </div>
 
   <!-- New project type selector modal -->
-  <div id="entry-type-backdrop" class="hidden" style="position:fixed;inset:0;z-index:var(--z-entry-backdrop,8100);background:rgba(0,0,0,0.6)"></div>
-  <div id="entry-type-modal" class="hidden" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:var(--z-entry-modal,8200);background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px;min-width:360px;max-width:480px">
+  <div id="entry-type-backdrop" class="hidden" style="display:none;position:fixed;inset:0;z-index:var(--z-entry-backdrop,8100);background:rgba(0,0,0,0.6)"></div>
+  <div id="entry-type-modal" class="hidden" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:var(--z-entry-modal,8200);background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px;min-width:360px;max-width:480px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
       <div style="font-size:17px;font-weight:700;color:#e2e8f0">New Project</div>
       <button id="entry-type-close" style="background:transparent;border:none;color:#8898b0;cursor:pointer;font-size:20px;line-height:1">×</button>
@@ -265,14 +265,14 @@
   </div>
 
   <!-- Project name modal -->
-  <div id="entry-name-backdrop" class="hidden" style="position:fixed;inset:0;z-index:var(--z-entry-name-backdrop,8300);background:rgba(0,0,0,0.6)"></div>
-  <div id="entry-name-modal" class="hidden" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:var(--z-entry-name-modal,8400);background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px;min-width:340px;max-width:440px">
+  <div id="entry-name-backdrop" class="hidden" style="display:none;position:fixed;inset:0;z-index:var(--z-entry-name-backdrop,8300);background:rgba(0,0,0,0.6)"></div>
+  <div id="entry-name-modal" class="hidden" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:var(--z-entry-name-modal,8400);background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:28px;min-width:340px;max-width:440px">
     <div style="font-size:17px;font-weight:700;color:#e2e8f0;margin-bottom:6px">Name your project</div>
     <div id="entry-name-type-label" style="font-size:12px;color:#8898b0;margin-bottom:18px"></div>
     <input id="entry-name-input" type="text" placeholder="e.g. 250 Midwood — Phase 1"
       style="width:100%;padding:10px 12px;background:#111118;border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e2e8f0;font-size:14px;outline:none;box-sizing:border-box;margin-bottom:16px" />
     <div style="display:flex;gap:10px">
-      <button id="entry-name-cancel" onclick="document.getElementById('entry-name-modal').classList.add('hidden');document.getElementById('entry-name-backdrop').classList.add('hidden')" style="flex:1;padding:10px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:transparent;color:#8898b0;cursor:pointer;font-size:14px">Cancel</button>
+      <button id="entry-name-cancel" onclick="var _m=document.getElementById('entry-name-modal'),_b=document.getElementById('entry-name-backdrop');if(_m){_m.classList.add('hidden');_m.style.display='none';}if(_b){_b.classList.add('hidden');_b.style.display='none';}" style="flex:1;padding:10px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:transparent;color:#8898b0;cursor:pointer;font-size:14px">Cancel</button>
       <button id="entry-name-submit" style="flex:2;padding:10px;border:none;border-radius:8px;background:#3479c4;color:#fff;cursor:pointer;font-size:14px;font-weight:600">Create Project →</button>
     </div>
   </div>

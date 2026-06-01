@@ -443,13 +443,17 @@ async function _handleMenuAction(action, projectId) {
 }
 
 function _showTypeSelector() {
-  document.getElementById('entry-type-backdrop')?.classList.remove('hidden');
-  document.getElementById('entry-type-modal')?.classList.remove('hidden');
+  const bd = document.getElementById('entry-type-backdrop');
+  const md = document.getElementById('entry-type-modal');
+  if (bd) { bd.classList.remove('hidden'); bd.style.display = ''; }
+  if (md) { md.classList.remove('hidden'); md.style.display = ''; }
 }
 
 function _hideTypeSelector() {
-  document.getElementById('entry-type-backdrop')?.classList.add('hidden');
-  document.getElementById('entry-type-modal')?.classList.add('hidden');
+  const bd = document.getElementById('entry-type-backdrop');
+  const md = document.getElementById('entry-type-modal');
+  if (bd) { bd.classList.add('hidden'); bd.style.display = 'none'; }
+  if (md) { md.classList.add('hidden'); md.style.display = 'none'; }
   const nameInput = document.getElementById('entry-name-input');
   if (nameInput) nameInput.value = '';
   else console.warn('[entry-screen] _hideTypeSelector: #entry-name-input not found on this page');
@@ -463,14 +467,16 @@ function _selectProjectType(typeId) {
   const typeLabel = document.getElementById('entry-name-type-label');
   if (typeLabel) typeLabel.textContent = typeId;
 
-  modal?.classList.remove('hidden');
-  backdrop?.classList.remove('hidden');
+  if (modal) { modal.classList.remove('hidden'); modal.style.display = ''; }
+  if (backdrop) { backdrop.classList.remove('hidden'); backdrop.style.display = ''; }
   setTimeout(() => document.getElementById('entry-name-input')?.focus(), 100);
 }
 
 function _hideNameModal() {
-  document.getElementById('entry-name-modal')?.classList.add('hidden');
-  document.getElementById('entry-name-backdrop')?.classList.add('hidden');
+  const md = document.getElementById('entry-name-modal');
+  const bd = document.getElementById('entry-name-backdrop');
+  if (md) { md.classList.add('hidden'); md.style.display = 'none'; }
+  if (bd) { bd.classList.add('hidden'); bd.style.display = 'none'; }
 }
 
 async function _submitNewProject() {
