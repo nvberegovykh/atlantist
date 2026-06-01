@@ -25,7 +25,7 @@
 'use strict';
 
 module.exports = {
-  name: '1748810000000_contributor_system_v2',
+  name: '1748820000000_contributor_system_v2',
 
   async up(pool) {
     // ── 1. profit_distributions: new split columns ────────────────────────────
