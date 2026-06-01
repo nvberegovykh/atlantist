@@ -1,14 +1,21 @@
 /**
  * Owns: /api/contributors/* — GitHub OAuth, points, Stripe Connect,
- *       contributor contract, leaderboard, and admin point awarding.
+ *       contributor contract, leaderboard, admin point awarding,
+ *       and profit distribution runs.
+ *
  * Does NOT own: billing subscriptions (see routes/billing.js).
+ *
+ * Stripe master account: acct_1QObHbJfDJuPadAF (Liber Creative LLC)
+ * Products:
+ *   Wallt AI Development Fund:        prod_UcdPcDTajwsJ16
+ *   Atlantist Contributor Payout Pool: prod_UcdPtje9qCXKvi
  */
 'use strict';
 
 const express = require('express');
-const router = express.Router();
-const crypto = require('crypto');
-const https = require('https');
+const router  = express.Router();
+const crypto  = require('crypto');
+const https   = require('https');
 
 const { authMiddleware } = require('./auth');
 const {
@@ -20,34 +27,38 @@ const {
   getTotalPoints,
   getContributorRank,
   getTotalContributors,
-  getContributorById
+  getContributorById,
+  // Distribution
+  getApprovedContributorsWithStripe,
+  createDistribution,
+  updateDistributionStatus,
+  createPayout,
+  completePayout,
+  failPayout,
+  checkAndFlagTaxThresholds
 } = require('../db/contributors');
+
+const {
+  calculateDistribution,
+  payoutContributor,
+  createConnectAccount,
+  createOnboardingLink
+} = require('../services/stripe-distribution');
+
 const { encrypt } = require('../lib/encrypt');
 const { canonicalUrl } = require('../lib/canonical-url');
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const GITHUB_CLIENT_ID      = process.env.GITHUB_CLIENT_ID;
-const GITHUB_CLIENT_SECRET  = process.env.GITHUB_CLIENT_SECRET;
-const STRIPE_SECRET_KEY     = process.env.STRIPE_SECRET_KEY;
+const GITHUB_CLIENT_ID     = process.env.GITHUB_CLIENT_ID;
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET;
 
-const GITHUB_OAUTH_SCOPES   = 'read:user,user:email,public_repo';
-const GITHUB_REDIRECT_URI   = canonicalUrl('/api/contributors/github/callback');
-const STRIPE_REDIRECT_URI   = canonicalUrl('/api/contributors/stripe/callback');
-const CONTRACT_VERSION      = '1.0';
-
-// Lazy Stripe loader — same pattern as billing.js
-function getStripe() {
-  if (!STRIPE_SECRET_KEY) {
-    throw new Error('STRIPE_SECRET_KEY is not configured.');
-  }
-  const Stripe = require('stripe');
-  return new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2024-04-10' });
-}
+const GITHUB_OAUTH_SCOPES  = 'read:user,user:email,public_repo';
+const GITHUB_REDIRECT_URI  = canonicalUrl('/api/contributors/github/callback');
+const CONTRACT_VERSION     = '1.0';
 
 // ─── Shared auth middleware ───────────────────────────────────────────────────
 
-// Require a logged-in app_users session
 function requireAuth(req, res, next) {
   authMiddleware(req, res, () => {
     if (!req.user) return res.status(401).json({ error: 'Authentication required' });
@@ -55,7 +66,6 @@ function requireAuth(req, res, next) {
   });
 }
 
-// Require admin role
 function requireAdmin(req, res, next) {
   if (req.user?.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access required' });
@@ -63,120 +73,113 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-// ─── Tiny JSON-over-HTTPS helper (avoids adding axios) ───────────────────────
+// ─── Tiny JSON-over-HTTPS helpers ────────────────────────────────────────────
 
 function httpsGet(url, headers = {}) {
   return new Promise((resolve, reject) => {
     const parsed = new URL(url);
-    const options = {
-      hostname: parsed.hostname,
-      path: parsed.pathname + parsed.search,
-      headers: { 'User-Agent': 'Atlantist/1.0', ...headers }
-    };
-    https.get(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch (e) { reject(new Error('JSON parse error: ' + data.slice(0, 200))); }
-      });
-    }).on('error', reject);
+    https.get(
+      { hostname: parsed.hostname, path: parsed.pathname + parsed.search,
+        headers: { 'User-Agent': 'Atlantist/1.0', ...headers } },
+      (res) => {
+        let data = '';
+        res.on('data', (chunk) => { data += chunk; });
+        res.on('end', () => {
+          try { resolve(JSON.parse(data)); }
+          catch (e) { reject(new Error('JSON parse error: ' + data.slice(0, 200))); }
+        });
+      }
+    ).on('error', reject);
   });
 }
 
 function httpsPost(url, body, headers = {}) {
   return new Promise((resolve, reject) => {
-    const parsed = new URL(url);
+    const parsed  = new URL(url);
     const payload = JSON.stringify(body);
-    const options = {
-      hostname: parsed.hostname,
-      path: parsed.pathname + parsed.search,
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(payload),
-        'Accept': 'application/json',
-        'User-Agent': 'Atlantist/1.0',
-        ...headers
+    const req = https.request(
+      {
+        hostname: parsed.hostname,
+        path:     parsed.pathname + parsed.search,
+        method:   'POST',
+        headers: {
+          'Content-Type':   'application/json',
+          'Content-Length': Buffer.byteLength(payload),
+          'Accept':         'application/json',
+          'User-Agent':     'Atlantist/1.0',
+          ...headers
+        }
+      },
+      (res) => {
+        let data = '';
+        res.on('data', (chunk) => { data += chunk; });
+        res.on('end', () => {
+          try { resolve(JSON.parse(data)); }
+          catch (e) { reject(new Error('JSON parse error: ' + data.slice(0, 200))); }
+        });
       }
-    };
-    const req = https.request(options, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch (e) { reject(new Error('JSON parse error: ' + data.slice(0, 200))); }
-      });
-    });
+    );
     req.on('error', reject);
     req.write(payload);
     req.end();
   });
 }
 
-// ─── POST /api/contributors/github/connect ────────────────────────────────────
-// Redirect user to GitHub OAuth authorization page.
+// ─── GET /api/contributors/github/connect ─────────────────────────────────────
+// Redirect user to GitHub OAuth. Sets CSRF state cookie.
 
 router.get('/github/connect', requireAuth, (req, res) => {
   if (!GITHUB_CLIENT_ID) {
     return res.status(503).json({ error: 'GitHub OAuth is not configured (GITHUB_CLIENT_ID missing).' });
   }
 
-  // CSRF state: random token stored in session
   const state = crypto.randomBytes(16).toString('hex');
-  // Store state in a signed cookie (session-level; expires when browser closes)
-  res.cookie('gh_oauth_state', state, { httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+  res.cookie('gh_oauth_state', state, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'
+  });
 
   const params = new URLSearchParams({
-    client_id: GITHUB_CLIENT_ID,
+    client_id:    GITHUB_CLIENT_ID,
     redirect_uri: GITHUB_REDIRECT_URI,
-    scope: GITHUB_OAUTH_SCOPES,
+    scope:        GITHUB_OAUTH_SCOPES,
     state
   });
 
   res.redirect(`https://github.com/login/oauth/authorize?${params.toString()}`);
 });
 
-// ─── GET /api/contributors/github/callback ───────────────────────────────────
-// Exchange OAuth code for token, fetch GitHub profile, upsert contributor.
+// ─── GET /api/contributors/github/callback ────────────────────────────────────
+// Exchange OAuth code → token, fetch GitHub profile, upsert contributor.
 
 router.get('/github/callback', requireAuth, async (req, res) => {
   try {
     const { code, state } = req.query;
 
-    // CSRF check
     const storedState = req.cookies?.gh_oauth_state;
     if (!state || state !== storedState) {
       return res.status(400).json({ error: 'Invalid OAuth state — possible CSRF attempt.' });
     }
     res.clearCookie('gh_oauth_state');
 
-    if (!code) {
-      return res.status(400).json({ error: 'Missing code parameter.' });
-    }
+    if (!code) return res.status(400).json({ error: 'Missing code parameter.' });
 
-    // Exchange code for access token
-    const tokenResponse = await httpsPost(
-      'https://github.com/login/oauth/access_token',
-      {
-        client_id: GITHUB_CLIENT_ID,
-        client_secret: GITHUB_CLIENT_SECRET,
-        code,
-        redirect_uri: GITHUB_REDIRECT_URI
-      }
-    );
+    const tokenResponse = await httpsPost('https://github.com/login/oauth/access_token', {
+      client_id:     GITHUB_CLIENT_ID,
+      client_secret: GITHUB_CLIENT_SECRET,
+      code,
+      redirect_uri:  GITHUB_REDIRECT_URI
+    });
 
     if (tokenResponse.error) {
-      console.error('[contributors] GitHub OAuth token exchange failed:', tokenResponse);
+      console.error('[contributors] GitHub token exchange failed:', tokenResponse);
       return res.status(400).json({ error: tokenResponse.error_description || tokenResponse.error });
     }
 
     const accessToken = tokenResponse.access_token;
-    if (!accessToken) {
-      return res.status(400).json({ error: 'No access token returned from GitHub.' });
-    }
+    if (!accessToken) return res.status(400).json({ error: 'No access token returned from GitHub.' });
 
-    // Fetch GitHub user profile
     const ghUser = await httpsGet('https://api.github.com/user', {
       Authorization: `Bearer ${accessToken}`
     });
@@ -185,7 +188,6 @@ router.get('/github/callback', requireAuth, async (req, res) => {
       return res.status(502).json({ error: 'Failed to fetch GitHub user profile.' });
     }
 
-    // Encrypt access token before storing
     let encToken = null;
     if (process.env.ENCRYPTION_KEY) {
       encToken = encrypt(accessToken);
@@ -193,13 +195,12 @@ router.get('/github/callback', requireAuth, async (req, res) => {
       console.warn('[contributors] ENCRYPTION_KEY not set — GitHub token will not be stored.');
     }
 
-    // Upsert contributor record
     await upsertContributor({
-      user_id: req.user.id,
-      github_login: ghUser.login,
-      github_id: ghUser.id,
+      user_id:                 req.user.id,
+      github_login:            ghUser.login,
+      github_id:               ghUser.id,
       github_access_token_enc: encToken,
-      status: 'pending'
+      status:                  'pending'
     });
 
     return res.redirect(canonicalUrl('/app?contributor=connected'));
@@ -210,7 +211,6 @@ router.get('/github/callback', requireAuth, async (req, res) => {
 });
 
 // ─── GET /api/contributors/me ─────────────────────────────────────────────────
-// Return current user's contributor profile + rank.
 
 router.get('/me', requireAuth, async (req, res) => {
   try {
@@ -219,14 +219,13 @@ router.get('/me', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Not registered as a contributor.' });
     }
 
-    // Compute rank (only meaningful for approved contributors)
     let rank = null;
     if (contributor.status === 'approved') {
       rank = await getContributorRank(contributor.id);
     }
 
-    // Strip sensitive fields from response
-    const { github_access_token_enc: _token, ...safe } = contributor;
+    // Strip sensitive fields
+    const { github_access_token_enc: _tok, ...safe } = contributor;
     return res.json({ contributor: safe, rank });
   } catch (err) {
     console.error('[contributors] /me error:', err);
@@ -235,7 +234,7 @@ router.get('/me', requireAuth, async (req, res) => {
 });
 
 // ─── GET /api/contributors/leaderboard ───────────────────────────────────────
-// Public — top 50 contributors by total_points. No PII, no tokens.
+// Public — top 50 by total_points. No PII, no tokens.
 
 router.get('/leaderboard', async (req, res) => {
   try {
@@ -253,42 +252,36 @@ router.get('/leaderboard', async (req, res) => {
 router.post('/stripe/connect', requireAuth, async (req, res) => {
   try {
     const contributor = await getContributorByUserId(req.user.id);
-    if (!contributor) {
-      return res.status(404).json({ error: 'Not registered as a contributor.' });
-    }
+    if (!contributor) return res.status(404).json({ error: 'Not registered as a contributor.' });
     if (contributor.status !== 'approved') {
       return res.status(403).json({ error: 'Only approved contributors can connect Stripe.' });
     }
 
-    const stripe = getStripe();
-
-    // Create or reuse Stripe account
     let accountId = contributor.stripe_account_id;
+
     if (!accountId) {
-      const account = await stripe.accounts.create({
-        type: 'express',
-        email: req.user.email || undefined,
-        metadata: { contributor_id: String(contributor.id), github_login: contributor.github_login }
+      // Use the stripe-distribution service for consistent account creation
+      const account = await createConnectAccount({
+        email:       req.user.email || null,
+        githubLogin: contributor.github_login
       });
       accountId = account.id;
 
-      // Persist the new Stripe account ID
-      const pool = require('../db/index');
-      await pool.query(
-        `UPDATE contributors SET stripe_account_id = $1, stripe_account_status = 'pending', updated_at = NOW() WHERE id = $2`,
+      const dbPool = require('../db/index');
+      await dbPool.query(
+        `UPDATE contributors
+         SET stripe_account_id = $1, stripe_account_status = 'pending', updated_at = NOW()
+         WHERE id = $2`,
         [accountId, contributor.id]
       );
     }
 
-    // Generate onboarding link
-    const accountLink = await stripe.accountLinks.create({
-      account: accountId,
-      refresh_url: canonicalUrl('/api/contributors/stripe/connect'),
-      return_url: STRIPE_REDIRECT_URI,
-      type: 'account_onboarding'
+    const link = await createOnboardingLink({
+      stripeAccountId: accountId,
+      contributorId:   contributor.id
     });
 
-    return res.json({ url: accountLink.url });
+    return res.json({ url: link.url });
   } catch (err) {
     console.error('[contributors] stripe connect error:', err);
     return res.status(500).json({ error: 'Failed to initiate Stripe Connect.' });
@@ -296,7 +289,6 @@ router.post('/stripe/connect', requireAuth, async (req, res) => {
 });
 
 // ─── GET /api/contributors/stripe/callback ────────────────────────────────────
-// Stripe returns user here after onboarding. Check account status.
 
 router.get('/stripe/callback', requireAuth, async (req, res) => {
   try {
@@ -305,12 +297,14 @@ router.get('/stripe/callback', requireAuth, async (req, res) => {
       return res.redirect(canonicalUrl('/app?stripe=error'));
     }
 
-    const stripe = getStripe();
-    const account = await stripe.accounts.retrieve(contributor.stripe_account_id);
+    // Lazily import Stripe here to reuse the live-mode key
+    const Stripe    = require('stripe');
+    const stripe    = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-04-10' });
+    const account   = await stripe.accounts.retrieve(contributor.stripe_account_id);
     const newStatus = account.details_submitted ? 'active' : 'pending';
 
-    const pool = require('../db/index');
-    await pool.query(
+    const dbPool = require('../db/index');
+    await dbPool.query(
       `UPDATE contributors SET stripe_account_status = $1, updated_at = NOW() WHERE id = $2`,
       [newStatus, contributor.id]
     );
@@ -323,11 +317,10 @@ router.get('/stripe/callback', requireAuth, async (req, res) => {
 });
 
 // ─── GET /api/contributors/contract ──────────────────────────────────────────
-// Return the contributor contract (served from public/contributor-contract.html).
 
 router.get('/contract', requireAuth, async (req, res) => {
   const path = require('path');
-  const fs = require('fs');
+  const fs   = require('fs');
   const contractPath = path.join(__dirname, '..', 'public', 'contributor-contract.html');
   if (!fs.existsSync(contractPath)) {
     return res.status(404).json({ error: 'Contract not found.' });
@@ -338,14 +331,11 @@ router.get('/contract', requireAuth, async (req, res) => {
 });
 
 // ─── POST /api/contributors/contract/sign ────────────────────────────────────
-// Record that the authenticated contributor signed the contract.
 
 router.post('/contract/sign', requireAuth, async (req, res) => {
   try {
     const contributor = await getContributorByUserId(req.user.id);
-    if (!contributor) {
-      return res.status(404).json({ error: 'Not registered as a contributor.' });
-    }
+    if (!contributor) return res.status(404).json({ error: 'Not registered as a contributor.' });
     if (contributor.status !== 'approved') {
       return res.status(403).json({ error: 'Only approved contributors can sign the contract.' });
     }
@@ -353,8 +343,8 @@ router.post('/contract/sign', requireAuth, async (req, res) => {
       return res.json({ message: 'Contract already signed.', signed_at: contributor.contract_signed_at });
     }
 
-    const pool = require('../db/index');
-    const { rows } = await pool.query(
+    const dbPool = require('../db/index');
+    const { rows } = await dbPool.query(
       `UPDATE contributors
        SET contract_signed_at = NOW(), contract_version = $1, updated_at = NOW()
        WHERE id = $2
@@ -363,9 +353,9 @@ router.post('/contract/sign', requireAuth, async (req, res) => {
     );
 
     return res.json({
-      message: 'Contract signed successfully.',
-      signed_at: rows[0].contract_signed_at,
-      version: rows[0].contract_version
+      message:    'Contract signed successfully.',
+      signed_at:  rows[0].contract_signed_at,
+      version:    rows[0].contract_version
     });
   } catch (err) {
     console.error('[contributors] contract sign error:', err);
@@ -374,7 +364,6 @@ router.post('/contract/sign', requireAuth, async (req, res) => {
 });
 
 // ─── POST /api/contributors/points/award (admin only) ────────────────────────
-// Manually award or deduct points.
 
 router.post('/points/award', requireAuth, requireAdmin, async (req, res) => {
   try {
@@ -388,13 +377,9 @@ router.post('/points/award', requireAuth, requireAdmin, async (req, res) => {
     }
 
     const target = await getContributorById(contributor_id);
-    if (!target) {
-      return res.status(404).json({ error: 'Contributor not found.' });
-    }
+    if (!target) return res.status(404).json({ error: 'Contributor not found.' });
 
-    // Find the awarding admin's contributor record (if any)
     const adminContributor = await getContributorByUserId(req.user.id);
-
     const ledgerEntry = await awardPoints({
       contributor_id,
       points,
@@ -402,7 +387,7 @@ router.post('/points/award', requireAuth, requireAdmin, async (req, res) => {
       source_type,
       source_ref: source_ref || null,
       awarded_by: adminContributor?.id || null,
-      metadata: { admin_user_id: req.user.id }
+      metadata:   { admin_user_id: req.user.id }
     });
 
     return res.json({ success: true, ledger_entry: ledgerEntry });
@@ -413,7 +398,7 @@ router.post('/points/award', requireAuth, requireAdmin, async (req, res) => {
 });
 
 // ─── GET /api/contributors/stats ─────────────────────────────────────────────
-// Public aggregate stats — no PII.
+// Public aggregate stats.
 
 router.get('/stats', async (req, res) => {
   try {
@@ -422,18 +407,218 @@ router.get('/stats', async (req, res) => {
       getTotalPoints()
     ]);
 
-    // Next distribution: first day of next month (simple heuristic — adjust as needed)
     const now = new Date();
     const nextDistribution = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
     return res.json({
-      total_contributors: totalContributors,
-      total_points: totalPoints,
+      total_contributors:    totalContributors,
+      total_points:          totalPoints,
       next_distribution_date: nextDistribution.toISOString().split('T')[0]
     });
   } catch (err) {
     console.error('[contributors] stats error:', err);
     return res.status(500).json({ error: 'Failed to load stats.' });
+  }
+});
+
+// ─── POST /api/contributors/distributions/run (admin only) ────────────────────
+//
+// Executes a full profit distribution cycle:
+//   1. Receive gross_revenue_cents + operating_costs_cents from admin
+//   2. Estimate Stripe fees (or accept manual stripe_fees_cents override)
+//   3. Calculate net profit, 20% Wallt fund, 80% contributor pool
+//   4. Snapshot total approved points
+//   5. Create profit_distributions record
+//   6. For each approved contributor with stripe_account_status='active':
+//      a. Calculate their share of the 80% pool
+//      b. Create contributor_payouts record
+//      c. Execute Stripe Connect transfer
+//      d. Mark payout completed/failed
+//   7. Run 1099 / tax threshold checks
+//   8. Mark distribution completed
+//   9. Return summary
+
+router.post('/distributions/run', requireAuth, requireAdmin, async (req, res) => {
+  const {
+    period_start,
+    period_end,
+    gross_revenue_cents,
+    operating_costs_cents = 0,
+    stripe_fees_cents: manualStripeFeeCents // optional override; estimated if omitted
+  } = req.body;
+
+  // ── Input validation ──────────────────────────────────────────────────────
+  if (!period_start || !period_end) {
+    return res.status(400).json({ error: 'period_start and period_end are required (YYYY-MM-DD).' });
+  }
+  if (typeof gross_revenue_cents !== 'number' || gross_revenue_cents <= 0) {
+    return res.status(400).json({ error: 'gross_revenue_cents must be a positive integer.' });
+  }
+  if (typeof operating_costs_cents !== 'number' || operating_costs_cents < 0) {
+    return res.status(400).json({ error: 'operating_costs_cents must be >= 0.' });
+  }
+
+  // Validate date strings
+  const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateRe.test(period_start) || !dateRe.test(period_end)) {
+    return res.status(400).json({ error: 'Dates must be in YYYY-MM-DD format.' });
+  }
+  if (period_start >= period_end) {
+    return res.status(400).json({ error: 'period_start must be before period_end.' });
+  }
+
+  let distribution = null;
+
+  try {
+    // ── Step 1: Calculate net profit + split ─────────────────────────────────
+    const { estimateStripeFees } = require('../services/stripe-distribution');
+    const stripeFeeCents = manualStripeFeeCents != null
+      ? manualStripeFeeCents
+      : estimateStripeFees(gross_revenue_cents);
+
+    const { netProfit, walltFund, contributorPool } = await calculateDistribution({
+      grossRevenueCents:    gross_revenue_cents,
+      operatingCostsCents:  operating_costs_cents,
+      stripeFeeCents
+    });
+
+    if (netProfit <= 0) {
+      return res.status(422).json({
+        error: 'Net profit is zero or negative after costs — no distribution to run.',
+        net_profit_cents: netProfit
+      });
+    }
+
+    // ── Step 2: Snapshot approved contributor points ──────────────────────────
+    const contributors = await getApprovedContributorsWithStripe();
+    const totalPointsSnapshot = await getTotalPoints();
+
+    if (totalPointsSnapshot === 0) {
+      return res.status(422).json({ error: 'No contributor points to distribute against.' });
+    }
+
+    // ── Step 3: Create distribution record ───────────────────────────────────
+    distribution = await createDistribution({
+      period_start,
+      period_end,
+      gross_revenue_cents,
+      operating_costs_cents,
+      stripe_fees_cents:     stripeFeeCents,
+      total_profit_cents:    netProfit,
+      wallt_fund_cents:      walltFund,
+      contributor_pool_cents: contributorPool,
+      total_points_snapshot: totalPointsSnapshot
+    });
+
+    await updateDistributionStatus(distribution.id, 'processing');
+
+    console.log(
+      `[distributions] Run ${distribution.id}: net=${netProfit}¢ wallt=${walltFund}¢ pool=${contributorPool}¢ ` +
+      `contributors=${contributors.length} totalPts=${totalPointsSnapshot}`
+    );
+
+    // ── Step 4: Pay each contributor ─────────────────────────────────────────
+    const payoutSummary = [];
+    const paidContributorIds = [];
+
+    for (const contributor of contributors) {
+      if (!contributor.total_points || contributor.total_points <= 0) {
+        console.log(`[distributions] Skipping ${contributor.github_login}: 0 points`);
+        continue;
+      }
+
+      const sharePct  = (contributor.total_points / totalPointsSnapshot) * 100;
+      const grossAmt  = Math.floor(contributorPool * (contributor.total_points / totalPointsSnapshot));
+      const netAmt    = grossAmt; // No automatic withholding — flagged for manual review
+
+      // Create the payout record first (so we have an ID even if transfer fails)
+      const payout = await createPayout({
+        distribution_id:    distribution.id,
+        contributor_id:     contributor.id,
+        points_snapshot:    contributor.total_points,
+        share_pct:          sharePct,
+        gross_amount_cents: grossAmt,
+        net_amount_cents:   netAmt
+      });
+
+      // Attempt Stripe transfer
+      let transferResult;
+      try {
+        transferResult = await payoutContributor({
+          stripeAccountId: contributor.stripe_account_id,
+          amountCents:     netAmt,
+          distributionId:  distribution.id,
+          contributorId:   contributor.id
+        });
+
+        if (transferResult.skipped) {
+          await failPayout(payout.id, transferResult.reason);
+          payoutSummary.push({
+            contributor_id:   contributor.id,
+            github_login:     contributor.github_login,
+            net_amount_cents: netAmt,
+            status:           'skipped',
+            reason:           transferResult.reason
+          });
+        } else {
+          await completePayout(payout.id, transferResult.id, contributor.id, netAmt);
+          paidContributorIds.push(contributor.id);
+          payoutSummary.push({
+            contributor_id:    contributor.id,
+            github_login:      contributor.github_login,
+            net_amount_cents:  netAmt,
+            share_pct:         sharePct.toFixed(4),
+            stripe_transfer_id: transferResult.id,
+            status:            'completed'
+          });
+        }
+      } catch (stripeErr) {
+        console.error(`[distributions] Stripe transfer failed for ${contributor.github_login}:`, stripeErr.message);
+        await failPayout(payout.id, stripeErr.message);
+        payoutSummary.push({
+          contributor_id:   contributor.id,
+          github_login:     contributor.github_login,
+          net_amount_cents: netAmt,
+          status:           'failed',
+          error:            stripeErr.message
+        });
+      }
+    }
+
+    // ── Step 5: Tax threshold checks ─────────────────────────────────────────
+    const flagged = paidContributorIds.length > 0
+      ? await checkAndFlagTaxThresholds(paidContributorIds)
+      : [];
+
+    // ── Step 6: Mark distribution complete ───────────────────────────────────
+    await updateDistributionStatus(distribution.id, 'completed');
+
+    return res.json({
+      distribution_id:       distribution.id,
+      period_start,
+      period_end,
+      gross_revenue_cents,
+      stripe_fees_cents:     stripeFeeCents,
+      operating_costs_cents,
+      net_profit_cents:      netProfit,
+      wallt_fund_cents:      walltFund,
+      contributor_pool_cents: contributorPool,
+      total_points_snapshot: totalPointsSnapshot,
+      payouts:               payoutSummary,
+      tax_flagged_count:     flagged.length,
+      note: walltFund > 0
+        ? `Wallt AI Development Fund reserve: $${(walltFund / 100).toFixed(2)} stays in Liber Creative LLC Stripe account (acct_1QObHbJfDJuPadAF).`
+        : undefined
+    });
+  } catch (err) {
+    console.error('[distributions] Run failed:', err);
+
+    // Attempt to mark distribution as failed if it was created
+    if (distribution?.id) {
+      await updateDistributionStatus(distribution.id, 'failed').catch(() => {});
+    }
+
+    return res.status(500).json({ error: 'Distribution run failed: ' + err.message });
   }
 });
 

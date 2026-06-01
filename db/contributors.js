@@ -1,6 +1,6 @@
 /**
  * Owns: DB helpers for the contributor system tables.
- * Does NOT own: HTTP handling, auth, business logic.
+ * Does NOT own: HTTP handling, auth, business logic, Stripe API calls.
  */
 'use strict';
 
@@ -127,8 +127,8 @@ async function awardPoints(data) {
       [contributor_id, points, reason, source_type, source_ref, awarded_by, JSON.stringify(metadata)]
     );
 
-    // Update running totals atomically
-    // lifetime_points only increases; GREATEST ensures no decrease on deductions
+    // Update running totals atomically.
+    // lifetime_points only increases; GREATEST ensures no decrease on deductions.
     await client.query(
       `UPDATE contributors SET
          total_points    = total_points + $2,
@@ -213,14 +213,244 @@ async function getTotalContributors() {
   return rows[0].count;
 }
 
+// ─── Distribution / payout tracking ─────────────────────────────────────────
+
+/**
+ * Fetch all approved contributors who have an active Stripe account.
+ * Used when executing a profit distribution run.
+ */
+async function getApprovedContributorsWithStripe() {
+  const { rows } = await pool.query(
+    `SELECT id, github_login, stripe_account_id, total_points,
+            needs_1099, tax_form_status, yearly_payout_cents
+     FROM contributors
+     WHERE status = 'approved'
+       AND stripe_account_status = 'active'
+       AND stripe_account_id IS NOT NULL
+     ORDER BY total_points DESC`
+  );
+  return rows;
+}
+
+/**
+ * Create a profit_distributions record.
+ *
+ * @param {object} data
+ * @param {string} data.period_start
+ * @param {string} data.period_end
+ * @param {number} data.gross_revenue_cents
+ * @param {number} data.operating_costs_cents
+ * @param {number} data.stripe_fees_cents
+ * @param {number} data.total_profit_cents       — net profit
+ * @param {number} data.wallt_fund_cents
+ * @param {number} data.contributor_pool_cents
+ * @param {number} data.total_points_snapshot
+ * @returns {object} Row from profit_distributions
+ */
+async function createDistribution(data) {
+  const {
+    period_start,
+    period_end,
+    gross_revenue_cents,
+    operating_costs_cents,
+    stripe_fees_cents,
+    total_profit_cents,
+    wallt_fund_cents,
+    contributor_pool_cents,
+    total_points_snapshot
+  } = data;
+
+  const { rows } = await pool.query(
+    `INSERT INTO profit_distributions
+       (period_start, period_end,
+        total_profit_cents, total_points_snapshot,
+        wallt_fund_cents, contributor_pool_cents,
+        operating_costs_cents, stripe_fees_cents,
+        status, created_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'pending',NOW())
+     RETURNING *`,
+    [
+      period_start, period_end,
+      total_profit_cents, total_points_snapshot,
+      wallt_fund_cents, contributor_pool_cents,
+      operating_costs_cents, stripe_fees_cents
+    ]
+  );
+  return rows[0];
+}
+
+/**
+ * Update distribution status (pending → processing → completed | failed).
+ * @param {number} distributionId
+ * @param {string} status
+ */
+async function updateDistributionStatus(distributionId, status) {
+  await pool.query(
+    `UPDATE profit_distributions
+     SET status = $2, processed_at = CASE WHEN $2 IN ('completed','failed') THEN NOW() ELSE processed_at END
+     WHERE id = $1`,
+    [distributionId, status]
+  );
+}
+
+/**
+ * Create a contributor_payouts row and return it.
+ *
+ * @param {object} data
+ * @param {number} data.distribution_id
+ * @param {number} data.contributor_id
+ * @param {number} data.points_snapshot
+ * @param {number} data.share_pct           — 0-100, up to 6 decimal places
+ * @param {number} data.gross_amount_cents
+ * @param {number} data.net_amount_cents
+ * @returns {object}
+ */
+async function createPayout(data) {
+  const {
+    distribution_id,
+    contributor_id,
+    points_snapshot,
+    share_pct,
+    gross_amount_cents,
+    net_amount_cents
+  } = data;
+
+  const { rows } = await pool.query(
+    `INSERT INTO contributor_payouts
+       (distribution_id, contributor_id, points_snapshot, share_pct,
+        gross_amount_cents, tax_withheld_cents, net_amount_cents, status)
+     VALUES ($1,$2,$3,$4,$5,0,$6,'pending')
+     RETURNING *`,
+    [distribution_id, contributor_id, points_snapshot, share_pct,
+     gross_amount_cents, net_amount_cents]
+  );
+  return rows[0];
+}
+
+/**
+ * Mark a payout as completed and record the Stripe transfer ID.
+ * Also increments the contributor's yearly_payout_cents for 1099 tracking.
+ *
+ * @param {number} payoutId
+ * @param {string} stripeTransferId
+ * @param {number} contributorId
+ * @param {number} netAmountCents
+ */
+async function completePayout(payoutId, stripeTransferId, contributorId, netAmountCents) {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    await client.query(
+      `UPDATE contributor_payouts
+       SET status = 'completed', stripe_transfer_id = $2
+       WHERE id = $1`,
+      [payoutId, stripeTransferId]
+    );
+
+    // Accumulate yearly payout total on the contributor row
+    await client.query(
+      `UPDATE contributors
+       SET yearly_payout_cents = yearly_payout_cents + $2,
+           updated_at = NOW()
+       WHERE id = $1`,
+      [contributorId, netAmountCents]
+    );
+
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Mark a payout as failed (Stripe transfer rejected or below minimum).
+ * @param {number} payoutId
+ * @param {string} reason — short reason string stored in metadata via direct update
+ */
+async function failPayout(payoutId, reason) {
+  await pool.query(
+    `UPDATE contributor_payouts SET status = 'failed' WHERE id = $1`,
+    [payoutId]
+  );
+  console.warn(`[db/contributors] Payout ${payoutId} marked failed: ${reason}`);
+}
+
+/**
+ * Check and flag contributors who hit the US $600/year 1099-NEC threshold,
+ * or who need a W-8BEN (non-US contributors who have received any payment).
+ *
+ * Call after each distribution run completes. This does NOT auto-withhold —
+ * it sets flags for manual review.
+ *
+ * @param {number[]} contributorIds — IDs to check
+ */
+async function checkAndFlagTaxThresholds(contributorIds) {
+  if (!contributorIds.length) return;
+
+  // Flag US contributors at $600+ yearly for 1099-NEC
+  // We don't know country from our data, so we flag anyone above the threshold
+  // and let the admin determine US vs non-US for the appropriate form.
+  const { rows: flagged } = await pool.query(
+    `UPDATE contributors
+     SET needs_1099 = TRUE,
+         tax_form_status = CASE
+           WHEN tax_form_status = 'not_required' THEN 'pending_1099'
+           ELSE tax_form_status
+         END,
+         updated_at = NOW()
+     WHERE id = ANY($1)
+       AND yearly_payout_cents >= 60000  -- $600 in cents
+       AND needs_1099 = FALSE
+     RETURNING id, github_login, yearly_payout_cents`,
+    [contributorIds]
+  );
+
+  for (const row of flagged) {
+    console.warn(
+      `[tax] Contributor ${row.github_login} (id=${row.id}) has received ` +
+      `$${(row.yearly_payout_cents / 100).toFixed(2)} this year — flagged for 1099-NEC review.`
+    );
+  }
+
+  return flagged;
+}
+
+/**
+ * Reset yearly_payout_cents to 0 for all contributors at the start of a new year.
+ * Call this via a cron job on Jan 1 each year.
+ */
+async function resetYearlyPayoutTotals() {
+  await pool.query(
+    `UPDATE contributors SET yearly_payout_cents = 0, updated_at = NOW()`
+  );
+  console.log('[db/contributors] Yearly payout totals reset for new year.');
+}
+
 module.exports = {
+  // Core CRUD
   getContributorByUserId,
   getContributorByGithubLogin,
   getContributorById,
   upsertContributor,
+  // Points
   awardPoints,
+  // Leaderboard / stats
   getLeaderboard,
   getTotalPoints,
   getContributorRank,
-  getTotalContributors
+  getTotalContributors,
+  // Distribution
+  getApprovedContributorsWithStripe,
+  createDistribution,
+  updateDistributionStatus,
+  createPayout,
+  completePayout,
+  failPayout,
+  // Tax
+  checkAndFlagTaxThresholds,
+  resetYearlyPayoutTotals
 };
