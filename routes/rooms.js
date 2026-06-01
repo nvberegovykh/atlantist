@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
       SELECT r.*, l.name AS level_name, l.elevation AS level_elevation
       FROM rooms r
       LEFT JOIN levels l ON r.level_id = l.id
-      WHERE (l.project_id = $1::varchar OR l.project_id IS NULL)
+      WHERE (l.project_id = $1::integer OR l.project_id IS NULL)
       ORDER BY l.elevation ASC NULLS FIRST, r.number ASC
     `, [projectId]);
     res.json(res2.rows);
@@ -175,7 +175,7 @@ async function computeRoomFromWalls(levelId, projectId) {
     FROM elements e
     WHERE e.type = 'wall'
       AND e.base_level_id = $1
-      AND (e.project_id = $2::varchar OR e.project_id IS NULL)
+      AND (e.project_id = $2::integer OR e.project_id IS NULL)
   `, [levelId, projectId]);
 
   if (!wallsRes.rows.length) return { area: 0, volume: 0, perimeter: 0 };

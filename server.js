@@ -32,9 +32,31 @@ const pool = require('./db/index');
   }
 })();
 
+// Catalog-style paths that are safe to expose without auth (read-only, no PII)
+const UNAUTHED_PATHS = new Set([
+  '/api/stairs/types',
+  '/api/catalog/roof-types',
+  '/api/catalog/floor-types',
+  '/api/catalog/wall-types',
+  '/api/catalog/window-types',
+  '/api/catalog/door-types',
+  '/api/catalog/ceiling-types',
+  '/api/catalog/beam-types',
+  '/api/catalog/column-types',
+  '/api/catalog/railing-types',
+  '/api/catalog/ramp-types',
+  '/api/catalog/material-types',
+]);
+
 // BIM auth gate: 401 if no session token.
 // Exception: GET requests for demo projects pass through unauthenticated.
+// Exception: catalog/type endpoints pass through unauthenticated (read-only).
 function requireBimAuth(req, res, next) {
+  // Allow catalog endpoints without auth
+  if (req.method === 'GET' && UNAUTHED_PATHS.has(req.path)) {
+    req.user = req.user || null;
+    return next();
+  }
   // Allow unauthenticated GET reads for demo projects
   if (req.method === 'GET') {
     const pid = req.query.project_id || req.params.project_id || req.params.id;

@@ -3,7 +3,7 @@
  * Network-first for HTML pages; cache-first for static assets.
  * Bumping CACHE_VERSION invalidates all stale caches.
  */
-const CACHE_VERSION = 'v32';
+const CACHE_VERSION = 'v33'; // bumped: R2 CORS proxy, Sentry 8.44.0
 const CACHE_NAME = `atlantist-${CACHE_VERSION}`;
 
 // Static assets to pre-cache (no HTML — HTML is always network-first)
@@ -51,12 +51,25 @@ self.addEventListener('activate', (event) => {
 });
 
 // ─── Fetch ─────────────────────────────────────────────────────────────────
+const R2_HOST = 'pub-629428d185ca4960a0a73c850d32294b.r2.dev';
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
   // Skip non-GET requests
   if (request.method !== 'GET') return;
+
+  // ── R2 CORS proxy ─────────────────────────────────────────────────────────
+  // R2 bucket has no Access-Control-Allow-Origin header, causing CORS blocks.
+  // Rewrite R2 requests through our server proxy instead.
+  if (url.host === R2_HOST) {
+    const key = url.pathname.replace(/^\//, '');
+    const proxyUrl = new URL('/api/r2-proxy', self.location.origin);
+    proxyUrl.searchParams.set('key', key);
+    event.respondWith(fetch(proxyUrl.toString()));
+    return;
+  }
 
   // Network-first for API routes
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/ws')) {

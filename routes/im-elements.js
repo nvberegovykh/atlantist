@@ -18,8 +18,22 @@ const {
 const { getIMEvents } = require('../db/events');
 const { getElementById, createElement, updateElement } = require('../db/elements');
 
-// Auth guard
+// Auth guard — skips auth for GET requests on demo projects
+const DEMO_IDS = new Set(); // populated at startup (same set as server.js)
+(async () => {
+  try {
+    const pool = require('../db/index');
+    const res = await pool.query('SELECT id FROM projects WHERE is_demo = TRUE');
+    for (const row of res.rows) DEMO_IDS.add(String(row.id));
+  } catch (_) {}
+})();
+
 function requireAuth(req, res, next) {
+  // Allow demo project reads without auth
+  if (req.method === 'GET') {
+    const pid = req.params.projectId || req.params.id || req.query.project_id;
+    if (pid && DEMO_IDS.has(String(pid))) return next();
+  }
   if (!req.user && !req.session) return res.status(401).json({ error: 'Authentication required' });
   next();
 }
