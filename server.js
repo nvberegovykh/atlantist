@@ -276,6 +276,12 @@ app.use('/api/live-sessions', require('./routes/live-sessions'));
 app.use('/api/drive', require('./routes/drive'));
 app.use('/api/drive', require('./routes/drive-schedule-import'));
 
+// ─── Contributor system ──────────────────────────────────────────────────────
+// Individual endpoints manage their own auth; no blanket middleware here.
+app.use('/api/contributors', require('./routes/contributors'));
+// Webhook uses express.raw() internally — mount before JSON body-parser catches /api
+app.use('/api/contributors/webhook', require('./routes/contributor-webhook'));
+
 // ─── Admin pages ────────────────────────────────────────────────────────────
 app.use('/admin', require('./routes/admin-routes'));
 app.use('/admin/docs', require('./routes/admin-docs'));

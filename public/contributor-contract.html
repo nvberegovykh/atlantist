@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atlantist Contributor Agreement v1.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Design tokens (matches brand/tokens.css) ─── */
+    :root {
+      --color-navy:        #0f1923;
+      --color-navy-mid:    #1a2e45;
+      --color-blue:        #1d5fa6;
+      --color-blue-light:  #3479c4;
+      --color-sky:         #7fb3de;
+      --color-sand:        #f7f6f3;
+      --color-muted:       #8a8680;
+      --color-border:      #e2e0dc;
+      --font-main:         'DM Sans', Arial, sans-serif;
+      --radius:            8px;
+      --max-width:         760px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-main);
+      background: var(--color-sand);
+      color: var(--color-navy);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ─── Header ─── */
+    .site-header {
+      background: var(--color-navy);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .site-header svg { flex-shrink: 0; }
+    .site-header .brand-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--color-sand);
+      letter-spacing: -0.3px;
+    }
+
+    /* ─── Document container ─── */
+    .document-wrap {
+      max-width: var(--max-width);
+      margin: 48px auto 80px;
+      padding: 0 24px;
+    }
+
+    /* ─── Document card ─── */
+    .document {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: 0 2px 12px rgba(15,25,35,0.08);
+      overflow: hidden;
+    }
+
+    .doc-accent { height: 4px; background: var(--color-blue); }
+
+    .doc-body { padding: 48px 56px; }
+
+    /* ─── Typography ─── */
+    .doc-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--color-navy);
+      letter-spacing: -0.4px;
+      margin-bottom: 4px;
+    }
+    .doc-version {
+      font-size: 12px;
+      color: var(--color-muted);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--color-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin: 36px 0 12px;
+    }
+    h2:first-of-type { margin-top: 0; }
+
+    p { margin-bottom: 14px; }
+
+    ul, ol {
+      padding-left: 20px;
+      margin-bottom: 14px;
+    }
+    li { margin-bottom: 6px; }
+
+    strong { font-weight: 600; }
+
+    .parties-box {
+      background: var(--color-sand);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 20px 24px;
+      margin-bottom: 28px;
+      font-size: 14px;
+    }
+    .parties-box p { margin-bottom: 6px; }
+    .parties-box p:last-child { margin-bottom: 0; }
+
+    .notice {
+      background: #eff6ff;
+      border-left: 3px solid var(--color-blue-light);
+      border-radius: 0 4px 4px 0;
+      padding: 12px 16px;
+      font-size: 13.5px;
+      color: var(--color-navy-mid);
+      margin-bottom: 14px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--color-border);
+      margin: 36px 0;
+    }
+
+    /* ─── Signature section ─── */
+    .signature-section {
+      background: var(--color-sand);
+      border-top: 1px solid var(--color-border);
+      padding: 36px 56px 48px;
+    }
+    .signature-section h2 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--color-navy);
+      text-transform: none;
+      letter-spacing: 0;
+      margin-bottom: 12px;
+    }
+    .signature-section p {
+      font-size: 13.5px;
+      color: var(--color-muted);
+      margin-bottom: 20px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--color-blue);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+    .checkbox-row label {
+      font-size: 14px;
+      line-height: 1.5;
+      cursor: pointer;
+      color: var(--color-navy);
+    }
+
+    .sign-btn {
+      display: inline-block;
+      background: var(--color-blue);
+      color: #fff;
+      font-family: var(--font-main);
+      font-size: 15px;
+      font-weight: 600;
+      padding: 14px 32px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      letter-spacing: -0.2px;
+      transition: background 0.15s;
+    }
+    .sign-btn:hover:not(:disabled) { background: var(--color-blue-light); }
+    .sign-btn:disabled {
+      background: var(--color-muted);
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .status-msg {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .status-msg.success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+    .status-msg.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    @media (max-width: 640px) {
+      .doc-body, .signature-section { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── Site header ─── -->
+  <header class="site-header">
+    <svg width="28" height="28" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect width="64" height="64" rx="10" fill="#1a2e45"/>
+      <circle cx="32" cy="33" r="25" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.2"/>
+      <circle cx="32" cy="33" r="18" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.38"/>
+      <circle cx="32" cy="33" r="11" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.6"/>
+      <circle cx="32" cy="33" r="4" fill="#3479c4"/>
+      <line x1="18" y1="48" x2="32" y2="14" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="46" y1="48" x2="32" y2="14" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="22" y1="36" x2="42" y2="36" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+    </svg>
+    <span class="brand-name">Atlantist</span>
+  </header>
+
+  <!-- ─── Document ─── -->
+  <div class="document-wrap">
+    <div class="document">
+      <div class="doc-accent"></div>
+
+      <div class="doc-body">
+        <div class="doc-title">Atlantist Contributor Agreement</div>
+        <div class="doc-version">Version 1.0 &nbsp;·&nbsp; Effective upon signature</div>
+
+        <!-- Parties -->
+        <div class="parties-box">
+          <p><strong>Company:</strong> LIBER Creative LLC, a New York limited liability company ("Company")</p>
+          <p><strong>Contributor:</strong> The individual or entity that signs this Agreement electronically ("Contributor")</p>
+        </div>
+
+        <p>
+          This Atlantist Contributor Agreement ("Agreement") sets out the terms under which the Contributor
+          participates in the Atlantist platform (<a href="https://atlantist.cloud">atlantist.cloud</a>) and
+          earns a proportional share of net platform profits.
+        </p>
+
+        <hr class="divider" />
+
+        <!-- 1. Nature of Relationship -->
+        <h2>1. Nature of Relationship</h2>
+        <div class="notice">
+          This Agreement does <strong>not</strong> create an employment relationship, partnership, joint venture, or agency
+          between the Contributor and the Company. Contributor is an independent contributor to a community-owned platform.
+        </div>
+        <p>
+          No minimum contribution is required. No salary, hourly rate, or guaranteed payment of any kind is owed.
+          All compensation is entirely discretionary and prospective, as described in Section 4.
+        </p>
+
+        <!-- 2. Eligible Contributions -->
+        <h2>2. Eligible Contributions</h2>
+        <p>The following activities are eligible for point awards under this Agreement:</p>
+        <ul>
+          <li>Code commits merged into the main repository branch</li>
+          <li>Approved and merged pull requests</li>
+          <li>Closed issues (bug reports, feature requests) filed by the Contributor</li>
+          <li>Documentation contributions accepted by the Company</li>
+          <li>AI-generated contributions credited to a registered Contributor account (including contributions by AI agents such as Wallt)</li>
+          <li>Other contributions explicitly approved and categorized by a Company administrator</li>
+        </ul>
+        <p>
+          The Company — including its owner, employees, and AI agents operating under Company accounts — also earns points
+          through the same system on equal terms.
+        </p>
+
+        <!-- 3. Copyright Assignment & Attribution -->
+        <h2>3. Copyright Assignment &amp; Attribution</h2>
+        <p>
+          By submitting a Contribution, the Contributor <strong>irrevocably assigns</strong> to the Company all right, title,
+          and interest in and to the Contribution, including all copyrights and other intellectual property rights worldwide,
+          to the fullest extent permitted by law.
+        </p>
+        <p>
+          In exchange, the Company will maintain publicly visible attribution to each Contributor (via GitHub commit history
+          and the Atlantist leaderboard) for the duration of the platform's operation. Attribution is a courtesy and does not
+          constitute a right of approval over how the Contribution is used.
+        </p>
+
+        <!-- 4. Points and Profit Sharing -->
+        <h2>4. Points &amp; Profit Sharing</h2>
+        <p>
+          Upon approval and contract signature, the Contributor is enrolled in the Atlantist points system. Points are
+          awarded automatically and/or manually according to the current point schedule maintained by the Company.
+        </p>
+        <ol>
+          <li><strong>Points are non-transferable</strong> and carry no voting rights, no governance rights, and no claim
+              on Company assets outside of the profit-sharing mechanism described herein.</li>
+          <li>Each Contributor's <strong>share percentage</strong> is calculated as:
+              <br/><code style="display:inline-block;margin:6px 0;padding:4px 10px;background:#f0f0ee;border-radius:4px;font-size:13px;">
+                Contributor Points ÷ Total Approved Contributor Points × 100
+              </code>
+          </li>
+          <li>If the platform generates net profit in a given period, the Company <strong>shall distribute</strong> a portion
+              of net profits (the "Distribution Pool") to approved contributors <strong>no less than annually</strong>,
+              provided the platform is profitable.</li>
+          <li>The Company retains sole discretion over the size of the Distribution Pool, timing, and whether any profit
+              is declared available for distribution.</li>
+          <li>The Company shall <strong>withhold all legally required taxes</strong> from distributions and remit them to
+              the appropriate authorities. Contributor is responsible for their own tax obligations in their jurisdiction.</li>
+          <li>Points may be deducted for code reverted due to quality issues, violations of the code of conduct, or other
+              reasons determined by the Company at its sole discretion.</li>
+        </ol>
+
+        <!-- 5. Stripe Connect & Payout -->
+        <h2>5. Stripe Connect &amp; Payout</h2>
+        <p>
+          To receive profit distributions, the Contributor must connect a Stripe Express account via the platform dashboard.
+          Payouts will be issued via Stripe's standard transfer mechanisms. The Company is not responsible for delays,
+          failures, or fees imposed by Stripe or the Contributor's financial institution.
+        </p>
+        <p>
+          If a Contributor does not connect Stripe within 90 days of a declared distribution, their share for that period
+          may be forfeited or held at the Company's discretion.
+        </p>
+
+        <!-- 6. Contributor Status -->
+        <h2>6. Contributor Status</h2>
+        <p>Contributor accounts may have one of three statuses:</p>
+        <ul>
+          <li><strong>Pending</strong> — application submitted, awaiting review.</li>
+          <li><strong>Approved</strong> — eligible to earn points and receive distributions.</li>
+          <li><strong>Suspended</strong> — access to the points system is paused pending investigation or resolution.</li>
+        </ul>
+        <p>
+          The Company may change a Contributor's status at any time for any reason, including but not limited to
+          violations of this Agreement, the platform's code of conduct, or applicable law.
+        </p>
+
+        <!-- 7. Confidentiality -->
+        <h2>7. Confidentiality</h2>
+        <p>
+          Contributor agrees not to disclose any non-public information about the Company's financials, distribution
+          amounts, infrastructure, or business strategy that is shared with them in the course of their contributions.
+          Leaderboard data (points, rankings) is public information.
+        </p>
+
+        <!-- 8. Representations & Warranties -->
+        <h2>8. Representations &amp; Warranties</h2>
+        <p>Contributor represents and warrants that:</p>
+        <ul>
+          <li>They have the legal capacity to enter into this Agreement.</li>
+          <li>All Contributions are original works authored by them (or AI tools operating under their account) and do not
+              infringe on the intellectual property rights of any third party.</li>
+          <li>The Contributor's GitHub account belongs to them and is not shared with unauthorized parties.</li>
+        </ul>
+
+        <!-- 9. Limitation of Liability -->
+        <h2>9. Limitation of Liability</h2>
+        <p>
+          To the maximum extent permitted by law, the Company's total liability to the Contributor under this Agreement
+          shall not exceed the total distributions actually paid to the Contributor in the twelve (12) months preceding
+          the claim. In no event shall the Company be liable for indirect, incidental, special, or consequential damages.
+        </p>
+
+        <!-- 10. Termination -->
+        <h2>10. Termination</h2>
+        <p>
+          Either party may terminate this Agreement with 30 days' written notice to the other party. Upon termination,
+          the Contributor's right to earn future points ceases; accrued points as of the effective termination date will
+          be honored in the next scheduled distribution if one occurs.
+        </p>
+        <p>
+          The Company may terminate this Agreement immediately upon a material breach by the Contributor.
+        </p>
+
+        <!-- 11. Governing Law & Dispute Resolution -->
+        <h2>11. Governing Law &amp; Dispute Resolution</h2>
+        <p>
+          This Agreement is governed by the laws of the State of <strong>New York, USA</strong>, without regard to its
+          conflict of law provisions.
+        </p>
+        <p>
+          Any dispute, claim, or controversy arising out of or relating to this Agreement shall be resolved by
+          <strong>binding arbitration</strong> administered by the American Arbitration Association (AAA) under its
+          Commercial Arbitration Rules. The arbitration shall take place in New York, New York, or remotely if agreed
+          by both parties. Judgment on the award may be entered in any court of competent jurisdiction.
+        </p>
+        <p>
+          Notwithstanding the foregoing, either party may seek injunctive relief in a court of competent jurisdiction
+          to protect intellectual property rights.
+        </p>
+
+        <!-- 12. Entire Agreement -->
+        <h2>12. Entire Agreement</h2>
+        <p>
+          This Agreement constitutes the entire agreement between the parties regarding its subject matter and supersedes
+          all prior negotiations, understandings, or agreements. This Agreement may not be modified except by a written
+          amendment signed by both parties or a new version published by the Company, which the Contributor must re-sign.
+        </p>
+
+        <hr class="divider" />
+
+        <p style="font-size:13px;color:var(--color-muted);">
+          For questions about this Agreement, contact <a href="mailto:legal@atlantist.cloud">legal@atlantist.cloud</a>.
+        </p>
+      </div>
+
+      <!-- ─── Signature section ─── -->
+      <div class="signature-section">
+        <h2>Sign the Atlantist Contributor Agreement</h2>
+        <p>
+          By checking the box and clicking "I Agree", you confirm that you have read, understood, and agree
+          to be bound by the Atlantist Contributor Agreement v1.0. Your electronic signature is legally binding.
+        </p>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="agree-checkbox" />
+          <label for="agree-checkbox">
+            I have read and agree to the <strong>Atlantist Contributor Agreement v1.0</strong>, including the
+            arbitration clause in Section 11.
+          </label>
+        </div>
+
+        <button class="sign-btn" id="sign-btn" disabled>I Agree — Sign Agreement</button>
+
+        <div class="status-msg" id="status-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const checkbox = document.getElementById('agree-checkbox');
+      const signBtn  = document.getElementById('sign-btn');
+      const statusEl = document.getElementById('status-msg');
+
+      // Enable/disable sign button based on checkbox
+      checkbox.addEventListener('change', () => {
+        signBtn.disabled = !checkbox.checked;
+      });
+
+      signBtn.addEventListener('click', async () => {
+        if (!checkbox.checked) return;
+
+        signBtn.disabled = true;
+        signBtn.textContent = 'Signing…';
+
+        try {
+          const res = await fetch('/api/contributors/contract/sign', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include'
+          });
+
+          const data = await res.json();
+
+          if (res.ok) {
+            showStatus('success',
+              '✓ Agreement signed on ' + new Date(data.signed_at).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric'
+              }) + '. Welcome to the Atlantist contributor community!'
+            );
+            signBtn.textContent = 'Agreement Signed ✓';
+            checkbox.disabled = true;
+          } else {
+            showStatus('error', data.error || 'Failed to sign the agreement. Please try again.');
+            signBtn.disabled = false;
+            signBtn.textContent = 'I Agree — Sign Agreement';
+          }
+        } catch (err) {
+          showStatus('error', 'Network error — please check your connection and try again.');
+          signBtn.disabled = false;
+          signBtn.textContent = 'I Agree — Sign Agreement';
+        }
+      });
+
+      function showStatus(type, msg) {
+        statusEl.className = 'status-msg ' + type;
+        statusEl.style.display = 'block';
+        statusEl.textContent = msg;
+        statusEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    })();
+  </script>
+
+</body>
+</html>
