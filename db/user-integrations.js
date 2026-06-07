@@ -5,18 +5,18 @@
 const pool = require('./index');
 
 // Encrypt/decrypt helper — uses app-level ENCRYPTION_KEY env var.
-// ENCRYPTION_KEY must be set. If absent, server refuses to start.
+// If absent, OAuth token storage is disabled (tokens are not stored).
 // Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 const crypto = require('crypto');
 const ALGORITHM = 'aes-256-gcm';
 if (!process.env.ENCRYPTION_KEY) {
-  console.error('[user-integrations] FATAL: ENCRYPTION_KEY env var is not set. OAuth tokens cannot be stored securely. Set ENCRYPTION_KEY to a 32-byte hex string.');
-  process.exit(1);
+  console.warn('[user-integrations] ENCRYPTION_KEY env var is not set — OAuth token storage disabled. Set ENCRYPTION_KEY to a 32-byte hex string to enable Google Drive integration.');
 }
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY; // Must be 32 bytes (hex or base64)
+const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || null; // Must be 32 bytes (hex or base64)
 
 function encrypt(plaintext) {
   if (plaintext === null || plaintext === undefined) return plaintext;
+  if (!ENCRYPTION_KEY) return null; // encryption disabled — don't store token
   const key = Buffer.from(ENCRYPTION_KEY.slice(0, 32).padEnd(32, '\u0000'), 'utf8');
   const iv = crypto.randomBytes(12);
   const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
@@ -27,6 +27,7 @@ function encrypt(plaintext) {
 
 function decrypt(ciphertext) {
   if (ciphertext === null || ciphertext === undefined) return ciphertext;
+  if (!ENCRYPTION_KEY) return null; // encryption disabled
   try {
     const key = Buffer.from(ENCRYPTION_KEY.slice(0, 32).padEnd(32, '\u0000'), 'utf8');
     const [ivHex, tagHex, encHex] = ciphertext.split(':');

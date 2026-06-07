@@ -755,7 +755,7 @@
 
   <div class="faq-item" onclick="toggleFaq(this)">
     <div class="faq-question">How is my actual bill calculated?<span class="faq-toggle">+</span></div>
-    <div class="faq-answer">Every day we track your real infrastructure usage across 5 categories: compute (simulation runs), storage (PostgreSQL bytes), bandwidth (file transfers + WebSocket), 3rd-party API calls (Forge, Veras), and hosting amort. At month end, we sum it all and multiply by 2. If you're on a yearly plan, we divide $330 by 12 and apply that as your monthly credit against actual usage.</div>
+    <div class="faq-answer">Every day we track your real infrastructure usage across 5 categories: compute (simulation runs), storage (PostgreSQL bytes), bandwidth (file transfers + WebSocket), 3rd-party API calls, and hosting amortization. At month end, we sum it all and multiply by 2. Your bill is <code>max($5, total &times; 2)</code>.</div>
   </div>
 
   <div class="faq-item" onclick="toggleFaq(this)">
@@ -774,18 +774,13 @@
   </div>
 
   <div class="faq-item" onclick="toggleFaq(this)">
-    <div class="faq-question">What if I'm on a yearly plan?<span class="faq-toggle">+</span></div>
-    <div class="faq-answer">Yearly plans ($330/yr = $27.50/mo) pre-pay 12 months at a fixed rate. We track your actual usage and apply any credits to your next billing cycle. If your actual monthly cost is lower than $27.50, you keep the surplus. If higher, the difference is absorbed by the yearly discount.</div>
-  </div>
-
-  <div class="faq-item" onclick="toggleFaq(this)">
-    <div class="faq-question">Is the 30-day trial really free?<span class="faq-toggle">+</span></div>
+    <div class="faq-question">Is there a free trial?<span class="faq-toggle">+</span></div>
     <div class="faq-answer">Yes — no credit card required to start. You'll only be charged if you choose to continue after the trial ends. During the trial you'll see your actual running cost in your account so there are no surprises.</div>
   </div>
 
   <div class="faq-item" onclick="toggleFaq(this)">
-    <div class="faq-question">Can I change plans or cancel anytime?<span class="faq-toggle">+</span></div>
-    <div class="faq-answer">Yes — cancel anytime via the billing portal. Your subscription holds for 1 year, then your account enters a read-only hold before deletion. Reactivate anytime before deletion at no extra cost.</div>
+    <div class="faq-question">Can I cancel anytime?<span class="faq-toggle">+</span></div>
+    <div class="faq-answer">Yes — cancel anytime from your account dashboard. Your data is held in read-only mode for 90 days before deletion. Reactivate anytime within that window at no extra cost.</div>
   </div>
 
   <div class="faq-item" onclick="toggleFaq(this)">
