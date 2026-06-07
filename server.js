@@ -126,7 +126,15 @@ app.use((_req, res, next) => { // no-cache HTML pages
   const origSendFile = res.sendFile.bind(res);
   res.sendFile = function (filePath, ...args) {
     if (filePath.endsWith('.html')) {
-      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      // no-store + no-cache: browser never serves stale copy
+      // Surrogate-Control: no-store — Cloudflare CDN respects this and bypasses edge cache
+      // Cloudflare-CDN-Cache-Control: no-store — secondary Cloudflare header for full bypass
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.set('Surrogate-Control', 'no-store');
+      res.set('Cloudflare-CDN-Cache-Control', 'no-store');
+      res.set('CDN-Cache-Control', 'no-store');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
     }
     return origSendFile(filePath, ...args);
   };
