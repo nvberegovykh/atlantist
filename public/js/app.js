@@ -11393,15 +11393,13 @@ const renderState = {
   currentRender: null,
 };
 
-// ─── Import FBXExporter ───────────────────────────────────────
-// Use importmap-relative path ('three/addons/') so the browser ES module cache
-// deduplicates against the already-loaded THREE singleton.
-// Raw cdn.jsdelivr.net URL bypasses the importmap and loads a second THREE
-// instance, which causes the 'Multiple instances of Three.js' warning and
-// breaks the renderer. This path resolves to the same CDN URL via importmap.
-import('three/addons/exporters/FBXExporter.js')
-  .then(m => { window.__FBXExporter = m.FBXExporter; })
-  .catch(() => { /* FBX export not available in this environment */ });
+// ─── FBXExporter ─────────────────────────────────────────────
+// FBXExporter was removed from three.js r152+. We use GLTFExporter instead
+// for model export (widely supported by Twinmotion, Blender, etc).
+// window.__FBXExporter remains null; exportFBX() gracefully falls back to GLTF.
+import('three/addons/exporters/GLTFExporter.js')
+  .then(m => { window.__GLTFExporter = m.GLTFExporter; })
+  .catch(() => { /* GLTF export not available */ });
 
 // ─── Render dropdown toggle ────────────────────────────────────
 const renderDropdown = document.getElementById('render-dropdown');
@@ -11646,9 +11644,10 @@ document.getElementById('confirm-export-twinmotion')?.addEventListener('click', 
 
 // ─── FBX Export ────────────────────────────────────────────────
 async function exportFBX({ includeMaterials = true }) {
-  const FBXExporter = window.__FBXExporter;
-  if (!FBXExporter) {
-    toast('FBX exporter not loaded — try refreshing the page', 'error');
+  // FBXExporter removed in three.js r152 — export as GLTF instead (supported by Twinmotion, Blender, etc)
+  const GLTFExporter = window.__GLTFExporter;
+  if (!GLTFExporter) {
+    toast('Exporter not ready — try again in a moment', 'error');
     return;
   }
 
@@ -11668,7 +11667,7 @@ async function exportFBX({ includeMaterials = true }) {
     }
   }
 
-  // Add level planes (geometric representation)
+  // Add level planes
   for (const level of state.levels) {
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(60, 60),
@@ -11680,17 +11679,16 @@ async function exportFBX({ includeMaterials = true }) {
     exportGroup.add(plane);
   }
 
-  const exporter = new FBXExporter();
+  const exporter = new GLTFExporter();
   const result = await new Promise((resolve, reject) => {
-    exporter.parse(exportGroup, (fbxBuffer) => resolve(fbxBuffer), (err) => reject(err), { binary: true });
+    exporter.parse(exportGroup, resolve, (err) => reject(err), { binary: true });
   });
 
-  const blob = new Blob([result], { type: 'application/octet-stream' });
-  triggerDownload(blob, `atlantist_${Date.now()}.fbx`);
+  const blob = new Blob([result], { type: 'model/gltf-binary' });
+  triggerDownload(blob, `atlantist_export_${Date.now()}.glb`);
 
-  // Count exported objects
   const count = state.elements.length + state.levels.length;
-  toast(`FBX exported (${count} objects) — open in Twinmotion`, 'success');
+  toast(`Exported ${count} objects as GLB — open in Twinmotion / Blender`, 'success');
 }
 
 // ─── OBJ Export (fallback) ─────────────────────────────────────
@@ -17216,11 +17214,13 @@ function initAuth() {
     }
   }).catch(() => {});
 
-  // Handle magic link token from URL params (?magic_token=xxx) or cookie
-  // The GET /api/auth/verify redirects here with ?magic_token=xxx and sets pending_magic_token cookie
+  // Handle magic link redirect results
+  // New flow: backend auto-creates account + session, redirects with ?auth=verified
+  // Legacy flow: ?magic_token=xxx (kept for backwards compat during rollout)
   const urlParams = new URLSearchParams(window.location.search);
-  const magicToken = urlParams.get('magic_token') || getCookie('pending_magic_token');
-  const magicError = urlParams.get('magic_error');
+  const authVerified = urlParams.get('auth') === 'verified';
+  const magicToken   = urlParams.get('magic_token'); // legacy — no longer set by backend
+  const magicError   = urlParams.get('magic_error');
 
   if (magicError === 'expired') {
     toast('Magic link expired. Please request a new one.', 'error');
@@ -17228,18 +17228,31 @@ function initAuth() {
     toast('Something went wrong. Please try again.', 'error');
   }
 
-  if (magicToken) {
-    // Clear the URL param and cookie
+  if (authVerified) {
+    // Session cookie was set by the server — just clean the URL and refresh auth state
     history.replaceState({}, '', window.location.pathname);
-    document.cookie = 'pending_magic_token=; Max-Age=0; path=/';
+    authApi('GET', '/api/auth/me').then(me => {
+      if (me.authenticated) {
+        if (authState) {
+          authState.authenticated = true;
+          authState.user = me.user;
+          authState.id = me.user?.id;
+          authState.app_role = me.user?.app_role;
+        }
+        updateUserMenuUI();
+        toast('Welcome to Atlantist! You are now signed in.', 'success');
+      }
+    }).catch(() => {});
+  } else if (magicToken) {
+    // Legacy path: magic token passed in URL (pre-auto-account-creation)
+    // Clear URL param so refreshing doesn't replay
+    history.replaceState({}, '', window.location.pathname);
 
-    // Pre-fill signup modal with the magic token
+    // Store token for complete-signup
     authState.magicToken = magicToken;
 
-    // Show signup modal so user can complete profile
+    // Show signup modal — skip to step 2 (profile) since email was already sent
     showSignupModal();
-
-    // Auto-advance to step 2 (profile form) since email was already sent
     document.getElementById('signup-step-1').classList.add('hidden');
     document.getElementById('signup-step-2').classList.remove('hidden');
     document.getElementById('signup-step-3').classList.add('hidden');
