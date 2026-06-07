@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: atlantist-rvt-bridge
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: BRIDGE_API_KEY
+        generateValue: true
+      - key: ATLANTIST_ORIGIN
+        value: https://atlantist.cloud
+      - key: ODA_BIMRV_PATH
+        value: ""

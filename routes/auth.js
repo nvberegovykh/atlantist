@@ -13,6 +13,26 @@ const { canonicalUrl } = require('../lib/canonical-url');
 const { rateLimit: _rateLimit } = require('../lib/rate-limit');
 const _verifyStep1Limit = _rateLimit({ max: 10, windowSec: 60, keyPrefix: 'rl:verify-step1' });
 
+// ─── In-memory rate limiter for /send-magic-link ─────────────────────────────
+// Fallback for environments without Redis. Keyed by normalised email.
+// Max 5 requests per email per 15 minutes.
+const _magicLinkRateMap = new Map(); // email → { count, resetAt }
+const _MAGIC_LINK_MAX    = 5;
+const _MAGIC_LINK_WINDOW = 15 * 60 * 1000; // 15 minutes in ms
+
+function _magicLinkRateCheck(email) {
+  const now = Date.now();
+  const key = email.toLowerCase().trim();
+  const entry = _magicLinkRateMap.get(key);
+  if (!entry || now >= entry.resetAt) {
+    _magicLinkRateMap.set(key, { count: 1, resetAt: now + _MAGIC_LINK_WINDOW });
+    return true; // allowed
+  }
+  if (entry.count >= _MAGIC_LINK_MAX) return false; // blocked
+  entry.count++;
+  return true; // allowed
+}
+
 // ─── Email sending via Polsia proxy ──────────────────────────────────────────
 
 const EMAIL_PROXY_URL = process.env.POLSIA_EMAIL_PROXY_URL || process.env.EMAIL_PROXY_URL;
@@ -256,11 +276,18 @@ router.post('/init', async (req, res) => {
 });
 
 // POST /api/auth/send-magic-link — Step 1 of 3-step signup
+// Rate-limited: max 5 requests per email per 15 minutes (in-memory fallback).
 router.post('/send-magic-link', async (req, res) => {
   try {
     const { email, session_uuid } = req.body;
     if (!email) {
       return res.status(400).json({ error: 'email required' });
+    }
+
+    // Rate limit check
+    if (!_magicLinkRateCheck(email)) {
+      res.set('Retry-After', String(Math.ceil(_MAGIC_LINK_WINDOW / 1000)));
+      return res.status(429).json({ error: 'Too many requests. Try again in 15 minutes.' });
     }
 
     // Store token in DB (persistent, multi-instance safe)
@@ -420,16 +447,47 @@ router.get('/verify', async (req, res) => {
       return res.redirect('/?magic_error=expired');
     }
 
-    // Set magic_token cookie (non-httpOnly so JS can read it)
+    // Auto-create account on first magic link use (no profile step required).
+    // If user already exists this is a no-op (upsertUser is idempotent).
+    let autoUser = await getUserByEmail(data.email);
+    if (!autoUser) {
+      autoUser = await upsertUser({
+        session_uuid: data.session_uuid || null,
+        email: data.email,
+        first_name: null,
+        project_type: null,
+        role: 'Architect',
+        specializations: [],
+        location: null
+      });
+      console.log(`[auth] Auto-created account for ${data.email}`);
+    }
+
+    // Create session immediately
+    const { token: sessionToken } = await createSession(autoUser.id);
+
+    // Mark magic token as used
+    await consumeMagicToken(token);
+
+    // Set httpOnly session cookie — JS cannot read this (secure by default)
+    res.cookie('session_token', sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    });
+
+    // Also set pending_magic_token as httpOnly so it is NOT readable by JS
+    // (the frontend will detect the session cookie and log the user in directly)
     res.cookie('pending_magic_token', token, {
-      httpOnly: false,
+      httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 15 * 60 * 1000 // 15 minutes
     });
 
-    // Redirect to app — frontend reads cookie and shows signup modal
-    res.redirect('/?magic_token=' + encodeURIComponent(token));
+    // Redirect to app — session cookie is set, user is logged in
+    res.redirect('/?auth=verified');
   } catch (err) {
     console.error('[auth] GET /verify', err);
     res.redirect('/?magic_error=server_error');

@@ -8,6 +8,7 @@ const { createProject, getProjectById, getProjectWithStats, updateProject, delet
 const { createInvite, getInviteByToken, acceptInvite, getProjectInvites } = require('../db/invites');
 const { authMiddleware } = require('./auth');
 const { canonicalUrl } = require('../lib/canonical-url');
+const projectKeys = require('../lib/crypto/project-keys');
 
 // All project routes require authentication
 router.use(authMiddleware);
@@ -39,6 +40,15 @@ router.post('/', async (req, res) => {
       owner_id: req.user.id,
       settings: req.body.settings
     });
+
+    // Initialise E2E encryption key record for the new project.
+    // Non-fatal: logs a warning if ATLANTIST_MASTER_KEY is not configured.
+    try {
+      await projectKeys.ensureProjectKey(project.id);
+    } catch (keyErr) {
+      console.warn('[projects] ensureProjectKey failed (non-fatal):', keyErr.message);
+    }
+
     res.status(201).json(project);
   } catch (err) {
     console.error('[projects] POST /', err);

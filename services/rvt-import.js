@@ -1,100 +1,132 @@
 /**
- * Owns: Autodesk Model Derivative API calls, element parsing, DAG mapping.
- * Does NOT own: DB writes, HTTP routing, file upload to R2.
+ * Owns: RVT bridge client — delegates open/compile to the rvt-bridge sidecar.
+ * Does NOT own: DB writes, HTTP routing, file upload.
  *
- * Revit files (.rvt) are processed through the Autodesk Forge / Model Derivative
- * API to extract geometry (SVF2 manifest) and element metadata (Design Automation).
- * Results are mapped into Atlantist's DAG element model:
- *   elements (walls, columns) + wall_layers + family_instances (doors, windows) + levels.
+ * The rvt-bridge sidecar handles the actual RVT binary parsing (ODA BimRv SDK
+ * or stub mode). This service is just the Node.js client that talks to it.
  *
- * Pipeline steps:
- *   1. Upload .rvt to Autodesk OSS (or receive pre-signed URL)
- *   2. Register manifest job (SVF2 output, design data)
- *   3. Poll manifest until ready
- *   4. Download SVF2 manifest + metadata bundles
- *   5. Parse element JSON → map to Atlantist types
- *   6. Return structured import results
+ * Bridge endpoints used:
+ *   POST /bridge/open      — parse .rvt/.rfa/.rte → elements/levels/families
+ *   POST /bridge/compile   — elements/levels/families → download URL
+ *   GET  /bridge/job/:id   — poll job status (progress 0–100, status, result)
+ *   GET  /bridge/health    — service liveness + ODA availability flag
  */
 
-const https = require('https');
-const http = require('http');
+'use strict';
 
-// ─── Config ─────────────────────────────────────────────────────────────────
+const BRIDGE_URL = process.env.RVT_BRIDGE_URL || 'http://localhost:8001';
+const BRIDGE_KEY = process.env.BRIDGE_API_KEY  || '';
 
-const FORGE_BASE = 'developer.api.autodesk.com';
-const OSS_BUCKET = process.env.FORGE_OSS_BUCKET || 'atlantist-rvt-imports';
-const CLIENT_ID = process.env.FORGE_CLIENT_ID;
-const CLIENT_SECRET = process.env.FORGE_CLIENT_SECRET;
+// ─── Poll config ──────────────────────────────────────────────────────────────
 
-// ─── Auth ─────────────────────────────────────────────────────────────────────
-
-// Cache token in-module (15 min TTL)
-let _token = null;
-let _tokenExpiry = 0;
-
-async function getAccessToken() {
-  if (_token && Date.now() < _tokenExpiry) return _token;
-  if (!CLIENT_ID || !CLIENT_SECRET) {
-    throw new Error('FORGE_CLIENT_ID / FORGE_CLIENT_SECRET env vars are not set. ' +
-      'See https://autodesk.com/developer-platform/autodesk-platform-services ' +
-      'to create a Forge app and enable Model Derivative + Data Management APIs.');
-  }
-  const payload = new URLSearchParams({
-    client_id: CLIENT_ID,
-    client_secret: CLIENT_SECRET,
-    grant_type: 'client_credentials',
-    scope: 'data:read data:write data:create bucket:read bucket:create'
-  });
-  const body = await rawFetch('POST', FORGE_BASE,
-    '/authentication/v1/authenticate', null, payload.toString(), {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    });
-  _token = body.access_token;
-  _tokenExpiry = Date.now() + (body.expires_in - 60) * 1000;
-  return _token;
-}
+const POLL_INTERVAL_MS = 1500;   // wait between /bridge/job polls
+const POLL_TIMEOUT_MS  = 300000; // 5 min max
 
 // ─── HTTP helpers ─────────────────────────────────────────────────────────────
 
-function rawFetch(method, host, path, token, body, extraHeaders) {
-  return new Promise((resolve, reject) => {
-    const opts = { hostname: host, path, method, headers: { 'Accept': 'application/json' } };
-    if (token) opts.headers['Authorization'] = `Bearer ${token}`;
-    if (body) opts.headers['Content-Length'] = Buffer.byteLength(body);
-    if (extraHeaders) Object.assign(opts.headers, extraHeaders);
-    const req = (host === 'developer.api.autodesk.com' ? https : http).request(opts, res => {
-      let data = '';
-      res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch { resolve(data); }
-      });
-    });
-    req.on('error', reject);
-    if (body) req.write(body);
-    req.end();
-  });
+async function _bridgeFetch(method, path, body) {
+  const url = `${BRIDGE_URL}${path}`;
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(BRIDGE_KEY ? { 'X-Bridge-Key': BRIDGE_KEY } : {}),
+    },
+  };
+  if (body) opts.body = JSON.stringify(body);
+
+  const res = await fetch(url, opts);
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`rvt-bridge ${method} ${path} → HTTP ${res.status}: ${text}`);
+  }
+  return res.json();
 }
 
-function fetchJson(url, token) {
-  return new Promise((resolve, reject) => {
-    const u = new URL(url);
-    const opts = {
-      hostname: u.hostname, path: u.pathname + u.search,
-      method: 'GET', headers: { 'Accept': 'application/json' }
-    };
-    if (token) opts.headers['Authorization'] = `Bearer ${token}`;
-    const req = https.request(opts, res => {
-      let data = '';
-      res.on('data', c => data += c);
-      res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch { resolve(null); }
-      });
-    });
-    req.on('error', reject);
-    req.end();
+// ─── Job polling ──────────────────────────────────────────────────────────────
+
+async function _pollJob(jobId) {
+  const deadline = Date.now() + POLL_TIMEOUT_MS;
+  while (Date.now() < deadline) {
+    await new Promise(r => setTimeout(r, POLL_INTERVAL_MS));
+    const job = await _bridgeFetch('GET', `/bridge/job/${jobId}`);
+    if (job.status === 'complete') return job.result;
+    if (job.status === 'error') {
+      throw new Error(`rvt-bridge job ${jobId} failed: ${job.result?.error || 'unknown error'}`);
+    }
+    // status === 'processing' → keep polling
+  }
+  throw new Error(`rvt-bridge job ${jobId} timed out after ${POLL_TIMEOUT_MS}ms`);
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
+/**
+ * Open a .rvt/.rfa/.rte file via the bridge.
+ *
+ * @param {Object} opts
+ * @param {string} opts.fileUrl      — presigned S3/R2 URL or direct download URL
+ * @param {string} [opts.fileType]   — "rvt" | "rfa" | "rte" (default: "rvt")
+ * @param {string} opts.projectId    — Atlantist project ID
+ * @returns {Promise<{ elements: Object[], levels: Object[], families: Object[], stub_mode: boolean }>}
+ */
+async function openRvtFile({ fileUrl, fileType = 'rvt', projectId }) {
+  const initial = await _bridgeFetch('POST', '/bridge/open', {
+    file_url:   fileUrl,
+    file_type:  fileType,
+    project_id: projectId,
   });
+  const result = await _pollJob(initial.job_id);
+  return {
+    elements:  result.elements  || [],
+    levels:    result.levels    || [],
+    families:  result.families  || [],
+    stub_mode: result.stub_mode || false,
+    oda_available: result.oda_available || false,
+  };
+}
+
+/**
+ * Compile Atlantist element data into a .rvt/.rfa file via the bridge.
+ *
+ * @param {Object} opts
+ * @param {string} opts.projectId
+ * @param {Object[]} opts.elements
+ * @param {Object[]} opts.levels
+ * @param {Object[]} opts.families
+ * @param {string} [opts.outputFormat]  — "rvt" | "rfa" | "rte" (default: "rvt")
+ * @param {string} [opts.revitVersion]  — "2024" | "2025" (default: "2024")
+ * @returns {Promise<{ downloadUrl: string, stub_mode: boolean }>}
+ */
+async function compileRvtFile({
+  projectId,
+  elements,
+  levels,
+  families,
+  outputFormat = 'rvt',
+  revitVersion = '2024',
+}) {
+  const initial = await _bridgeFetch('POST', '/bridge/compile', {
+    project_id:    projectId,
+    elements:      elements  || [],
+    levels:        levels    || [],
+    families:      families  || [],
+    output_format: outputFormat,
+    revit_version: revitVersion,
+  });
+  const result = await _pollJob(initial.job_id);
+  return {
+    downloadUrl: result.download_url || '',
+    stub_mode:   result.stub_mode    || false,
+  };
+}
+
+/**
+ * Check bridge health.
+ * @returns {Promise<{ status: string, oda_available: boolean }>}
+ */
+async function bridgeHealth() {
+  return _bridgeFetch('GET', '/bridge/health');
 }
 
 // ─── Element category → Atlantist type mapping ────────────────────────────────
@@ -172,40 +204,7 @@ const CAT_MAP = {
   '_other':                 { type: 'unknown',       supported: false, layers: false },
 };
 
-// ─── Parameter extraction helpers ────────────────────────────────────────────
-
-function extractString(params, ...keys) {
-  for (const k of keys) {
-    if (params && params[k]) return String(params[k]);
-  }
-  return null;
-}
-
-function extractNumber(params, ...keys) {
-  for (const k of keys) {
-    if (params && params[k] !== undefined && params[k] !== null) {
-      const n = parseFloat(params[k]);
-      if (!isNaN(n)) return n;
-    }
-  }
-  return null;
-}
-
-function parseRevitParams(element) {
-  // element.parameters may be a flat object or array
-  if (!element.parameters) return {};
-  if (typeof element.parameters === 'object' && !Array.isArray(element.parameters)) {
-    return element.parameters;
-  }
-  if (Array.isArray(element.parameters)) {
-    const out = {};
-    for (const p of element.parameters) {
-      if (p.name) out[p.name] = p.value ?? p.expression ?? p.container;
-    }
-    return out;
-  }
-  return {};
-}
+// ─── Parameter extraction helpers (used by routes/rvt-import.js) ──────────────
 
 function mapRevitParamsToAtlantist(params, category, familyType) {
   const mapped = {};
@@ -271,316 +270,15 @@ function mapRevitParamsToAtlantist(params, category, familyType) {
   return mapped;
 }
 
-// ─── Core pipeline ───────────────────────────────────────────────────────────
-
 /**
- * Main import function. Processes a .rvt file from a Forge OSS object key.
- *
- * @param {Object} ctx
- * @param {string} ctx.ossUrn     — Base64-URL-encoded object URN in Forge OSS
- * @param {string} ctx.runId      — rvt_import_runs DB row ID
- * @param {string} [ctx.projectId]
- * @param {Object} db             — DB access object (for createElement, createLevel, etc.)
- * @returns {Promise<Object>} importResults — summary of what was mapped
+ * Parse the Revit compound structure parameter into an array of wall layers.
+ * Format: "Layer Name | Material | Thickness (ft) | Function | ..."
  */
-async function importRvtFile(ctx, db) {
-  const { ossUrn, runId, projectId } = ctx;
-  const token = await getAccessToken();
-  const results = [];
-  let totalLevels = 0;
-  let totalWalls = 0;
-  let totalFamilyInstances = 0;
-
-  // ── Step 1: Get / Register manifest job ─────────────────────────────────
-  const manifest = await getOrCreateManifest(ossUrn, token);
-  if (manifest.status === 'failed') {
-    throw new Error(`Forge manifest failed: ${manifest.urn}`);
-  }
-
-  // Wait for manifest to complete (up to 5 min)
-  await pollManifest(ossUrn, token, 30000, 120000);
-
-  // ── Step 2: Extract SVF2 manifest ───────────────────────────────────────
-  const svfManifest = await fetchJson(
-    `https://developer.api.autodesk.com/modelderivative/v2/designdata/${ossUrn}/manifest`,
-    token
-  );
-  const derivatives = svfManifest?.derivatives || [];
-
-  // Find the SVF2 derivatives (ifc, ifcZIP, or svf2 output)
-  const ifcDeriv = derivatives.find(d =>
-    d.outputType === 'ifc' || d.outputType === 'ifcZIP' || d.outputType === 'svf2'
-  );
-  if (!ifcDeriv) {
-    throw new Error(`No IFC/SVF2 derivative found in manifest for ${ossUrn}. ` +
-      'Ensure the "IFC" or "SVF2" output is included in the job registration.');
-  }
-
-  // ── Step 3: Download metadata bundle ────────────────────────────────────
-  // SVF2 stores element data in a separate JSON bundle. The manifest lists
-  // childurns for each derivative — follow those to find metadata JSON.
-  const childUrns = ifcDeriv.children || [];
-  const metadataBundle = await downloadMetadataBundle(childUrns, token);
-  if (!metadataBundle) {
-    throw new Error(`Could not download metadata bundle from derivative for ${ossUrn}`);
-  }
-
-  // ── Step 4: Parse elements and map to Atlantist ────────────────────────
-
-  // If metadataBundle.elements exists, process it directly
-  const elements = metadataBundle.elements || metadataBundle.dbands || [];
-
-  if (!elements.length) {
-    // Fallback: try to parse from raw SVF zip assets (not implemented here — requires
-    // binary SVF parsing which is out of scope for this service layer)
-    throw new Error(`No elements found in metadata bundle. ` +
-      'The .rvt file may be empty or the SVF2 output did not include design metadata. ' +
-      'Try re-exporting from Revit with "Include design data" checked in the job settings.');
-  }
-
-  // Track level IDs by Revit level name
-  const levelIdByName = {};
-  // Track wall IDs by Revit element ID for family instance hosting
-  const wallIdByRevitGuid = {};
-
-  for (const el of elements) {
-    try {
-      const cat = el.category || el._cat || '_other';
-      const cfg = CAT_MAP[cat] || CAT_MAP['_other'];
-      const params = parseRevitParams(el);
-      const mappedParams = mapRevitParamsToAtlantist(params, cat, cfg.family);
-
-      // ── Level binding ──────────────────────────────────────────────────
-      let levelId = null;
-      const revitLevelName = params.Level || params['Base Constraint'] || null;
-      if (revitLevelName) {
-        if (!levelIdByName[revitLevelName]) {
-          // Create level in DB — elevation is derived from a placeholder
-          // (exact elevation requires the Revit Level API, not SVF2 metadata)
-          const elevation = Object.values(levelIdByName).length * 3.0; // 3m floor height assumption
-          const created = await db.createLevel({
-            name: revitLevelName,
-            elevation,
-            is_building_storey: true,
-            phase: 'New Construction'
-          });
-          levelIdByName[revitLevelName] = created.id;
-          totalLevels++;
-        }
-        levelId = levelIdByName[revitLevelName];
-      }
-
-      // ── Element creation ───────────────────────────────────────────────
-      let atlantistId = null;
-      let atlantistType = null;
-      let status = cfg.supported ? 'success' : 'skipped';
-
-      if (cfg.type === 'wall') {
-        // Walls need wall_layers extracted from the compound structure parameter
-        const layers = parseCompoundStructure(params);
-        const wall = await db.createElement({
-          type: 'wall',
-          type_name: params['Type Name'] || params.Type || 'Generic Wall',
-          parameters: mappedParams,
-          base_level_id: levelId,
-          top_level_id: levelId, // simplified — exact top needs 'Top Constraint' param
-          computed: {}
-        });
-        if (layers.length && cfg.layers) {
-          await db.setWallLayers(wall.id, layers);
-        }
-        wallIdByRevitGuid[el.guid || el.id] = wall.id;
-        atlantistId = wall.id;
-        atlantistType = 'wall';
-        totalWalls++;
-      } else if (cfg.type === 'column') {
-        const col = await db.createElement({
-          type: 'column',
-          type_name: params['Type Name'] || params.Type || 'Generic Column',
-          parameters: mappedParams,
-          base_level_id: levelId,
-          top_level_id: levelId,
-          computed: {}
-        });
-        atlantistId = col.id;
-        atlantistType = 'column';
-      } else if (cfg.type === 'family_instance') {
-        // Find hosting wall — look up by Revit's HostElementId
-        const hostId = el.hostElementId || el.Host?.id || null;
-        let hostWallId = null;
-        if (hostId && wallIdByRevitGuid[hostId]) {
-          hostWallId = wallIdByRevitGuid[hostId];
-        }
-        // host_face_u from element position along wall (normalized 0–1)
-        // Revit's Wall hosted families have LocationCurve with Host parameter
-        const faceU = (el.hostFaceU !== undefined) ? el.hostFaceU : 0.5;
-        const fi = await db.createFamilyInstance({
-          family_type: cfg.family,
-          type_name: params['Type Name'] || params.Type || `Generic ${cfg.family}`,
-          host_wall_id: hostWallId,
-          host_face_u: faceU,
-          mark: params['Mark'] || params.Mark || null,
-          parameters: mappedParams,
-          computed: {}
-        });
-        atlantistId = fi.id;
-        atlantistType = 'family_instance';
-        totalFamilyInstances++;
-      } else if (cfg.type === 'floor' || cfg.type === 'roof' || cfg.type === 'ceiling') {
-        const elem = await db.createElement({
-          type: cfg.type,
-          type_name: params['Type Name'] || params.Type || `Generic ${cfg.type}`,
-          parameters: mappedParams,
-          base_level_id: levelId,
-          computed: {}
-        });
-        atlantistId = elem.id;
-        atlantistType = cfg.type;
-      } else if (cfg.type === 'room') {
-        // Rooms live in levels — create as element for rendering
-        const elem = await db.createElement({
-          type: 'room',
-          type_name: params['Name'] || params.Name || 'Unnamed Room',
-          parameters: mappedParams,
-          base_level_id: levelId,
-          computed: {}
-        });
-        atlantistId = elem.id;
-        atlantistType = 'room';
-      } else if (cfg.type === 'beam') {
-        const elem = await db.createElement({
-          type: 'beam',
-          type_name: params['Type Name'] || params.Type || 'Generic Beam',
-          parameters: mappedParams,
-          base_level_id: levelId,
-          computed: {}
-        });
-        atlantistId = elem.id;
-        atlantistType = 'beam';
-      } else {
-        // Unsupported category — record but don't create element
-        status = 'skipped';
-      }
-
-      results.push({
-        run_id: runId,
-        category: cat,
-        subcategory: cfg.sub || null,
-        element_name: params['Type Name'] || params.Type || el.name || cat,
-        revit_guid: el.guid || el.id || null,
-        atlantist_element_id: atlantistId,
-        atlantist_element_type: atlantistType,
-        import_status: status,
-        error_message: cfg.supported ? null : `${cat} is not yet supported — see docs/rvt-import-compatibility.md`,
-        revit_params: params,
-        mapped_params: mappedParams
-      });
-    } catch (err) {
-      results.push({
-        run_id: runId,
-        category: el.category || 'unknown',
-        subcategory: null,
-        element_name: el.name || el.id || 'unknown',
-        revit_guid: el.guid || el.id || null,
-        atlantist_element_id: null,
-        atlantist_element_type: null,
-        import_status: 'failed',
-        error_message: err.message,
-        revit_params: parseRevitParams(el),
-        mapped_params: {}
-      });
-    }
-  }
-
-  return {
-    results,
-    totalLevels,
-    totalWalls,
-    totalFamilyInstances,
-    totalElements: elements.length
-  };
-}
-
-// ─── Manifest helpers ───────────────────────────────────────────────────────
-
-async function getOrCreateManifest(urn, token) {
-  try {
-    const m = await fetchJson(
-      `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest`,
-      token
-    );
-    return m;
-  } catch (err) {
-    // 404 — no manifest yet, trigger job
-  }
-  // Register translation job
-  const jobBody = {
-    input: { urn },
-    output: {
-      formats: [
-        { type: 'svf2', views: ['3d', '2d'] },
-        { type: 'ifc', views: ['3d'] }
-      ]
-    }
-  };
-  await rawFetch('POST', FORGE_BASE,
-    '/modelderivative/v2/designdata/job', token, JSON.stringify(jobBody), {
-      'Content-Type': 'application/json'
-    });
-  // Poll will happen in the caller
-  return { status: 'pending' };
-}
-
-async function pollManifest(urn, token, interval = 30000, timeout = 120000) {
-  const deadline = Date.now() + timeout;
-  while (Date.now() < deadline) {
-    const m = await fetchJson(
-      `https://developer.api.autodesk.com/modelderivative/v2/designdata/${urn}/manifest`,
-      token
-    );
-    const status = m?.status;
-    if (status === 'success' || status === 'finished') return m;
-    if (status === 'failed') return m;
-    await new Promise(r => setTimeout(r, interval));
-  }
-  throw new Error(`Manifest polling timed out after ${timeout}ms for ${urn}`);
-}
-
-async function downloadMetadataBundle(childUrns, token) {
-  // childUrns are URNs of child derivatives — for SVF2, one of them
-  // contains 'metadata' in its path or is a JSON file with element data
-  for (const childUrn of childUrns) {
-    try {
-      const decoded = Buffer.from(childUrn, 'base64').toString('utf8');
-      // If it looks like a metadata bundle (ends in .json or contains 'metadata')
-      if (decoded.endsWith('.json') || decoded.includes('metadata')) {
-        const data = await fetchJson(
-          `https://developer.api.autodesk.com/modelderivative/v2/designdata/${childUrn}`,
-          token
-        );
-        if (data && (data.elements || data.dbands)) return data;
-      }
-    } catch {
-      // Try next child
-    }
-  }
-  // No metadata bundle found — SVF2 may not include design metadata.
-  // For .rvt files specifically, the Design Automation API is the correct path
-  // for full element extraction. SVF2 only provides geometry for viewing.
-  return null;
-}
-
-// ─── Compound structure parsing for walls ─────────────────────────────────────
-
 function parseCompoundStructure(params) {
-  // Revit stores compound structure in 'WallType' or 'Compound Structure' parameter
-  // Each layer has: material, thickness, function (Finish1/2, Structure, Membrane, etc.)
   const layers = [];
   const cs = params['Compound Structure'] || params.CompoundStructure;
   if (!cs) return layers;
 
-  // CS format: "Layer 1 Name | Material | Thickness | Function | Layer 2 ..."
-  // Revit's compound structure can be multi-row; parse each row
   const rows = Array.isArray(cs) ? cs : cs.split('|');
   let order = 0;
   for (const row of rows) {
@@ -589,10 +287,10 @@ function parseCompoundStructure(params) {
       const thicknessFt = parseFloat(parts[2]);
       if (!isNaN(thicknessFt)) {
         layers.push({
-          material: parts[1]?.trim() || 'Generic',
-          thickness: thicknessFt / 3.281, // ft → m
-          function: parts[3]?.trim() || 'Structure',
-          layer_order: order++
+          material:    parts[1]?.trim() || 'Generic',
+          thickness:   thicknessFt / 3.281, // ft → m
+          function:    parts[3]?.trim() || 'Structure',
+          layer_order: order++,
         });
       }
     }
@@ -600,83 +298,13 @@ function parseCompoundStructure(params) {
   return layers;
 }
 
-// ─── Round-trip validation ───────────────────────────────────────────────────
-
-/**
- * Validates that a set of Atlantist elements can be exported back to a
- * representation that matches the original Revit element.
- *
- * For each imported element, checks:
- * - Parameters that were mapped survive round-trip
- * - Level bindings are consistent
- * - Geometry (where extractable) is within tolerance
- *
- * @param {Object} runResults — results from importRvtFile()
- * @param {Object} db — DB access object
- * @returns {Object} validationReport
- */
-async function validateRoundTrip(runResults, db) {
-  const { results } = runResults;
-  const validation = [];
-
-  for (const r of results) {
-    if (r.import_status !== 'success' || !r.atlantist_element_id) continue;
-
-    let element;
-    if (r.atlantist_element_type === 'family_instance') {
-      element = await db.getFamilyInstanceById(r.atlantist_element_id);
-    } else {
-      element = await db.getElementById(r.atlantist_element_id);
-    }
-    if (!element) {
-      validation.push({ element_id: r.atlantist_element_id, status: 'missing', message: 'Element not found in DB' });
-      continue;
-    }
-
-    // Check required parameters
-    const mapped = r.mapped_params || {};
-    const dbParams = typeof element.parameters === 'string' ? JSON.parse(element.parameters) : (element.parameters || {});
-
-    const issues = [];
-    if (r.category === 'OST_Walls') {
-      if (!dbParams.length && !dbParams.wall_height) {
-        issues.push('missing length or wall_height parameter');
-      }
-    }
-    if (r.atlantist_element_type === 'family_instance') {
-      if (!element.host_wall_id) {
-        issues.push('family instance has no host wall — wall hosting not resolved');
-      }
-      if (element.host_face_u === undefined) {
-        issues.push('host_face_u not set — position on wall unknown');
-      }
-    }
-
-    validation.push({
-      element_id: r.atlantist_element_id,
-      element_type: r.atlantist_element_type,
-      category: r.category,
-      status: issues.length ? 'warnings' : 'ok',
-      issues
-    });
-  }
-
-  return { validation, total: validation.length, warnings: validation.filter(v => v.status === 'warnings').length };
-}
-
-// ─── Exported API ───────────────────────────────────────────────────────────
+// ─── Exports ─────────────────────────────────────────────────────────────────
 
 module.exports = {
-  getAccessToken,
-  importRvtFile,
-  validateRoundTrip,
+  openRvtFile,
+  compileRvtFile,
+  bridgeHealth,
   CAT_MAP,
   mapRevitParamsToAtlantist,
   parseCompoundStructure,
-  // Expose for testing without Forge credentials
-  _testHelpers: {
-    parseRevitParams,
-    mapRevitParamsToAtlantist,
-    parseCompoundStructure
-  }
 };

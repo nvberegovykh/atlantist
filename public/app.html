@@ -4542,36 +4542,35 @@ window._swBannerArmedAt = Date.now();
 
 <!-- ── Login Modal ────────────────────────────────────────────────────── -->
 <div id="modal-login" class="modal hidden" style="position:fixed;inset:0;z-index:var(--z-modal,600);display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.75)" role="dialog" aria-modal="true" aria-labelledby="login-title">
-  <div style="background:#1a1d27;border:1px solid #2a2d3d;border-radius:16px;padding:32px;max-width:480px;width:92%;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6)">
-    <button id="close-login" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#8b95a5;font-size:22px;cursor:pointer;line-height:1;padding:4px" aria-label="Close login">×</button>
+  <div style="background:#111;border-radius:16px;padding:36px 32px 28px;max-width:440px;width:92%;position:relative;box-shadow:0 32px 96px rgba(0,0,0,0.7)">
+    <button id="close-login" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#555;font-size:22px;cursor:pointer;line-height:1;padding:4px" aria-label="Close login">×</button>
 
     <!-- Step 1: Enter email for magic link -->
     <div id="login-step-1">
-      <h2 id="login-title" style="font-size:20px;font-weight:700;color:#f0f4ff;margin:0 0 6px;font-family:inherit">Sign in</h2>
-      <p style="font-size:13px;color:#8b95a5;margin:0 0 24px">We'll send a magic link to your email.</p>
+      <h2 id="login-title" style="font-size:22px;font-weight:700;color:#f5f5f7;margin:0 0 6px;font-family:inherit;letter-spacing:-0.4px">Sign in</h2>
+      <p style="font-size:13px;color:#888;margin:0 0 28px;line-height:1.5">We'll send a magic link to your email.</p>
 
-      <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#8b95a5;margin-bottom:6px;font-family:inherit">Email address</label>
-        <input type="email" id="login-email" placeholder="you@firm.com" style="width:100%;padding:12px 14px;background:#13151c;border:1px solid #2a2d3d;border-radius:8px;color:#f0f4ff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box">
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;color:#666;margin-bottom:6px;font-family:inherit;letter-spacing:0.5px;text-transform:uppercase">Email address</label>
+        <input type="email" id="login-email" placeholder="you@firm.com" autocomplete="email" style="width:100%;padding:13px 16px;background:#1c1c1e;border:none;border-radius:10px;color:#f5f5f7;font-size:15px;font-family:inherit;outline:none;box-sizing:border-box;-webkit-appearance:none">
       </div>
-      <div id="login-step1-error" class="hidden" style="color:#e84855;font-size:12px;margin-bottom:12px;padding:8px 12px;background:rgba(232,72,85,0.1);border-radius:6px"></div>
+      <div id="login-step1-error" class="hidden" style="color:#ff6b6b;font-size:12px;margin-bottom:12px;padding:8px 12px;background:rgba(255,107,107,0.08);border-radius:8px"></div>
 
-      <button id="login-step1-next" style="width:100%;padding:12px;background:#1d5fa6;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Send magic link →</button>
+      <button id="login-step1-next" style="width:100%;padding:14px;background:#0a84ff;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:-0.2px">Send Magic Link</button>
 
-      <p style="font-size:12px;color:#6b7a8d;text-align:center;margin:12px 0 0">No account yet? <a href="#" id="login-go-signup" style="color:#7fb3de;text-decoration:none;font-weight:500">Create one</a></p>
-      <p style="font-size:12px;color:#6b7a8d;text-align:center;margin:8px 0 0">Forgot password? <a href="#" id="login-forgot-password" style="color:#7fb3de;text-decoration:none;font-weight:500">Reset it</a></p>
+      <p style="font-size:12px;color:#555;text-align:center;margin:16px 0 0">No account yet? <a href="#" id="login-go-signup" style="color:#0a84ff;text-decoration:none;font-weight:500">Create one</a></p>
+      <p style="font-size:11px;color:#444;text-align:center;margin:8px 0 0">Need help? <a href="mailto:support@atlantist.cloud" style="color:#555;text-decoration:none">support@atlantist.cloud</a></p>
     </div>
 
     <!-- Step 2: Magic link sent -->
-    <div id="login-step-2" class="hidden" style="text-align:center;padding:16px 0">
-      <div style="width:56px;height:56px;background:rgba(29,95,166,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7fb3de" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    <div id="login-step-2" class="hidden" style="text-align:center;padding:20px 0">
+      <div style="width:60px;height:60px;background:rgba(10,132,255,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       </div>
-      <h2 style="font-size:20px;font-weight:700;color:#f0f4ff;margin:0 0 8px;font-family:inherit">Check your email</h2>
-      <p style="font-size:13px;color:#8b95a5;margin:0 0 8px;line-height:1.5">We sent a magic link to<br><strong style="color:#f0f4ff" id="login-step2-email"></strong></p>
-      <p style="font-size:12px;color:#6b7a8d;margin:0 0 16px">Click the link to sign in. It expires in 15 minutes.</p>
-
-      <button id="login-resend" style="background:none;border:none;color:#7fb3de;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500">Didn't get it? Resend</button>
+      <h2 style="font-size:22px;font-weight:700;color:#f5f5f7;margin:0 0 10px;font-family:inherit;letter-spacing:-0.4px">Check your email</h2>
+      <p style="font-size:14px;color:#888;margin:0 0 6px;line-height:1.6">We sent a magic link to<br><strong style="color:#f5f5f7" id="login-step2-email"></strong></p>
+      <p style="font-size:12px;color:#555;margin:0 0 20px">Click the link to sign in. It expires in 15 minutes.</p>
+      <button id="login-resend" style="background:none;border:none;color:#0a84ff;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500">Didn't get it? Resend</button>
     </div>
   </div>
 </div>
