@@ -60,6 +60,14 @@ import {
 window.atlLoading = { showSimProgress, advanceSimStage, hideSimProgress, showRvtProgress, advanceRvtStage, hideRvtProgress };
 setToastFn(toast);
 
+// ─── Expose THREE globally (CRITICAL) ────────────────────────────────────────
+// overlay-service.js and any defer/non-module scripts check window.THREE.
+// ES module imports don't land on window automatically — expose it here
+// immediately after import so all dependent scripts see the same singleton.
+// This also prevents THREE.js double-load: if another script does
+// import('three'), the browser ES module cache returns this same instance.
+window.THREE = THREE;
+
 // ─── State ───────────────────────────────────────────────────────────────────
 export const state = {
   elements: [],
@@ -7573,42 +7581,192 @@ document.getElementById('btn-forum')?.addEventListener('click', () => {
   window.location.href = '/forum.html';
 });
 
-// ─── GOAL 4: Keyboard shortcuts (W, C, D, 1-4, ?, extra shortcuts) ───────────
-document.addEventListener('keydown', (e) => {
-  if (e.target.matches('input,textarea,select,button[contenteditable]')) return;
-  const ctrl = e.ctrlKey || e.metaKey;
-  const k = e.key;
-  if (k === '?' && !ctrl) { document.getElementById('btn-help')?.click(); return; }
-  // W = Wall, C = Column, D = Door
-  if (k === 'w' && !ctrl) { document.getElementById('btn-add-wall')?.click(); return; }
-  if (k === 'c' && !ctrl && !e.shiftKey) { document.getElementById('btn-add-column')?.click(); return; }
-  if (k === 'd' && !ctrl) { document.getElementById('btn-add-door')?.click(); return; }
-  // Shift+C = Copy
-  if (k === 'C' && e.shiftKey && !ctrl) { document.getElementById('btn-mod-copy')?.click(); return; }
-  // M = Move
-  if (k === 'm' && !ctrl) { document.getElementById('btn-mod-move')?.click(); return; }
-  // Ctrl+G = Group / Ungroup
-  if (k === 'g' && ctrl) { e.preventDefault(); document.getElementById('btn-mod-group')?.click(); return; }
-  // Ctrl+I = toggle IM panel for current selection (IM-D)
-  if (k === 'i' && ctrl && !e.shiftKey) { e.preventDefault(); toggleIMPanel(); return; }
-  // Ctrl+Shift+T = change type for selected element (IM-D)
-  if (k === 'T' && ctrl && e.shiftKey) { e.preventDefault(); if (state.selectedId) openIMChangeTypeModal(); return; }
-  // Ctrl+Shift+R = reset instance overrides to type defaults (IM-D)
-  if (k === 'R' && ctrl && e.shiftKey) { e.preventDefault(); if (state.selectedId) resetIMOverridesForCurrent(); return; }
-  // 1-4 view shortcuts
-  if (k === '1') { document.getElementById('btn-3d')?.click(); return; }
-  if (k === '2') { document.getElementById('btn-plan')?.click(); return; }
-  if (k === '3') { document.getElementById('btn-section')?.click(); return; }
-  if (k === '4') { document.getElementById('btn-rcp')?.click(); return; }
-  // Escape already handled above for placement cancel
-  if (k === 'Escape' && !state.placementMode) {
-    state.multiSelection = [];
-    selectEntity(null, null);
-    // Close command palette if open
-    const cp = document.getElementById('command-palette');
-    if (cp) cp.classList.add('hidden');
+// ─── Revit-standard two-key shortcut system ──────────────────────────────────
+// Revit uses type-ahead two-key combos: press first letter → status indicator
+// shows prefix → press second letter → tool activates. ESC cancels mid-sequence.
+// Single-key combos (Escape, Delete, F5 etc.) fire immediately.
+// Source: Autodesk Revit default keyboard shortcuts (RVT 2024/2025 standard).
+(function() {
+  const REVIT_SHORTCUTS = {
+    // ── Architecture / Structure ──
+    'WA': () => document.getElementById('btn-add-wall')?.click(),
+    'WN': () => document.getElementById('btn-add-window')?.click(),
+    'DR': () => document.getElementById('btn-add-door')?.click(),
+    'CO': () => document.getElementById('btn-add-column')?.click(),
+    'CM': () => document.getElementById('btn-add-column')?.click(),      // structural column (same)
+    'ST': () => document.getElementById('btn-add-stair')?.click(),
+    'RF': () => document.getElementById('btn-add-roof')?.click(),
+    'FL': () => document.getElementById('btn-add-floor')?.click(),
+    'CL': () => document.getElementById('btn-add-ceiling')?.click(),
+    'RM': () => document.getElementById('btn-add-room')?.click(),
+    'GR': () => document.getElementById('btn-add-grid')?.click(),
+    'LL': () => document.getElementById('btn-levels')?.click(),           // Level (LL in Revit)
+    'LV': () => document.getElementById('btn-levels')?.click(),           // alternate
+    'CS': () => document.getElementById('btn-add-curved-surface')?.click(),
+
+    // ── Modify ──
+    'MV': () => document.getElementById('btn-mod-move')?.click(),
+    'CC': () => document.getElementById('btn-mod-copy')?.click(),
+    'RO': () => document.getElementById('btn-group-rotate')?.click(),
+    'MM': () => document.getElementById('btn-mod-mirror')?.click(),
+    'AR': () => document.getElementById('btn-mod-array')?.click(),
+    'DE': () => document.getElementById('btn-mod-delete')?.click(),
+    'GP': () => document.getElementById('btn-mod-group')?.click(),
+    'UG': () => document.getElementById('btn-mod-group')?.click(),        // ungroup (same btn toggles)
+    'AL': () => window._modAlign && window._modAlign(),                   // Align (stub)
+    'TR': () => window._modTrim  && window._modTrim(),                    // Trim/Extend (stub)
+    'SL': () => window._modSplit && window._modSplit(),                   // Split (stub)
+    'OF': () => window._modOffset&& window._modOffset(),                  // Offset (stub)
+    'MA': () => window._matchProp&& window._matchProp(),                  // Match Properties
+
+    // ── Annotate ──
+    'DI': () => { document.getElementById('btn-annotation')?.click(); setTimeout(() => document.querySelector('.ann-tool-btn[data-tool="linear_dim"]')?.click(), 80); },
+    'TX': () => { document.getElementById('btn-annotation')?.click(); setTimeout(() => document.querySelector('.ann-tool-btn[data-tool="text"]')?.click(), 80); },
+    'TG': () => { document.getElementById('btn-annotation')?.click(); setTimeout(() => document.querySelector('.ann-tool-btn[data-tool="area_tag"]')?.click(), 80); },
+    'KN': () => { document.getElementById('btn-annotation')?.click(); setTimeout(() => document.querySelector('.ann-tool-btn[data-tool="keynote"]')?.click(), 80); },
+
+    // ── View ──
+    'ZA': () => document.getElementById('btn-3d')?.click(),              // Zoom All / 3D home
+    'ZF': () => document.getElementById('btn-3d')?.click(),              // Zoom to Fit
+    'ZZ': () => document.getElementById('btn-3d')?.click(),              // Zoom
+    'ZR': () => document.getElementById('btn-3d')?.click(),              // Zoom Region
+    'WT': () => document.getElementById('btn-vp-layout')?.click(),       // Tile views
+    'VV': () => document.getElementById('btn-vp-layout')?.click(),       // Visibility/Graphics
+    'VG': () => document.getElementById('btn-vp-layout')?.click(),       // same
+    'HH': () => window._hideSelected && window._hideSelected(),           // Hide element
+
+    // ── Navigate ──
+    'ZI': () => window._zoomIn  && window._zoomIn(),
+    'ZO': () => window._zoomOut && window._zoomOut(),
+
+    // ── Analysis ──
+    'EN': () => document.getElementById('btn-energy')?.click(),
+    'SA': () => document.getElementById('btn-structural')?.click(),       // Structural Analysis
+
+    // ── MEP ──
+    'ME': () => document.getElementById('btn-mep')?.click(),
+
+    // ── Misc ──
+    'IC': () => document.getElementById('btn-ifc-import')?.click(),      // Import CAD / IFC
+    'IE': () => document.getElementById('btn-ifc-export')?.click(),      // Export IFC
+    'EU': () => document.getElementById('btn-export-cad')?.click(),      // Export DXF
+    'PP': () => document.getElementById('btn-show-properties')?.click(), // Properties
+    'UP': () => document.getElementById('btn-type-library')?.click(),    // Type (component) properties
+  };
+
+  let _prefix = '';
+  let _prefixTimer = null;
+  const TIMEOUT_MS = 1800; // 1.8s to complete second key (Revit default ~2s)
+
+  // Status hint element — shows current prefix to user
+  let _hintEl = null;
+  function getHint() {
+    if (!_hintEl) {
+      _hintEl = document.createElement('div');
+      _hintEl.id = 'kbd-hint';
+      _hintEl.style.cssText = [
+        'position:fixed', 'bottom:60px', 'left:50%', 'transform:translateX(-50%)',
+        'background:rgba(10,14,20,0.92)', 'border:1px solid rgba(52,121,196,0.6)',
+        'color:#7db8e8', 'font:700 13px/1 ui-monospace,monospace',
+        'padding:6px 14px', 'border-radius:8px', 'letter-spacing:0.12em',
+        'z-index:9999', 'pointer-events:none', 'display:none',
+        'backdrop-filter:blur(8px)', 'transition:opacity 0.1s',
+      ].join(';');
+      document.body.appendChild(_hintEl);
+    }
+    return _hintEl;
   }
-}, true); // use capture phase so it fires before other handlers
+
+  function showHint(text) {
+    const el = getHint();
+    el.textContent = text;
+    el.style.display = 'block';
+    el.style.opacity = '1';
+  }
+  function hideHint() {
+    const el = getHint();
+    el.style.opacity = '0';
+    setTimeout(() => { if (el.style.opacity === '0') el.style.display = 'none'; }, 150);
+  }
+  function clearPrefix() {
+    _prefix = '';
+    clearTimeout(_prefixTimer);
+    hideHint();
+  }
+
+  // Expose prefix state for MIDI controller / toolbar to read
+  window._kbdPrefix = () => _prefix;
+  window._kbdShortcuts = REVIT_SHORTCUTS;
+
+  document.addEventListener('keydown', (e) => {
+    // Never intercept when focus is in an input field
+    if (e.target.matches('input,textarea,select,[contenteditable]')) return;
+    const ctrl = e.ctrlKey || e.metaKey;
+    const k = e.key;
+
+    // ── Single-key system shortcuts (fire immediately, no prefix) ──
+    if (k === 'Escape') {
+      clearPrefix();
+      if (!window.__placementMode) {
+        window.__multiSelection = [];
+        if (window.selectEntity) selectEntity(null, null);
+        document.getElementById('command-palette')?.classList.add('hidden');
+      }
+      return;
+    }
+    if (k === 'Delete' || k === 'Backspace' && !_prefix) {
+      if (k === 'Backspace' && _prefix) { clearPrefix(); return; }
+      document.getElementById('btn-mod-delete')?.click();
+      return;
+    }
+    if (k === '?' && !ctrl)  { document.getElementById('btn-help')?.click(); return; }
+    if (k === 'F5')          { location.reload(); return; }
+    if (k === '1' && !ctrl)  { document.getElementById('btn-3d')?.click();      clearPrefix(); return; }
+    if (k === '2' && !ctrl)  { document.getElementById('btn-plan')?.click();    clearPrefix(); return; }
+    if (k === '3' && !ctrl)  { document.getElementById('btn-section')?.click(); clearPrefix(); return; }
+    if (k === '4' && !ctrl)  { document.getElementById('btn-rcp')?.click();     clearPrefix(); return; }
+
+    // ── Ctrl combos (not part of two-key system) ──
+    if (ctrl && k === 'z')   { e.preventDefault(); window._undo && window._undo(); return; }
+    if (ctrl && k === 'y')   { e.preventDefault(); window._redo && window._redo(); return; }
+    if (ctrl && k === 'k')   { e.preventDefault(); window.openCommandPalette && openCommandPalette(); return; }
+    if (ctrl && k === 'g')   { e.preventDefault(); document.getElementById('btn-mod-group')?.click(); return; }
+    if (ctrl && k === 'i')   { e.preventDefault(); window.toggleIMPanel && toggleIMPanel(); return; }
+    if (ctrl && k === 'a')   { e.preventDefault(); /* select all */ return; }
+    if (ctrl && k === 's')   { e.preventDefault(); window._saveProject && window._saveProject(); return; }
+
+    // ── Two-key Revit shortcuts ──
+    // Only single letters (a-z, A-Z) participate in the two-key system
+    if (!/^[a-zA-Z]$/.test(k)) return;
+    const upper = k.toUpperCase();
+
+    if (_prefix === '') {
+      // Check if this letter starts any known shortcut
+      const startsAny = Object.keys(REVIT_SHORTCUTS).some(sc => sc[0] === upper);
+      if (!startsAny) return; // not a shortcut key — ignore silently
+
+      // Set prefix, start timeout
+      _prefix = upper;
+      showHint(_prefix + '_');
+      clearTimeout(_prefixTimer);
+      _prefixTimer = setTimeout(clearPrefix, TIMEOUT_MS);
+      e.preventDefault();
+    } else {
+      // Second key — try to match
+      const combo = _prefix + upper;
+      const action = REVIT_SHORTCUTS[combo];
+      clearPrefix();
+      if (action) {
+        e.preventDefault();
+        action();
+        // Flash hint as confirmation
+        showHint('⌘ ' + combo);
+        setTimeout(hideHint, 600);
+      }
+      // If no match — silently discard (Revit behavior)
+    }
+  }, true);
+})();
 
 // ─── GOAL 4: Command Palette (Ctrl+K / Cmd+K) ──────────────────────────────────
 // Ctrl+K → Command Palette (handled at line 6776), Ctrl+Shift+K → Node Editor
@@ -11236,12 +11394,14 @@ const renderState = {
 };
 
 // ─── Import FBXExporter ───────────────────────────────────────
-// NOTE: FBXExporter is not part of Three.js core — it must be handled
-// gracefully when unavailable. The catch below already handles this.
-// Version pinned to r160 to match the app importmap (was mismatched at r158).
-import('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/exporters/FBXExporter.js')
+// Use importmap-relative path ('three/addons/') so the browser ES module cache
+// deduplicates against the already-loaded THREE singleton.
+// Raw cdn.jsdelivr.net URL bypasses the importmap and loads a second THREE
+// instance, which causes the 'Multiple instances of Three.js' warning and
+// breaks the renderer. This path resolves to the same CDN URL via importmap.
+import('three/addons/exporters/FBXExporter.js')
   .then(m => { window.__FBXExporter = m.FBXExporter; })
-  .catch(() => { /* FBX export not available */ });
+  .catch(() => { /* FBX export not available in this environment */ });
 
 // ─── Render dropdown toggle ────────────────────────────────────
 const renderDropdown = document.getElementById('render-dropdown');
@@ -23588,3 +23748,96 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
+// ─── Staged Tool Palette — tab switching + keyboard prefix highlighting ────────
+(function() {
+  const tabs   = document.querySelectorAll('.tpal-tab');
+  const panels = document.querySelectorAll('.tpal-panel');
+
+  // Stage → first-key prefix map (for keyboard auto-switch)
+  const STAGE_PREFIXES = {
+    arch:     ['W','D','F','C','R','S','G','L'],
+    struct:   ['C','G','S'],
+    mep:      ['M'],
+    modify:   ['M','R','A','D','G','U'],
+    annotate: ['D','T','K'],
+    analyze:  ['E','S','I','M'],
+  };
+
+  function switchStage(stage) {
+    tabs.forEach(t => {
+      const active = t.dataset.stage === stage;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active);
+    });
+    panels.forEach(p => {
+      const active = p.id === 'tpal-' + stage;
+      p.classList.toggle('active', active);
+      if (active) p.removeAttribute('hidden');
+      else p.setAttribute('hidden', '');
+    });
+    window._activeToolStage = stage;
+    // Expose stage index for MIDI (0-5)
+    window._activeToolStageIndex = ['arch','struct','mep','modify','annotate','analyze'].indexOf(stage);
+  }
+
+  // Wire tab clicks
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => switchStage(tab.dataset.stage));
+  });
+
+  // Keyboard prefix → auto-switch to correct stage + highlight matching buttons
+  const origHandler = window._kbdPrefix;
+  let _lastPrefix = '';
+
+  function onPrefixChange(prefix) {
+    if (prefix === _lastPrefix) return;
+    _lastPrefix = prefix;
+
+    // Clear all highlights
+    document.querySelectorAll('.tpal-btn.kbd-match').forEach(b => b.classList.remove('kbd-match'));
+
+    if (!prefix) return;
+
+    // Find which stage(s) have tools matching this prefix
+    let bestStage = null;
+    document.querySelectorAll('.tpal-btn[data-shortcut]').forEach(btn => {
+      const sc = btn.dataset.shortcut || '';
+      if (sc[0] === prefix) {
+        btn.classList.add('kbd-match');
+        if (!bestStage) {
+          // Find which panel this button is in
+          const panel = btn.closest('.tpal-panel');
+          if (panel) bestStage = panel.id.replace('tpal-', '');
+        }
+      }
+    });
+    if (bestStage && bestStage !== window._activeToolStage) {
+      switchStage(bestStage);
+    }
+  }
+
+  // Poll _kbdPrefix every 50ms (cheap, non-blocking)
+  setInterval(() => {
+    if (window._kbdPrefix) onPrefixChange(window._kbdPrefix());
+  }, 50);
+
+  // Initialize
+  switchStage('arch');
+
+  // Expose for MIDI: window._tpalSwitchStage(index 0-5)
+  window._tpalSwitchStage = (i) => {
+    const stages = ['arch','struct','mep','modify','annotate','analyze'];
+    if (stages[i]) switchStage(stages[i]);
+  };
+  // Expose for MIDI: window._tpalClickTool(stageIndex, toolIndex)
+  window._tpalClickTool = (stageIdx, toolIdx) => {
+    const stages = ['arch','struct','mep','modify','annotate','analyze'];
+    const stage = stages[stageIdx];
+    if (!stage) return;
+    const panel = document.getElementById('tpal-' + stage);
+    if (!panel) return;
+    const btns = panel.querySelectorAll('.tpal-btn');
+    if (btns[toolIdx]) btns[toolIdx].click();
+  };
+})();

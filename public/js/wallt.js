@@ -400,11 +400,48 @@
     addMessageToUI({ role: 'user', content, sources: [], metadata: {}, created_at: new Date().toISOString() });
     showTyping(true);
 
-    // Build project context payload (Phase 34C)
+    // Build project context + live environment snapshot (Phase 35G)
     const projectId = window.currentProjectId || currentProjectId;
     const viewId    = window.currentViewId     || activeViewId;
     const toolName  = window.currentToolName   || activeTool;
-    const projectPayload = projectId ? { project_id: projectId, active_view: viewId, active_tool: toolName } : {};
+
+    // Collect live scene state from app.js globals.
+    // These are populated by app.js whenever selection/scene/camera changes.
+    // Graceful fallback: missing globals → empty env (backend ignores undefined slots).
+    const env = {
+      // View + tool
+      activeView: viewId  || undefined,
+      activeTool: toolName || undefined,
+
+      // Selected element — app.js sets window._walltSelection on click
+      selection: window._walltSelection || undefined,
+
+      // Scene summary — app.js sets window._walltScene on any structural change
+      scene: window._walltScene || undefined,
+
+      // Camera state — app.js sets window._walltCamera on OrbitControls change
+      camera: window._walltCamera || undefined,
+
+      // Model-level stats — app.js sets window._walltModelStats on load/save
+      modelStats: window._walltModelStats || undefined,
+
+      // Walkthrough — reserved; app.js sets window._walltWalkthrough when active
+      walkthrough: window._walltWalkthrough || undefined,
+
+      // Active simulation — app.js sets window._walltSimulation on sim run
+      simulation: window._walltSimulation || undefined,
+
+      // Last 5 user actions — app.js appends to window._walltRecentActions
+      recentActions: Array.isArray(window._walltRecentActions)
+        ? window._walltRecentActions.slice(-5)
+        : undefined,
+    };
+    // Strip undefined keys to keep payload lean
+    const envClean = Object.fromEntries(Object.entries(env).filter(([,v]) => v !== undefined));
+
+    const projectPayload = projectId
+      ? { project_id: projectId, active_view: viewId, active_tool: toolName, env: envClean }
+      : (Object.keys(envClean).length ? { env: envClean } : {});
 
     try {
       let data;

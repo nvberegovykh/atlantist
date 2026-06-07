@@ -258,10 +258,23 @@ async function callWallt(ai, contextWindow, userMessage, ctx = {}) {
     }
   }
 
-  // Build extra system context
+  // Build extra system context — merge project context with live environment data
+  // ctx.env carries the scene snapshot sent by the frontend on every message
+  const env = ctx.env || {};
   const extraCtx = {
     projectName: projectContext?.name,
-    projectId: projectContext ? String(projectContext._projectId || '') : undefined,
+    projectId:   projectContext ? String(projectContext._projectId || '') : undefined,
+    // ── Environment slots (live scene state from frontend) ──
+    activeView:    ctx.active_view   || env.activeView   || undefined,
+    activeTool:    ctx.active_tool   || env.activeTool   || undefined,
+    selection:     env.selection     || undefined,
+    scene:         env.scene         || undefined,
+    camera:        env.camera        || undefined,
+    modelStats:    env.modelStats    || undefined,
+    walkthrough:   env.walkthrough   || undefined,  // reserved: real-time walkthrough feed
+    simulation:    env.simulation    || undefined,
+    recentActions: env.recentActions || undefined,
+    // pass through remaining ctx fields (tight, rectOpinion, etc.)
     ...ctx,
   };
   const systemPrompt = buildSystemPrompt(extraCtx);
@@ -387,7 +400,7 @@ async function callWallt(ai, contextWindow, userMessage, ctx = {}) {
 // ── POST /api/wallt/chat ────────────────────────────────────────────────────
 router.post('/chat', optionalAuth, async (req, res) => {
   try {
-    const { messages, session_id, project_id, active_view, active_tool } = req.body;
+    const { messages, session_id, project_id, active_view, active_tool, env } = req.body;
     if (!Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({ error: 'messages array is required' });
     }
@@ -459,7 +472,8 @@ router.post('/chat', optionalAuth, async (req, res) => {
 
     const { reply, totalTokens, styleScore, sources, actions } = await callWallt(
       ai, contextWindow, lastUserMsg,
-      { projectContext, projectZoningDistrict: projectContext?.zoning_district, userId, rectOpinion, conversationId: session_id, driveContext }
+      { projectContext, projectZoningDistrict: projectContext?.zoning_district, userId, rectOpinion, conversationId: session_id, driveContext,
+        active_view, active_tool, env: env || {} }
     );
 
     // Abort signal was triggered — return cancelled response early
@@ -717,7 +731,7 @@ router.post('/conversations/:id/messages', optionalAuth, async (req, res) => {
     const conv = await getConversationById(convId);
     if (!conv || conv.user_id !== userId) return res.status(404).json({ error: 'Not found' });
 
-    const { content, project_id, active_view, active_tool } = req.body;
+    const { content, project_id, active_view, active_tool, env } = req.body;
     if (!content || !content.trim()) return res.status(400).json({ error: 'Message content is required' });
 
     // Phase 35F: Session memory — init, append user read, extend TTL
@@ -747,7 +761,8 @@ router.post('/conversations/:id/messages', optionalAuth, async (req, res) => {
 
     const { reply, totalTokens, styleScore, sources, actions } = await callWallt(
       ai, window, content.trim(),
-      { projectContext, projectZoningDistrict: projectContext?.zoning_district, userId, conversationId: String(convId) }
+      { projectContext, projectZoningDistrict: projectContext?.zoning_district, userId, conversationId: String(convId),
+        active_view, active_tool, env: env || {} }
     );
 
     // Abort signal was triggered — return cancelled response without persisting message

@@ -551,395 +551,253 @@
 
 <!-- ── ArchiCAD-style Toolbar ─────────────────────────────────────────────── -->
 <div id="toolbar">
-
-  <!-- Group: Levels -->
-  <div class="tg">
-    <button id="btn-levels" class="tool-btn" title="Levels (manage floors)" aria-label="Manage levels">
-      <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      <span class="tb-label">Levels</span>
-    </button>
+  <!-- Stage tabs -->
+  <div id="tpal-tabs" role="tablist" aria-label="Tool stages">
+    <button class="tpal-tab active" data-stage="arch"     role="tab" aria-selected="true"  aria-controls="tpal-arch">Arch</button>
+    <button class="tpal-tab"        data-stage="struct"   role="tab" aria-selected="false" aria-controls="tpal-struct">Struct</button>
+    <button class="tpal-tab"        data-stage="mep"      role="tab" aria-selected="false" aria-controls="tpal-mep">MEP</button>
+    <button class="tpal-tab"        data-stage="modify"   role="tab" aria-selected="false" aria-controls="tpal-modify">Modify</button>
+    <button class="tpal-tab"        data-stage="annotate" role="tab" aria-selected="false" aria-controls="tpal-annotate">Annotate</button>
+    <button class="tpal-tab"        data-stage="analyze"  role="tab" aria-selected="false" aria-controls="tpal-analyze">Analyze</button>
   </div>
 
-  <!-- Group: Draw (walls, columns, openings) -->
-  <div class="tg">
-    <button id="btn-add-wall" class="tool-btn" title="Wall (W)" aria-label="Add wall (W)">
-      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="3" rx="1"/><rect x="3" y="10" width="18" height="3" rx="1"/><rect x="3" y="16" width="18" height="3" rx="1"/></svg>
-      <span class="tb-label">Wall</span>
-    </button>
-    <button id="btn-add-column" class="tool-btn" title="Column (C)" aria-label="Add column (C)">
-      <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="18" rx="1"/><line x1="6" y1="3" x2="18" y2="3"/><line x1="6" y1="21" x2="18" y2="21"/></svg>
-      <span class="tb-label">Column</span>
-    </button>
-    <button id="btn-add-door" class="tool-btn" title="Door (D)" aria-label="Add door (D)">
-      <svg viewBox="0 0 24 24"><path d="M14 21V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16"/><line x1="4" y1="21" x2="20" y2="21"/><path d="M14 8c.9 1.4.9 3.6 0 5" stroke-dasharray="2 1"/></svg>
-      <span class="tb-label">Door</span>
-    </button>
-    <button id="btn-add-window" class="tool-btn" title="Window" aria-label="Add window">
-      <svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="1"/><line x1="12" y1="6" x2="12" y2="18"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
-      <span class="tb-label">Window</span>
-    </button>
-    <button id="btn-add-stair" class="tool-btn" title="Stair" aria-label="Add stair">
-      <svg viewBox="0 0 24 24"><polyline points="3,21 3,16 8,16 8,11 13,11 13,6 18,6 18,3 21,3"/></svg>
-      <span class="tb-label">Stair</span>
-    </button>
-    <button id="btn-add-roof" class="tool-btn" title="Roof" aria-label="Add roof">
-      <svg viewBox="0 0 24 24"><polyline points="3,12 12,3 21,12"/><rect x="5" y="12" width="14" height="9"/></svg>
-      <span class="tb-label">Roof</span>
-    </button>
-  </div>
+  <!-- Stage panels -->
+  <div id="tpal-panels">
 
-  <!-- Group: Horizontal elements -->
-  <div class="tg">
-    <button id="btn-add-floor" class="tool-btn" title="Floor" aria-label="Add floor slab">
-      <svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="4" rx="1"/><line x1="7" y1="7" x2="7" y2="10"/><line x1="12" y1="5" x2="12" y2="10"/><line x1="17" y1="7" x2="17" y2="10"/></svg>
-      <span class="tb-label">Floor</span>
-    </button>
-    <button id="btn-add-ceiling" class="tool-btn" title="Ceiling" aria-label="Add ceiling">
-      <svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="4" rx="1"/><line x1="7" y1="14" x2="7" y2="17"/><line x1="12" y1="14" x2="12" y2="19"/><line x1="17" y1="14" x2="17" y2="17"/></svg>
-      <span class="tb-label">Ceiling</span>
-    </button>
-    <button id="btn-add-room" class="tool-btn" title="Room" aria-label="Add room">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 21V9"/></svg>
-      <span class="tb-label">Room</span>
-    </button>
-    <button id="btn-add-grid" class="tool-btn" title="Structural Grid" aria-label="Add structural grid">
-      <svg viewBox="0 0 24 24"><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/><line x1="8" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="16" y2="21"/></svg>
-      <span class="tb-label">Grid</span>
-    </button>
-    <button id="btn-add-curved-surface" class="tool-btn" title="Curved Surface" aria-label="Add curved surface">
-      <svg viewBox="0 0 24 24"><path d="M3 12 Q8 3 12 12 Q16 21 21 12"/><path d="M3 18 Q8 9 12 18 Q16 27 21 18" opacity="0.5"/></svg>
-      <span class="tb-label">Curved</span>
-    </button>
-  </div>
-
-  <!-- Group: Annotations -->
-  <div class="tg">
-    <button id="btn-annotation" class="tool-btn" title="Annotations" aria-label="Add annotation (dimension, text, keynote, hatch)">
-      <svg viewBox="0 0 24 24"><line x1="4" y1="18" x2="20" y2="18"/><line x1="4" y1="18" x2="4" y2="15"/><line x1="20" y1="18" x2="20" y2="15"/><line x1="12" y1="18" x2="12" y2="5"/></svg>
-      <span class="tb-label">Annotate</span>
-    </button>
-    <!-- Annotation sub-toolbar -->
-    <div id="annotation-toolbar" class="hidden">
-      <button class="tool-btn ann-tool-btn" data-tool="select" title="Select" aria-label="Select annotation tool">
-        <svg viewBox="0 0 24 24"><path d="M5 3l14 9-7 1-4 7-3-17z"/></svg>
-        <span class="tb-label">Sel</span>
+    <!-- Architecture -->
+    <div id="tpal-arch" class="tpal-panel active" role="tabpanel">
+      <button id="btn-levels"             class="tool-btn tpal-btn" data-shortcut="LL" title="Level (LL)" aria-label="Manage levels">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <span class="tb-label">Level</span><span class="tb-kbd">LL</span>
       </button>
-      <button class="tool-btn ann-tool-btn" data-tool="linear_dim" title="Linear Dimension (↔)" aria-label="Linear dimension annotation">
-        <svg viewBox="0 0 24 24"><line x1="4" y1="18" x2="20" y2="18"/><line x1="4" y1="15" x2="4" y2="21"/><line x1="20" y1="15" x2="20" y2="21"/><line x1="12" y1="8" x2="12" y2="18" stroke-dasharray="2 2"/></svg>
-        <span class="tb-label">Dim</span>
+      <button id="btn-add-wall"           class="tool-btn tpal-btn" data-shortcut="WA" title="Wall (WA)" aria-label="Add wall">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="3" rx="1"/><rect x="3" y="10" width="18" height="3" rx="1"/><rect x="3" y="16" width="18" height="3" rx="1"/></svg>
+        <span class="tb-label">Wall</span><span class="tb-kbd">WA</span>
       </button>
-      <button class="tool-btn ann-tool-btn" data-tool="area_tag" title="Area Tag" aria-label="Area tag annotation">
-        <svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2"/><text x="12" y="15" text-anchor="middle" font-size="7" fill="currentColor" stroke="none">m²</text></svg>
-        <span class="tb-label">Tag</span>
+      <button id="btn-add-door"           class="tool-btn tpal-btn" data-shortcut="DR" title="Door (DR)" aria-label="Add door">
+        <svg viewBox="0 0 24 24"><path d="M14 21V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+        <span class="tb-label">Door</span><span class="tb-kbd">DR</span>
       </button>
-      <button class="tool-btn ann-tool-btn" data-tool="text" title="Text" aria-label="Text annotation">
-        <svg viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>
-        <span class="tb-label">Text</span>
+      <button id="btn-add-window"         class="tool-btn tpal-btn" data-shortcut="WN" title="Window (WN)" aria-label="Add window">
+        <svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="1"/><line x1="12" y1="6" x2="12" y2="18"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
+        <span class="tb-label">Window</span><span class="tb-kbd">WN</span>
       </button>
-      <button class="tool-btn ann-tool-btn" data-tool="keynote" title="Keynote" aria-label="Keynote annotation">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><text x="12" y="16" text-anchor="middle" font-size="8" fill="currentColor" stroke="none">01</text></svg>
-        <span class="tb-label">KN</span>
+      <button id="btn-add-floor"          class="tool-btn tpal-btn" data-shortcut="FL" title="Floor (FL)" aria-label="Add floor slab">
+        <svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="4" rx="1"/><line x1="7" y1="7" x2="7" y2="10"/><line x1="12" y1="5" x2="12" y2="10"/><line x1="17" y1="7" x2="17" y2="10"/></svg>
+        <span class="tb-label">Floor</span><span class="tb-kbd">FL</span>
       </button>
-      <button class="tool-btn ann-tool-btn" data-tool="filled_region" title="Hatch Fill" aria-label="Hatch fill region annotation">
-        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><line x1="4" y1="10" x2="20" y2="10" stroke-dasharray="2 2"/><line x1="4" y1="16" x2="20" y2="16" stroke-dasharray="2 2"/></svg>
-        <span class="tb-label">Hatch</span>
+      <button id="btn-add-ceiling"        class="tool-btn tpal-btn" data-shortcut="CL" title="Ceiling (CL)" aria-label="Add ceiling">
+        <svg viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="4" rx="1"/><line x1="7" y1="14" x2="7" y2="17"/><line x1="12" y1="14" x2="12" y2="19"/><line x1="17" y1="14" x2="17" y2="17"/></svg>
+        <span class="tb-label">Ceiling</span><span class="tb-kbd">CL</span>
+      </button>
+      <button id="btn-add-roof"           class="tool-btn tpal-btn" data-shortcut="RF" title="Roof (RF)" aria-label="Add roof">
+        <svg viewBox="0 0 24 24"><polyline points="3,12 12,3 21,12"/><rect x="5" y="12" width="14" height="9"/></svg>
+        <span class="tb-label">Roof</span><span class="tb-kbd">RF</span>
+      </button>
+      <button id="btn-add-stair"          class="tool-btn tpal-btn" data-shortcut="ST" title="Stair (ST)" aria-label="Add stair">
+        <svg viewBox="0 0 24 24"><polyline points="3,21 3,16 8,16 8,11 13,11 13,6 18,6 18,3 21,3"/></svg>
+        <span class="tb-label">Stair</span><span class="tb-kbd">ST</span>
+      </button>
+      <button id="btn-add-room"           class="tool-btn tpal-btn" data-shortcut="RM" title="Room (RM)" aria-label="Add room">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M9 21V9"/></svg>
+        <span class="tb-label">Room</span><span class="tb-kbd">RM</span>
+      </button>
+      <button id="btn-add-curved-surface" class="tool-btn tpal-btn" data-shortcut="CS" title="Curved Surface (CS)" aria-label="Add curved surface">
+        <svg viewBox="0 0 24 24"><path d="M3 12 Q8 3 12 12 Q16 21 21 12"/></svg>
+        <span class="tb-label">Curved</span><span class="tb-kbd">CS</span>
       </button>
     </div>
-  </div>
 
-  <!-- Group: MEP sub-toolbar -->
-  <div id="mep-toolbar">
-    <button id="btn-mep-select" class="tool-btn mep-tool-btn" data-tool="select" title="MEP Select" aria-label="MEP select tool">
-      <svg viewBox="0 0 24 24"><path d="M5 3l14 9-7 1-4 7-3-17z"/></svg>
-      <span class="tb-label">Sel</span>
-    </button>
-    <button id="mep-tool-duct" class="tool-btn mep-tool-btn" data-tool="duct" title="Duct" aria-label="Draw duct route">
-      <svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="6" rx="1"/><line x1="4" y1="12" x2="20" y2="12" stroke-dasharray="3 2"/></svg>
-      <span class="tb-label">Duct</span>
-    </button>
-    <button id="mep-tool-pipe" class="tool-btn mep-tool-btn" data-tool="pipe" title="Pipe" aria-label="Draw pipe route">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><line x1="3" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="21" y2="12"/></svg>
-      <span class="tb-label">Pipe</span>
-    </button>
-    <button id="mep-tool-cable" class="tool-btn mep-tool-btn" data-tool="cable_tray" title="Cable Tray" aria-label="Draw cable tray route">
-      <svg viewBox="0 0 24 24"><path d="M4 10h16v4H4z"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/></svg>
-      <span class="tb-label">Cable</span>
-    </button>
-    <select id="mep-duct-shape" style="display:none">
-      <option value="rect">Rect</option>
-      <option value="round">Round</option>
-    </select>
-    <button id="btn-mep-fixtures" class="tool-btn mep-tool-btn" title="MEP Fixtures — place VAV, sprinkler, panel stubs">
-      <svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="8" rx="1"/><rect x="9" y="13" width="6" height="6" rx="1"/><circle cx="7" cy="9" r="1.5"/><circle cx="12" cy="9" r="1.5"/><circle cx="17" cy="9" r="1.5"/></svg>
-      <span class="tb-label">Fixtures</span>
-    </button>
-  </div>
+    <!-- Structure -->
+    <div id="tpal-struct" class="tpal-panel" role="tabpanel" hidden>
+      <button id="btn-add-column"         class="tool-btn tpal-btn" data-shortcut="CO" title="Column (CO)" aria-label="Add column">
+        <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="18" rx="1"/><line x1="6" y1="3" x2="18" y2="3"/><line x1="6" y1="21" x2="18" y2="21"/></svg>
+        <span class="tb-label">Column</span><span class="tb-kbd">CO</span>
+      </button>
+      <button id="btn-add-grid"           class="tool-btn tpal-btn" data-shortcut="GR" title="Grid (GR)" aria-label="Add structural grid">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/><line x1="8" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="16" y2="21"/></svg>
+        <span class="tb-label">Grid</span><span class="tb-kbd">GR</span>
+      </button>
+      <button id="btn-structural"         class="tool-btn tpal-btn" data-shortcut="SA" title="Structural FEA (SA)" aria-label="Structural analysis" onclick="openStructuralPanel()">
+        <svg viewBox="0 0 24 24"><polyline points="3,17 7,7 12,14 16,9 21,17"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
+        <span class="tb-label">FEA</span><span class="tb-kbd">SA</span>
+      </button>
+      <button id="btn-validate-all"       class="tool-btn tpal-btn" title="Validate All" aria-label="Validate All" onclick="openStructuralPanelAudit()">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9,12 11,14 15,10"/></svg>
+        <span class="tb-label">Validate</span><span class="tb-kbd"></span>
+      </button>
+    </div>
 
-  <!-- Group: Transform (Rotate) -->
-  <div class="tg">
-    <button id="btn-group-rotate" class="tool-btn" title="Rotate 45° CW — select 2+ objects (Ctrl+click), then press Space or this button" aria-label="Rotate selection 45 degrees clockwise">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 2v6h-6"/>
-        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
-        <circle cx="12" cy="12" r="3" stroke-dasharray="2 1"/>
-      </svg>
-      <span class="tb-label">Rotate 45°</span>
-    </button>
-    <button id="btn-group-rotate-undo" class="tool-btn" title="Undo last group rotation (Ctrl+Z also works)" aria-label="Undo last group rotation">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 7v6h6"/>
-        <path d="M21 17a9 9 0 0 0-15-6.7L3 13"/>
-      </svg>
-      <span class="tb-label">Undo Rot</span>
-    </button>
-  </div>
+    <!-- MEP -->
+    <div id="tpal-mep" class="tpal-panel" role="tabpanel" hidden>
+      <button id="btn-mep"                class="tool-btn tpal-btn" data-shortcut="ME" title="MEP Simulation (ME)" aria-label="MEP simulation">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+        <span class="tb-label">MEP</span><span class="tb-kbd">ME</span>
+      </button>
+      <button id="mep-tool-duct"          class="tool-btn tpal-btn mep-tool-btn" data-tool="duct" title="Duct" aria-label="Draw duct route">
+        <svg viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="6" rx="1"/><line x1="4" y1="12" x2="20" y2="12" stroke-dasharray="3 2"/></svg>
+        <span class="tb-label">Duct</span><span class="tb-kbd"></span>
+      </button>
+      <button id="mep-tool-pipe"          class="tool-btn tpal-btn mep-tool-btn" data-tool="pipe" title="Pipe" aria-label="Draw pipe route">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><line x1="3" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="21" y2="12"/></svg>
+        <span class="tb-label">Pipe</span><span class="tb-kbd"></span>
+      </button>
+      <button id="mep-tool-cable"         class="tool-btn tpal-btn mep-tool-btn" data-tool="cable_tray" title="Cable Tray" aria-label="Draw cable tray route">
+        <svg viewBox="0 0 24 24"><path d="M4 10h16v4H4z"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="12" y1="10" x2="12" y2="14"/><line x1="16" y1="10" x2="16" y2="14"/></svg>
+        <span class="tb-label">Cable</span><span class="tb-kbd"></span>
+      </button>
+      <button id="btn-mep-fixtures"       class="tool-btn tpal-btn mep-tool-btn" title="MEP Fixtures" aria-label="MEP fixtures">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/><line x1="9" y1="10" x2="15" y2="14"/></svg>
+        <span class="tb-label">Fixtures</span><span class="tb-kbd"></span>
+      </button>
+      <button id="btn-geo"                class="tool-btn tpal-btn" title="Geotechnical" aria-label="Geotechnical analysis">
+        <svg viewBox="0 0 24 24"><path d="M3 21h18M3 15h18M3 9h18"/><path d="M12 3v18" stroke-dasharray="2 2"/></svg>
+        <span class="tb-label">Geo</span><span class="tb-kbd"></span>
+      </button>
+    </div>
 
-  <!-- Group: Modify (ArchiCAD-style) -->
-  <div class="tg">
-    <button id="btn-mod-move" class="tool-btn" title="Move (M)" aria-label="Move selected elements (M)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 9l-3 3 3 3"/><path d="M9 5l3-3 3 3"/>
-        <path d="M19 15l3-3-3-3"/><path d="M15 19l-3 3-3-3"/>
-        <line x1="12" y1="3" x2="12" y2="21"/>
-      </svg>
-      <span class="tb-label">Move</span>
-    </button>
-    <button id="btn-mod-copy" class="tool-btn" title="Copy (Shift+C)" aria-label="Copy selected elements (Shift+C)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="9" y="9" width="13" height="13" rx="2"/>
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-      </svg>
-      <span class="tb-label">Copy</span>
-    </button>
-    <button id="btn-mod-mirror" class="tool-btn" title="Mirror — select element, click to mirror across active axis" aria-label="Mirror selected elements">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="3" x2="12" y2="21" stroke-dasharray="3 2"/>
-        <path d="M3 12h4M17 12h4"/>
-        <path d="M8 6l4 6-4 6M16 6l-4 6 4 6"/>
-      </svg>
-      <span class="tb-label">Mirror</span>
-    </button>
-    <button id="btn-mod-array" class="tool-btn" title="Array — duplicate selected elements in a linear pattern" aria-label="Create array from selected elements">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="6" height="6" rx="1"/>
-        <rect x="10" y="10" width="6" height="6" rx="1"/>
-        <rect x="17" y="17" width="4" height="4" rx="1" opacity="0.4"/>
-        <line x1="9" y1="6" x2="10" y2="10" stroke-dasharray="2 1"/>
-        <line x1="16" y1="13" x2="17" y2="17" stroke-dasharray="2 1"/>
-      </svg>
-      <span class="tb-label">Array</span>
-    </button>
-    <button id="btn-mod-delete" class="tool-btn" title="Delete (Del)" aria-label="Delete selected elements (Del)" style="color:#e74c3c">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-        <path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-      </svg>
-      <span class="tb-label" style="color:#e74c3c">Delete</span>
-    </button>
-    <button id="btn-mod-group" class="tool-btn" title="Group (Ctrl+G)" aria-label="Group selected elements (Ctrl+G)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
-        <line x1="11" y1="11" x2="13" y2="13"/>
-      </svg>
-      <span class="tb-label">Group</span>
-    </button>
-  </div>
+    <!-- Modify -->
+    <div id="tpal-modify" class="tpal-panel" role="tabpanel" hidden>
+      <button id="btn-mod-move"           class="tool-btn tpal-btn" data-shortcut="MV" title="Move (MV)" aria-label="Move selected elements">
+        <svg viewBox="0 0 24 24"><polyline points="5,9 2,12 5,15"/><polyline points="9,5 12,2 15,5"/><polyline points="15,19 12,22 9,19"/><polyline points="19,9 22,12 19,15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+        <span class="tb-label">Move</span><span class="tb-kbd">MV</span>
+      </button>
+      <button id="btn-mod-copy"           class="tool-btn tpal-btn" data-shortcut="CC" title="Copy (CC)" aria-label="Copy selected elements">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span class="tb-label">Copy</span><span class="tb-kbd">CC</span>
+      </button>
+      <button id="btn-group-rotate"       class="tool-btn tpal-btn" data-shortcut="RO" title="Rotate (RO)" aria-label="Rotate selection">
+        <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38"/></svg>
+        <span class="tb-label">Rotate</span><span class="tb-kbd">RO</span>
+      </button>
+      <button id="btn-mod-mirror"         class="tool-btn tpal-btn" data-shortcut="MM" title="Mirror (MM)" aria-label="Mirror selected elements">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="7,8 3,12 7,16"/><polyline points="17,8 21,12 17,16"/></svg>
+        <span class="tb-label">Mirror</span><span class="tb-kbd">MM</span>
+      </button>
+      <button id="btn-mod-array"          class="tool-btn tpal-btn" data-shortcut="AR" title="Array (AR)" aria-label="Create array">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="5" rx="1"/><rect x="10" y="3" width="5" height="5" rx="1"/><rect x="17" y="3" width="5" height="5" rx="1"/><rect x="3" y="10" width="5" height="5" rx="1"/><rect x="10" y="10" width="5" height="5" rx="1"/></svg>
+        <span class="tb-label">Array</span><span class="tb-kbd">AR</span>
+      </button>
+      <button id="btn-mod-delete"         class="tool-btn tpal-btn" data-shortcut="DE" title="Delete (DE / Del)" aria-label="Delete selected elements" style="--btn-danger:1">
+        <svg viewBox="0 0 24 24"><polyline points="3,6 5,6 21,6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        <span class="tb-label">Delete</span><span class="tb-kbd">DE</span>
+      </button>
+      <button id="btn-mod-group"          class="tool-btn tpal-btn" data-shortcut="GP" title="Group (GP / Ctrl+G)" aria-label="Group selected elements">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        <span class="tb-label">Group</span><span class="tb-kbd">GP</span>
+      </button>
+      <button id="btn-group-rotate-undo"  class="tool-btn tpal-btn" title="Undo Rotation" aria-label="Undo last group rotation">
+        <svg viewBox="0 0 24 24"><path d="M2.5 2v6h6"/><path d="M2.66 15.57a10 10 0 1 0 .57-8.38"/></svg>
+        <span class="tb-label">Un-Rot</span><span class="tb-kbd"></span>
+      </button>
+      <button id="btn-type-library"       class="tool-btn tpal-btn" title="Type Library (UP)" aria-label="Open type library" onclick="openTypeLibrary()">
+        <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        <span class="tb-label">Types</span><span class="tb-kbd">UP</span>
+      </button>
+      <button id="btn-node-editor"        class="tool-btn tpal-btn" title="Visual Scripting" aria-label="Open Node Editor" onclick="window._ne && window._ne.open()">
+        <svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><line x1="8" y1="12" x2="16" y2="6.8"/><line x1="8" y1="12" x2="16" y2="17.2"/></svg>
+        <span class="tb-label">Script</span><span class="tb-kbd"></span>
+      </button>
+    </div>
 
-  <!-- Group: Library + Guide -->
-  <div class="tg">
-    <button id="btn-type-library" class="tool-btn" title="Type Library — browse all parametric element types" aria-label="Open type library" onclick="openTypeLibrary()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-      </svg>
-      <span class="tb-label">Type Lib</span>
-    </button>
-    <button id="btn-design-guide" class="tool-btn" title="Design Guide — step-by-step BIM workflow walkthrough" aria-label="Open design guide" onclick="openDesignGuide()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-      </svg>
-      <span class="tb-label">Guide</span>
-    </button>
-  </div>
+    <!-- Annotate -->
+    <div id="tpal-annotate" class="tpal-panel" role="tabpanel" hidden>
+      <button id="btn-annotation"         class="tool-btn tpal-btn" data-shortcut="DI" title="Annotation (DI)" aria-label="Add annotation">
+        <svg viewBox="0 0 24 24"><line x1="4" y1="18" x2="20" y2="18"/><line x1="4" y1="18" x2="4" y2="15"/><line x1="20" y1="18" x2="20" y2="15"/><line x1="12" y1="18" x2="12" y2="5"/></svg>
+        <span class="tb-label">Dimension</span><span class="tb-kbd">DI</span>
+      </button>
+      <button class="tool-btn tpal-btn ann-tool-btn" data-tool="linear_dim" data-shortcut="DI" title="Linear Dimension (DI)" aria-label="Linear dimension">
+        <svg viewBox="0 0 24 24"><line x1="4" y1="18" x2="20" y2="18"/><line x1="4" y1="15" x2="4" y2="21"/><line x1="20" y1="15" x2="20" y2="21"/></svg>
+        <span class="tb-label">Linear</span><span class="tb-kbd">DI</span>
+      </button>
+      <button class="tool-btn tpal-btn ann-tool-btn" data-tool="text" data-shortcut="TX" title="Text (TX)" aria-label="Text annotation">
+        <svg viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>
+        <span class="tb-label">Text</span><span class="tb-kbd">TX</span>
+      </button>
+      <button class="tool-btn tpal-btn ann-tool-btn" data-tool="area_tag" data-shortcut="TG" title="Area Tag (TG)" aria-label="Area tag">
+        <svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2"/><text x="12" y="15" text-anchor="middle" font-size="7" fill="currentColor" stroke="none">m²</text></svg>
+        <span class="tb-label">Tag</span><span class="tb-kbd">TG</span>
+      </button>
+      <button class="tool-btn tpal-btn ann-tool-btn" data-tool="keynote" data-shortcut="KN" title="Keynote (KN)" aria-label="Keynote">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><text x="12" y="16" text-anchor="middle" font-size="8" fill="currentColor" stroke="none">01</text></svg>
+        <span class="tb-label">Keynote</span><span class="tb-kbd">KN</span>
+      </button>
+      <button class="tool-btn tpal-btn ann-tool-btn" data-tool="filled_region" title="Hatch Fill" aria-label="Hatch fill">
+        <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1"/><line x1="4" y1="10" x2="20" y2="10" stroke-dasharray="2 2"/><line x1="4" y1="16" x2="20" y2="16" stroke-dasharray="2 2"/></svg>
+        <span class="tb-label">Hatch</span><span class="tb-kbd"></span>
+      </button>
+      <button id="btn-show-schedule"      class="tool-btn tpal-btn" title="Schedule" aria-label="Show schedule">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        <span class="tb-label">Schedule</span><span class="tb-kbd"></span>
+      </button>
+      <button id="btn-design-book"        class="tool-btn tpal-btn" title="Design Book" aria-label="Design book" onclick="toggleDesignBook()">
+        <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span class="tb-label">Book</span><span class="tb-kbd"></span>
+      </button>
+      <button id="btn-show-issues"        class="tool-btn tpal-btn" title="Issues" aria-label="Issues panel">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span class="tb-label">Issues</span><span class="tb-kbd"></span>
+      </button>
+    </div>
 
-  <!-- Spacer pushes right-side tools to the right -->
-  <div class="tg-spacer"></div>
+    <!-- Analyze -->
+    <div id="tpal-analyze" class="tpal-panel" role="tabpanel" hidden>
+      <button id="btn-simulations"        class="tool-btn tpal-btn" title="Simulations" aria-label="Simulations launcher" onclick="document.getElementById('modal-simulations').style.display='flex';document.getElementById('modal-simulations').classList.remove('hidden')">
+        <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+        <span class="tb-label">Run All</span><span class="tb-kbd"></span>
+      </button>
+      <button id="btn-energy"             class="tool-btn tpal-btn" data-shortcut="EN" title="Energy Analysis (EN)" aria-label="Energy analysis">
+        <svg viewBox="0 0 24 24"><polyline points="13,2 13,9 20,9"/><path d="M2 11.5A10 10 0 1 0 20.5 4"/><polyline points="20,9 20.5,4 15.5,4"/></svg>
+        <span class="tb-label">Energy</span><span class="tb-kbd">EN</span>
+      </button>
+      <button id="btn-fire"               class="tool-btn tpal-btn" title="Fire Protection" aria-label="Fire protection">
+        <svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+        <span class="tb-label">Fire</span><span class="tb-kbd"></span>
+      </button>
+      <button id="btn-yearviz"            class="tool-btn tpal-btn" title="Year Energy Viz" aria-label="Year energy visualization">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+        <span class="tb-label">Year Viz</span><span class="tb-kbd"></span>
+      </button>
+      <button id="btn-ifc-import"         class="tool-btn tpal-btn" data-shortcut="IC" title="IFC Import (IC)" aria-label="Import IFC file">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17,8 12,3 7,8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span class="tb-label">IFC In</span><span class="tb-kbd">IC</span>
+      </button>
+      <button id="btn-ifc-export"         class="tool-btn tpal-btn" data-shortcut="IE" title="IFC Export (IE)" aria-label="Export IFC file">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span class="tb-label">IFC Out</span><span class="tb-kbd">IE</span>
+      </button>
+      <button id="btn-export-cad"         class="tool-btn tpal-btn" data-shortcut="EU" title="DXF Export (EU)" aria-label="Export DXF">
+        <svg viewBox="0 0 24 24"><polygon points="12,2 2,7 12,12 22,7"/><polyline points="2,17 12,22 22,17"/><polyline points="2,12 12,17 22,12"/></svg>
+        <span class="tb-label">DXF</span><span class="tb-kbd">EU</span>
+      </button>
+      <button id="btn-aps"                class="tool-btn tpal-btn" title="APS / RVT Import" aria-label="Autodesk APS and RVT import" onclick="document.getElementById('modal-aps').style.display='flex';document.getElementById('modal-aps').classList.remove('hidden')">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        <span class="tb-label">RVT</span><span class="tb-kbd"></span>
+      </button>
+      <button id="btn-violation"          class="tool-btn tpal-btn" title="Violation Tracker" aria-label="Violation tracker" onclick="document.getElementById('modal-violation').style.display='flex';document.getElementById('modal-violation').classList.remove('hidden')">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="tb-label">Violations</span><span class="tb-kbd"></span>
+      </button>
+      <button id="btn-gantt"              class="tool-btn tpal-btn" title="Project Schedule" aria-label="Project schedule" onclick="document.getElementById('modal-gantt').style.display='flex';document.getElementById('modal-gantt').classList.remove('hidden')">
+        <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        <span class="tb-label">Schedule</span><span class="tb-kbd"></span>
+      </button>
+    </div>
 
-  <!-- Group: Data (schedules, issues, IFC) -->
-  <div class="tg">
-    <button id="btn-show-schedule" class="tool-btn" title="Schedule (door/window/room)" aria-label="Show door, window, and room schedule">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
-      <span class="tb-label">Schedule</span>
-    </button>
-    <button id="btn-design-book" class="tool-btn" title="Design Book — auto-generate sheets from model" aria-label="Open design book" onclick="toggleDesignBook()">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg>
-      <span class="tb-label">Design Book</span>
-    </button>
-    <button id="btn-show-issues" class="tool-btn" title="Issues" aria-label="Show issues panel">
-      <svg viewBox="0 0 24 24"><path d="M12 2l9 16H3L12 2z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>
-      <span class="tb-label">Issues</span>
-    </button>
-    <button id="btn-ifc-import" class="tool-btn" title="IFC Import" aria-label="Import IFC file">
-      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <span class="tb-label">IFC In</span>
-    </button>
-    <button id="btn-ifc-export" class="tool-btn" title="IFC Export" aria-label="Export IFC file">
-      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      <span class="tb-label">IFC Out</span>
-    </button>
-    <button id="btn-export-cad" class="tool-btn" title="Export DXF" aria-label="Export DXF for CAD">
-      <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-      <span class="tb-label">DXF</span>
-    </button>
-  </div>
+  </div><!-- /tpal-panels -->
 
-  <!-- Group: Analysis -->
-  <div class="tg">
-    <button id="btn-simulations" class="tool-btn" title="Simulations — unified launcher for all analysis engines" aria-label="Open simulations launcher" onclick="document.getElementById('modal-simulations').style.display='flex';document.getElementById('modal-simulations').classList.remove('hidden')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-      <span class="tb-label">Simulations</span>
-    </button>
-    <button id="btn-energy" class="tool-btn" title="Energy Analysis" aria-label="Energy analysis">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-      <span class="tb-label">Energy</span>
-    </button>
-    <button id="btn-fire" class="tool-btn" title="Fire Protection" aria-label="Fire protection analysis">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-      <span class="tb-label">Fire</span>
-    </button>
-    <button id="btn-mep" class="tool-btn" title="MEP Simulation — HVAC, Plumbing, Electrical, Fixtures" aria-label="MEP simulation">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="10" rx="1.5"/><path d="M2 15h20M7 15v4M17 15v4"/><circle cx="6" cy="10" r="1.5" fill="currentColor"/><circle cx="12" cy="10" r="1.5" fill="currentColor"/><circle cx="18" cy="10" r="1.5" fill="currentColor"/><path d="M9 10h6"/></svg>
-      <span class="tb-label">MEP</span>
-    </button>
-    <button id="btn-geo" class="tool-btn" title="Geotechnical Analysis" aria-label="Geotechnical analysis">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M12 3v4M12 17v4M3.5 7.5l3.2 1.8M17.3 16.2l-3.2 1.8M3.5 16.5l3.2-1.8M17.3 7.8l-3.2-1.8"/></svg>
-      <span class="tb-label">Geo</span>
-    </button>
-    <button id="btn-structural" class="tool-btn" title="Structural FEA — member checks, deflection, stress viz" aria-label="Structural analysis" onclick="openStructuralPanel()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="3" rx="1"/><rect x="3" y="18" width="18" height="3" rx="1"/><line x1="7" y1="6" x2="7" y2="18"/><line x1="12" y1="6" x2="12" y2="18"/><line x1="17" y1="6" x2="17" y2="18"/></svg>
-      <span class="tb-label">Structural</span>
-    </button>
-    <button id="btn-module" class="tool-btn" title="Module System — base M, unit system, attachment engine" aria-label="Module system setup" onclick="openModulePanel()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><line x1="10" y1="6.5" x2="14" y2="6.5"/><line x1="10" y1="17.5" x2="14" y2="17.5"/><line x1="6.5" y1="10" x2="6.5" y2="14"/><line x1="17.5" y1="10" x2="17.5" y2="14"/></svg>
-      <span class="tb-label">Module</span>
-    </button>
-    <button id="btn-validate-all" class="tool-btn" title="Validate All — structural audit, attachment validation, code compliance" aria-label="Validate All — run structural audit" onclick="openStructuralPanelAudit()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><circle cx="12" cy="12" r="9"/></svg>
-      <span class="tb-label" style="color:#c084fc">Validate</span>
-    </button>
-    <button id="btn-node-editor" class="tool-btn" title="Visual Scripting — Node Editor (Dynamo/Grasshopper style)" aria-label="Open Node Editor" onclick="window._ne && window._ne.open()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="8" height="6" rx="1"/><rect x="13" y="8" width="8" height="6" rx="1"/><path d="M11 6h2M11 11h2"/><path d="M7 9 L13 11"/></svg>
-      <span class="tb-label">Nodes</span>
-    </button>
-    <button id="btn-yearviz" class="tool-btn" title="Year Visualization" aria-label="Year energy visualization">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="3 12 8 7 13 11 18 6"/><polyline points="3 18 8 14 13 17 18 13" opacity="0.5"/></svg>
-      <span class="tb-label">Year Viz</span>
-    </button>
-    <button id="btn-run-energy" class="tool-btn" title="Run Simulation" aria-label="Run energy simulation">
-      <svg viewBox="0 0 24 24" fill="none" stroke="none" aria-hidden="true"><polygon points="5,3 19,12 5,21" fill="currentColor"/></svg>
-      <span class="tb-label">Sim</span>
-    </button>
-  </div>
+  <!-- MEP duct shape selector (hidden until duct tool active) -->
+  <select id="mep-duct-shape" style="display:none"><option value="rect">Rect</option><option value="round">Round</option></select>
 
-  <!-- Group: Integrations + extra tools -->
-  <div class="tg">
-    <button id="btn-aps" class="tool-btn" title="Autodesk APS / Revit Import" aria-label="Autodesk APS and RVT import" onclick="document.getElementById('modal-aps').style.display='flex';document.getElementById('modal-aps').classList.remove('hidden')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><path d="M17 13v2m0 4v-2m0 0h-2m4 0h-2" stroke-width="2"/></svg>
-      <span class="tb-label">APS</span>
-    </button>
-    <button id="btn-violation" class="tool-btn" title="Violation Tracker — code compliance alerts" aria-label="Violation tracker" onclick="document.getElementById('modal-violation').style.display='flex';document.getElementById('modal-violation').classList.remove('hidden')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span class="tb-label">Violations</span>
-    </button>
-    <button id="btn-gantt" class="tool-btn" title="Project Schedule — Gantt &amp; task planning" aria-label="Project schedule and Gantt" onclick="document.getElementById('modal-gantt').style.display='flex';document.getElementById('modal-gantt').classList.remove('hidden')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="14" x2="21" y2="14"/><line x1="8" y1="4" x2="8" y2="20"/></svg>
-      <span class="tb-label">Schedule</span>
-    </button>
-    <button id="btn-dob-tracker" class="tool-btn" title="DOB Filing Tracker — submission status" aria-label="DOB filing tracker" onclick="openDobTracker()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="9 15 12 18 15 15"/><line x1="12" y1="12" x2="12" y2="18"/></svg>
-      <span class="tb-label">DOB Filing</span>
-    </button>
-  </div>
+  <!-- Annotation sub-toolbar (legacy — hidden, kept for JS compat) -->
+  <div id="annotation-toolbar" class="hidden" style="display:none!important"></div>
 
-  <!-- Group: Collaboration + misc -->
-  <div class="tg">
-    <button id="btn-design-book-alt" class="tool-btn" title="Design Book — auto-generate sheets from model" aria-label="Open design book" onclick="toggleDesignBook()">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <span class="tb-label">Design</span>
-    </button>
-    <button id="btn-collab" class="tool-btn" title="Collaborate (share link)" aria-label="Collaboration and share">
-      <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-      <span class="tb-label">Share</span>
-    </button>
-    <button id="btn-render" class="tool-btn" title="AI Render" aria-label="AI architectural render">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-      <span class="tb-label">Render</span>
-    </button>
-    <button id="btn-help" class="tool-btn" title="Help &amp; Support (?)" aria-label="Help and support">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span class="tb-label">Help</span>
-    </button>
-    <button id="btn-forum" class="tool-btn" title="Community Forum" aria-label="Community forum">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      <span class="tb-label">Forum</span>
-    </button>
-  </div>
-
-  <!-- ── Contextual toolbar groups (app-shell.js applyToolbarContext) ────── -->
-  <!-- Shown via .context-visible when an element of that type is selected   -->
-  <div class="toolbar-context-group tg" data-context="wall" aria-label="Wall context tools">
-    <button class="tool-btn" title="Edit Wall Layers" aria-label="Edit wall layer stack" onclick="window.switchPropsTab&&switchPropsTab('materials')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="3" rx="1"/><rect x="3" y="11" width="18" height="3" rx="1"/><rect x="3" y="17" width="18" height="3" rx="1"/></svg>
-      <span class="tb-label">Layers</span>
-    </button>
-    <button class="tool-btn" title="Wall Constraints" aria-label="View wall DAG constraints" onclick="window.switchPropsTab&&switchPropsTab('constraints')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l4 4-4 4-4-4z"/><path d="M12 10v12"/><path d="M6 14l6 2 6-2"/></svg>
-      <span class="tb-label">Constraints</span>
-    </button>
-    <button class="tool-btn" title="Wall Violations" aria-label="Check wall code violations" onclick="window.switchPropsTab&&switchPropsTab('violations')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span class="tb-label">Violations</span>
-    </button>
-  </div>
-
-  <div class="toolbar-context-group tg" data-context="door" aria-label="Door context tools">
-    <button class="tool-btn" title="Door Family Properties" aria-label="Edit door family type" onclick="window.switchPropsTab&&switchPropsTab('properties')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 21V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v16"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
-      <span class="tb-label">Door Type</span>
-    </button>
-    <button class="tool-btn" title="Fire Rating" aria-label="View fire rating for selected door" onclick="window.switchPropsTab&&switchPropsTab('violations')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22c5 0 8-3.5 8-8 0-4-4-8-4-8s-1 3-3 4c0 0-1-3-3-5C10 5 4 9 4 14c0 4.5 3 8 8 8z"/></svg>
-      <span class="tb-label">Fire Rating</span>
-    </button>
-  </div>
-
-  <div class="toolbar-context-group tg" data-context="window" aria-label="Window context tools">
-    <button class="tool-btn" title="Window Family Properties" aria-label="Edit window family type" onclick="window.switchPropsTab&&switchPropsTab('properties')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="16" height="12" rx="1"/><line x1="12" y1="6" x2="12" y2="18"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
-      <span class="tb-label">Window Type</span>
-    </button>
-    <button class="tool-btn" title="Glazing Materials" aria-label="View window glazing materials" onclick="window.switchPropsTab&&switchPropsTab('materials')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6l8-4 8 4v12l-8 4-8-4z"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="4" y1="10" x2="20" y2="10"/></svg>
-      <span class="tb-label">Glazing</span>
-    </button>
-  </div>
-
-  <div class="toolbar-context-group tg" data-context="stair" aria-label="Stair context tools">
-    <button class="tool-btn" title="Stair IBC Compliance" aria-label="Check stair IBC code compliance" onclick="window.switchPropsTab&&switchPropsTab('violations')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,21 3,16 8,16 8,11 13,11 13,6 18,6 18,3 21,3"/></svg>
-      <span class="tb-label">IBC Check</span>
-    </button>
-    <button class="tool-btn" title="Railing Configuration" aria-label="Configure stair railing" onclick="window.switchPropsTab&&switchPropsTab('properties')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="5" y1="6" x2="5" y2="18"/><line x1="10" y1="6" x2="10" y2="18"/><line x1="15" y1="6" x2="15" y2="18"/><line x1="20" y1="6" x2="20" y2="18"/></svg>
-      <span class="tb-label">Railings</span>
-    </button>
-  </div>
-
-  <div class="toolbar-context-group tg" data-context="floor" aria-label="Floor context tools">
-    <button class="tool-btn" title="Floor Layer Stack" aria-label="Edit floor construction layers" onclick="window.switchPropsTab&&switchPropsTab('materials')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="3" rx="1"/><rect x="3" y="13" width="18" height="3" rx="1"/><rect x="3" y="18" width="18" height="3" rx="1"/></svg>
-      <span class="tb-label">Layers</span>
-    </button>
+  <!-- Toolbar context groups (legacy — kept for JS compat, visually hidden) -->
+  <div class="tg" style="display:none">
+    <button id="btn-mep-select" class="tool-btn mep-tool-btn" data-tool="select" style="display:none"></button>
+    <button id="btn-run-energy" class="tool-btn" style="display:none"></button>
+    <button id="btn-design-guide" class="tool-btn" style="display:none" onclick="openDesignGuide()"></button>
+    <button id="btn-summary" style="display:none" onclick="showProjectSummary && showProjectSummary()"></button>
   </div>
 
 </div>
