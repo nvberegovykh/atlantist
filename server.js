@@ -427,4 +427,20 @@ server.listen(port, async () => {
   walltSessionStore.cleanupOrphanedSessions().catch(e => console.warn('[wallt-session] Cleanup:', e?.message));
   await seedAdmin();
   walltCache.init().catch(e => console.warn('[wallt-cache] init:', e?.message));
+
+  // ── Keep-alive self-ping (Render free tier spins down after 15min idle) ──
+  // Pings /health every 10 minutes so the instance stays warm.
+  // Only runs when RENDER=true (set automatically by Render environment).
+  if (process.env.RENDER) {
+    const http_ = require('http');
+    const PING_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+    const selfPing = () => {
+      const req = http_.get(`http://localhost:${port}/health`, { timeout: 5000 }, (res) => {
+        res.resume(); // drain
+      });
+      req.on('error', () => {}); // silent — server may be restarting
+    };
+    setInterval(selfPing, PING_INTERVAL_MS);
+    console.log('[keep-alive] Self-ping active — every 10 min to prevent Render spin-down.');
+  }
 });
