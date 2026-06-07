@@ -264,6 +264,7 @@ app.use('/api/catalog', require('./routes/catalog'));
 app.use('/api/auth', authRateLimit, require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/projects', require('./routes/projects'));
+app.use('/api/explorer', require('./routes/explorer'));
 app.use('/api/matching', require('./routes/matching'));
 app.use('/api/leads', require('./routes/leads'));
 app.use('/api/support', require('./routes/support'));

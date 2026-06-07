@@ -111,34 +111,50 @@ export async function initEntryScreen() {
   // Init anonymous session so backend recognises this browser
   await _initAnonSession();
 
-  _setLoadingBar(55);
+  _setLoadingBar(70);
 
-  const overlay = document.getElementById('entry-screen-overlay');
-  if (!overlay) return;
+  // ── Cloud OS Explorer (replaces legacy card grid) ──────────────────────────
+  // Hide old overlay — it still exists for compat but Cloud Explorer takes over
+  const oldOverlay = document.getElementById('entry-screen-overlay');
+  if (oldOverlay) oldOverlay.style.display = 'none';
 
-  // Inject directory icons into sidebar
-  _injectSidebarIcons();
-
-  overlay.style.opacity = '0';
-  overlay.style.display = 'flex';
-
-  // Fade in
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      overlay.style.transition = 'opacity .3s ease-out';
-      overlay.style.opacity = '1';
-    });
-  });
-
-  await _bindEntryScreen();
-
-  // Hide the app-loading overlay NOW (before _loadProjects) so user sees entry screen
-  // while projects are fetching. Don't wait for project list load to dismiss the spinner.
+  // Hide app-loading overlay so explorer is visible
   const appLoading = document.getElementById('app-loading-overlay');
   if (appLoading) { appLoading.style.opacity = '0'; setTimeout(() => { appLoading.style.display = 'none'; }, 300); }
 
-  _setLoadingBar(80);
-  await _loadProjects();
+  _setLoadingBar(90);
+
+  // Expose _openProject globally so CloudExplorer can call it on project open
+  window._bootProject = function(projectId, opts = {}) {
+    _openProject(projectId, false, opts);
+  };
+
+  // Resolve user initials for avatar
+  let initials = 'A';
+  try {
+    const meData = await _api('GET', '/api/users/me').catch(() => null);
+    if (meData && meData.email) {
+      const parts = (meData.first_name || meData.email).split(/[@ ]/)[0];
+      initials = parts.slice(0, 2).toUpperCase();
+    }
+  } catch { /* ok */ }
+
+  // Mount Cloud OS Explorer
+  if (window.CloudExplorer) {
+    window.CloudExplorer.mount({ initials });
+  } else {
+    // Lazy-load explorer.js then mount
+    await new Promise((resolve, reject) => {
+      if (document.querySelector('script[src*="explorer.js"]')) { resolve(); return; }
+      const s = document.createElement('script');
+      s.src = '/js/explorer.js?v=1';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.body.appendChild(s);
+    }).catch(() => {});
+    if (window.CloudExplorer) window.CloudExplorer.mount({ initials });
+  }
+
   _setLoadingBar(100);
 }
 
@@ -506,35 +522,38 @@ async function _submitNewProject() {
   }
 }
 
-async function _openProject(projectId, isTemplate = false) {
+async function _openProject(projectId, isTemplate = false, opts = {}) {
   if (isTemplate) {
     // Show template preview modal with instantiate option
     await _showTemplateModal(projectId);
     return;
   }
 
-  // Fade out entry screen
-  const overlay = document.getElementById('entry-screen-overlay');
-  overlay.style.transition = 'opacity .3s ease-in';
-  overlay.style.opacity = '0';
+  // Dismiss Cloud OS Explorer if it's mounted
+  if (window.CloudExplorer) window.CloudExplorer.unmount();
 
-  // Hide loading overlay and init app
+  // Fade out legacy overlay if visible
+  const overlay = document.getElementById('entry-screen-overlay');
+  if (overlay) { overlay.style.transition = 'opacity .3s ease-in'; overlay.style.opacity = '0'; }
+
+  // Show app loading overlay
   const appLoading = document.getElementById('app-loading-overlay');
   if (appLoading) appLoading.style.display = 'flex';
 
   window.currentProjectId = projectId;
+  window.currentProjectMode = opts.mode || 'edit'; // 'edit' | 'view' | 'play' | 'markup'
 
   // Mark last opened
   fetch(`/api/projects/${projectId}/touch`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }).catch(() => {});
 
   // Dispatch event — app.js listener calls loadAll() and dismisses the loading overlay
   window.dispatchEvent(new CustomEvent('atlantist:project:open', {
-    detail: { projectId }
+    detail: { projectId, mode: opts.mode || 'edit' }
   }));
 
-  // Fade out entry overlay after a short delay
+  // Fade out legacy entry overlay after a short delay
   setTimeout(() => {
-    overlay.style.display = 'none';
+    if (overlay) overlay.style.display = 'none';
   }, 300);
 }
 

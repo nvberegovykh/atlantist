@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="/css/tours.css"><!-- Phase 33: craft tour overlay -->
   <link rel="stylesheet" href="/css/app.css?v=27"><!-- must be last — dark override -->
   <link rel="stylesheet" href="/css/mobile.css"><!-- mobile/responsive layer -->
+  <link rel="stylesheet" href="/css/explorer.css"><!-- Cloud OS Explorer -->
   <link rel="stylesheet" href="/css/ui-motion.css?v=2"><!-- Phase 35: dynamic element enter/exit system -->
   <!-- Sentry DSN — not a secret; used by browser SDK to report errors -->
   <meta name="sentry-dsn" content="https://a9fef13217fa4ca1630b5f7ddd439eba@o4511481399934976.ingest.us.sentry.io/4511482589806592">
@@ -446,6 +447,11 @@
 
 <!-- ── Top bar ──────────────────────────────────────────────────────────── -->
 <div id="app-topbar" class="topbar">
+  <!-- Explorer / Home button -->
+  <button id="btn-open-explorer" title="Open Explorer" onclick="if(window.CloudExplorer){window.CloudExplorer.mount();}else if(window.initEntryScreen){window.initEntryScreen();}" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:7px;color:rgba(255,255,255,0.7);font-size:11px;font-weight:600;padding:5px 10px;cursor:pointer;margin-right:4px;transition:background 0.15s;" onmouseenter="this.style.background='rgba(255,255,255,0.11)'" onmouseleave="this.style.background='rgba(255,255,255,0.06)'">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Explorer
+  </button>
   <div id="topbar-logo" class="topbar-logo">
     <svg width="24" height="24" viewBox="0 0 64 64" fill="none">
       <rect width="64" height="64" rx="8" fill="#0a0e14"/>
@@ -4812,6 +4818,7 @@ window._swBannerArmedAt = Date.now();
 
 <!-- ── Drive Import (Phase 36B) ─────────────────────────────── -->
 <script src="/js/drive-import.js" defer></script>
+<script src="/js/explorer.js?v=1" defer></script>
 
 <!-- ── Module System (SP-A: Attachment Engine + Base Module) ────────────── -->
 <script src="/js/module-system.js" defer></script>
