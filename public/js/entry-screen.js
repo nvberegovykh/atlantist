@@ -686,6 +686,8 @@ function toast(msg, type = 'info', duration = 2500) {
 // Expose globally for onclick and boot-safety fallback
 window.openEntryScreen = initEntryScreen;
 window.initEntryScreen = initEntryScreen;
+// Expose type selector so CloudExplorer (and other modules) can trigger new-project flow
+window._showTypeSelector = _showTypeSelector;
 
 // Auto-init when module loads (entry screen is default view)
 initEntryScreen();

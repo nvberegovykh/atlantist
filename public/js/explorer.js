@@ -59,6 +59,7 @@
   let _userInitials = 'A';
   let _storageUsed = 0;
   let _storageTotal = 10 * 1024 * 1024 * 1024; // 10 GB default
+  let _authRequired = false;   // true when server returns 401 → show sign-in CTA
 
   /* ── Mount ─────────────────────────────────────────────────────────────────── */
   window.CloudExplorer = {
@@ -367,6 +368,7 @@
   /* ── Data loading ─────────────────────────────────────────────────────────── */
   async function _loadSection() {
     _loading = true;
+    _authRequired = false;  // reset; individual fetchers will re-set on 401
     _showSkeletons();
     try {
       switch (_section) {
@@ -406,22 +408,32 @@
   async function _fetchRecent() {
     try {
       const data = await _api('GET', '/api/explorer/recent');
+      _authRequired = false;
       return data.items || [];
-    } catch {
+    } catch (err) {
+      if (err.message && err.message.includes('HTTP 401')) { _authRequired = true; return []; }
       // Fallback: fetch projects sorted by last_opened
       try {
         const data = await _api('GET', '/api/projects');
+        _authRequired = false;
         return (data.projects || data || []).slice(0, 20).map(_projectToItem);
-      } catch { return []; }
+      } catch (err2) {
+        if (err2.message && err2.message.includes('HTTP 401')) _authRequired = true;
+        return [];
+      }
     }
   }
 
   async function _fetchProjects() {
     try {
       const data = await _api('GET', '/api/projects');
+      _authRequired = false;
       const rows = data.projects || data || [];
       return rows.map(_projectToItem);
-    } catch { return []; }
+    } catch (err) {
+      if (err.message && err.message.includes('HTTP 401')) _authRequired = true;
+      return [];
+    }
   }
 
   async function _fetchShared() {
@@ -525,6 +537,32 @@
     if (items.length === 0) {
       grid.style.display = 'none';
       empty.style.display = 'flex';
+      // Auth-aware empty state
+      const emptyH3 = empty.querySelector('h3');
+      const emptyP  = empty.querySelector('p');
+      const emptyBtn = empty.querySelector('button');
+      if (_authRequired) {
+        if (emptyH3) emptyH3.textContent = 'Sign in to see your projects';
+        if (emptyP)  emptyP.textContent = 'Create an account or sign in to access your BIM files.';
+        if (emptyBtn) {
+          emptyBtn.textContent = 'Sign in / Create account →';
+          emptyBtn.onclick = () => {
+            const loginBtn = document.getElementById('account-login-prompt');
+            const signupModal = document.getElementById('modal-signup');
+            if (loginBtn) loginBtn.click();
+            else if (signupModal) { signupModal.style.display = 'flex'; signupModal.classList.remove('hidden'); }
+            // If neither exists, reload to /app which will show sign-in
+            else window.location.href = '/app';
+          };
+        }
+      } else {
+        if (emptyH3) emptyH3.textContent = 'Nothing here yet';
+        if (emptyP)  emptyP.textContent = 'Create a new project or upload a BIM file to get started.';
+        if (emptyBtn) {
+          emptyBtn.textContent = '+ New Project';
+          emptyBtn.onclick = () => window.CloudExplorer && CloudExplorer._showNewProjectModal();
+        }
+      }
     } else {
       grid.style.display = '';
       empty.style.display = 'none';
@@ -952,14 +990,18 @@
 
   /* ── New project modal ────────────────────────────────────────────────────── */
   function _showNewProjectModal() {
-    // Reuse existing new-project flow if available
-    if (window.showNewProjectModal) { window.showNewProjectModal(); return; }
-    if (window.initEntryScreen) { unmount(); window.initEntryScreen(); return; }
-
+    // Wire into entry-screen.js type selector (the project-type + name modals in app.html)
+    // These are fixed-position overlays with z-index > Cloud Explorer (8200+) so they show on top
+    if (typeof window._showTypeSelector === 'function') {
+      window._showTypeSelector();
+      // After project creation, entry-screen.js fires atlantist:project:open which triggers loadAll
+      // and CloudExplorer.unmount() via _bootProject
+      return;
+    }
+    // Fallback: simple prompt for pages without entry-screen.js loaded
     const name = prompt('Project name:');
     if (!name) return;
-    const type = prompt('Type (Residential / Commercial / Industrial / Mixed-Use / Custom):', 'Custom') || 'Custom';
-    _api('POST', '/api/projects', { name, project_type: type })
+    _api('POST', '/api/projects', { name, project_type: 'Custom' })
       .then(res => {
         const projectId = res.project?.id || res.id;
         if (projectId) { unmount(); window._bootProject && window._bootProject(projectId); }
