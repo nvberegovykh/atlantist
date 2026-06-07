@@ -3,7 +3,7 @@
  * Network-first for HTML pages; cache-first for static assets.
  * Bumping CACHE_VERSION invalidates all stale caches.
  */
-const CACHE_VERSION = 'v33'; // bumped: R2 CORS proxy, Sentry 8.44.0
+const CACHE_VERSION = 'v34'; // bumped: open alpha branding, onboarding guide, smoke-test fix
 const CACHE_NAME = `atlantist-${CACHE_VERSION}`;
 
 // Static assets to pre-cache (no HTML — HTML is always network-first)

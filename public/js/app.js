@@ -14126,7 +14126,7 @@ function requireAdmin() {
     signupModal.style.display = 'flex';
     signupModal.classList.remove('hidden');
   }
-  toast('Sign up to start building — it\'s free during early access.', 'info');
+  toast('Sign up to start building — free during open alpha.', 'info');
   return false;
 }
 

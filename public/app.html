@@ -2728,14 +2728,14 @@
     <!-- Branches tab -->
     <div id="hist-pane-branches" style="display:none">
       <div style="background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(52,121,196,0.05));border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:14px;margin-bottom:16px">
-        <div style="font-size:13px;font-weight:600;color:#34d399;margin-bottom:4px">🚧 Branching — Coming Soon</div>
-        <div style="font-size:12px;color:var(--text-muted)">Create named design alternatives (branches), switch between them, and merge changes back to main. Each branch has its own element state and can be compared side-by-side.</div>
+        <div style="font-size:13px;font-weight:600;color:#34d399;margin-bottom:4px">Branching <span style="font-size:10px;background:rgba(74,125,189,0.2);color:#7fb3de;padding:2px 7px;border-radius:10px;font-weight:700;vertical-align:middle">ALPHA</span></div>
+        <div style="font-size:12px;color:var(--text-muted)">Create named design alternatives, switch between them, and merge changes back to main. Each branch has its own element state and can be compared side-by-side.</div>
       </div>
       <!-- Placeholder branch list -->
       <div style="margin-bottom:14px">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
           <div style="font-size:12px;font-weight:700;color:var(--text)">Branches</div>
-          <button disabled title="Branching coming soon" style="background:var(--accent);border:none;color:white;opacity:0.4;cursor:not-allowed;font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px">+ New Branch</button>
+          <button disabled title="Branching available in upcoming open alpha release" style="background:var(--accent);border:none;color:white;opacity:0.35;cursor:not-allowed;font-size:11px;font-weight:600;padding:5px 12px;border-radius:6px">+ New Branch</button>
         </div>
         <div style="background:var(--bg-viewport);border:1px solid var(--border);border-radius:8px;overflow:hidden">
           <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border)">
@@ -2882,7 +2882,7 @@
 
 <!-- WIP signup notice -->
 <div id="wip-badge" class="hidden" style="position:fixed;bottom:24px;left:54px;background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:8px 12px;z-index:var(--z-chrome,100);font-size:11px;color:var(--text-muted);box-shadow:0 4px 16px rgba(0,0,0,0.3);max-width:200px;pointer-events:auto">
-  <div style="font-weight:600;color:var(--text);margin-bottom:4px">You're in early access</div>
+  <div style="font-weight:600;color:var(--text);margin-bottom:4px">Open Alpha</div>
   <div>Your changes are being saved automatically.</div>
   <a id="wip-signup-link" href="#" style="color:var(--accent);display:block;margin-top:6px;font-size:11px;text-decoration:none">Sign up to unlock all features →</a>
 </div>
@@ -3209,7 +3209,7 @@ window._swBannerArmedAt = Date.now();
   // Load app.js AFTER cache cleanup completes — prevents stale SW serving old JS
   var s1 = document.createElement('script');
   s1.type = 'module';
-  s1.src = '/js/app.js?v=31';
+  s1.src = '/js/app.js?v=32';
   var sBvh = document.createElement('script');
   sBvh.type = 'module';
   sBvh.src = '/js/app.bvh-raycaster.js?v=3';
@@ -4707,6 +4707,7 @@ window._swBannerArmedAt = Date.now();
 </div>
 
 <script src="/js/tours/craft-tour.js" defer></script>
+<script src="/js/onboarding-guide.js?v=1" defer></script>
 
 <!-- ── Wallt AI Companion Widget (Phase 34A–34D) ─────────────── -->
 <!-- wallt.js must load before wallt-bridge.js: bridge depends on DOM elements
