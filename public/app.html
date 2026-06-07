@@ -3191,12 +3191,12 @@ window._swBannerArmedAt = Date.now();
   }
   // Load explorer.js before entry-screen so CloudExplorer is available immediately
   var sExplorer = document.createElement('script');
-  sExplorer.src = '/js/explorer.js?v=1';
+  sExplorer.src = '/js/explorer.js?v=2';
   document.body.appendChild(sExplorer);
   // Load entry-screen.js first (checks ?demo= param and auto-loads if set)
   var s0 = document.createElement('script');
   s0.type = 'module';
-  s0.src = '/js/entry-screen.js?v=5';
+  s0.src = '/js/entry-screen.js?v=6';
   document.body.appendChild(s0);
 
   // Load app.js AFTER cache cleanup completes — prevents stale SW serving old JS
