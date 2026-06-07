@@ -21384,7 +21384,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!user || user.anonymous) {
-      // Anonymous — show beta + login prompt only
+      // Anonymous — show open alpha + login prompt only
       loadingEl.classList.add('hidden');
       betaEl.classList.remove('hidden');
       infoEl.classList.add('hidden');
@@ -21403,7 +21403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadingEl.classList.add('hidden');
 
     if (!subscription || subscription.status === 'beta_free') {
-      // Beta — show free access, offer upgrade
+      // Open Alpha — show free access, offer upgrade
       betaEl.classList.remove('hidden');
       infoEl.classList.remove('hidden');
       if (upgradeEl) upgradeEl.classList.remove('hidden');

@@ -22,6 +22,7 @@
   --shell-warn:         #f59e0b;
   --shell-success:      #4aad6e;
   --shell-badge-beta:   rgba(52,121,196,0.22);
+  --shell-badge-alpha:  rgba(52,121,196,0.22);
   --shell-focus:        0 0 0 2px #3479c4, 0 0 0 4px rgba(52,121,196,0.15);
   /* Layout architecture — zero hardcoded pixels */
   --nav-w: 2.75rem;          /* nav-rail fixed strip (44px @ 16px base) */
@@ -164,8 +165,8 @@
 .sidebar-pane-body::-webkit-scrollbar { width: 4px; }
 .sidebar-pane-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
 
-/* Beta badge */
-.badge-beta {
+/* Alpha / Beta badge */
+.badge-alpha, .badge-beta {
   display: inline-flex;
   align-items: center;
   gap: 3px;

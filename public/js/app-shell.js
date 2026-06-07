@@ -337,9 +337,9 @@ function buildSchedulingPane() {
   return paneShell('scheduling', 'Scheduling', 'Gantt, milestones, task assignment', `
     <div class="sidebar-section-head">Timeline</div>
     ${featureRow('<rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="14" x2="21" y2="14"/><line x1="8" y1="4" x2="8" y2="20"/>', 'Project Gantt', '', "document.getElementById('modal-gantt')&&(document.getElementById('modal-gantt').style.display='flex',document.getElementById('modal-gantt').classList.remove('hidden'))")}
-    <div class="sidebar-section-head" style="display:flex;align-items:center;gap:8px">Features <span class="badge-beta">Beta</span></div>
+    <div class="sidebar-section-head" style="display:flex;align-items:center;gap:8px">Features <span class="badge-alpha">Alpha</span></div>
     <div style="padding:8px 14px;font-size:11px;color:var(--shell-muted);line-height:1.5">
-      Interactive Gantt charts, task assignment, milestone tracking, critical path (CPM) analysis, and Revit phasing-linked construction sequences are available in beta.
+      Interactive Gantt charts, task assignment, milestone tracking, critical path (CPM) analysis, and Revit phasing-linked construction sequences are available in open alpha.
     </div>
   `);
 }
@@ -374,9 +374,9 @@ function buildCollaborationPane() {
     ${featureRow('<path d="M12 2l9 16H3L12 2z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/>', 'Issue Tracker', '', "document.getElementById('btn-show-issues')&&document.getElementById('btn-show-issues').click()")}
     <div class="sidebar-section-head">Forum</div>
     ${featureRow('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>', 'Community Forum', '', "document.getElementById('btn-forum')&&document.getElementById('btn-forum').click()")}
-    <div class="sidebar-section-head" style="display:flex;align-items:center;gap:8px">Chat <span class="badge-beta">Beta</span></div>
+    <div class="sidebar-section-head" style="display:flex;align-items:center;gap:8px">Chat <span class="badge-alpha">Alpha</span></div>
     <div style="padding:8px 14px;font-size:11px;color:var(--shell-muted);line-height:1.5">
-      Real-time in-model chat threads, camera-linked comment pins, and @mention notifications are available in beta.
+      Real-time in-model chat threads, camera-linked comment pins, and @mention notifications are available in open alpha.
     </div>
   `);
 }
@@ -389,9 +389,9 @@ function buildVersionsPane() {
       <span class="row-label">Version Timeline</span>
       <span class="row-meta">↓ drawer</span>
     </button>
-    <div class="sidebar-section-head" style="display:flex;align-items:center;gap:8px">Branch & Restore <span class="badge-beta">Beta</span></div>
+    <div class="sidebar-section-head" style="display:flex;align-items:center;gap:8px">Branch & Restore <span class="badge-alpha">Alpha</span></div>
     <div style="padding:8px 14px;font-size:11px;color:var(--shell-muted);line-height:1.5">
-      Named model snapshots, branch-from-point, comparison diffs, and one-click restore are available in beta. Every parameter change is already logged in the audit ledger.
+      Named model snapshots, branch-from-point, comparison diffs, and one-click restore are available in open alpha. Every parameter change is already logged in the audit ledger.
     </div>
     <div class="sidebar-section-head">Audit Log</div>
     ${featureRow('<rect x="3" y="4" width="18" height="3" rx="1"/><rect x="3" y="10" width="18" height="6" rx="1"/>', 'Event Ledger', 'immutable', "console.log('event ledger: view coming soon')")}
@@ -579,8 +579,8 @@ function buildVersionDrawer() {
       </div>
       <div id="vtl-actions">
         <button class="vtl-action-btn" onclick="showVtlToast('Snapshot saved')" aria-label="Save snapshot">Save Snapshot</button>
-        <button class="vtl-action-btn" onclick="showVtlToast('Branch feature coming in beta')" aria-label="Branch from this point">Branch</button>
-        <button class="vtl-action-btn" onclick="showVtlToast('Restore coming in beta')" aria-label="Restore selected version">Restore</button>
+        <button class="vtl-action-btn" onclick="showVtlToast('Branch feature 2014 open alpha')" aria-label="Branch from this point">Branch</button>
+        <button class="vtl-action-btn" onclick="showVtlToast('Restore 2014 open alpha')" aria-label="Restore selected version">Restore</button>
       </div>
     </div>
   `;

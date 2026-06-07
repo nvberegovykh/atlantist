@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="/css/viewport.css?v=2">
   <link rel="stylesheet" href="/css/command-palette.css">
   <link rel="stylesheet" href="/css/node-editor.css">
-  <link rel="stylesheet" href="/css/app-shell.css?v=2">
+  <link rel="stylesheet" href="/css/app-shell.css?v=3">
   <link rel="stylesheet" href="/css/loading-states.css"><!-- Phase 24: spinners, skeletons, save pill -->
   <link rel="stylesheet" href="/css/tours.css"><!-- Phase 33: craft tour overlay -->
   <link rel="stylesheet" href="/css/app.css?v=27"><!-- must be last — dark override -->
@@ -3209,7 +3209,7 @@ window._swBannerArmedAt = Date.now();
   // Load app.js AFTER cache cleanup completes — prevents stale SW serving old JS
   var s1 = document.createElement('script');
   s1.type = 'module';
-  s1.src = '/js/app.js?v=30';
+  s1.src = '/js/app.js?v=31';
   var sBvh = document.createElement('script');
   sBvh.type = 'module';
   sBvh.src = '/js/app.bvh-raycaster.js?v=3';
@@ -3241,7 +3241,7 @@ window._swBannerArmedAt = Date.now();
   sMotion.src = '/js/ui-element.js?v=1';
   document.body.appendChild(sMotion);
   var s5 = document.createElement('script');
-  s5.src = '/js/app-shell.js?v=2';
+  s5.src = '/js/app-shell.js?v=3';
   document.body.appendChild(s5);
   var s6 = document.createElement('script');
   s6.src = '/js/node-editor.js?v=2';
