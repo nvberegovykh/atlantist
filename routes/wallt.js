@@ -261,9 +261,25 @@ async function callWallt(ai, contextWindow, userMessage, ctx = {}) {
   // Build extra system context — merge project context with live environment data
   // ctx.env carries the scene snapshot sent by the frontend on every message
   const env = ctx.env || {};
+
+  // Neural context: fetch pgvector embeddings summary for project (non-fatal, ≤50ms budget)
+  let neuralContext = null;
+  const neuralProjectId = projectContext?._projectId || ctx.project_id || null;
+  if (neuralProjectId && process.env.OPENAI_API_KEY) {
+    try {
+      // Lazy-load to avoid crash if pgvector not yet migrated
+      const { buildProjectContext: buildNeuralCtx } = require('../lib/neural/embeddings');
+      neuralContext = await Promise.race([
+        buildNeuralCtx(neuralProjectId),
+        new Promise(r => setTimeout(() => r(null), 80)), // 80ms timeout
+      ]);
+    } catch (_) {} // always non-fatal
+  }
+
   const extraCtx = {
-    projectName: projectContext?.name,
-    projectId:   projectContext ? String(projectContext._projectId || '') : undefined,
+    projectName:   projectContext?.name,
+    projectId:     projectContext ? String(projectContext._projectId || '') : undefined,
+    neuralContext, // pgvector BIM element index (null if unavailable)
     // ── Environment slots (live scene state from frontend) ──
     activeView:    ctx.active_view   || env.activeView   || undefined,
     activeTool:    ctx.active_tool   || env.activeTool   || undefined,
