@@ -95,7 +95,7 @@
         }
       }
       // App JS injects at end of body, after cache cleanup. 5s should cover the worst case.
-      setTimeout(forceDismiss, 5000);
+      setTimeout(forceDismiss, 8000); // 8s — modules + Cold Render start need time
     })();
   </script>
 

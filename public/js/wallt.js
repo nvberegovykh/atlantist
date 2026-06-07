@@ -159,17 +159,17 @@
 
   function bindEvents() {
     document.getElementById('wallt-trigger')?.addEventListener('click', togglePanel)
-      || console.warn('[wallt] #wallt-trigger not found — widget not on this page');
+      || console.debug('[wallt] #wallt-trigger not found — widget not on this page');
     document.getElementById('wallt-collapse')?.addEventListener('click', collapsePanel)
-      || console.warn('[wallt] #wallt-collapse not found');
+      || console.debug('[wallt] #wallt-collapse not found');
     document.getElementById('wallt-new-chat')?.addEventListener('click', startNewChat)
-      || console.warn('[wallt] #wallt-new-chat not found');
+      || console.debug('[wallt] #wallt-new-chat not found');
     document.getElementById('wallt-send-btn')?.addEventListener('click', sendMessage)
-      || console.warn('[wallt] #wallt-send-btn not found');
+      || console.debug('[wallt] #wallt-send-btn not found');
     document.getElementById('wallt-settings-btn')?.addEventListener('click', openVoicePanel)
-      || console.warn('[wallt] #wallt-settings-btn not found');
+      || console.debug('[wallt] #wallt-settings-btn not found');
     document.getElementById('wallt-voice-toggle')?.addEventListener('click', toggleVoice)
-      || console.warn('[wallt] #wallt-voice-toggle not found');
+      || console.debug('[wallt] #wallt-voice-toggle not found');
 
     // Ctrl+Shift+V keyboard shortcut — global toggle
     document.addEventListener('keydown', (e) => {

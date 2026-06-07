@@ -211,6 +211,14 @@
       'loading-bar': true, 'auto-align-popover': true,
       'vp-canvas-p1': true, 'vp-canvas-p2': true, 'vp-canvas-p3': true,
       'count-native': true,
+      // Topbar buttons added dynamically by initAuth / addHelpButton
+      'btn-forum': true, 'btn-collab': true, 'btn-render': true, 'btn-help': true,
+      // User identity elements set after auth resolves
+      'user-email': true, 'user-name': true, 'user-role': true,
+      // Issues list panel
+      'issues-list': true, 'btn-issues': true,
+      // Explorer elements (Cloud OS Explorer — mounted dynamically)
+      'cloud-explorer': true, 'expl-grid': true, 'expl-search': true,
     };
 
     var _origGEBI = Document.prototype.getElementById;
