@@ -309,10 +309,9 @@ if (bookingCta) {
 }
 
 // ─── Auto-start logic ────────────────────────────────────────────────────────
-// First-time visitors get the tour after 1.8s; returning visitors see replay btn.
-if (!localStorage.getItem('atlantist_tour_seen')) {
-  setTimeout(() => startTour(), 1800);
-} else {
+// Tour is only started explicitly by user clicking the button.
+// Show replay button if they've seen the tour before.
+if (localStorage.getItem('atlantist_tour_seen')) {
   document.getElementById('btn-replay-tour')?.classList.add('visible');
 }
 

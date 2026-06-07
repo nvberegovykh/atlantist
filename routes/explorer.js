@@ -18,7 +18,7 @@ const express = require('express');
 const router  = express.Router();
 const { authMiddleware } = require('./auth');
 const { listProjectsForUser, createProject, getProjectById } = require('../db/projects');
-const pool = require('../db/pool');
+const pool = require('../db/index');
 
 // All explorer routes require auth
 router.use(authMiddleware);

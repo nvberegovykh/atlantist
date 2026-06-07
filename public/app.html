@@ -78,23 +78,20 @@
           overlay.classList.add('fade-out');
           setTimeout(function() { overlay.style.display = 'none'; }, 450);
         }
-        // Show entry screen so user is not trapped on a blank page
-        var entryOverlay = document.getElementById('entry-screen-overlay');
-        if (entryOverlay) {
-          entryOverlay.style.display = 'flex';
-          entryOverlay.style.opacity = '0';
-          requestAnimationFrame(function() {
-            requestAnimationFrame(function() {
-              entryOverlay.style.transition = 'opacity .3s ease-out';
-              entryOverlay.style.opacity = '1';
-            });
-          });
-        }
-        // If initEntryScreen is available (ES module loaded), call it
+        // Mount Cloud OS Explorer or fall back to legacy entry screen
         if (typeof window.initEntryScreen === 'function') {
           window.initEntryScreen().catch(function(e) {
             console.warn('[splash-fallback] initEntryScreen error:', e);
           });
+        } else if (typeof window.CloudExplorer !== 'undefined') {
+          window.CloudExplorer.mount();
+        } else {
+          // Last resort: show legacy overlay
+          var entryOverlay = document.getElementById('entry-screen-overlay');
+          if (entryOverlay) {
+            entryOverlay.style.display = 'flex';
+            entryOverlay.style.opacity = '1';
+          }
         }
       }
       // App JS injects at end of body, after cache cleanup. 5s should cover the worst case.
@@ -3191,6 +3188,10 @@ window._swBannerArmedAt = Date.now();
       }
     }).catch(function(){});
   }
+  // Load explorer.js before entry-screen so CloudExplorer is available immediately
+  var sExplorer = document.createElement('script');
+  sExplorer.src = '/js/explorer.js?v=1';
+  document.body.appendChild(sExplorer);
   // Load entry-screen.js first (checks ?demo= param and auto-loads if set)
   var s0 = document.createElement('script');
   s0.type = 'module';
@@ -4818,7 +4819,6 @@ window._swBannerArmedAt = Date.now();
 
 <!-- ── Drive Import (Phase 36B) ─────────────────────────────── -->
 <script src="/js/drive-import.js" defer></script>
-<script src="/js/explorer.js?v=1" defer></script>
 
 <!-- ── Module System (SP-A: Attachment Engine + Base Module) ────────────── -->
 <script src="/js/module-system.js" defer></script>

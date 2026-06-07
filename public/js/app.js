@@ -15865,10 +15865,8 @@ function addHelpButton() {
   helpBtn.textContent = '❓ Help';
   helpBtn.style.marginLeft = '8px';
   helpBtn?.addEventListener('click', () => showModal('modal-help'));
-  // Insert before presence bar
-  const presence = document.getElementById('presence-bar');
-  if (presence) topbarRight.insertBefore(helpBtn, presence);
-  else topbarRight.appendChild(helpBtn);
+  // Append to topbar-right (presence-bar is outside topbar-right, so just append)
+  topbarRight.appendChild(helpBtn);
 }
 
 // ─── Status Dot (topbar) — poll /status.json every 60s ─────────
