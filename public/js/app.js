@@ -13913,6 +13913,9 @@ async function initSession() {
   try {
     const res = await authApi('POST', '/api/auth/init', { session_uuid: authState.sessionUuid });
     authState.user = res;
+    if (res?.id) authState.id = res.id;
+    if (res?.billing_state) authState.billing_state = res.billing_state;
+    if (res?.app_role) authState.app_role = res.app_role;
     updateUserMenuUI();
     // Check onboarding after init
     await checkOnboarding();
@@ -13952,10 +13955,20 @@ function showFeatureGateOverlay() {
   document.body.prepend(overlay);
 }
 
-// Block BIM operations for non-admin users (show toast, don't execute)
+// Require authenticated user for BIM operations.
+// 'admin' role: full access always.
+// Any logged-in user (billing_state set): full access.
+// Anon/demo: prompt to sign up.
 function requireAdmin() {
   if (authState.app_role === 'admin') return true;
-  toast('Full access is coming soon — you can preview the BIM model now.', 'info');
+  if (authState.id && authState.billing_state) return true; // logged-in user
+  // Anon user — prompt signup
+  const signupModal = document.getElementById('modal-signup');
+  if (signupModal) {
+    signupModal.style.display = 'flex';
+    signupModal.classList.remove('hidden');
+  }
+  toast('Sign up to start building — it\'s free during early access.', 'info');
   return false;
 }
 
@@ -13993,12 +14006,13 @@ async function checkOnboarding() {
       showModal('modal-onboarding');
       renderOnboardingChecklist(me.user.onboarding_checklist || []);
     }
-    // Capture app role for feature gating
-    if (me.user?.app_role) {
-      authState.app_role = me.user.app_role;
-    }
-    // Show coming soon overlay for non-admin users
-    if (!authState.app_role || authState.app_role !== 'admin') {
+    // Capture app role and billing state for feature gating
+    if (me.user?.app_role) authState.app_role = me.user.app_role;
+    if (me.user?.id) authState.id = me.user.id;
+    if (me.user?.billing_state) authState.billing_state = me.user.billing_state;
+    // Feature gate only applies to completely unauthenticated anon users
+    // Logged-in users always get full access regardless of role
+    if (!me.authenticated) {
       showFeatureGateOverlay();
     }
   } catch (err) {
