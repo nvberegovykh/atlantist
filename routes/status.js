@@ -91,6 +91,11 @@ const STATUS_PAGE_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+// Lightweight keepalive — hit by UptimeRobot every 5 min to prevent Render cold start
+router.get('/ping', (_req, res) => {
+  res.json({ ok: true, t: Date.now() });
+});
+
 router.get('/status', (_req, res) => {
   res.setHeader('Content-Type', 'text/html');
   res.send(STATUS_PAGE_HTML.replace('{{UPDATED_AT}}', new Date().toISOString()));
