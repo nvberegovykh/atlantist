@@ -219,6 +219,19 @@
       'issues-list': true, 'btn-issues': true,
       // Explorer elements (Cloud OS Explorer — mounted dynamically)
       'cloud-explorer': true, 'expl-grid': true, 'expl-search': true,
+      // Nav buttons (rendered dynamically by app.js toolbar init)
+      'nav-btn-levels': true,
+      'nav-btn-walls': true,
+      'nav-btn-columns': true,
+      'nav-btn-doors': true,
+      'nav-btn-windows': true,
+      'nav-btn-floors': true,
+      'nav-btn-roofs': true,
+      'nav-btn-stairs': true,
+      'nav-btn-ceilings': true,
+      'nav-btn-rooms': true,
+      'update-banner': true,
+      'expl-versions-panel': true,
     };
 
     var _origGEBI = Document.prototype.getElementById;

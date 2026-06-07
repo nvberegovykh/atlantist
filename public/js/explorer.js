@@ -25,12 +25,14 @@
   /* ── Constants ────────────────────────────────────────────────────────────── */
   const VIEWS = { grid: 'grid', list: 'list' };
   const SECTIONS = {
-    recent:    { label: 'Recents',       icon: iconClock(),      source: 'recent' },
-    projects:  { label: 'My Projects',   icon: iconFolder(),     source: 'projects' },
-    shared:    { label: 'Shared with Me',icon: iconTeam(),       source: 'shared' },
-    drive:     { label: 'Google Drive',  icon: iconDrive(),      source: 'drive' },
-    templates: { label: 'Templates',     icon: iconTemplate(),   source: 'templates' },
-    trash:     { label: 'Trash',         icon: iconTrash(),      source: 'trash' },
+    recent:    { label: 'Recents',       icon: iconClock(),      source: 'recent',     group: 'locations' },
+    projects:  { label: 'My Projects',   icon: iconFolder(),     source: 'projects',   group: 'locations' },
+    shared:    { label: 'Shared with Me',icon: iconTeam(),       source: 'shared',     group: 'locations' },
+    templates: { label: 'Templates',     icon: iconTemplate(),   source: 'templates',  group: 'locations' },
+    trash:     { label: 'Trash',         icon: iconTrash(),      source: 'trash',      group: 'locations' },
+    // Connected services
+    drive:     { label: 'Google Drive',  icon: iconDrive(),      source: 'drive',      group: 'connected' },
+    forma:     { label: 'Autodesk Forma',icon: iconForma(),      source: 'forma',      group: 'connected' },
   };
 
   const FILE_ICONS = {
@@ -132,8 +134,16 @@
         <nav id="expl-sidebar">
           <div class="expl-sidebar-section">
             <div class="expl-sidebar-label">Locations</div>
-            ${Object.entries(SECTIONS).map(([k, s]) => `
+            ${Object.entries(SECTIONS).filter(([,s]) => s.group === 'locations').map(([k, s]) => `
               <button class="expl-sidebar-item${k === 'recent' ? ' active' : ''}" data-section="${k}">
+                ${s.icon} <span>${s.label}</span>
+              </button>
+            `).join('')}
+          </div>
+          <div class="expl-sidebar-section">
+            <div class="expl-sidebar-label">Connected</div>
+            ${Object.entries(SECTIONS).filter(([,s]) => s.group === 'connected').map(([k, s]) => `
+              <button class="expl-sidebar-item" data-section="${k}">
                 ${s.icon} <span>${s.label}</span>
               </button>
             `).join('')}
@@ -376,6 +386,7 @@
         case 'projects':  _items = await _fetchProjects();  break;
         case 'shared':    _items = await _fetchShared();    break;
         case 'drive':     _items = await _fetchDrive();     break;
+        case 'forma':     _items = await _fetchForma();     break;
         case 'templates': _items = await _fetchTemplates(); break;
         case 'trash':     _items = await _fetchTrash();     break;
         default:          _items = [];
@@ -452,8 +463,50 @@
       const folderId = _driveFolder || 'root';
       const data = await _api('GET', `/api/drive/list?folderId=${encodeURIComponent(folderId)}`);
       const files = data.files || data.items || [];
-      return files.map(_driveFileToItem);
-    } catch { return []; }
+      // Filter to BIM-relevant file types only
+      const BIM_EXTS = new Set(['rvt', 'rfa', 'rte', 'ifc']);
+      const filtered = files.filter(f => {
+        if (f.mimeType === 'application/vnd.google-apps.folder') return true;
+        const ext = (f.name || '').split('.').pop().toLowerCase();
+        return BIM_EXTS.has(ext);
+      });
+      return filtered.map(_driveFileToItem);
+    } catch (err) {
+      if (err.message && (err.message.includes('HTTP 401') || err.message.includes('HTTP 403'))) {
+        _authRequired = true;
+      }
+      return [];
+    }
+  }
+
+  // ─── Forma connector ─────────────────────────────────────────────────────────
+
+  // State: whether we've confirmed Forma is connected
+  let _formaConnected = false;
+
+  async function _fetchForma() {
+    try {
+      const data = await _api('GET', '/api/forma/projects');
+      if (data.connected === false) {
+        _formaConnected = false;
+        return [];
+      }
+      _formaConnected = true;
+      const items = data.projects || data.items || [];
+      return items.map(p => ({
+        id: p.id || String(Math.random()),
+        name: p.name || p.title || 'Untitled Forma Project',
+        type: 'proj',
+        source: 'forma',
+        size: 0,
+        modified: p.updatedAt || p.updated_at || null,
+        isFolder: false,
+        meta: p,
+      }));
+    } catch {
+      _formaConnected = false;
+      return [];
+    }
   }
 
   async function _fetchTemplates() {
@@ -541,17 +594,45 @@
       const emptyH3 = empty.querySelector('h3');
       const emptyP  = empty.querySelector('p');
       const emptyBtn = empty.querySelector('button');
-      if (_authRequired) {
+      if (_section === 'drive' && (_authRequired || _items.length === 0)) {
+        // Google Drive — show Connect CTA if not authorised
+        if (emptyH3) emptyH3.textContent = 'Connect Google Drive';
+        if (emptyP)  emptyP.textContent = 'Link your Google Drive to browse and import .rvt, .rfa, .rte, and .ifc files directly.';
+        if (emptyBtn) {
+          emptyBtn.textContent = 'Connect Google Drive';
+          emptyBtn.onclick = () => {
+            const w = window.open('/api/drive/auth', 'drive-auth',
+              'width=540,height=620,resizable=yes,scrollbars=yes');
+            // Poll for auth completion
+            const poll = setInterval(() => {
+              if (!w || w.closed) {
+                clearInterval(poll);
+                _authRequired = false;
+                _navigate('drive');
+              }
+            }, 800);
+          };
+        }
+      } else if (_section === 'forma') {
+        // Autodesk Forma — coming-soon placeholder card
+        if (emptyH3) emptyH3.textContent = 'Autodesk Forma';
+        if (emptyP)  emptyP.textContent = 'Autodesk Forma integration coming in the next release. Connect your Forma account to browse projects and import geometry.';
+        if (emptyBtn) {
+          emptyBtn.textContent = 'Learn more about Forma';
+          emptyBtn.style.background = '#e67e22';
+          emptyBtn.onclick = () => window.open('https://forma.autodesk.com', '_blank');
+        }
+      } else if (_authRequired) {
         if (emptyH3) emptyH3.textContent = 'Sign in to see your projects';
         if (emptyP)  emptyP.textContent = 'Create an account or sign in to access your BIM files.';
         if (emptyBtn) {
           emptyBtn.textContent = 'Sign in / Create account →';
+          emptyBtn.style.background = '';
           emptyBtn.onclick = () => {
             const loginBtn = document.getElementById('account-login-prompt');
             const signupModal = document.getElementById('modal-signup');
             if (loginBtn) loginBtn.click();
             else if (signupModal) { signupModal.style.display = 'flex'; signupModal.classList.remove('hidden'); }
-            // If neither exists, reload to /app which will show sign-in
             else window.location.href = '/app';
           };
         }
@@ -559,6 +640,7 @@
         if (emptyH3) emptyH3.textContent = 'Nothing here yet';
         if (emptyP)  emptyP.textContent = 'Create a new project or upload a BIM file to get started.';
         if (emptyBtn) {
+          emptyBtn.style.background = '';
           emptyBtn.textContent = '+ New Project';
           emptyBtn.onclick = () => window.CloudExplorer && CloudExplorer._showNewProjectModal();
         }
@@ -1062,6 +1144,15 @@
 
   /* ── New project modal ────────────────────────────────────────────────────── */
   function _showNewProjectModal() {
+    // If auth is required (401), trigger sign-in flow instead of project creation
+    if (_authRequired) {
+      const loginBtn = document.getElementById('account-login-prompt');
+      const signupModal = document.getElementById('modal-signup');
+      if (loginBtn) loginBtn.click();
+      else if (signupModal) { signupModal.style.display = 'flex'; signupModal.classList.remove('hidden'); }
+      else window.location.href = '/app';
+      return;
+    }
     // Wire into entry-screen.js type selector (the project-type + name modals in app.html)
     // These are fixed-position overlays with z-index > Cloud Explorer (8200+) so they show on top
     if (typeof window._showTypeSelector === 'function') {
@@ -1194,6 +1285,8 @@
 
   /* ── SVG Icons ────────────────────────────────────────────────────────────── */
   function iconFolder(sz=16) { return `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`; }
+  // Autodesk Forma icon — stylised "F" in a rounded square (matches dark spatial UI palette)
+  function iconForma(sz=16)  { return `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 7h8M8 12h5M8 17h3"/></svg>`; }
   function iconClock(sz=16)  { return `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`; }
   function iconTeam(sz=16)   { return `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>`; }
   function iconDrive(sz=16)  { return `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 17.32 4H6.68a2 2 0 0 0-1.77.89z"/></svg>`; }

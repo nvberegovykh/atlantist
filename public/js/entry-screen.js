@@ -147,7 +147,7 @@ export async function initEntryScreen() {
     await new Promise((resolve, reject) => {
       if (document.querySelector('script[src*="explorer.js"]')) { resolve(); return; }
       const s = document.createElement('script');
-      s.src = '/js/explorer.js?v=1';
+      s.src = '/js/explorer.js?v=3';
       s.onload = resolve;
       s.onerror = reject;
       document.body.appendChild(s);
@@ -156,6 +156,16 @@ export async function initEntryScreen() {
   }
 
   _setLoadingBar(100);
+
+  // Ensure splash is fully dismissed
+  const splash = document.getElementById('app-loading-overlay');
+  if (splash) {
+    splash.style.transition = 'opacity 0.4s ease';
+    splash.style.opacity = '0';
+    setTimeout(() => { splash.style.display = 'none'; }, 420);
+  }
+  const loadingBar = document.getElementById('loading-bar');
+  if (loadingBar) loadingBar.style.width = '100%';
 }
 
 function _injectSidebarIcons() {
@@ -689,5 +699,9 @@ window.initEntryScreen = initEntryScreen;
 // Expose type selector so CloudExplorer (and other modules) can trigger new-project flow
 window._showTypeSelector = _showTypeSelector;
 
-// Auto-init when module loads (entry screen is default view)
-initEntryScreen();
+// Auto-init: called via s0.onload in app.html (or self-invokes if loaded standalone)
+// Guard against double-init if both paths fire
+if (!window._entryScreenInitStarted) {
+  window._entryScreenInitStarted = true;
+  initEntryScreen();
+}

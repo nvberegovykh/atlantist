@@ -27,6 +27,15 @@
   --nav-w: 2.75rem;          /* nav-rail fixed strip (44px @ 16px base) */
   --left-panel-w: 12.5rem;  /* explorer sidebar (sidebar-left) width (200px @ 16px base) */
   --sidebar-w: 0;            /* expanded nav panel; 0 when closed, 15rem when open */
+
+  /* ── Z-index layer tokens (mirrors mobile.css canonical scale) ── */
+  --z-canvas:   1;
+  --z-ui:       100;
+  --z-topbar:   300;
+  --z-overlay:  500;
+  --z-modal:    600;
+  --z-splash:   700;
+  --z-toast:    2000;
 }
 
 /* ── Icon-rail (collapsed left nav strip) ─────────────────── */

@@ -47,6 +47,17 @@
   --layer-modal-mid:     var(--z-modal);
   --layer-modal-high:    var(--z-modal);
   --layer-modal-top:     var(--z-modal);
+
+  /* ── Semantic z-index tokens (required by UI) ──
+     Canonical scale. mobile.css is the primary source; these ensure the tokens
+     are always available even when mobile.css is not loaded first. */
+  --z-canvas:   1;
+  --z-ui:       100;
+  --z-topbar:   300;
+  --z-overlay:  500;
+  --z-modal:    600;
+  --z-splash:   700;
+  --z-toast:    2000;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

@@ -25,7 +25,7 @@
   <!-- Sentry DSN — not a secret; used by browser SDK to report errors -->
   <meta name="sentry-dsn" content="https://a9fef13217fa4ca1630b5f7ddd439eba@o4511481399934976.ingest.us.sentry.io/4511482589806592">
   <script>window.__SENTRY_DSN__ = "https://a9fef13217fa4ca1630b5f7ddd439eba@o4511481399934976.ingest.us.sentry.io/4511482589806592"; window.__SENTRY_ENV__ = "production";</script>
-  <script src="/js/boot-safety.js"></script>
+  <script src="/js/boot-safety.js?v=3"></script>
   <script type="importmap">
   {
     "imports": {
@@ -34,7 +34,6 @@
       "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
       "three-mesh-bvh": "https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.7.6/+esm",
       "stats.js": "https://cdn.jsdelivr.net/npm/stats.js@0.17.0/+esm",
-      "web-ifc-three": "https://cdn.jsdelivr.net/npm/web-ifc-three@0.0.126/IFCLoader.js",
       "web-ifc": "https://cdn.jsdelivr.net/npm/web-ifc@0.0.39/+esm"
     }
   }
@@ -72,7 +71,7 @@
       function forceDismiss() {
         if (dismissed) return;
         dismissed = true;
-        console.warn('[splash-fallback] loadAll() did not resolve in 5s — force-dismissing splash, showing entry screen');
+        console.warn('[splash-fallback] loadAll() did not resolve in 15s — force-dismissing splash, showing entry screen');
         // Dismiss loading overlay
         var overlay = document.getElementById('app-loading-overlay');
         if (overlay) {
@@ -95,8 +94,8 @@
           }
         }
       }
-      // App JS injects at end of body, after cache cleanup. 5s should cover the worst case.
-      setTimeout(forceDismiss, 8000); // 8s — modules + Cold Render start need time
+      // App JS injects at end of body, after cache cleanup. 15s covers cold starts + slow networks.
+      setTimeout(forceDismiss, 15000); // 15s — modules + Cold Render start need time
     })();
   </script>
 
@@ -3191,18 +3190,26 @@ window._swBannerArmedAt = Date.now();
   }
   // Load explorer.js before entry-screen so CloudExplorer is available immediately
   var sExplorer = document.createElement('script');
-  sExplorer.src = '/js/explorer.js?v=2';
+  sExplorer.src = '/js/explorer.js?v=3';
   document.body.appendChild(sExplorer);
   // Load entry-screen.js first (checks ?demo= param and auto-loads if set)
   var s0 = document.createElement('script');
   s0.type = 'module';
-  s0.src = '/js/entry-screen.js?v=6';
+  s0.src = '/js/entry-screen.js?v=7';
+  s0.onload = function() {
+    // entry-screen.js is a module — call its export after load if not already started
+    if (!window._entryScreenInitStarted) {
+      import('/js/entry-screen.js?v=7').then(function(m) {
+        if (m && m.initEntryScreen) m.initEntryScreen();
+      }).catch(function(e) { console.error('[boot] entry-screen init failed:', e); });
+    }
+  };
   document.body.appendChild(s0);
 
   // Load app.js AFTER cache cleanup completes — prevents stale SW serving old JS
   var s1 = document.createElement('script');
   s1.type = 'module';
-  s1.src = '/js/app.js?v=29';
+  s1.src = '/js/app.js?v=30';
   var sBvh = document.createElement('script');
   sBvh.type = 'module';
   sBvh.src = '/js/app.bvh-raycaster.js?v=3';
@@ -4456,39 +4463,40 @@ window._swBannerArmedAt = Date.now();
 <!-- Replay button (injected into toolbar context; shown after tour completes) -->
 <button id="craft-tour-replay-btn" aria-label="Replay craft tour" title="Replay craft tour">⟳ Replay tour</button>
 
-<!-- ── Signup Modal (Phase 35 auth fix) ─────────────────────────────────── -->
+<!-- ── Signup Modal (magic-link only, no billing gate) ────────────────── -->
 <div id="modal-signup" class="modal hidden" style="position:fixed;inset:0;z-index:var(--z-modal,600);display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.75)" role="dialog" aria-modal="true" aria-labelledby="signup-title">
-  <div style="background:#1a1d27;border:1px solid #2a2d3d;border-radius:16px;padding:32px;max-width:480px;width:92%;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6)">
-    <button id="close-signup" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#8b95a5;font-size:22px;cursor:pointer;line-height:1;padding:4px" aria-label="Close signup">×</button>
+  <div style="background:#111;border-radius:16px;padding:36px 32px 28px;max-width:440px;width:92%;position:relative;box-shadow:0 32px 96px rgba(0,0,0,0.7)">
+    <button id="close-signup" style="position:absolute;top:16px;right:16px;background:none;border:none;color:#555;font-size:22px;cursor:pointer;line-height:1;padding:4px" aria-label="Close signup">×</button>
 
     <!-- Step 1: Enter email -->
     <div id="signup-step-1">
-      <h2 id="signup-title" style="font-size:20px;font-weight:700;color:#f0f4ff;margin:0 0 6px;font-family:inherit">Create your account</h2>
-      <p style="font-size:13px;color:#8b95a5;margin:0 0 24px">No password needed — we'll send a magic link.</p>
+      <h2 id="signup-title" style="font-size:22px;font-weight:700;color:#f5f5f7;margin:0 0 6px;font-family:inherit;letter-spacing:-0.4px">Create your account</h2>
+      <p style="font-size:13px;color:#888;margin:0 0 28px;line-height:1.5">No password needed — we'll email you a magic link.</p>
 
-      <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#8b95a5;margin-bottom:6px;font-family:inherit">Email address</label>
-        <input type="email" id="signup-email" placeholder="you@firm.com" style="width:100%;padding:12px 14px;background:#13151c;border:1px solid #2a2d3d;border-radius:8px;color:#f0f4ff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box">
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:11px;color:#666;margin-bottom:6px;font-family:inherit;letter-spacing:0.5px;text-transform:uppercase">Email address</label>
+        <input type="email" id="signup-email" placeholder="you@firm.com" autocomplete="email" style="width:100%;padding:13px 16px;background:#1c1c1e;border:none;border-radius:10px;color:#f5f5f7;font-size:15px;font-family:inherit;outline:none;box-sizing:border-box;-webkit-appearance:none">
       </div>
-      <div id="signup-step1-error" class="hidden" style="color:#e84855;font-size:12px;margin-bottom:12px;padding:8px 12px;background:rgba(232,72,85,0.1);border-radius:6px"></div>
+      <div id="signup-step1-error" class="hidden" style="color:#ff6b6b;font-size:12px;margin-bottom:12px;padding:8px 12px;background:rgba(255,107,107,0.08);border-radius:8px"></div>
 
-      <button id="signup-step1-next" style="width:100%;padding:12px;background:#1d5fa6;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Continue →</button>
+      <button id="signup-step1-next" style="width:100%;padding:14px;background:#0a84ff;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:-0.2px">Send Magic Link</button>
 
-      <p style="font-size:12px;color:#6b7a8d;text-align:center;margin:16px 0 0">Already have an account? <a href="#" id="signup-go-login" style="color:#7fb3de;text-decoration:none;font-weight:500">Sign in</a></p>
+      <p style="font-size:12px;color:#555;text-align:center;margin:20px 0 0">Already have an account? <a href="#" id="signup-go-login" style="color:#0a84ff;text-decoration:none;font-weight:500">Sign in</a></p>
+      <p style="font-size:11px;color:#444;text-align:center;margin:8px 0 0">Need help? <a href="mailto:support@atlantist.cloud" style="color:#555;text-decoration:none">support@atlantist.cloud</a></p>
     </div>
 
-    <!-- Step 2: Profile form (shown after magic link sent) -->
+    <!-- Step 2: Profile form (optional — kept for existing magic_token legacy flow) -->
     <div id="signup-step-2" class="hidden">
-      <h2 style="font-size:20px;font-weight:700;color:#f0f4ff;margin:0 0 4px;font-family:inherit">Set up your profile</h2>
-      <p id="signup-email-confirm" style="font-size:13px;color:#8b95a5;margin:0 0 24px">You'll use <strong style="color:#f0f4ff" id="signup-email-display"></strong> to sign in.</p>
+      <h2 style="font-size:22px;font-weight:700;color:#f5f5f7;margin:0 0 4px;font-family:inherit;letter-spacing:-0.4px">Set up your profile</h2>
+      <p id="signup-email-confirm" style="font-size:13px;color:#888;margin:0 0 24px">Signing in as <strong style="color:#f5f5f7" id="signup-email-display"></strong></p>
 
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#8b95a5;margin-bottom:6px;font-family:inherit">First name</label>
-        <input type="text" id="signup-firstname" placeholder="Alex" style="width:100%;padding:12px 14px;background:#13151c;border:1px solid #2a2d3d;border-radius:8px;color:#f0f4ff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box">
+        <label style="display:block;font-size:11px;color:#666;margin-bottom:6px;font-family:inherit;letter-spacing:0.5px;text-transform:uppercase">First name</label>
+        <input type="text" id="signup-firstname" placeholder="Alex" style="width:100%;padding:13px 16px;background:#1c1c1e;border:none;border-radius:10px;color:#f5f5f7;font-size:15px;font-family:inherit;outline:none;box-sizing:border-box">
       </div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#8b95a5;margin-bottom:6px;font-family:inherit">Project type</label>
-        <select id="signup-project-type" style="width:100%;padding:12px 14px;background:#13151c;border:1px solid #2a2d3d;border-radius:8px;color:#f0f4ff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box">
+        <label style="display:block;font-size:11px;color:#666;margin-bottom:6px;font-family:inherit;letter-spacing:0.5px;text-transform:uppercase">Project type</label>
+        <select id="signup-project-type" style="width:100%;padding:13px 16px;background:#1c1c1e;border:none;border-radius:10px;color:#f5f5f7;font-size:15px;font-family:inherit;outline:none;box-sizing:border-box">
           <option value="">Select type…</option>
           <option value="Arch">Architecture</option>
           <option value="Struct">Structural Engineering</option>
@@ -4497,8 +4505,8 @@ window._swBannerArmedAt = Date.now();
         </select>
       </div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-size:12px;color:#8b95a5;margin-bottom:6px;font-family:inherit">Your role</label>
-        <select id="signup-role" style="width:100%;padding:12px 14px;background:#13151c;border:1px solid #2a2d3d;border-radius:8px;color:#f0f4ff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box">
+        <label style="display:block;font-size:11px;color:#666;margin-bottom:6px;font-family:inherit;letter-spacing:0.5px;text-transform:uppercase">Your role</label>
+        <select id="signup-role" style="width:100%;padding:13px 16px;background:#1c1c1e;border:none;border-radius:10px;color:#f5f5f7;font-size:15px;font-family:inherit;outline:none;box-sizing:border-box">
           <option value="Architect">Architect</option>
           <option value="Engineer">Structural Engineer</option>
           <option value="MEP">MEP Engineer</option>
@@ -4506,27 +4514,28 @@ window._swBannerArmedAt = Date.now();
           <option value="Draftsman">Draftsman</option>
         </select>
       </div>
-      <div style="margin-bottom:16px">
-        <label style="display:block;font-size:12px;color:#8b95a5;margin-bottom:6px;font-family:inherit">Location <span style="color:#3a3f4d">(optional)</span></label>
-        <input type="text" id="signup-location" placeholder="New York, NY" style="width:100%;padding:12px 14px;background:#13151c;border:1px solid #2a2d3d;border-radius:8px;color:#f0f4ff;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box">
+      <div style="margin-bottom:18px">
+        <label style="display:block;font-size:11px;color:#666;margin-bottom:6px;font-family:inherit;letter-spacing:0.5px;text-transform:uppercase">Location <span style="text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input type="text" id="signup-location" placeholder="New York, NY" style="width:100%;padding:13px 16px;background:#1c1c1e;border:none;border-radius:10px;color:#f5f5f7;font-size:15px;font-family:inherit;outline:none;box-sizing:border-box">
       </div>
-      <div id="signup-step2-error" class="hidden" style="color:#e84855;font-size:12px;margin-bottom:12px;padding:8px 12px;background:rgba(232,72,85,0.1);border-radius:6px"></div>
+      <div id="signup-step2-error" class="hidden" style="color:#ff6b6b;font-size:12px;margin-bottom:12px;padding:8px 12px;background:rgba(255,107,107,0.08);border-radius:8px"></div>
 
-      <button id="signup-step2-next" style="width:100%;padding:12px;background:#1d5fa6;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Complete signup</button>
+      <button id="signup-step2-next" style="width:100%;padding:14px;background:#0a84ff;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Complete setup</button>
 
       <div style="text-align:center;margin-top:12px">
-        <button id="signup-resend" style="background:none;border:none;color:#6b7a8d;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline;text-underline-offset:2px">Resend magic link</button>
+        <button id="signup-resend" style="background:none;border:none;color:#555;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline;text-underline-offset:2px">Resend magic link</button>
       </div>
     </div>
 
     <!-- Step 3: Magic link sent confirmation -->
-    <div id="signup-step-3" class="hidden" style="text-align:center;padding:16px 0">
-      <div style="width:56px;height:56px;background:rgba(29,95,166,0.15);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7fb3de" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+    <div id="signup-step-3" class="hidden" style="text-align:center;padding:20px 0">
+      <div style="width:60px;height:60px;background:rgba(10,132,255,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0a84ff" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       </div>
-      <h2 style="font-size:20px;font-weight:700;color:#f0f4ff;margin:0 0 8px;font-family:inherit">Check your email</h2>
-      <p style="font-size:13px;color:#8b95a5;margin:0 0 8px;line-height:1.5">We sent a magic link to<br><strong style="color:#f0f4ff" id="signup-step3-email"></strong></p>
-      <p style="font-size:12px;color:#6b7a8d;margin:0">Click the link in the email to sign in. It expires in 15 minutes.</p>
+      <h2 style="font-size:22px;font-weight:700;color:#f5f5f7;margin:0 0 10px;font-family:inherit;letter-spacing:-0.4px">Check your email</h2>
+      <p style="font-size:14px;color:#888;margin:0 0 6px;line-height:1.6">We sent a magic link to<br><strong style="color:#f5f5f7" id="signup-step3-email"></strong></p>
+      <p style="font-size:12px;color:#555;margin:0 0 20px">Click the link to sign in. It expires in 15 minutes.</p>
+      <p style="font-size:11px;color:#444">Questions? <a href="mailto:support@atlantist.cloud" style="color:#555;text-decoration:none">support@atlantist.cloud</a></p>
     </div>
   </div>
 </div>
