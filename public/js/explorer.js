@@ -859,8 +859,75 @@
   }
 
   function _showVersions(item) {
-    // Future: show a versions panel overlay
-    alert('Version history coming soon for: ' + item.name);
+    // Remove any existing panel
+    document.getElementById('expl-versions-panel')?.remove();
+
+    const panel = document.createElement('div');
+    panel.id = 'expl-versions-panel';
+    panel.style.cssText = [
+      'position:fixed;right:0;top:0;bottom:0;width:340px;z-index:9100',
+      'background:#0d1520;border-left:1px solid #1e2d42;display:flex;flex-direction:column',
+      'box-shadow:-8px 0 32px rgba(0,0,0,0.6);transition:transform .25s ease',
+      'transform:translateX(340px)',
+    ].join(';');
+    panel.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #1e2d42">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#e8edf4">Version History</div>
+          <div style="font-size:11px;color:#4d6b8a;margin-top:2px">${_esc(item.name)}</div>
+        </div>
+        <button id="expl-ver-close" style="background:none;border:none;color:#4d6b8a;font-size:20px;cursor:pointer;padding:4px;line-height:1">×</button>
+      </div>
+      <div id="expl-ver-list" style="flex:1;overflow-y:auto;padding:12px 0">
+        <div style="padding:24px;color:#4d6b8a;font-size:13px;text-align:center">Loading…</div>
+      </div>
+      <div style="padding:12px 16px;border-top:1px solid #1e2d42">
+        <button id="expl-ver-export" style="width:100%;padding:9px;background:#1e3a5f;border:1px solid #2a4f7c;border-radius:8px;color:#8bb4d8;font-size:12px;cursor:pointer;font-weight:600">↓ Export to IFC</button>
+      </div>
+    `;
+    document.body.appendChild(panel);
+    // Animate in
+    requestAnimationFrame(() => { panel.style.transform = 'translateX(0)'; });
+
+    // Close
+    panel.querySelector('#expl-ver-close').onclick = () => {
+      panel.style.transform = 'translateX(340px)';
+      setTimeout(() => panel.remove(), 260);
+    };
+
+    // Export button
+    panel.querySelector('#expl-ver-export').onclick = () => {
+      window.open(`/api/projects/${item.id}/export`, '_blank');
+    };
+
+    // Load versions
+    _api('GET', `/api/explorer/versions/${item.id}`).then(data => {
+      const list = panel.querySelector('#expl-ver-list');
+      if (!data.versions || data.versions.length === 0) {
+        list.innerHTML = '<div style="padding:24px;color:#4d6b8a;font-size:13px;text-align:center">No version history yet.<br>Upload an RVT file to start tracking.</div>';
+        return;
+      }
+      list.innerHTML = data.versions.map(v => {
+        const typeIcon = v.type === 'rvt_import' ? '🏗️' : v.type === 'ifc_export' ? '🔷' : '➕';
+        const statusColor = v.status === 'complete' || v.status === 'done' ? '#4ade80' : v.status === 'failed' ? '#f87171' : '#fbbf24';
+        const elemStr = v.elements != null ? `<span style="color:#4d6b8a;font-size:10px">${v.elements} elements</span>` : '';
+        const date = v.created_at ? new Date(v.created_at).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+        return `
+          <div style="padding:10px 20px;border-bottom:1px solid #111d2b;display:flex;gap:12px;align-items:flex-start">
+            <span style="font-size:18px;flex-shrink:0">${typeIcon}</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:600;color:#c8d8ea;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${_esc(v.label)}</div>
+              <div style="font-size:11px;color:#4d6b8a;margin-top:2px">${date}</div>
+              ${elemStr}
+            </div>
+            <span style="font-size:10px;font-weight:700;color:${statusColor};flex-shrink:0">${(v.status || '').toUpperCase()}</span>
+          </div>
+        `;
+      }).join('');
+    }).catch(() => {
+      const list = panel.querySelector('#expl-ver-list');
+      list.innerHTML = '<div style="padding:24px;color:#f87171;font-size:13px;text-align:center">Failed to load version history.</div>';
+    });
   }
 
   function _showShare(items) {
@@ -926,8 +993,13 @@
       try {
         const formData = new FormData();
         formData.append('file', file);
+        // Route to the correct endpoint based on file type
+        const ext = file.name.split('.').pop().toLowerCase();
+        const uploadEndpoint = ext === 'ifc' ? '/api/ifc/import'
+                             : (ext === 'rvt' || ext === 'rfa') ? '/api/rvt-import/upload'
+                             : '/api/projects/upload';
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', '/api/projects/upload');
+        xhr.open('POST', uploadEndpoint);
         const uuid = localStorage.getItem('atlantist_session_uuid');
         if (uuid) xhr.setRequestHeader('X-Session-UUID', uuid);
         xhr.upload.onprogress = e => {

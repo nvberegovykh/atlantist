@@ -166,22 +166,73 @@ router.get('/storage', async (req, res) => {
 router.get('/versions/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    // Check wallt_state_checkpoints for project snapshots
-    let rows = [];
+    const versions = [];
+
+    // 1. RVT import runs for this project (upload history)
     try {
-      const result = await pool.query(
-        `SELECT id, checkpoint_type, label, wallt_version, created_at
-         FROM wallt_state_checkpoints
-         WHERE owner_user_id = $1
-         ORDER BY created_at DESC
-         LIMIT 50`,
-        [req.user.id]
+      const rvtRes = await pool.query(
+        `SELECT id, status, source_filename, elements_total, elements_succeeded, started_at, completed_at
+         FROM rvt_import_runs
+         WHERE project_id = $1
+         ORDER BY started_at DESC
+         LIMIT 20`,
+        [id]
       );
-      rows = result.rows;
-    } catch {
-      // table may not exist in all envs
-    }
-    res.json({ versions: rows, projectId: id });
+      for (const r of rvtRes.rows) {
+        versions.push({
+          id:       `rvt-${r.id}`,
+          type:     'rvt_import',
+          label:    r.source_filename || 'RVT Import',
+          status:   r.status,
+          elements: r.elements_succeeded || r.elements_total || null,
+          created_at: r.started_at || r.completed_at,
+        });
+      }
+    } catch { /* table may not exist */ }
+
+    // 2. IFC export runs
+    try {
+      const ifcRes = await pool.query(
+        `SELECT id, status, created_at FROM ifc_export_runs
+         WHERE project_id = $1
+         ORDER BY created_at DESC
+         LIMIT 10`,
+        [id]
+      );
+      for (const r of ifcRes.rows) {
+        versions.push({
+          id:         `ifc-${r.id}`,
+          type:       'ifc_export',
+          label:      'IFC Export',
+          status:     r.status,
+          elements:   null,
+          created_at: r.created_at,
+        });
+      }
+    } catch { /* table may not exist */ }
+
+    // 3. Project updated_at as a baseline "last edited" entry
+    try {
+      const projRes = await pool.query(
+        `SELECT updated_at, created_at, name FROM projects WHERE id = $1`,
+        [id]
+      );
+      if (projRes.rows.length > 0) {
+        const p = projRes.rows[0];
+        versions.push({
+          id:         `proj-created-${id}`,
+          type:       'created',
+          label:      `Created — ${p.name}`,
+          status:     'complete',
+          elements:   null,
+          created_at: p.created_at,
+        });
+      }
+    } catch {}
+
+    // Sort descending
+    versions.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+    res.json({ versions, projectId: id });
   } catch (err) {
     console.error('[explorer/versions]', err);
     res.status(500).json({ error: err.message });
