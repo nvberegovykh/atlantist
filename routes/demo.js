@@ -117,16 +117,38 @@ router.get('/nyc-midrise/dob-package', async (req, res) => {
   }
 });
 
-// POST /api/demo/seed — idempotent geometry seed for demo projects.
-// Auto-run on first demo load to ensure BIM data is present.
-// Safe to re-run — checks existence before each insert.
+// POST /api/demo/seed — idempotent geometry seed for the active demo project.
+// Resolves actual integer level IDs from the DB — never hardcodes UUIDs.
+// Auto-run on first demo load (fire-and-forget from loadAll).
 router.post('/seed', async (req, res) => {
   try {
-    const projRes = await pool.query(
-      `SELECT id, name FROM projects WHERE demo_slug = 'nyc-midrise' LIMIT 1`
+    // Resolve demo project — prefer snowdon, fall back to nyc-midrise
+    let projRes = await pool.query(
+      `SELECT id, name FROM projects WHERE demo_slug = 'snowdon' AND is_demo = TRUE LIMIT 1`
     );
+    if (!projRes.rows[0]) {
+      projRes = await pool.query(
+        `SELECT id, name FROM projects WHERE is_demo = TRUE LIMIT 1`
+      );
+    }
     if (!projRes.rows[0]) return res.status(404).json({ error: 'Demo project not found' });
     const projectId = projRes.rows[0].id;
+
+    // Resolve actual integer level IDs from DB
+    const lvlRes = await pool.query(
+      `SELECT id, elevation FROM levels WHERE project_id = $1 ORDER BY elevation ASC`, [projectId]
+    );
+    if (lvlRes.rows.length < 2) {
+      return res.json({ seeded: false, message: 'Levels not yet seeded — call GET /api/demo/snowdon first' });
+    }
+    const groundId = lvlRes.rows[0].id;
+    const roofId   = lvlRes.rows[lvlRes.rows.length - 1].id;
+
+    // Check if geometry already present
+    const elCheck = await pool.query(`SELECT COUNT(*) FROM elements WHERE project_id=$1`, [projectId]);
+    if (parseInt(elCheck.rows[0].count, 10) > 0) {
+      return res.json({ seeded: false, message: 'Already seeded', project_id: projectId });
+    }
 
     const client = await pool.connect();
     let seeded = [];
@@ -143,11 +165,10 @@ router.post('/seed', async (req, res) => {
             [projectId, cx.toFixed(2), cz.toFixed(2)]
           );
           if (exists.rows[0]) continue;
-          const id = genUuid();
           await client.query(`
-            INSERT INTO elements (id,project_id,type,type_name,name,base_level_id,top_level_id,parameters,computed,created_at,updated_at)
-            VALUES ($1,$2,'column','ct-w14x48',$3,'1f6ef012-2eee-4a3a-b5db-1c11ae73122e','6111e6cd-35cb-429b-b8ca-cf1df9e98d47',$4,$5,NOW(),NOW())`,
-            [id, projectId, `Col ${colName(cx,cz)}`,
+            INSERT INTO elements (project_id,type,type_name,name,base_level_id,top_level_id,parameters,computed,created_at,updated_at)
+            VALUES ($1,'column','ct-w14x48',$2,$3,$4,$5,$6,NOW(),NOW())`,
+            [projectId, `Col ${colName(cx,cz)}`, groundId, roofId,
              JSON.stringify({ x: cx, z: cz }),
              JSON.stringify({ height: 36.576, section: 'W14x90', structural: true })]
           );
@@ -155,45 +176,29 @@ router.post('/seed', async (req, res) => {
         }
       }
 
-      // Upper-level walls: corridor north + unit divider X=5.8 for L2–L10
-      const levelPairs = [
-        ['2fa5498b','3c38ccfe',2],['3c38ccfe','b870091b',3],['b870091b','0b564d21',4],
-        ['0b564d21','8e5d7c8f',5],['8e5d7c8f','2e1ddcca',6],['2e1ddcca','7230f638',7],
-        ['7230f638','e20e0922',8],['e20e0922','4f149b4e',9],['4f149b4e','6111e6cd',10],
+      // Perimeter walls — Snowdon pavilion 24m×12m, using real groundId/roofId
+      const walls = [
+        { name:'Wall-S1', sx: 0, sy: 0,  ex:12, ey: 0  },
+        { name:'Wall-S2', sx:12, sy: 0,  ex:24, ey: 0  },
+        { name:'Wall-E1', sx:24, sy: 0,  ex:24, ey: 6  },
+        { name:'Wall-E2', sx:24, sy: 6,  ex:24, ey:12  },
+        { name:'Wall-N1', sx:24, sy:12,  ex:12, ey:12  },
+        { name:'Wall-N2', sx:12, sy:12,  ex: 0, ey:12  },
+        { name:'Wall-W1', sx: 0, sy:12,  ex: 0, ey: 6  },
+        { name:'Wall-W2', sx: 0, sy: 6,  ex: 0, ey: 0  },
       ];
-      for (const [base8, top8, lvlnum] of levelPairs) {
-        const baseLvl = `00000000-0000-0000-0000-000000000${base8}`.replace(/0+$/, base8.padEnd(12,'0'));
-        // Reconstruct properly
-        const baseId = levelIdFrom8(base8);
-        const topId  = levelIdFrom8(top8);
-
-        const nExists = await client.query(
-          `SELECT id FROM elements WHERE project_id=$1 AND type='wall' AND name=$2 LIMIT 1`,
-          [projectId, `Corridor North L${lvlnum}`]
+      for (const w of walls) {
+        const wEx = await client.query(
+          `SELECT id FROM elements WHERE project_id=$1 AND name=$2 LIMIT 1`, [projectId, w.name]
         );
-        if (!nExists.rows[0]) {
-          const id = genUuid();
+        if (!wEx.rows[0]) {
+          const len = Math.sqrt((w.ex-w.sx)**2+(w.ey-w.sy)**2);
           await client.query(`
-            INSERT INTO elements (id,project_id,type,type_name,name,base_level_id,top_level_id,parameters,computed,created_at,updated_at)
-            VALUES ($1,$2,'wall','wt-interior-gypsum',$3,$4,$5,$6,$7,NOW(),NOW())`,
-            [id, projectId, `Corridor North L${lvlnum}`, baseId, topId,
-             JSON.stringify({startCoord:{x:-1.2,y:-15.24},endCoord:{x:1.2,y:-15.24},thickness:0.152}),
-             JSON.stringify({height:3.658,length:2.4,thickness:0.152})]
-          );
-          seeded.push('wall');
-        }
-        const uExists = await client.query(
-          `SELECT id FROM elements WHERE project_id=$1 AND type='wall' AND name=$2 LIMIT 1`,
-          [projectId, `Unit Divider X=5.8 L${lvlnum}`]
-        );
-        if (!uExists.rows[0]) {
-          const id = genUuid();
-          await client.query(`
-            INSERT INTO elements (id,project_id,type,type_name,name,base_level_id,top_level_id,parameters,computed,created_at,updated_at)
-            VALUES ($1,$2,'wall','5b864d29-88b9-4bc9-ac2e-89353fc30758',$3,$4,$5,$6,$7,NOW(),NOW())`,
-            [id, projectId, `Unit Divider X=5.8 L${lvlnum}`, baseId, topId,
-             JSON.stringify({startCoord:{x:5.77,y:-15.24},endCoord:{x:5.77,y:15.24},thickness:0.305}),
-             JSON.stringify({height:3.658,length:30.48,thickness:0.305})]
+            INSERT INTO elements (project_id,type,type_name,name,base_level_id,top_level_id,parameters,computed,created_at,updated_at)
+            VALUES ($1,'wall','wt-concrete-300',$2,$3,$4,$5,$6,NOW(),NOW())`,
+            [projectId, w.name, groundId, roofId,
+             JSON.stringify({startCoord:{x:w.sx,y:w.sy},endCoord:{x:w.ex,y:w.ey},thickness:0.3}),
+             JSON.stringify({height:3.5,thickness:0.3,length:len})]
           );
           seeded.push('wall');
         }
