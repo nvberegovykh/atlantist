@@ -27,7 +27,7 @@ async function upsertUser(data) {
   const { session_uuid, email, first_name, project_type, role, specializations, location } = data;
   const res = await pool.query(
     `INSERT INTO app_users (session_uuid, email, first_name, project_type, role, specializations, location, email_verified)
-     VALUES ($1::VARCHAR(36), $2::VARCHAR(255), $3, $4, $5, $6::jsonb, $7, true)
+     VALUES ($1::VARCHAR(36), $2::VARCHAR(255), $3, $4, $5, $6::text[], $7, true)
      ON CONFLICT (session_uuid) DO UPDATE SET
        email = EXCLUDED.email,
        first_name = EXCLUDED.first_name,
@@ -39,7 +39,7 @@ async function upsertUser(data) {
        updated_at = NOW(),
        last_active = NOW()
      RETURNING *`,
-    [session_uuid, email, first_name, project_type, role || 'Architect', JSON.stringify(specializations || []), location]
+    [session_uuid, email, first_name, project_type, role || 'Architect', (specializations || []), location]
   );
   return res.rows[0];
 }
@@ -68,8 +68,11 @@ async function updateUserProfile(id, data) {
   for (const key of allowed) {
     if (data[key] !== undefined) {
       fields.push(`${key} = $${idx++}`);
-      // Cast JSONB fields explicitly to avoid TEXT[] ambiguity in old schemas
-      if (key === 'specializations' || key === 'onboarding_checklist') {
+      // specializations is TEXT[] in live DB; onboarding_checklist is JSONB
+      if (key === 'specializations') {
+        fields[fields.length - 1] = fields[fields.length - 1].replace(`= $${idx - 1}`, `= $${idx - 1}::text[]`);
+        values.push(Array.isArray(data[key]) ? data[key] : []);
+      } else if (key === 'onboarding_checklist') {
         fields[fields.length - 1] = fields[fields.length - 1].replace(`= $${idx - 1}`, `= $${idx - 1}::jsonb`);
         values.push(JSON.stringify(data[key]));
       } else {
