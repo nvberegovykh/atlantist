@@ -172,7 +172,9 @@
     .nav {
       position: fixed; top: 0; left: 0; right: 0;
       z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
       padding: 0 40px;
       height: 64px;
       background: rgba(6,10,16,0.8);
@@ -201,7 +203,7 @@
       color: var(--text);
     }
 
-    .nav-links { display: flex; align-items: center; gap: 4px; }
+    .nav-links { display: flex; align-items: center; justify-content: center; gap: 4px; }
     .nav-links a {
       padding: 7px 16px; border-radius: 8px;
       font-size: 13px; font-weight: 500; color: var(--text-2);
@@ -225,7 +227,7 @@
       left: calc(50% - 12px);
     }
 
-    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .nav-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
 
     .btn-ghost {
       padding: 8px 18px; border: 1px solid var(--border-2); border-radius: 8px;

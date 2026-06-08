@@ -3,7 +3,7 @@
  * Network-first for HTML pages; cache-first for static assets.
  * Bumping CACHE_VERSION invalidates all stale caches.
  */
-const CACHE_VERSION = 'v39'; // bumped: dirty-flag render-on-demand, magic link fix, auth rate limit fix
+const CACHE_VERSION = 'v40'; // bumped: nav centering, SW clients.claim selective reload fix
 const CACHE_NAME = `atlantist-${CACHE_VERSION}`;
 
 // Static assets to pre-cache (no HTML — HTML is always network-first)
@@ -50,7 +50,22 @@ self.addEventListener('activate', (event) => {
           .filter((key) => key !== CACHE_NAME)
           .map((key) => caches.delete(key))
       )
-    ).then(() => self.clients.claim())
+    ).then(async () => {
+      // clients.claim() takes control of all open tabs immediately.
+      // Guard: only reload tabs that are on /app — never reload /login or /auth/verify
+      // (those pages reload-loop when SW claims them mid-navigation).
+      const allClients = await self.clients.matchAll({ includeUncontrolled: true, type: 'window' });
+      for (const client of allClients) {
+        try {
+          const u = new URL(client.url);
+          // Only navigate /app tabs — leave login, verify, and landing pages alone
+          if (u.pathname.startsWith('/app')) {
+            client.navigate(client.url);
+          }
+        } catch (e) { /* ignore malformed URLs */ }
+      }
+      return self.clients.claim();
+    })
   );
 });
 
