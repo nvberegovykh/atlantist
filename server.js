@@ -63,7 +63,10 @@ const UNAUTHED_PATHS = new Set([
 // Exception: catalog/type endpoints pass through unauthenticated (read-only).
 function requireBimAuth(req, res, next) {
   // Allow catalog endpoints without auth
-  if (req.method === 'GET' && UNAUTHED_PATHS.has(req.path)) {
+  // Use req.originalUrl (full path) not req.path (router-relative) — when mounted
+  // at /api/stairs, req.path is '/types' not '/api/stairs/types'.
+  const fullPath = req.originalUrl.split('?')[0];
+  if (req.method === 'GET' && UNAUTHED_PATHS.has(fullPath)) {
     req.user = req.user || null;
     return next();
   }
@@ -209,7 +212,8 @@ app.get('/app', async (req, res) => {
 
   // Allow guest/invite bypass without full session
   const url = new URL(req.url, `http://${req.hostname}`);
-  const hasGuestBypass = url.searchParams.has('invite') || url.searchParams.has('guest');
+  // demo= allows unauthenticated access for public demo projects
+  const hasGuestBypass = url.searchParams.has('invite') || url.searchParams.has('guest') || url.searchParams.has('demo');
 
   if (!sessionToken && !hasGuestBypass) {
     // No session — redirect to login
