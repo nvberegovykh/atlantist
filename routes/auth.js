@@ -202,6 +202,44 @@ function authMiddleware(req, res, next) {
 }
 
 // GET /api/auth/me — get current user
+// GET /api/auth/db-check — tests each DB step in the verify path; returns pass/fail per step
+// Public endpoint, safe to call anytime (read-only probe + cleanup)
+router.get('/db-check', async (req, res) => {
+  const pool = require('../db/index');
+  const results = {};
+  try {
+    // 1. Can we query app_users?
+    const u = await pool.query('SELECT id FROM app_users LIMIT 1');
+    results.app_users_query = { ok: true, rows: u.rowCount };
+  } catch (e) { results.app_users_query = { ok: false, error: e.message, code: e.code }; }
+  try {
+    // 2. Can we query auth_sessions?
+    const s = await pool.query('SELECT id FROM auth_sessions LIMIT 1');
+    results.auth_sessions_query = { ok: true, rows: s.rowCount };
+  } catch (e) { results.auth_sessions_query = { ok: false, error: e.message, code: e.code }; }
+  try {
+    // 3. Can we query magic_tokens?
+    const m = await pool.query('SELECT id FROM magic_tokens LIMIT 1');
+    results.magic_tokens_query = { ok: true, rows: m.rowCount };
+  } catch (e) { results.magic_tokens_query = { ok: false, error: e.message, code: e.code }; }
+  try {
+    // 4. Can we INSERT into auth_sessions with a fake user_id? (will fail FK — that's expected)
+    // Instead test with an existing user id if one exists
+    const userRow = await pool.query('SELECT id FROM app_users ORDER BY id LIMIT 1');
+    if (userRow.rows.length > 0) {
+      const { createSession } = require('../db/auth');
+      const sess = await createSession(userRow.rows[0].id);
+      // Clean up immediately
+      await pool.query('DELETE FROM auth_sessions WHERE token_hash = $1',
+        [require('crypto').createHash('sha256').update(sess.token).digest('hex')]);
+      results.create_session = { ok: true, user_id: userRow.rows[0].id };
+    } else {
+      results.create_session = { ok: null, note: 'no users in DB to test with' };
+    }
+  } catch (e) { results.create_session = { ok: false, error: e.message, code: e.code }; }
+  res.json({ status: 'ok', results });
+});
+
 // GET /api/auth/health — public, no auth required
 // Returns email delivery config status so ops can verify magic link is wired up.
 router.get('/health', (req, res) => {
@@ -526,7 +564,9 @@ router.get('/verify', async (req, res) => {
     res.redirect(302, safeNext);
   } catch (err) {
     console.error('[auth] GET /verify', err);
-    res.redirect('/?magic_error=server_error');
+    // Include error code in redirect so we can diagnose from browser URL bar
+    const code = err.code || err.name || 'unknown';
+    res.redirect(`/?magic_error=server_error&ecode=${encodeURIComponent(code)}`);
   }
 });
 
