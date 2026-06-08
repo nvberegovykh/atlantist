@@ -17,6 +17,7 @@ window.addEventListener('error', (event) => {
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { initSceneCoordinator, sceneCoordinator as _sceneCoordRef } from './scene/coordinator.js';
 // BULK-LIBS: three-mesh-bvh + stats.js bolt-on
 import { buildBVH, refreshBVH } from './app.bvh-raycaster.js';
 import { statsBegin, statsEnd }   from './app.stats-monitor.js';
@@ -417,6 +418,39 @@ sceneSection.add(annotationGroupSection);
 const imHighlightGroup = new THREE.Group();
 imHighlightGroup.name = 'im_highlight';
 scene3d.add(imHighlightGroup);
+
+// ─── Scene Coordinator (multi-branch neural scene graph) ──────────────────────
+// Initialized lazily here with a placeholder ctx; full ctx is set in
+// initCoordinatorCtx() once all build functions are declared (they are hoisted
+// as function declarations so this is safe at module parse time, but we delay
+// to avoid temporal dead zone on const/let variables they close over).
+let _coordinator = null;
+function getCoordinator() { return _coordinator; }
+
+// Kick off coordinator init on next microtask tick (all declarations will be hoisted)
+Promise.resolve().then(() => {
+  _coordinator = initSceneCoordinator(scene3d, scenePlan, sceneSection, {
+    state,
+    scene3d, scenePlan, sceneSection,
+    pickMap, objectMap,
+    markRenderDirty,
+    buildWallMesh, buildColumnMesh, buildRoofMesh,
+    buildFloorMesh, buildFloorPlan2D, buildCeilingMesh,
+    buildDoorMesh, buildWindowMesh,
+    buildMEPMesh,
+    buildStairMesh, buildStairSymbol2D, buildRailingMesh,
+    buildStructuralMemberMesh,
+    buildGridMesh, buildLevelPlane,
+    renderAnnotations, renderIMHighlight, renderRoomBoundaries,
+  });
+  // Expose for debugging
+  window.__atlCoordinator = _coordinator;
+});
+
+// Called by rebuildScene() and patch handlers to route dirty signals
+function markElementDirty(type, id) {
+  if (_coordinator) _coordinator.markDirty(type, id);
+}
 
 // Tracks auto-dimension line for selected wall
 let autoDimMesh = null;
@@ -1409,14 +1443,98 @@ if (cP) setupPicking(cP, rendererPlan, camPlan);
 // Maps element/level id → array of Three.js objects
 const objectMap = new Map();
 
+// ─── Geometry + Material caches ──────────────────────────────────────────────
+// WHY: rebuildScene() was allocating ~97 new materials and ~60 new geometries
+// on every call (every property change, every selection, every undo). Each
+// allocation creates a GPU upload; each dispose tears it down. On a model with
+// 50 walls + 20 columns this creates ~500ms stalls at interactive rates.
+//
+// Solution: shared caches keyed by dimension/color signature.
+// Materials: keyed by "color:opacity:wireframe". Only ~8 distinct combos exist
+//   across the whole app (COLORS palette is fixed). Zero new GPU textures.
+// Geometries: BoxGeometry keyed by "w:h:d" rounded to 3dp. Two walls of the
+//   same length/height/thickness share one geometry. Eviction only on clearGeoCache().
+//
+// EdgesGeometry: computed once per geometry, cached alongside it. Was previously
+//   recomputed per-mesh per-rebuild — this alone was 30–40% of rebuild time.
+//
+// Mesh clones for plan/section views: clones share geometry reference (correct
+//   THREE.js behavior). clearMeshes() now tracks ALL scene objects (3d+plan+sect)
+//   and removes them without disposing shared geometry — only the cache manages
+//   geometry lifecycle.
+
+const _matCache  = new Map(); // "color:opacity" → MeshLambertMaterial
+const _geoCache  = new Map(); // "w:h:d"        → { box: BoxGeometry, edges: EdgesGeometry }
+const _lineCache = new Map(); // "color"         → LineBasicMaterial
+
+function _mat(color, opacity = 0.75) {
+  const key = `${color}:${opacity}`;
+  if (_matCache.has(key)) return _matCache.get(key);
+  const m = new THREE.MeshLambertMaterial({ color, transparent: opacity < 1, opacity });
+  _matCache.set(key, m);
+  return m;
+}
+
+function _geo(w, h, d) {
+  const key = `${w.toFixed(3)}:${h.toFixed(3)}:${d.toFixed(3)}`;
+  if (_geoCache.has(key)) return _geoCache.get(key);
+  const box = new THREE.BoxGeometry(w, h, d);
+  const edges = new THREE.EdgesGeometry(box);
+  const entry = { box, edges };
+  _geoCache.set(key, entry);
+  return entry;
+}
+
+function _lineMat(color) {
+  if (_lineCache.has(color)) return _lineCache.get(color);
+  const m = new THREE.LineBasicMaterial({ color });
+  _lineCache.set(color, m);
+  return m;
+}
+
+// Called at startup and when project changes — full geo cache eviction.
+// Materials are permanent (finite set); geometries grow with model diversity.
+function clearGeoCache() {
+  _geoCache.forEach(({ box, edges }) => { box.dispose(); edges.dispose(); });
+  _geoCache.clear();
+}
+
+// All scene objects we've added (3d + plan + section) — tracked so clearMeshes
+// can remove them without touching the shared geometry/material caches.
+const _sceneObjects = []; // flat list of { obj, scene }
+
 function clearMeshes() {
-  objectMap.forEach((objs) => objs.forEach(o => {
-    if (o.parent) o.parent.remove(o);
-    if (o.geometry) { o.geometry.dispose(); o.geometry = null; }
-    if (o.material) { o.material.dispose(); o.material = null; }
-  }));
+  // Remove all tracked objects from their scenes — do NOT dispose geometry/material
+  // (they are owned by the caches, not by individual meshes).
+  for (const { obj, scene } of _sceneObjects) {
+    scene.remove(obj);
+  }
+  _sceneObjects.length = 0;
   objectMap.clear();
   pickMap.clear();
+}
+
+// Add a mesh to a scene and register it for cleanup
+function _addToScene(obj, scene) {
+  scene.add(obj);
+  _sceneObjects.push({ obj, scene });
+}
+
+// Build a wall-segment mesh using cached geo + material.
+// Used by buildWallMesh to avoid per-segment allocations.
+function _wallSegMesh(segLen, height, thick, baseElev, cx, cz, localMidX, angle, color, opacity, lineColor, elId) {
+  const { box, edges } = _geo(segLen, height, thick);
+  const mat  = _mat(color, opacity);
+  const mesh = new THREE.Mesh(box, mat);
+  const worldX = cx + localMidX * Math.cos(-angle);
+  const worldZ = cz - localMidX * Math.sin(-angle);
+  mesh.position.set(worldX, baseElev + height / 2, worldZ);
+  mesh.rotation.y = -angle;
+  const edgeLines = new THREE.LineSegments(edges, _lineMat(lineColor));
+  mesh.add(edgeLines);
+  mesh.userData = { id: elId, type: 'element' };
+  pickMap.set(mesh.uuid, { id: elId, type: 'element' });
+  return mesh;
 }
 
 // ─── Debounced scene rebuild ─────────────────────────────────────────────────
@@ -2951,6 +3069,10 @@ function rebuildScene() {
   rebuildScene._busy = true;
   // Mark render dirty so animate() issues a frame after the scene is rebuilt
   markRenderDirty();
+  // Signal coordinator: full rebuild of all branches.
+  // Phase 0: coordinator.flush() runs branches in animate() which calls the
+  // same build functions. Phase 1+ will skip the monolithic path below.
+  if (_coordinator) _coordinator.rebuildAll();
   // Outer try-catch ensures a single bad subsystem (bad geometry, bad parameters,
   // bad build function) never leaves the scene blank — the previous render
   // persists until a clean rebuild completes.
@@ -3643,6 +3765,10 @@ export function animate() {
     if (_vpControlsPlan) _vpControlsPlan.update();
     if (_vpControlsSect) _vpControlsSect.update();
 
+    // Flush dirty scene branches in priority order (T0→T1→T2→T3)
+    // Phase 0: branches wrap existing build functions; markRenderDirty() called from within.
+    if (_coordinator) _coordinator.flush();
+
     // Dirty-flag render-on-demand: only issue GPU draw calls when something changed.
     // _dampingFrames keeps rendering for ~1s after last input so 3D damping settles.
     const shouldRender = _renderDirty || _dampingFrames > 0;
@@ -3731,6 +3857,12 @@ function selectEntity(id, type) {
   }
 }
 window.selectEntity = selectEntity;
+
+// Scene coordinator globals — available to devtools, Wallt, and external modules
+window.markElementDirty = markElementDirty;
+window.getCoordinator    = getCoordinator;
+// Shorthand: window.__atlSceneBranchStats() for perf HUD
+window.__atlSceneBranchStats = () => _coordinator?.getBranchStats() ?? [];
 
 // ─── Multi-select status toast ────────────────────────────────────────────────
 function updateMultiSelectStatus() {
