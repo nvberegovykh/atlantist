@@ -307,8 +307,10 @@ router.post('/send-magic-link', async (req, res) => {
     // Send actual email
     await sendMagicLinkEmail(email, token);
 
-    // Track lead from registration
-    await upsertLead({ email, source: 'registration' });
+    // Track lead from registration (non-blocking — leads table may not exist in all envs)
+    try { await upsertLead({ email, source: 'registration' }); } catch (leadErr) {
+      console.warn('[auth] upsertLead skipped:', leadErr.message);
+    }
 
     res.json({
       success: true,
