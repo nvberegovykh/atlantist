@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Atlantist</title>
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #080d14;
+      --panel:    #0f1923;
+      --panel2:   #111d2b;
+      --accent:   #3479c4;
+      --accent-h: #4a8de0;
+      --border:   rgba(255,255,255,0.08);
+      --text:     #e2e8f0;
+      --muted:    #8898b0;
+      --font:     'DM Sans', system-ui, -apple-system, sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    /* ── Back link ─────────────────────────────────────────────────────────── */
+    .back-link {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    /* ── Card ──────────────────────────────────────────────────────────────── */
+    .login-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 40px 36px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+
+    /* ── Logo ──────────────────────────────────────────────────────────────── */
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .login-logo-wordmark {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.4px;
+    }
+
+    /* ── Heading ───────────────────────────────────────────────────────────── */
+    .login-heading {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .login-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 28px;
+      line-height: 1.5;
+    }
+
+    /* ── Form ──────────────────────────────────────────────────────────────── */
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 7px;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--panel2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      margin-bottom: 16px;
+    }
+    input[type="email"]::placeholder { color: rgba(136,152,176,0.5); }
+    input[type="email"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(52,121,196,0.18);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 13px 20px;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: -0.2px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .login-btn:hover:not(:disabled) { background: var(--accent-h); }
+    .login-btn:active:not(:disabled) { transform: scale(0.99); }
+    .login-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* ── States ─────────────────────────────────────────────────────────────── */
+    .state { display: none; }
+    .state.active { display: block; }
+
+    /* ── Success state ──────────────────────────────────────────────────────── */
+    .success-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(52,121,196,0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .success-heading {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .success-body {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .success-email-highlight {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .resend-link {
+      display: block;
+      text-align: center;
+      font-size: 13px;
+      color: var(--accent);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--font);
+      padding: 0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .resend-link:hover { color: var(--accent-h); }
+
+    /* ── Error ──────────────────────────────────────────────────────────────── */
+    .login-error {
+      display: none;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #f87171;
+      margin-bottom: 14px;
+    }
+    .login-error.visible { display: block; }
+
+    /* ── Divider ─────────────────────────────────────────────────────────────── */
+    .login-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0 20px;
+    }
+
+    /* ── Footer note ─────────────────────────────────────────────────────────── */
+    .login-footer {
+      font-size: 12px;
+      color: rgba(136,152,176,0.6);
+      text-align: center;
+      line-height: 1.5;
+      margin-top: 20px;
+    }
+    .login-footer a { color: var(--accent); text-decoration: none; }
+    .login-footer a:hover { text-decoration: underline; }
+
+    /* ── Alpha badge ─────────────────────────────────────────────────────────── */
+    .alpha-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      background: rgba(52,121,196,0.15);
+      border: 1px solid rgba(52,121,196,0.25);
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <a class="back-link" href="https://atlantist.cloud/">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="15 18 9 12 15 6"/>
+    </svg>
+    Back to Atlantist
+  </a>
+
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="login-logo">
+      <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="10" fill="#1a2e45"/>
+        <circle cx="32" cy="33" r="25" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.2"/>
+        <circle cx="32" cy="33" r="18" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.38"/>
+        <circle cx="32" cy="33" r="11" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.6"/>
+        <circle cx="32" cy="33" r="4" fill="#3479c4"/>
+        <line x1="18" y1="48" x2="32" y2="14" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="46" y1="48" x2="32" y2="14" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="22" y1="36" x2="42" y2="36" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+      <span class="login-logo-wordmark">Atlantist</span>
+    </div>
+
+    <div class="alpha-badge">Open Alpha</div>
+
+    <!-- State: Email form -->
+    <div id="state-form" class="state active">
+      <div class="login-heading">Sign in</div>
+      <p class="login-sub">Enter your email to receive a magic link — no password needed.</p>
+
+      <div id="login-error" class="login-error"></div>
+
+      <label for="email-input">Email address</label>
+      <input
+        type="email"
+        id="email-input"
+        placeholder="you@example.com"
+        autocomplete="email"
+        autofocus
+      />
+
+      <button class="login-btn" id="send-btn" onclick="sendMagicLink()">
+        Send Magic Link
+      </button>
+
+      <div class="login-divider"></div>
+      <p class="login-footer">
+        By signing in you agree to our
+        <a href="/legal/terms" target="_blank">Terms</a> and
+        <a href="/legal/privacy" target="_blank">Privacy Policy</a>.
+        <br>Need help? <a href="mailto:support@atlantist.cloud">support@atlantist.cloud</a>
+      </p>
+    </div>
+
+    <!-- State: Check email -->
+    <div id="state-sent" class="state">
+      <div class="success-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3479c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </div>
+      <div class="success-heading">Check your email</div>
+      <p class="success-body">
+        We sent a magic link to
+        <span class="success-email-highlight" id="sent-email-display"></span>.
+        Click the link in your email to sign in.
+        <br><br>
+        <small style="color:rgba(136,152,176,0.6)">The link expires in 15 minutes. Check your spam folder if you don't see it.</small>
+      </p>
+      <button class="resend-link" onclick="resetForm()">Use a different email</button>
+    </div>
+
+  </div>
+
+  <script>
+    // Read ?next= param for post-login redirect
+    function _getNextParam() {
+      try {
+        const p = new URLSearchParams(window.location.search);
+        const next = p.get('next');
+        return next && next.startsWith('/') ? next : '/app';
+      } catch { return '/app'; }
+    }
+
+    // Show error
+    function _showError(msg) {
+      const el = document.getElementById('login-error');
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+    function _clearError() {
+      const el = document.getElementById('login-error');
+      el.textContent = '';
+      el.classList.remove('visible');
+    }
+
+    // Send magic link
+    async function sendMagicLink() {
+      _clearError();
+      const emailInput = document.getElementById('email-input');
+      const email = emailInput.value.trim();
+
+      if (!email || !email.includes('@')) {
+        _showError('Please enter a valid email address.');
+        emailInput.focus();
+        return;
+      }
+
+      const btn = document.getElementById('send-btn');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+
+      try {
+        const resp = await fetch('/api/auth/send-magic-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        if (resp.status === 429) {
+          _showError('Too many requests. Please wait 15 minutes before trying again.');
+          btn.disabled = false;
+          btn.textContent = 'Send Magic Link';
+          return;
+        }
+
+        if (!resp.ok) {
+          const data = await resp.json().catch(() => ({}));
+          _showError(data.error || 'Something went wrong. Please try again.');
+          btn.disabled = false;
+          btn.textContent = 'Send Magic Link';
+          return;
+        }
+
+        // Success — show check-email state
+        document.getElementById('sent-email-display').textContent = email;
+        document.getElementById('state-form').classList.remove('active');
+        document.getElementById('state-sent').classList.add('active');
+
+      } catch (err) {
+        _showError('Network error. Please check your connection and try again.');
+        btn.disabled = false;
+        btn.textContent = 'Send Magic Link';
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('state-sent').classList.remove('active');
+      document.getElementById('state-form').classList.add('active');
+      const btn = document.getElementById('send-btn');
+      btn.disabled = false;
+      btn.textContent = 'Send Magic Link';
+      document.getElementById('email-input').focus();
+    }
+
+    // Allow Enter key submission
+    document.getElementById('email-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') sendMagicLink();
+    });
+
+    // If already logged in (has session_token cookie visible via non-httpOnly method),
+    // redirect straight to /app — can check by calling /api/auth/me
+    (async function checkExistingSession() {
+      try {
+        const r = await fetch('/api/auth/me');
+        if (r.ok) {
+          const data = await r.json();
+          if (data.authenticated && !data.user?.anonymous) {
+            window.location.replace(_getNextParam());
+          }
+        }
+      } catch { /* ok — not logged in */ }
+    })();
+  </script>
+</body>
+</html>

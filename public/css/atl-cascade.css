@@ -1,0 +1,510 @@
+/* ============================================================
+   Atlantist UI Cascade — Structured class system v1
+   One type of UI object = one semantic class.
+
+   VIEWPORT TYPES:
+   .atl-viewport      — any 3D/2D viewer pane (WebGL canvas wrapper)
+   .atl-viewport--3d  — 3D perspective viewport
+   .atl-viewport--2d  — plan / section viewport
+   .atl-viewport--sim — simulation result overlay viewport
+
+   RACK / PANEL TYPES:
+   .atl-rack          — vertical side panel (collapsible)
+   .atl-rack--left    — left nav/sidebar
+   .atl-rack--right   — properties/inspector
+   .atl-rack--float   — floating panel (detached)
+
+   CANVAS TYPES:
+   .atl-canvas        — 2D drawing canvas (plan view, annotation layer)
+   .atl-canvas--draw  — active drawing mode canvas
+   .atl-canvas--anno  — annotation overlay canvas
+
+   PALETTE TYPES (tool palette / command center):
+   .atl-palette       — tool palette container
+   .atl-palette--tools — primary tool strip
+   .atl-palette--fx   — effects/simulation controls
+   .atl-palette--cmd  — command bar / search
+
+   MEDIA WORKSPACE TYPES (for future IM/image/video/audio modes):
+   .atl-workspace           — root workspace container
+   .atl-workspace--bim      — BIM modeling mode
+   .atl-workspace--image    — image editing mode
+   .atl-workspace--video    — video editing mode
+   .atl-workspace--audio    — audio editing mode
+   .atl-workspace--im       — information modeling mode
+   ============================================================ */
+
+/* ── Design tokens ──────────────────────────────────────────────────────────── */
+:root {
+  /* Core surface colors */
+  --atl-bg:           #080d14;
+  --atl-panel:        #0f1923;
+  --atl-panel-2:      #111d2b;
+  --atl-border:       rgba(255, 255, 255, 0.07);
+  --atl-border-light: rgba(255, 255, 255, 0.12);
+
+  /* Type ramp */
+  --atl-text:         #e2e8f0;
+  --atl-text-muted:   #8898b0;
+  --atl-text-faint:   rgba(136, 152, 176, 0.5);
+
+  /* Accent palette */
+  --atl-accent:       #3479c4;
+  --atl-accent-h:     #4a8de0;
+  --atl-accent-dim:   rgba(52, 121, 196, 0.15);
+
+  /* Status colors */
+  --atl-ok:           #10b981;
+  --atl-warn:         #f59e0b;
+  --atl-error:        #ef4444;
+
+  /* Geometry */
+  --atl-radius-sm:    6px;
+  --atl-radius:       10px;
+  --atl-radius-lg:    14px;
+  --atl-radius-xl:    18px;
+
+  /* Spacing scale */
+  --atl-gap-xs:       4px;
+  --atl-gap-sm:       8px;
+  --atl-gap:          12px;
+  --atl-gap-md:       16px;
+  --atl-gap-lg:       24px;
+
+  /* Z-index layers */
+  --atl-z-base:       1;
+  --atl-z-panel:      100;
+  --atl-z-overlay:    500;
+  --atl-z-modal:      1000;
+  --atl-z-toast:      2000;
+  --atl-z-supreme:    9999;
+
+  /* Viewport dimensions */
+  --atl-rack-width:        240px;
+  --atl-rack-width-narrow: 180px;
+  --atl-palette-height:    48px;
+}
+
+/* ── Reset helpers ──────────────────────────────────────────────────────────── */
+.atl-viewport,
+.atl-rack,
+.atl-canvas,
+.atl-palette,
+.atl-workspace {
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   WORKSPACE
+   Root container for the entire editing environment.
+   ============================================================ */
+
+.atl-workspace {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--atl-bg);
+  color: var(--atl-text);
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* BIM mode — three-column layout: left rack + viewport + right rack */
+.atl-workspace--bim {
+  --atl-rack-width: 240px;
+}
+
+/* Image editing mode */
+.atl-workspace--image {
+  background: #0a0a0f;
+}
+
+/* Video editing mode */
+.atl-workspace--video {
+  flex-direction: column;
+}
+
+/* Audio editing mode */
+.atl-workspace--audio {
+  background: #060810;
+}
+
+/* Information modeling mode */
+.atl-workspace--im {
+  --atl-rack-width: 280px;
+}
+
+/* ============================================================
+   VIEWPORTS
+   3D/2D rendering panes — wrap WebGL canvases.
+   ============================================================ */
+
+.atl-viewport {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: #050b12;
+  border-radius: 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Focus/active state: faint accent border */
+.atl-viewport:focus-within,
+.atl-viewport.atl-active {
+  outline: 1px solid var(--atl-accent);
+  outline-offset: -1px;
+}
+
+/* Viewport label badge (top-left corner overlay) */
+.atl-viewport__label {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  z-index: var(--atl-z-base);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--atl-text-muted);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Navigation cube (top-right corner overlay) */
+.atl-viewport__navcube {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  z-index: var(--atl-z-base);
+  pointer-events: auto;
+}
+
+/* 3D perspective viewport */
+.atl-viewport--3d {
+  background: #050b12;
+}
+
+/* 2D plan / section viewport */
+.atl-viewport--2d {
+  background: #070d18;
+}
+.atl-viewport--2d .atl-viewport__label {
+  color: rgba(100, 160, 220, 0.6);
+}
+
+/* Simulation result overlay viewport */
+.atl-viewport--sim {
+  background: #060811;
+}
+.atl-viewport--sim .atl-viewport__label {
+  color: rgba(251, 191, 36, 0.7);
+}
+
+/* WebGL canvas fills the viewport */
+.atl-viewport canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ============================================================
+   RACKS
+   Vertical collapsible side panels.
+   ============================================================ */
+
+.atl-rack {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--atl-panel);
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: width 0.2s ease, opacity 0.2s ease;
+}
+
+/* Collapsed state */
+.atl-rack.atl-collapsed {
+  width: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Left navigation / inspector sidebar */
+.atl-rack--left {
+  width: var(--atl-rack-width);
+  border-right: 1px solid var(--atl-border);
+  z-index: var(--atl-z-panel);
+}
+
+/* Right properties / inspector panel */
+.atl-rack--right {
+  width: var(--atl-rack-width);
+  border-left: 1px solid var(--atl-border);
+  z-index: var(--atl-z-panel);
+}
+
+/* Floating panel — detached from layout */
+.atl-rack--float {
+  position: absolute;
+  z-index: var(--atl-z-overlay);
+  border-radius: var(--atl-radius-lg);
+  border: 1px solid var(--atl-border-light);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  resize: both;
+}
+
+/* Rack header */
+.atl-rack__header {
+  display: flex;
+  align-items: center;
+  gap: var(--atl-gap-sm);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--atl-border);
+  flex-shrink: 0;
+}
+
+.atl-rack__title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--atl-text-muted);
+}
+
+/* Rack content (scrollable) */
+.atl-rack__body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.atl-rack__body::-webkit-scrollbar {
+  width: 4px;
+}
+.atl-rack__body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+/* Rack section */
+.atl-rack__section {
+  padding: var(--atl-gap-sm) 0;
+  border-bottom: 1px solid var(--atl-border);
+}
+.atl-rack__section:last-child {
+  border-bottom: none;
+}
+
+.atl-rack__section-label {
+  padding: 6px 14px 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--atl-text-faint);
+}
+
+/* ============================================================
+   CANVASES
+   2D drawing and annotation overlay canvases.
+   ============================================================ */
+
+.atl-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Active drawing mode canvas */
+.atl-canvas--draw {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+/* Annotation overlay canvas */
+.atl-canvas--anno {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* ============================================================
+   PALETTES
+   Tool strips, command bars, and effect controls.
+   ============================================================ */
+
+.atl-palette {
+  display: flex;
+  align-items: center;
+  gap: var(--atl-gap-xs);
+  flex-shrink: 0;
+}
+
+/* Primary tool strip — horizontal toolbar */
+.atl-palette--tools {
+  flex-direction: row;
+  height: var(--atl-palette-height);
+  padding: 0 var(--atl-gap);
+  background: var(--atl-panel);
+  border-bottom: 1px solid var(--atl-border);
+}
+
+/* Effects / simulation controls */
+.atl-palette--fx {
+  flex-direction: row;
+  padding: var(--atl-gap-sm) var(--atl-gap);
+  background: rgba(8, 13, 20, 0.9);
+  border-top: 1px solid var(--atl-border);
+  backdrop-filter: blur(8px);
+}
+
+/* Command bar / search */
+.atl-palette--cmd {
+  flex-direction: row;
+  padding: 6px var(--atl-gap);
+  background: var(--atl-panel-2);
+  border: 1px solid var(--atl-border-light);
+  border-radius: var(--atl-radius);
+}
+
+/* Tool button within palette */
+.atl-palette__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  border-radius: var(--atl-radius-sm);
+  color: var(--atl-text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+
+.atl-palette__btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--atl-text);
+}
+
+.atl-palette__btn.atl-active,
+.atl-palette__btn[aria-pressed="true"] {
+  background: var(--atl-accent-dim);
+  color: var(--atl-accent);
+}
+
+.atl-palette__btn:focus-visible {
+  outline: 2px solid var(--atl-accent);
+  outline-offset: 1px;
+}
+
+/* Separator in palette */
+.atl-palette__sep {
+  width: 1px;
+  height: 20px;
+  background: var(--atl-border);
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+
+/* Hidden — removes from layout */
+.atl-hidden {
+  display: none !important;
+}
+
+/* Visually hidden — accessible */
+.atl-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Overlay backdrop */
+.atl-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: var(--atl-z-overlay);
+}
+
+/* Loading skeleton pulse */
+.atl-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: atl-skeleton-pulse 1.4s ease infinite;
+  border-radius: var(--atl-radius-sm);
+}
+
+@keyframes atl-skeleton-pulse {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Status dot */
+.atl-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.atl-dot--ok    { background: var(--atl-ok); }
+.atl-dot--warn  { background: var(--atl-warn); }
+.atl-dot--error { background: var(--atl-error); }
+.atl-dot--live  { background: var(--atl-ok); animation: atl-pulse-dot 2s ease infinite; }
+
+@keyframes atl-pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(0.8); }
+}
+
+/* ============================================================
+   RESPONSIVE — collapse racks on narrow viewports
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .atl-rack--left,
+  .atl-rack--right {
+    position: absolute;
+    z-index: var(--atl-z-overlay);
+    height: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  .atl-rack--right {
+    right: 0;
+    left: auto;
+    transform: translateX(100%);
+  }
+
+  .atl-rack--left.atl-open,
+  .atl-rack--right.atl-open {
+    transform: translateX(0);
+  }
+}

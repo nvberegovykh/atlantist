@@ -183,28 +183,54 @@ app.get('/rect', (_req, res) => {
 app.get('/contribute', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'contribute.html')));
 app.get('/tax-forms', requireBimAuth, (_req, res) => res.sendFile(path.join(__dirname, 'public', 'tax-forms.html')));
 
-// ─── App route — resolves session role, serves SPA ─────────────────────────
+// ─── Login page — always public ──────────────────────────────────────────
+app.get('/login', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+// ─── Auth verify page — handles magic link token flow ─────────────────────
+app.get('/auth/verify', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'auth-verify.html'));
+});
+
+// ─── App route — requires authenticated session (not just anonymous) ──────
 app.get('/app', async (req, res) => {
   const sessionToken = req.cookies?.session_token;
+
+  // Allow guest/invite bypass without full session
+  const url = new URL(req.url, `http://${req.hostname}`);
+  const hasGuestBypass = url.searchParams.has('invite') || url.searchParams.has('guest');
+
+  if (!sessionToken && !hasGuestBypass) {
+    // No session — redirect to login
+    const next = encodeURIComponent('/app' + (url.search || ''));
+    return res.redirect(302, `/login?next=${next}`);
+  }
 
   if (sessionToken) {
     try {
       const session = await getSessionByToken(sessionToken);
-      if (session) {
+      if (!session) {
+        res.clearCookie('session_token');
+        if (!hasGuestBypass) {
+          return res.redirect(302, '/login?next=/app');
+        }
+      } else {
         const appRole = await getUserRole(session.user_id);
         res.cookie('app_role', appRole === 'admin' ? 'admin' : 'user', { httpOnly: false, maxAge: 86400 * 1000, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
-      } else {
-        res.clearCookie('session_token');
       }
     } catch (err) {
       console.error('[app] session resolve error:', err.message);
+      if (!hasGuestBypass) {
+        return res.redirect(302, '/login?next=/app');
+      }
     }
   }
 
   // WHY: nuke stale caches once per browser — bump cache_vN + SW CACHE_VERSION together
-  if (!req.cookies?.cache_v20) {
+  if (!req.cookies?.cache_v21) {
     res.set('Clear-Site-Data', '"cache"');
-    res.cookie('cache_v20', '1', { httpOnly: false, maxAge: 30 * 86400 * 1000 });
+    res.cookie('cache_v21', '1', { httpOnly: false, maxAge: 30 * 86400 * 1000 });
   }
 
   res.sendFile(path.join(__dirname, 'public', 'app.html'));

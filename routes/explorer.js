@@ -20,27 +20,53 @@ const { authMiddleware } = require('./auth');
 const { listProjectsForUser, createProject, getProjectById } = require('../db/projects');
 const pool = require('../db/index');
 
-// All explorer routes require auth
+// All explorer routes require auth — but resilient: if user not set, return empty
 router.use(authMiddleware);
 
-/* ── GET /api/explorer/recent ─────────────────────────────────────────────── */
-// Returns last 20 projects opened by the user, plus recent Drive activity if available.
+/* GET /api/explorer/recent */
+// Returns last 20 projects opened by the user.
 router.get('/recent', async (req, res) => {
   try {
+    if (!req.user) return res.json({ items: [] });
     const userId = req.user.id;
-    const { rows } = await pool.query(
-      `SELECT p.id, p.name, p.slug, p.project_type, p.storage_bytes,
-              p.created_at, p.updated_at, p.last_opened_at,
-              pm.role as my_role,
-              (SELECT COUNT(*) FROM project_members WHERE project_id = p.id) as member_count,
-              (SELECT COUNT(*) FROM live_sessions ls WHERE ls.project_id = p.id AND ls.last_ping > NOW() - INTERVAL '5 minutes') as live_session_count
-       FROM projects p
-       JOIN project_members pm ON p.id = pm.project_id
-       WHERE pm.user_id = $1
-       ORDER BY COALESCE(p.last_opened_at, p.updated_at) DESC
-       LIMIT 20`,
-      [userId]
-    );
+    let rows = [];
+    try {
+      // Try with live_sessions subquery
+      const result = await pool.query(
+        `SELECT p.id, p.name, p.slug, p.project_type,
+                COALESCE(p.storage_bytes, 0) as storage_bytes,
+                p.created_at, p.updated_at, p.last_opened_at,
+                pm.role as my_role,
+                (SELECT COUNT(*) FROM project_members WHERE project_id = p.id) as member_count,
+                (SELECT COUNT(*) FROM live_sessions ls WHERE ls.project_id = p.id AND ls.last_ping > NOW() - INTERVAL '5 minutes') as live_session_count
+         FROM projects p
+         JOIN project_members pm ON p.id = pm.project_id
+         WHERE pm.user_id = $1
+         ORDER BY COALESCE(p.last_opened_at, p.updated_at) DESC
+         LIMIT 20`,
+        [userId]
+      );
+      rows = result.rows;
+    } catch {
+      // Fallback without live_sessions (table may not exist yet)
+      try {
+        const result2 = await pool.query(
+          `SELECT p.id, p.name, p.slug, p.project_type,
+                  COALESCE(p.storage_bytes, 0) as storage_bytes,
+                  p.created_at, p.updated_at, p.last_opened_at,
+                  pm.role as my_role,
+                  (SELECT COUNT(*) FROM project_members WHERE project_id = p.id) as member_count,
+                  0 as live_session_count
+           FROM projects p
+           JOIN project_members pm ON p.id = pm.project_id
+           WHERE pm.user_id = $1
+           ORDER BY COALESCE(p.last_opened_at, p.updated_at) DESC
+           LIMIT 20`,
+          [userId]
+        );
+        rows = result2.rows;
+      } catch { rows = []; }
+    }
     const items = rows.map(p => ({
       id: p.id,
       name: p.name || p.slug,
@@ -55,26 +81,32 @@ router.get('/recent', async (req, res) => {
     res.json({ items });
   } catch (err) {
     console.error('[explorer/recent]', err);
-    res.status(500).json({ error: err.message });
+    res.json({ items: [] }); // Resilient: empty instead of 500
   }
 });
 
-/* ── GET /api/explorer/shared ─────────────────────────────────────────────── */
+/* GET /api/explorer/shared */
 router.get('/shared', async (req, res) => {
   try {
+    if (!req.user) return res.json({ items: [] });
     const userId = req.user.id;
-    const { rows } = await pool.query(
-      `SELECT p.id, p.name, p.slug, p.project_type, p.storage_bytes,
-              p.created_at, p.updated_at, p.last_opened_at,
-              pm.role as my_role,
-              (SELECT COUNT(*) FROM project_members WHERE project_id = p.id) as member_count
-       FROM projects p
-       JOIN project_members pm ON p.id = pm.project_id
-       WHERE pm.user_id = $1
-         AND pm.role != 'owner'
-       ORDER BY COALESCE(p.last_opened_at, p.updated_at) DESC`,
-      [userId]
-    );
+    let rows = [];
+    try {
+      const result = await pool.query(
+        `SELECT p.id, p.name, p.slug, p.project_type,
+                COALESCE(p.storage_bytes, 0) as storage_bytes,
+                p.created_at, p.updated_at, p.last_opened_at,
+                pm.role as my_role,
+                (SELECT COUNT(*) FROM project_members WHERE project_id = p.id) as member_count
+         FROM projects p
+         JOIN project_members pm ON p.id = pm.project_id
+         WHERE pm.user_id = $1
+           AND pm.role != 'owner'
+         ORDER BY COALESCE(p.last_opened_at, p.updated_at) DESC`,
+        [userId]
+      );
+      rows = result.rows;
+    } catch { rows = []; }
     const items = rows.map(p => ({
       id: p.id,
       name: p.name || p.slug,
@@ -88,11 +120,11 @@ router.get('/shared', async (req, res) => {
     res.json({ items });
   } catch (err) {
     console.error('[explorer/shared]', err);
-    res.status(500).json({ error: err.message });
+    res.json({ items: [] }); // Resilient: empty instead of 500
   }
 });
 
-/* ── GET /api/explorer/templates ─────────────────────────────────────────── */
+/* GET /api/explorer/templates */
 router.get('/templates', async (req, res) => {
   // Future: fetch from a templates table. For now return built-in starters.
   res.json({
@@ -106,15 +138,17 @@ router.get('/templates', async (req, res) => {
   });
 });
 
-/* ── GET /api/explorer/trash ──────────────────────────────────────────────── */
+/* GET /api/explorer/trash */
 router.get('/trash', async (req, res) => {
   try {
+    if (!req.user) return res.json({ items: [] });
     const userId = req.user.id;
-    // Check if soft-delete column exists
     let rows = [];
     try {
       const result = await pool.query(
-        `SELECT p.id, p.name, p.slug, p.storage_bytes, p.updated_at, pm.role as my_role
+        `SELECT p.id, p.name, p.slug,
+                COALESCE(p.storage_bytes, 0) as storage_bytes,
+                p.updated_at, pm.role as my_role
          FROM projects p
          JOIN project_members pm ON p.id = pm.project_id
          WHERE pm.user_id = $1
@@ -124,7 +158,7 @@ router.get('/trash', async (req, res) => {
       );
       rows = result.rows;
     } catch {
-      // deleted_at column doesn't exist yet — return empty
+      // deleted_at column may not exist yet — return empty
     }
     const items = rows.map(p => ({
       id: p.id,
@@ -138,31 +172,37 @@ router.get('/trash', async (req, res) => {
     res.json({ items });
   } catch (err) {
     console.error('[explorer/trash]', err);
-    res.status(500).json({ error: err.message });
+    res.json({ items: [] }); // Resilient: empty instead of 500
   }
 });
 
-/* ── GET /api/explorer/storage ───────────────────────────────────────────── */
+/* GET /api/explorer/storage */
 router.get('/storage', async (req, res) => {
+  const TOTAL = 10 * 1024 * 1024 * 1024; // 10 GB quota
   try {
+    if (!req.user) return res.json({ used: 0, total: TOTAL, pct: 0 });
     const userId = req.user.id;
-    const { rows } = await pool.query(
-      `SELECT COALESCE(SUM(p.storage_bytes), 0) as used
-       FROM projects p
-       JOIN project_members pm ON p.id = pm.project_id
-       WHERE pm.user_id = $1 AND pm.role = 'owner'`,
-      [userId]
-    );
-    const used = parseInt(rows[0]?.used) || 0;
-    const total = 10 * 1024 * 1024 * 1024; // 10 GB beta quota
-    res.json({ used, total, pct: Math.round(used / total * 100) });
+    let used = 0;
+    try {
+      const { rows } = await pool.query(
+        `SELECT COALESCE(SUM(p.storage_bytes), 0) as used
+         FROM projects p
+         JOIN project_members pm ON p.id = pm.project_id
+         WHERE pm.user_id = $1 AND pm.role = 'owner'`,
+        [userId]
+      );
+      used = parseInt(rows[0]?.used) || 0;
+    } catch {
+      // storage_bytes column may not exist — return zero usage
+    }
+    res.json({ used, total: TOTAL, pct: Math.round(used / TOTAL * 100) });
   } catch (err) {
     console.error('[explorer/storage]', err);
-    res.status(500).json({ error: err.message });
+    res.json({ used: 0, total: TOTAL, pct: 0 }); // Resilient fallback
   }
 });
 
-/* ── GET /api/explorer/versions/:id ──────────────────────────────────────── */
+/* GET /api/explorer/versions/:id */
 router.get('/versions/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -239,10 +279,8 @@ router.get('/versions/:id', async (req, res) => {
   }
 });
 
-/* ── POST /api/projects/upload ────────────────────────────────────────────── */
-// Mounted separately at /api/projects/upload (see server.js registration note)
+/* POST /api/projects/upload */
 // Creates a new project stub for an uploaded BIM file.
-// Actual heavy-lift (Forge/IFC parser) is async; responds with projectId immediately.
 router.post('/upload-file', async (req, res) => {
   try {
     const userId  = req.user.id;

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signing you in — Atlantist</title>
+  <link rel="icon" href="/favicon.ico" sizes="48x48">
+  <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #080d14;
+      --panel:    #0f1923;
+      --panel2:   #111d2b;
+      --accent:   #3479c4;
+      --accent-h: #4a8de0;
+      --border:   rgba(255,255,255,0.08);
+      --text:     #e2e8f0;
+      --muted:    #8898b0;
+      --font:     'DM Sans', system-ui, -apple-system, sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    .verify-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px 40px 36px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    .verify-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .verify-logo-wordmark {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.4px;
+    }
+
+    /* ── States ─────────────────────────────────────────────────────────────── */
+    .state { display: none; }
+    .state.active { display: block; }
+
+    /* ── Spinner ─────────────────────────────────────────────────────────────── */
+    .spinner-ring {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(52,121,196,0.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .state-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.4px;
+      margin-bottom: 8px;
+    }
+    .state-body {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    /* ── Error state ─────────────────────────────────────────────────────────── */
+    .error-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(239,68,68,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    /* ── Success icon ────────────────────────────────────────────────────────── */
+    .success-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(52,121,196,0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    /* ── Name form ───────────────────────────────────────────────────────────── */
+    .name-form label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 7px;
+      text-align: left;
+    }
+    .name-form input {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--panel2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      margin-bottom: 16px;
+      text-align: left;
+    }
+    .name-form input::placeholder { color: rgba(136,152,176,0.5); }
+    .name-form input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(52,121,196,0.18);
+    }
+
+    .primary-btn {
+      width: 100%;
+      padding: 13px 20px;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: -0.2px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .primary-btn:hover:not(:disabled) { background: var(--accent-h); }
+    .primary-btn:active:not(:disabled) { transform: scale(0.99); }
+    .primary-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .back-to-login {
+      display: inline-block;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .back-to-login:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="verify-card">
+
+    <!-- Logo -->
+    <div class="verify-logo">
+      <svg width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="10" fill="#1a2e45"/>
+        <circle cx="32" cy="33" r="25" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.2"/>
+        <circle cx="32" cy="33" r="18" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.38"/>
+        <circle cx="32" cy="33" r="11" fill="none" stroke="#7fb3de" stroke-width="1.2" opacity="0.6"/>
+        <circle cx="32" cy="33" r="4" fill="#3479c4"/>
+        <line x1="18" y1="48" x2="32" y2="14" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="46" y1="48" x2="32" y2="14" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="22" y1="36" x2="42" y2="36" stroke="#f7f6f3" stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+      <span class="verify-logo-wordmark">Atlantist</span>
+    </div>
+
+    <!-- State: Verifying -->
+    <div id="state-verifying" class="state active">
+      <div class="spinner-ring"></div>
+      <div class="state-title">Signing you in…</div>
+      <p class="state-body">Verifying your magic link. This will only take a moment.</p>
+    </div>
+
+    <!-- State: Name prompt (new user) -->
+    <div id="state-name" class="state">
+      <div class="success-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3479c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div class="state-title">Welcome to Atlantist</div>
+      <p class="state-body" style="margin-bottom:20px">What should we call you? (Optional)</p>
+      <div class="name-form">
+        <label for="first-name-input">First name</label>
+        <input type="text" id="first-name-input" placeholder="e.g. Alex" autocomplete="given-name" />
+        <button class="primary-btn" id="complete-btn" onclick="completeSignup()">
+          Enter Atlantist →
+        </button>
+      </div>
+    </div>
+
+    <!-- State: Success / redirecting -->
+    <div id="state-success" class="state">
+      <div class="success-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3479c4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div class="state-title">You're signed in</div>
+      <p class="state-body">Redirecting you to Atlantist…</p>
+    </div>
+
+    <!-- State: Error -->
+    <div id="state-error" class="state">
+      <div class="error-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="state-title">Link expired</div>
+      <p class="state-body" id="error-msg">This magic link has expired or already been used. Please request a new one.</p>
+      <a href="/login" class="primary-btn" style="display:inline-block;text-decoration:none;line-height:1.5;">
+        Back to Sign In
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    // State management
+    function _showState(id) {
+      document.querySelectorAll('.state').forEach(el => el.classList.remove('active'));
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+    }
+
+    // Read URL params
+    const _params = new URLSearchParams(window.location.search);
+    const _token = _params.get('token');
+    const _next = (function() {
+      const n = _params.get('next');
+      return (n && n.startsWith('/')) ? n : '/app';
+    })();
+
+    let _verifiedEmail = null;
+
+    // Step 1: verify token
+    async function verifyToken() {
+      if (!_token) {
+        document.getElementById('error-msg').textContent = 'No magic link token found. Please request a new sign-in link.';
+        _showState('state-error');
+        return;
+      }
+
+      try {
+        const resp = await fetch('/api/auth/verify-step1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: _token })
+        });
+
+        if (!resp.ok) {
+          const data = await resp.json().catch(() => ({}));
+          document.getElementById('error-msg').textContent = data.error || 'This link has expired or already been used.';
+          _showState('state-error');
+          return;
+        }
+
+        const data = await resp.json();
+        _verifiedEmail = data.email;
+
+        if (data.user_exists) {
+          // Existing user — complete signup immediately (no name needed)
+          await completeSignupAuto(data.first_name);
+        } else {
+          // New user — prompt for first name
+          _showState('state-name');
+          setTimeout(() => document.getElementById('first-name-input')?.focus(), 100);
+        }
+      } catch (err) {
+        document.getElementById('error-msg').textContent = 'Network error. Please try again.';
+        _showState('state-error');
+      }
+    }
+
+    // Complete signup for existing users (no interaction)
+    async function completeSignupAuto(existingFirstName) {
+      try {
+        const resp = await fetch('/api/auth/complete-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: _token, first_name: existingFirstName || undefined })
+        });
+
+        if (!resp.ok) {
+          const data = await resp.json().catch(() => ({}));
+          document.getElementById('error-msg').textContent = data.error || 'Sign-in failed. Please try again.';
+          _showState('state-error');
+          return;
+        }
+
+        _showState('state-success');
+        setTimeout(() => { window.location.replace(_next); }, 800);
+      } catch (err) {
+        document.getElementById('error-msg').textContent = 'Network error. Please try again.';
+        _showState('state-error');
+      }
+    }
+
+    // Complete signup from name form
+    async function completeSignup() {
+      const btn = document.getElementById('complete-btn');
+      btn.disabled = true;
+      btn.textContent = 'Entering…';
+
+      const firstName = (document.getElementById('first-name-input')?.value || '').trim() || undefined;
+
+      try {
+        const resp = await fetch('/api/auth/complete-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: _token, first_name: firstName })
+        });
+
+        if (!resp.ok) {
+          const data = await resp.json().catch(() => ({}));
+          document.getElementById('error-msg').textContent = data.error || 'Sign-in failed. Please try again.';
+          _showState('state-error');
+          return;
+        }
+
+        _showState('state-success');
+        setTimeout(() => { window.location.replace(_next); }, 800);
+      } catch (err) {
+        document.getElementById('error-msg').textContent = 'Network error. Please try again.';
+        _showState('state-error');
+        btn.disabled = false;
+        btn.textContent = 'Enter Atlantist →';
+      }
+    }
+
+    // Allow Enter key on name input
+    document.getElementById('first-name-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') completeSignup();
+    });
+
+    // Start verification
+    verifyToken();
+  </script>
+</body>
+</html>

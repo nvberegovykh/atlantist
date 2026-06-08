@@ -15,12 +15,13 @@
   <link rel="stylesheet" href="/css/viewport.css?v=2">
   <link rel="stylesheet" href="/css/command-palette.css">
   <link rel="stylesheet" href="/css/node-editor.css">
-  <link rel="stylesheet" href="/css/app-shell.css?v=3">
+  <link rel="stylesheet" href="/css/app-shell.css?v=4">
   <link rel="stylesheet" href="/css/loading-states.css"><!-- Phase 24: spinners, skeletons, save pill -->
   <link rel="stylesheet" href="/css/tours.css"><!-- Phase 33: craft tour overlay -->
-  <link rel="stylesheet" href="/css/app.css?v=27"><!-- must be last — dark override -->
+  <link rel="stylesheet" href="/css/app.css?v=28"><!-- must be last — dark override -->
   <link rel="stylesheet" href="/css/mobile.css"><!-- mobile/responsive layer -->
   <link rel="stylesheet" href="/css/explorer.css"><!-- Cloud OS Explorer -->
+  <link rel="stylesheet" href="/css/atl-cascade.css"><!-- Cascade class system v1 -->
   <link rel="stylesheet" href="/css/ui-motion.css?v=2"><!-- Phase 35: dynamic element enter/exit system -->
   <!-- Sentry DSN — not a secret; used by browser SDK to report errors -->
   <meta name="sentry-dsn" content="https://a9fef13217fa4ca1630b5f7ddd439eba@o4511481399934976.ingest.us.sentry.io/4511482589806592">
@@ -812,7 +813,7 @@
 <div id="sidebar-expanded" aria-live="polite"></div>
 
 <!-- ── Main layout ────────────────────────────────────────────────────────── -->
-<div id="main-layout" class="main-layout">
+<div id="main-layout" class="main-layout" style="display:none">
 
   <!-- Left: Explorer sidebar (tabs: Levels | Explorer | Library) -->
   <div id="sidebar-left">
@@ -3190,16 +3191,16 @@ window._swBannerArmedAt = Date.now();
   }
   // Load explorer.js before entry-screen so CloudExplorer is available immediately
   var sExplorer = document.createElement('script');
-  sExplorer.src = '/js/explorer.js?v=3';
+  sExplorer.src = '/js/explorer.js?v=4';
   document.body.appendChild(sExplorer);
   // Load entry-screen.js first (checks ?demo= param and auto-loads if set)
   var s0 = document.createElement('script');
   s0.type = 'module';
-  s0.src = '/js/entry-screen.js?v=7';
+  s0.src = '/js/entry-screen.js?v=8';
   s0.onload = function() {
     // entry-screen.js is a module — call its export after load if not already started
     if (!window._entryScreenInitStarted) {
-      import('/js/entry-screen.js?v=7').then(function(m) {
+      import('/js/entry-screen.js?v=8').then(function(m) {
         if (m && m.initEntryScreen) m.initEntryScreen();
       }).catch(function(e) { console.error('[boot] entry-screen init failed:', e); });
     }
@@ -3209,7 +3210,7 @@ window._swBannerArmedAt = Date.now();
   // Load app.js AFTER cache cleanup completes — prevents stale SW serving old JS
   var s1 = document.createElement('script');
   s1.type = 'module';
-  s1.src = '/js/app.js?v=32';
+  s1.src = '/js/app.js?v=33';
   var sBvh = document.createElement('script');
   sBvh.type = 'module';
   sBvh.src = '/js/app.bvh-raycaster.js?v=3';
@@ -3241,7 +3242,7 @@ window._swBannerArmedAt = Date.now();
   sMotion.src = '/js/ui-element.js?v=1';
   document.body.appendChild(sMotion);
   var s5 = document.createElement('script');
-  s5.src = '/js/app-shell.js?v=3';
+  s5.src = '/js/app-shell.js?v=4';
   document.body.appendChild(s5);
   var s6 = document.createElement('script');
   s6.src = '/js/node-editor.js?v=2';

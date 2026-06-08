@@ -236,6 +236,31 @@ function genUuid() {
   });
 }
 
+// GET /api/demo/snowdon — Snowdon Visitor Centre demo
+router.get('/snowdon', async (req, res) => {
+  try {
+    // Try to find a Snowdon demo project first
+    let projRes = await pool.query(
+      `SELECT id, name FROM projects WHERE demo_slug = 'snowdon' AND is_demo = TRUE LIMIT 1`
+    );
+    // Fall back to nyc-midrise if snowdon not seeded yet
+    if (!projRes.rows[0]) {
+      projRes = await pool.query(
+        `SELECT id, name FROM projects WHERE demo_slug = 'nyc-midrise' AND is_demo = TRUE LIMIT 1`
+      );
+    }
+    if (!projRes.rows[0]) return res.status(404).json({ error: 'Demo project not found' });
+    res.json({
+      id:   projRes.rows[0].id,
+      name: projRes.rows[0].name || 'Snowdon Visitor Centre',
+      slug: 'snowdon'
+    });
+  } catch (err) {
+    console.error('[demo/snowdon]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/demo/:slug — public demo project lookup (catch-all, must be last)
 router.get('/:slug', async (req, res) => {
   try {

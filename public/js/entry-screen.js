@@ -556,6 +556,16 @@ async function _openProject(projectId, isTemplate = false, opts = {}) {
   // Mark last opened
   fetch(`/api/projects/${projectId}/touch`, { method: 'POST', headers: { 'Content-Type': 'application/json' } }).catch(() => {});
 
+  // Show main BIM workspace, hide Cloud Explorer / entry screen
+  const mainLayout = document.getElementById('main-layout');
+  if (mainLayout) {
+    mainLayout.style.display = 'flex';
+    mainLayout.classList.add('atl-workspace', 'atl-workspace--bim');
+  }
+  // Ensure entry-screen-overlay and cloud explorer mount are hidden
+  const explorerEl = document.getElementById('cloud-explorer');
+  if (explorerEl) explorerEl.style.display = 'none';
+
   // Dispatch event — app.js listener calls loadAll() and dismisses the loading overlay
   window.dispatchEvent(new CustomEvent('atlantist:project:open', {
     detail: { projectId, mode: opts.mode || 'edit' }

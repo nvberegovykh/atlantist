@@ -487,7 +487,10 @@ router.get('/verify', async (req, res) => {
     });
 
     // Redirect to app — session cookie is set, user is logged in
-    res.redirect('/?auth=verified');
+    // Support ?next= forwarding from login page
+    const nextParam = req.query.next;
+    const safeNext = (nextParam && nextParam.startsWith('/') && !nextParam.startsWith('//')) ? nextParam : '/app';
+    res.redirect(302, safeNext);
   } catch (err) {
     console.error('[auth] GET /verify', err);
     res.redirect('/?magic_error=server_error');
