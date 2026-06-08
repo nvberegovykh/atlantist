@@ -3,7 +3,7 @@
  * Network-first for HTML pages; cache-first for static assets.
  * Bumping CACHE_VERSION invalidates all stale caches.
  */
-const CACHE_VERSION = 'v37'; // bumped: Snowdon geometry seed, auth/health, OrbitControls update(), vp-cell ResizeObserver, SW precache
+const CACHE_VERSION = 'v38'; // bumped: SW nuclear cleanup once-per-session guard (fixes /login reload loop)
 const CACHE_NAME = `atlantist-${CACHE_VERSION}`;
 
 // Static assets to pre-cache (no HTML — HTML is always network-first)

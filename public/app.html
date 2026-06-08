@@ -3163,12 +3163,20 @@ window._swBannerArmedAt = Date.now();
     var oldVersion = null;
     try { oldVersion = localStorage.getItem('sw-cache-version'); } catch(e) {}
 
-    try {
-      var regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(function(r) { return r.unregister(); }));
-      var keys = await caches.keys();
-      await Promise.all(keys.map(function(k) { return caches.delete(k); }));
-    } catch(e) { /* ignore cleanup errors */ }
+    // Guard: only nuke SW/caches once per browser session, not on every /app load.
+    // Re-running unregister() on every navigation causes clients.claim() to fire
+    // repeatedly, which reclaims open tabs (including /login) and triggers reloads.
+    var _swCleanedThisSession = false;
+    try { _swCleanedThisSession = !!sessionStorage.getItem('_atl_sw_clean'); } catch(e) {}
+    if (!_swCleanedThisSession) {
+      try {
+        var regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(function(r) { return r.unregister(); }));
+        var keys = await caches.keys();
+        await Promise.all(keys.map(function(k) { return caches.delete(k); }));
+        try { sessionStorage.setItem('_atl_sw_clean', '1'); } catch(e) {}
+      } catch(e) { /* ignore cleanup errors */ }
+    }
     navigator.serviceWorker.register('/sw.js').then(function(reg) {
       // Only attach the controllerchange listener when the page previously had
       // a SW in control (hadController=true). Fresh first visits skip entirely.
@@ -3210,7 +3218,7 @@ window._swBannerArmedAt = Date.now();
   // Load app.js AFTER cache cleanup completes — prevents stale SW serving old JS
   var s1 = document.createElement('script');
   s1.type = 'module';
-  s1.src = '/js/app.js?v=35';
+  s1.src = '/js/app.js?v=36';
   var sBvh = document.createElement('script');
   sBvh.type = 'module';
   sBvh.src = '/js/app.bvh-raycaster.js?v=3';
