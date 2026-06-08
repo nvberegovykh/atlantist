@@ -44,19 +44,63 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .icon-btn:hover{color:var(--text-hd);background:var(--surface2)}
 
 /* ── Layout ────────────────────────────────────────── */
+/*
+ * Proportional system — Vitruvian / Palladian order:
+ * Sidebar : Content column ≈ 1 : φ² (260 : 680).
+ * Modular type scale: 11 → 12 → 13 → 14 → 16 → 20 → 26 → 42 (×1.25 / ×1.28).
+ * Line measure: max 72ch — optimal reading at 65–72 chars per Bringhurst.
+ * Vertical rhythm: base unit 8px. All spacing is 8n or 8n±4.
+ * Content centred in the remaining column width at all viewports ≥ 1024px.
+ */
 .layout{display:flex;flex:1;min-height:0}
-.sidebar{width:260px;flex-shrink:0;border-right:1px solid var(--border);overflow-y:auto;position:sticky;top:52px;height:calc(100vh - 52px);padding:20px 0}
+
+/* Sidebar — 260px fixed. Classic column proportion. */
+.sidebar{
+  width:260px;flex-shrink:0;
+  border-right:1px solid var(--border);
+  overflow-y:auto;
+  position:sticky;top:52px;height:calc(100vh - 52px);
+  padding:24px 0;
+}
 .sidebar::-webkit-scrollbar{width:4px}
 .sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.nav-section{margin-bottom:24px}
-.nav-section-label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;padding:0 20px 8px}
-.nav-item{display:block;padding:7px 20px;font-size:13px;color:var(--text-dim);cursor:pointer;border-left:2px solid transparent;transition:all .15s;text-decoration:none}
+
+.nav-section{margin-bottom:28px}
+.nav-section-label{
+  font-size:10px;font-weight:700;
+  color:var(--text-dim);
+  text-transform:uppercase;letter-spacing:.12em;
+  padding:0 24px 8px;
+}
+.nav-item{
+  display:block;
+  padding:6px 24px;
+  font-size:13px;line-height:1.5;
+  color:var(--text-dim);
+  cursor:pointer;
+  border-left:2px solid transparent;
+  transition:color .12s,background .12s;
+  text-decoration:none;
+}
 .nav-item:hover{color:var(--text-hd);background:var(--surface2)}
 .nav-item.active{color:var(--accent);border-left-color:var(--accent);background:var(--accent-glow)}
-.nav-item.nested{padding-left:36px;font-size:12px}
+.nav-item.nested{padding-left:40px;font-size:12px}
 
-/* ── Content ───────────────────────────────────────── */
-.content{flex:1;max-width:860px;padding:40px 48px;min-width:0}
+/* Content area — flexes to fill; inner .content-body centres at 720px max */
+.content-col{
+  flex:1;min-width:0;
+  display:flex;
+  flex-direction:column;
+  overflow-y:auto;
+}
+/* The centred measure column — 720px ≈ 72ch at 14px, Palladian 2:3 to viewport remainder */
+.content{
+  width:100%;max-width:720px;
+  margin:0 auto;
+  padding:48px 40px 72px;
+  min-width:0;
+  box-sizing:border-box;
+}
 .content::-webkit-scrollbar{width:4px}
 .content::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
@@ -64,11 +108,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-seri
 .breadcrumb span{color:var(--text-dim)}
 .breadcrumb .sep{opacity:.4}
 
-h1{font-size:32px;font-weight:800;color:var(--text-hd);margin-bottom:12px;line-height:1.2}
-h2{font-size:20px;font-weight:700;color:var(--text-hd);margin:40px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-h3{font-size:16px;font-weight:600;color:var(--text-hd);margin:28px 0 10px}
-p{line-height:1.75;margin-bottom:14px;color:var(--text)}
-.lead{font-size:16px;color:var(--text-dim);margin-bottom:24px;line-height:1.6}
+/* Modular type scale — ×1.25 ratio, 8px vertical rhythm base */
+h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:var(--text-hd);margin-bottom:8px;line-height:1.22}
+h2{font-size:18px;font-weight:600;letter-spacing:-.01em;color:var(--text-hd);margin:40px 0 12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+h3{font-size:14px;font-weight:600;color:var(--text-hd);margin:24px 0 8px;letter-spacing:.01em;text-transform:uppercase;font-size:11px;opacity:.75}
+p{font-size:14px;line-height:1.8;margin-bottom:16px;color:var(--text);max-width:68ch}
+.lead{font-size:15px;color:var(--text-dim);margin-bottom:28px;line-height:1.65;max-width:60ch}
 strong{color:var(--text-hd);font-weight:600}
 code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:2px 6px;font-size:12px;color:var(--accent);font-family:'SFMono-Regular',Consolas,monospace}
 pre{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px;overflow-x:auto;margin:16px 0}
@@ -172,16 +217,24 @@ tr:hover td{background:var(--surface2)}
 .docs-footer a:hover{text-decoration:underline}
 
 @media(max-width:1100px){.toc-wrap{display:none}}
-@media(max-width:768px){.sidebar{display:none}.content{padding:24px 20px}.docs-footer{padding:16px 20px}}
-@media(max-width:480px){.content{padding:16px 14px}.topbar-search{max-width:100%}}
-@media(max-width:400px){.content{padding:12px 10px}}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .content{padding:32px 24px 56px;max-width:100%}
+  .docs-footer{padding:16px 24px}
+}
+@media(max-width:480px){
+  .content{padding:24px 16px 48px}
+  .topbar-search{max-width:100%}
+  h1{font-size:22px}
+  h2{font-size:16px}
+}
 </style>
 </head>
 <body>
 
 <!-- Topbar -->
 <header class="topbar">
-  <a href="/docs" class="topbar-logo" onclick="navigate('home');return false">
+  <a href="/" class="topbar-logo" title="Atlantist Home">
     <svg width="20" height="20" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="64" height="64" rx="12" fill="#0a0e14"/>
       <circle cx="32" cy="35" r="26" fill="none" stroke="#c8cdd6" stroke-width="1.0" opacity="0.22"/>
@@ -323,7 +376,9 @@ tr:hover td{background:var(--surface2)}
 </nav>
 
 <!-- Content -->
+<div class="content-col">
 <main class="content" id="content"></main>
+</div>
 
 </div>
 
@@ -2832,7 +2887,7 @@ async function processWhatsAppMessage(text, apiToken) {
   const response = await fetch('https://nexaxis.polsia.app/api/wallt-api/ingest', {
     method: 'POST',
     headers: {
-      'Authorization': \u0060Bearer \u0024{apiToken}\u0060`,
+      'Authorization': \u0060Bearer \u0024{apiToken}\u0060,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ text }),
