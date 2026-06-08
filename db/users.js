@@ -27,7 +27,7 @@ async function upsertUser(data) {
   const { session_uuid, email, first_name, project_type, role, specializations, location } = data;
   const res = await pool.query(
     `INSERT INTO app_users (session_uuid, email, first_name, project_type, role, specializations, location, email_verified)
-     VALUES ($1::VARCHAR(36), $2::VARCHAR(255), $3, $4, $5, $6, $7, true)
+     VALUES ($1::VARCHAR(36), $2::VARCHAR(255), $3, $4, $5, $6::jsonb, $7, true)
      ON CONFLICT (session_uuid) DO UPDATE SET
        email = EXCLUDED.email,
        first_name = EXCLUDED.first_name,
@@ -68,7 +68,13 @@ async function updateUserProfile(id, data) {
   for (const key of allowed) {
     if (data[key] !== undefined) {
       fields.push(`${key} = $${idx++}`);
-      values.push(key === 'specializations' || key === 'onboarding_checklist' ? JSON.stringify(data[key]) : data[key]);
+      // Cast JSONB fields explicitly to avoid TEXT[] ambiguity in old schemas
+      if (key === 'specializations' || key === 'onboarding_checklist') {
+        fields[fields.length - 1] = fields[fields.length - 1].replace(`= $${idx - 1}`, `= $${idx - 1}::jsonb`);
+        values.push(JSON.stringify(data[key]));
+      } else {
+        values.push(data[key]);
+      }
     }
   }
   if (fields.length === 0) return getUserById(id);
