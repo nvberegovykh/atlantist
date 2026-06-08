@@ -641,6 +641,8 @@ let _vpRenderer3d = null;    // renderer bound to VP canvas-p0 (3D)
 let _vpRendererPlan = null;  // renderer bound to VP canvas-p1 (Plan)
 let _vpRendererSect = null;  // renderer bound to VP canvas-p2 (Elevation)
 let _vpControls3d = null;    // OrbitControls bound to VP canvas-p0
+let _vpControlsPlan = null;  // OrbitControls (ortho pan/zoom) bound to VP canvas-p1
+let _vpControlsSect = null;  // OrbitControls (ortho pan/zoom) bound to VP canvas-p2/p3
 
 // Bootstrap the VP DOM immediately so vp-canvas-p0/p1/p2/p3 exist in the document.
 // Pass null renderers so applyViewportCameras no-ops until watchForVPReady creates
@@ -713,6 +715,16 @@ function watchForVPReady() {
     _vpRendererPlan.toneMapping = THREE.ACESFilmicToneMapping;
     _vpRendererPlan.toneMappingExposure = 1.0;
     _vpRendererPlan.setSize(w1, h1, false);
+    // Ortho pan/zoom controls — no rotation for plan view
+    if (_vpControlsPlan) _vpControlsPlan.dispose();
+    _vpControlsPlan = new OrbitControls(camPlan, vpPlan);
+    _vpControlsPlan.enableRotate = false;
+    _vpControlsPlan.enablePan = true;
+    _vpControlsPlan.enableZoom = true;
+    _vpControlsPlan.screenSpacePanning = true;
+    _vpControlsPlan.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+    _vpControlsPlan.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+    window._atlantist_controls_plan = _vpControlsPlan;
   }
 
   // Section/elevation renderer on vp-canvas-p2
@@ -726,6 +738,16 @@ function watchForVPReady() {
     _vpRendererSect.toneMapping = THREE.ACESFilmicToneMapping;
     _vpRendererSect.toneMappingExposure = 1.0;
     _vpRendererSect.setSize(w2, h2, false);
+    // Ortho pan/zoom controls for section/elevation
+    if (_vpControlsSect) _vpControlsSect.dispose();
+    _vpControlsSect = new OrbitControls(camSection, vpSect);
+    _vpControlsSect.enableRotate = false;
+    _vpControlsSect.enablePan = true;
+    _vpControlsSect.enableZoom = true;
+    _vpControlsSect.screenSpacePanning = true;
+    _vpControlsSect.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+    _vpControlsSect.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+    window._atlantist_controls_sect = _vpControlsSect;
   }
 
   // Elevation pane p3 uses the same section scene — create renderer if present
@@ -737,6 +759,17 @@ function watchForVPReady() {
     _vpRendererSect.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     _vpRendererSect.shadowMap.enabled = false;
     _vpRendererSect.setSize(w3, h3, false);
+    // Wire section controls to p3 if p2 wasn't present
+    if (!_vpControlsSect) {
+      _vpControlsSect = new OrbitControls(camSection, vpSect2);
+      _vpControlsSect.enableRotate = false;
+      _vpControlsSect.enablePan = true;
+      _vpControlsSect.enableZoom = true;
+      _vpControlsSect.screenSpacePanning = true;
+      _vpControlsSect.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+      _vpControlsSect.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+      window._atlantist_controls_sect = _vpControlsSect;
+    }
   }
 
   // Swap camera/renderer map to the new per-pane VP renderers — no full DOM rebuild needed.
@@ -921,6 +954,16 @@ function rewireVPRenderers() {
     _vpRendererPlan.toneMapping = THREE.ACESFilmicToneMapping;
     _vpRendererPlan.toneMappingExposure = 1.0;
     _vpRendererPlan.setSize(w, h, false);
+    // Rewire ortho controls to new plan canvas
+    if (_vpControlsPlan) _vpControlsPlan.dispose();
+    _vpControlsPlan = new OrbitControls(camPlan, vp1);
+    _vpControlsPlan.enableRotate = false;
+    _vpControlsPlan.enablePan = true;
+    _vpControlsPlan.enableZoom = true;
+    _vpControlsPlan.screenSpacePanning = true;
+    _vpControlsPlan.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+    _vpControlsPlan.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+    window._atlantist_controls_plan = _vpControlsPlan;
   }
 
   // Section/elevation: pane p2 or p3 — always create for whichever pane exists
@@ -935,6 +978,16 @@ function rewireVPRenderers() {
     _vpRendererSect.toneMapping = THREE.ACESFilmicToneMapping;
     _vpRendererSect.toneMappingExposure = 1.0;
     _vpRendererSect.setSize(w, h, false);
+    // Rewire ortho controls to new section canvas
+    if (_vpControlsSect) _vpControlsSect.dispose();
+    _vpControlsSect = new OrbitControls(camSection, sectCanvas);
+    _vpControlsSect.enableRotate = false;
+    _vpControlsSect.enablePan = true;
+    _vpControlsSect.enableZoom = true;
+    _vpControlsSect.screenSpacePanning = true;
+    _vpControlsSect.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+    _vpControlsSect.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+    window._atlantist_controls_sect = _vpControlsSect;
   }
 
   // Update the camera/renderer map with the new renderer references

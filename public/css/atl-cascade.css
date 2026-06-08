@@ -2,7 +2,12 @@
    Atlantist UI Cascade — Structured class system v1
    One type of UI object = one semantic class.
 
-   VIEWPORT TYPES:
+   PANE (universal wrapper — renderer-agnostic):
+   .atl-pane          — any content pane; use data-renderer=" 3d|plan|section|energy|image|video|audio"
+   .atl-pane__head    — pane header / tab bar
+   .atl-pane__body    — pane body that hosts the renderer canvas
+
+   VIEWPORT TYPES (renderer classes, live inside .atl-pane__body):
    .atl-viewport      — any 3D/2D viewer pane (WebGL canvas wrapper)
    .atl-viewport--3d  — 3D perspective viewport
    .atl-viewport--2d  — plan / section viewport
@@ -508,3 +513,77 @@
     transform: translateX(0);
   }
 }
+
+/* ============================================================
+   ATL-PANE — universal pane wrapper (v2)
+   The pane is structurally inert: it knows nothing about what
+   renderer lives inside it. The renderer knows nothing about
+   the pane that holds it. The only contract is the DOM shape:
+
+     <div class="atl-pane" data-renderer="3d|plan|section|energy|image|video|audio">
+       <header class="atl-pane__head"> ... </header>
+       <div    class="atl-pane__body"> ... </div>
+     </div>
+
+   JS targets [data-renderer="3d"] etc., never .atl-pane directly.
+   ============================================================ */
+
+.atl-pane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--atl-bg);
+  border: 1px solid var(--atl-border);
+}
+
+/* Pane header — tab bar, title, toolbar icons */
+.atl-pane__head {
+  display: flex;
+  align-items: center;
+  gap: var(--atl-gap-xs);
+  height: 1.75rem;          /* --vp-tab-h baseline */
+  min-height: 1.75rem;
+  padding: 0 var(--atl-gap-sm);
+  background: var(--atl-panel);
+  border-bottom: 1px solid var(--atl-border);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* Pane body — fills remaining space, hosts the renderer canvas */
+.atl-pane__body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Canvas inside pane body fills it absolutely */
+.atl-pane__body canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Active/focused pane gets a subtle accent border */
+.atl-pane:focus-within,
+.atl-pane.atl-pane--active {
+  border-color: var(--atl-accent-dim);
+  box-shadow: 0 0 0 1px var(--atl-accent-dim);
+}
+
+/* Dimmed state (other pane has focus during placement etc.) */
+.atl-pane.atl-pane--dim {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* Backwards-compat alias: .vp-wrap is being phased out in favour of .atl-pane.
+   Both classes may coexist during migration. */

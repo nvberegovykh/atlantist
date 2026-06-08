@@ -33,8 +33,10 @@
 
 /* ── Default split fractions ──────────────────────────────────── */
 :root {
-  --vp-col-split: 0.5;
-  --vp-row-split: 0.5;
+  --vp-col-split:   0.5; /* legacy fallback — kept for single-row layouts */
+  --vp-col-split-0: 0.5; /* top-row left cell fraction */
+  --vp-col-split-1: 0.5; /* bottom-row left cell fraction */
+  --vp-row-split:   0.5;
 }
 
 /* ── Viewport grid container ─────────────────────────────────── */
@@ -72,10 +74,16 @@
   min-height: 0;
 }
 
-/* First cell (left pane in each row) */
-.vp-cell:nth-child(odd) { flex: var(--vp-col-split); }
-/* Second cell (right pane in each row) */
-.vp-cell:nth-child(even) { flex: calc(1 - var(--vp-col-split)); }
+/* Per-row independent column splits — row 1 (top) uses --vp-col-split-0,
+   row 3 (bottom, after the horizontal divider) uses --vp-col-split-1.
+   Single-row layouts fall back to --vp-col-split (legacy). */
+.vp-grid > .vp-row:nth-child(1) > .vp-cell:nth-child(odd)  { flex: var(--vp-col-split-0, var(--vp-col-split, 0.5)); }
+.vp-grid > .vp-row:nth-child(1) > .vp-cell:nth-child(even) { flex: calc(1 - var(--vp-col-split-0, var(--vp-col-split, 0.5))); }
+.vp-grid > .vp-row:nth-child(3) > .vp-cell:nth-child(odd)  { flex: var(--vp-col-split-1, var(--vp-col-split, 0.5)); }
+.vp-grid > .vp-row:nth-child(3) > .vp-cell:nth-child(even) { flex: calc(1 - var(--vp-col-split-1, var(--vp-col-split, 0.5))); }
+/* Fallback for any other row positions (1-row or 3-row+ layouts) */
+.vp-cell:nth-child(odd)  { flex: var(--vp-col-split, 0.5); }
+.vp-cell:nth-child(even) { flex: calc(1 - var(--vp-col-split, 0.5)); }
 
 /* ── Pane wrap ───────────────────────────────────────────────── */
 .vp-wrap {

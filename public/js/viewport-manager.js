@@ -1244,9 +1244,14 @@ function _startDrag(e, axis, index) {
 }
 
 function _captureCellFlex() {
-  // Read CSS variable for column split (or fall back to current style)
-  const colSplit = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--vp-col-split')) || 0.5;
-  return [colSplit, 1 - colSplit];
+  // Read per-row CSS variables for column splits (fall back to shared var, then 0.5)
+  const root = document.documentElement;
+  const cs = getComputedStyle(root);
+  const col0 = parseFloat(cs.getPropertyValue('--vp-col-split-0')) ||
+                parseFloat(cs.getPropertyValue('--vp-col-split')) || 0.5;
+  const col1 = parseFloat(cs.getPropertyValue('--vp-col-split-1')) ||
+                parseFloat(cs.getPropertyValue('--vp-col-split')) || 0.5;
+  return [col0, 1 - col0, col1, 1 - col1];
 }
 
 function _onDragMove(e) {
@@ -1267,18 +1272,17 @@ function _applyDrag(curX) {
   const delta = (curX - startX) / (axis === 'col' ? window.innerWidth : window.innerHeight);
 
   if (axis === 'col') {
-    const cells = document.querySelectorAll('.vp-cell');
-    if (!cells.length) return;
-    const n = cells.length;
-    const leftIdx  = 2 * vpState.dragging.index;
-    const rightIdx = leftIdx + 1;
-    if (leftIdx >= n || rightIdx >= n) return;
-
-    const baseFrac = startCells[leftIdx] ?? 0.5;
+    // Determine which row this column divider belongs to.
+    // In 2x2 layout: top row dividers have index 0, bottom row dividers have index 2.
+    // dividerIndexOffset for topRow = 0, botRow = 2 (set in _makeRow call).
+    const rowIndex = vpState.dragging.index < 2 ? 0 : 1;
+    const varName  = rowIndex === 0 ? '--vp-col-split-0' : '--vp-col-split-1';
+    // startCells[0] = row0 col split, startCells[2] = row1 col split
+    const baseFrac = startCells[rowIndex * 2] ?? 0.5;
     const newFrac  = Math.max(MIN_FRAC, Math.min(1 - MIN_FRAC, baseFrac + delta));
 
-    // Write col split as CSS variable — VP grid reads it via CSS flex-basis on cells
-    document.documentElement.style.setProperty('--vp-col-split', String(newFrac));
+    // Write per-row col split — CSS reads --vp-col-split-0 / --vp-col-split-1
+    document.documentElement.style.setProperty(varName, String(newFrac));
 
   } else {
     const rows = document.querySelectorAll('.vp-row');
@@ -1502,19 +1506,32 @@ export function applyPendingSplitterState() {
 
 function _applySplitterState(state) {
   if (!state) return;
-  if (state.colFrac != null) {
-    document.documentElement.style.setProperty('--vp-col-split', String(state.colFrac));
+  const root = document.documentElement;
+  // Per-row col splits (new) — fall back to legacy single colFrac for old saves
+  if (state.colFrac0 != null) {
+    root.style.setProperty('--vp-col-split-0', String(state.colFrac0));
+  } else if (state.colFrac != null) {
+    root.style.setProperty('--vp-col-split-0', String(state.colFrac));
+  }
+  if (state.colFrac1 != null) {
+    root.style.setProperty('--vp-col-split-1', String(state.colFrac1));
+  } else if (state.colFrac != null) {
+    root.style.setProperty('--vp-col-split-1', String(state.colFrac));
   }
   if (state.rowFrac != null) {
-    document.documentElement.style.setProperty('--vp-row-split', String(state.rowFrac));
+    root.style.setProperty('--vp-row-split', String(state.rowFrac));
   }
 }
 
 function _captureSplitterState() {
   const root = document.documentElement;
-  const colFrac = parseFloat(root.style.getPropertyValue('--vp-col-split')) || 0.5;
-  const rowFrac = parseFloat(root.style.getPropertyValue('--vp-row-split')) || 0.5;
-  return { colFrac, rowFrac };
+  const cs = getComputedStyle(root);
+  const colFrac0 = parseFloat(root.style.getPropertyValue('--vp-col-split-0')) ||
+                   parseFloat(cs.getPropertyValue('--vp-col-split-0')) || 0.5;
+  const colFrac1 = parseFloat(root.style.getPropertyValue('--vp-col-split-1')) ||
+                   parseFloat(cs.getPropertyValue('--vp-col-split-1')) || 0.5;
+  const rowFrac  = parseFloat(root.style.getPropertyValue('--vp-row-split')) || 0.5;
+  return { colFrac0, colFrac1, rowFrac };
 }
 
 function _saveLayout() {
