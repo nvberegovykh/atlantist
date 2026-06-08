@@ -10146,6 +10146,11 @@ window.addEventListener('atlantist:project:open', async (e) => {
     if (_propsSkel) dismissSkeletonOverlay(_propsSkel);
     console.error('[boot] loadAll after project:open failed:', err);
     toast('Failed to load project: ' + err.message, 'error', 5000);
+  } finally {
+    // Always dismiss loading overlay — entry-screen.js shows it before dispatching
+    // this event, so we must always clear it regardless of loadAll() outcome.
+    const _loadingOverlay = document.getElementById('app-loading-overlay');
+    if (_loadingOverlay) { _loadingOverlay.classList.add('fade-out'); setTimeout(() => _loadingOverlay.remove(), 450); }
   }
 });
 
