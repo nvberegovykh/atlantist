@@ -9,6 +9,20 @@ const { upsertPreferences, getPreferences } = require('../db/matching');
 // Apply auth middleware (re-export from auth.js)
 const { authMiddleware } = require('./auth');
 
+// GET /api/users/me — shorthand returning authenticated user (same as /api/auth/me)
+router.get('/me', authMiddleware, async (req, res) => {
+  try {
+    if (!req.user) return res.status(401).json({ authenticated: false, user: null });
+    const user = await getUserById(req.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    const { password_hash, ...safe } = user;
+    res.json({ authenticated: true, ...safe });
+  } catch (err) {
+    console.error('[users] GET /me', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // GET /api/users/me/profile — Get current user's profile
 router.get('/me/profile', authMiddleware, async (req, res) => {
   try {
