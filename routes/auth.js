@@ -237,6 +237,30 @@ router.get('/db-check', async (req, res) => {
       results.create_session = { ok: null, note: 'no users in DB to test with' };
     }
   } catch (e) { results.create_session = { ok: false, error: e.message, code: e.code }; }
+  try {
+    // 5. Full verify path simulation: upsertUser with null session_uuid + createSession
+    const testEmail = 'dbcheck_probe_' + Date.now() + '@atlantist-probe.internal';
+    const { getUserByEmail, upsertUser } = require('../db/users');
+    const { createSession } = require('../db/auth');
+    let probeUser = await getUserByEmail(testEmail);
+    if (!probeUser) {
+      probeUser = await upsertUser({
+        session_uuid: null,
+        email: testEmail,
+        first_name: null,
+        project_type: null,
+        role: 'Architect',
+        specializations: [],
+        location: null
+      });
+    }
+    const sess2 = await createSession(probeUser.id);
+    // Clean up probe data
+    await pool.query('DELETE FROM auth_sessions WHERE token_hash = $1',
+      [require('crypto').createHash('sha256').update(sess2.token).digest('hex')]);
+    await pool.query('DELETE FROM app_users WHERE email = $1', [testEmail]);
+    results.full_verify_path = { ok: true, probe_user_id: probeUser.id };
+  } catch (e) { results.full_verify_path = { ok: false, error: e.message, code: e.code }; }
   res.json({ status: 'ok', results });
 });
 
