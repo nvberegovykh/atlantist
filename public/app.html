@@ -1174,7 +1174,7 @@
 </div>
 
 <!-- ── Issue context menu ────────────────────────────────────────────────── -->
-<div id="context-menu" class="hidden" style="position:fixed;background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:6px;z-index:var(--z-dropdown,300);min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,0.4)">
+<div id="context-menu" class="hidden" style="position:fixed;top:-9999px;left:-9999px;background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:6px;z-index:var(--z-dropdown,300);min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,0.4)">
   <button id="ctx-select" style="display:block;width:100%;text-align:left;padding:6px 10px;background:none;border:none;color:var(--text);font-size:12px;cursor:pointer;border-radius:4px">Select element</button>
   <button id="ctx-add-issue" style="display:block;width:100%;text-align:left;padding:6px 10px;background:none;border:none;color:var(--text);font-size:12px;cursor:pointer;border-radius:4px">Add issue here</button>
   <div style="height:1px;background:var(--border);margin:4px 0"></div>
@@ -1190,22 +1190,10 @@
 </div>
 
 <!-- ── Demo Project Banner ─────────────────────────────────────────────── -->
-<div id="demo-banner" style="display:none;position:fixed;top:48px;left:0;right:0;z-index:var(--z-panel,200);
-  background:linear-gradient(90deg,rgba(245,158,11,0.15),rgba(234,88,12,0.12));
-  border-bottom:1px solid rgba(245,158,11,0.35);padding:10px 20px;
-  display:flex;align-items:center;justify-content:center;gap:16px;font-size:13px">
-  <span style="font-size:15px">🔒</span>
-  <span id="demo-banner-label" style="color:#fbbf24;font-weight:600">Demo Project — 10-Story NYC Mid-Rise</span>
-  <span style="color:rgba(251,191,36,0.7)">|</span>
-  <span style="color:rgba(255,255,255,0.6)">All disciplines visible — Architecture, Structure, MEP, Energy</span>
-  <span style="color:rgba(251,191,36,0.7)">|</span>
-  <button onclick="forkDemoProject && forkDemoProject()" style="
-    background:linear-gradient(135deg,rgba(245,158,11,0.25),rgba(234,88,12,0.18));
-    border:1px solid rgba(245,158,11,0.6);color:#fbbf24;cursor:pointer;
-    font-size:12px;font-weight:700;padding:5px 16px;border-radius:16px;
-    letter-spacing:0.03em;transition:all 0.15s" onmouseover="this.style.background='rgba(245,158,11,0.35)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(245,158,11,0.25),rgba(234,88,12,0.18))'">
-    ✂ Fork &amp; Edit Your Own
-  </button>
+<!-- demo-banner: removed full strip — topbar #btn-fork-demo handles this.
+     Stub kept so pre-boot script getElementById doesn't throw. -->
+<div id="demo-banner" style="display:none" aria-hidden="true">
+  <span id="demo-banner-label"></span>
 </div>
 
 <!-- ── Projects Modal ───────────────────────────────────────────────────── -->
@@ -2889,9 +2877,11 @@
 </div>
 
 <!-- Update banner -->
-<div id="update-banner" class="hidden" style="position:fixed;top:0;left:0;right:0;background:var(--accent);color:white;text-align:center;padding:8px;font-size:12px;z-index:var(--z-banner,800)">
-  <span id="update-banner-text">New version available</span>
-  <button id="btn-reload" style="margin-left:8px;background:white;color:var(--accent);border:none;border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer">Reload</button>
+<!-- Update banner: slim strip anchored below topbar, no layout shift -->
+<div id="update-banner" class="hidden" style="position:fixed;top:var(--topbar-h,48px);left:0;right:0;background:rgba(52,121,196,0.92);backdrop-filter:blur(8px);color:white;text-align:center;padding:5px 12px;font-size:11px;font-weight:500;z-index:var(--z-banner,800);display:flex;align-items:center;justify-content:center;gap:10px;border-bottom:1px solid rgba(255,255,255,0.15)">
+  <span id="update-banner-text" style="opacity:0.9">New version available</span>
+  <button id="btn-reload" style="background:rgba(255,255,255,0.18);color:white;border:1px solid rgba(255,255,255,0.35);border-radius:4px;padding:2px 10px;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.04em">RELOAD</button>
+  <button onclick="document.getElementById('update-banner').classList.add('hidden')" style="background:none;border:none;color:rgba(255,255,255,0.6);cursor:pointer;font-size:14px;padding:0 4px;line-height:1" title="Dismiss">×</button>
 </div>
 
 <!-- Feature gate overlay -->
