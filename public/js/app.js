@@ -3100,13 +3100,14 @@ function rebuildScene() {
     }
 
     for (const obj of objs) {
-      scene3d.add(obj);
+      _addToScene(obj, scene3d);
       const clonePlan = obj.clone();
       clonePlan.userData = obj.userData;
       if (clonePlan.uuid !== obj.uuid) pickMap.set(clonePlan.uuid, { id: el.id, type: 'element' });
-      scenePlan.add(clonePlan);
+      _addToScene(clonePlan, scenePlan);
       const cloneSection = obj.clone();
-      sceneSection.add(cloneSection);
+      cloneSection.userData = obj.userData;
+      _addToScene(cloneSection, sceneSection);
     }
     objectMap.set(el.id, objs);
   }
@@ -3120,11 +3121,13 @@ function rebuildScene() {
     else if (fam.family_type === 'window') objs = buildWindowMesh(fam, isSelected);
 
     for (const obj of objs) {
-      scene3d.add(obj);
+      _addToScene(obj, scene3d);
       const clonePlan = obj.clone();
-      scenePlan.add(clonePlan);
+      clonePlan.userData = obj.userData;
+      _addToScene(clonePlan, scenePlan);
       const cloneSection = obj.clone();
-      sceneSection.add(cloneSection);
+      cloneSection.userData = obj.userData;
+      _addToScene(cloneSection, sceneSection);
     }
     objectMap.set(fam.id, objs);
   }
