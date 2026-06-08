@@ -644,6 +644,17 @@ let _vpControls3d = null;    // OrbitControls bound to VP canvas-p0
 let _vpControlsPlan = null;  // OrbitControls (ortho pan/zoom) bound to VP canvas-p1
 let _vpControlsSect = null;  // OrbitControls (ortho pan/zoom) bound to VP canvas-p2/p3
 
+// Dirty-flag render-on-demand: stop GPU/battery burn when the scene is idle.
+// Set _renderDirty = true whenever something changes (controls move, scene loaded,
+// tool activated, window focus). animate() only calls renderer.render() when dirty.
+// The 3D controls have damping, so we keep rendering for 60 extra frames after the
+// last user input to let damping settle (tracked via _dampingFrames).
+let _renderDirty = true;
+let _dampingFrames = 0;
+const _DAMPING_SETTLE_FRAMES = 60; // ~1 second at 60fps
+export function markRenderDirty() { _renderDirty = true; _dampingFrames = _DAMPING_SETTLE_FRAMES; }
+window.addEventListener('focus', () => markRenderDirty());
+
 // Bootstrap the VP DOM immediately so vp-canvas-p0/p1/p2/p3 exist in the document.
 // Pass null renderers so applyViewportCameras no-ops until watchForVPReady creates
 // real per-pane WebGL renderers (it calls initCameraMap to swap them in).
@@ -701,6 +712,7 @@ function watchForVPReady() {
   _vpControls3d.dampingFactor = 0.08;
   _vpControls3d.enablePan = true;
   _vpControls3d.target.copy(controls3d.target);
+  _vpControls3d.addEventListener('change', markRenderDirty);
   // Expose on window so raycaster event listeners can reach it
   window._atlantist_controls3d = _vpControls3d;
 
@@ -724,6 +736,7 @@ function watchForVPReady() {
     _vpControlsPlan.screenSpacePanning = true;
     _vpControlsPlan.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     _vpControlsPlan.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+    _vpControlsPlan.addEventListener('change', markRenderDirty);
     window._atlantist_controls_plan = _vpControlsPlan;
   }
 
@@ -747,6 +760,7 @@ function watchForVPReady() {
     _vpControlsSect.screenSpacePanning = true;
     _vpControlsSect.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     _vpControlsSect.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+    _vpControlsSect.addEventListener('change', markRenderDirty);
     window._atlantist_controls_sect = _vpControlsSect;
   }
 
@@ -768,6 +782,7 @@ function watchForVPReady() {
       _vpControlsSect.screenSpacePanning = true;
       _vpControlsSect.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
       _vpControlsSect.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+      _vpControlsSect.addEventListener('change', markRenderDirty);
       window._atlantist_controls_sect = _vpControlsSect;
     }
   }
@@ -939,6 +954,7 @@ function rewireVPRenderers() {
       _vpControls3d.enableDamping = true;
       _vpControls3d.dampingFactor = 0.08;
       _vpControls3d.enablePan = true;
+      _vpControls3d.addEventListener('change', markRenderDirty);
       window._atlantist_controls3d = _vpControls3d;
     }
     setupPicking(vp0, _vpRenderer3d, cam3d);
@@ -963,6 +979,7 @@ function rewireVPRenderers() {
     _vpControlsPlan.screenSpacePanning = true;
     _vpControlsPlan.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     _vpControlsPlan.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+    _vpControlsPlan.addEventListener('change', markRenderDirty);
     window._atlantist_controls_plan = _vpControlsPlan;
   }
 
@@ -987,6 +1004,7 @@ function rewireVPRenderers() {
     _vpControlsSect.screenSpacePanning = true;
     _vpControlsSect.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
     _vpControlsSect.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
+    _vpControlsSect.addEventListener('change', markRenderDirty);
     window._atlantist_controls_sect = _vpControlsSect;
   }
 
@@ -2931,6 +2949,8 @@ function rebuildScene() {
   // rapid state changes and cascading recursive calls.
   if (rebuildScene._busy) return;
   rebuildScene._busy = true;
+  // Mark render dirty so animate() issues a frame after the scene is rebuilt
+  markRenderDirty();
   // Outer try-catch ensures a single bad subsystem (bad geometry, bad parameters,
   // bad build function) never leaves the scene blank — the previous render
   // persists until a clean rebuild completes.
@@ -3623,15 +3643,23 @@ export function animate() {
     if (_vpControlsPlan) _vpControlsPlan.update();
     if (_vpControlsSect) _vpControlsSect.update();
 
-    // Render all viewports — syncRendererSizes removed from RAF to eliminate
-    // layout thrash. Canvas resizes are handled by ResizeObserver (see below).
-    (_vpRenderer3d   || renderer3d).render(scene3d,    cam3d);
-    (_vpRendererPlan || rendererPlan).render(scenePlan, camPlan);
-    (_vpRendererSect || rendererSection).render(sceneSection, camSection);
-    applyViewportCameras();
+    // Dirty-flag render-on-demand: only issue GPU draw calls when something changed.
+    // _dampingFrames keeps rendering for ~1s after last input so 3D damping settles.
+    const shouldRender = _renderDirty || _dampingFrames > 0;
+    if (_dampingFrames > 0) _dampingFrames--;
+    _renderDirty = false;
 
-    // Render floating viewports
-    try { renderFloatingViewports(); } catch (_) {}
+    if (shouldRender) {
+      // Render all viewports — syncRendererSizes removed from RAF to eliminate
+      // layout thrash. Canvas resizes are handled by ResizeObserver (see below).
+      (_vpRenderer3d   || renderer3d).render(scene3d,    cam3d);
+      (_vpRendererPlan || rendererPlan).render(scenePlan, camPlan);
+      (_vpRendererSect || rendererSection).render(sceneSection, camSection);
+      applyViewportCameras();
+
+      // Render floating viewports
+      try { renderFloatingViewports(); } catch (_) {}
+    }
 
     // Throttle camera state capture for active tabs (every 800ms)
     const now = performance.now();

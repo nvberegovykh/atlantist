@@ -14,22 +14,25 @@ function _hashToken(token) {
   return crypto.createHash('sha256').update(token).digest('hex');
 }
 
-// Create a new magic token (stores hash, returns the raw token string)
+// Create a new magic token (stores both token + token_hash, returns the raw token string)
+// Always writes both columns: 'token' satisfies the NOT NULL constraint from core_schema,
+// 'token_hash' is used for secure lookup after the security_hardening migration.
 async function createMagicToken(email, sessionUuid) {
   const { generateMagicToken } = require('./auth-helpers');
   const token     = generateMagicToken();
   const tokenHash = _hashToken(token);
-  // Try token_hash column first (security hardening migration); fall back to
-  // legacy token column for deployments not yet migrated.
   try {
+    // Write both token and token_hash — handles both pre- and post-hardening schemas.
+    // token:      satisfies NOT NULL constraint from original core_schema
+    // token_hash: used for secure lookup (security_hardening migration)
     await pool.query(
-      `INSERT INTO magic_tokens (token_hash, email, session_uuid, expires_at)
-       VALUES ($1, $2, $3, NOW() + INTERVAL '15 minutes')`,
-      [tokenHash, email, sessionUuid || null]
+      `INSERT INTO magic_tokens (token, token_hash, email, session_uuid, expires_at)
+       VALUES ($1, $2, $3, $4, NOW() + INTERVAL '15 minutes')`,
+      [token, tokenHash, email, sessionUuid || null]
     );
   } catch (err) {
     if (err.code === '42703') {
-      // token_hash column missing — fall back to legacy schema
+      // token_hash column missing — legacy schema only (pre-hardening)
       await pool.query(
         `INSERT INTO magic_tokens (token, email, session_uuid, expires_at)
          VALUES ($1, $2, $3, NOW() + INTERVAL '15 minutes')`,

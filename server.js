@@ -13,7 +13,17 @@ const { authMiddleware: _authMiddleware } = require('./routes/auth');
 const { rateLimit } = require('./lib/rate-limit');
 
 // Rate limiters — applied to high-risk endpoints
-const authRateLimit = rateLimit({ max: 20, windowSec: 60, keyPrefix: 'rl:auth' });
+// Auth rate limit: 60 req/min per IP for write ops (POST/DELETE).
+// GET endpoints (/me, /health, /invite) are excluded — they are read-only
+// and safe to call frequently. On Render all users share the same egress IP
+// so a shared 20 req/min limit on GET /me caused 429s on page load.
+const authRateLimit = rateLimit({ max: 60, windowSec: 60, keyPrefix: 'rl:auth',
+  keyFn: (req) => {
+    // Read-only GET endpoints: skip rate limiting entirely
+    if (req.method === 'GET') return null;
+    return req.ip || 'unknown';
+  }
+});
 const aiRateLimit   = rateLimit({ max: 30, windowSec: 60, keyPrefix: 'rl:ai',
   keyFn: req => (req.user && req.user.id) ? String(req.user.id) : (req.ip || 'anon') });
 
