@@ -3619,6 +3619,9 @@ export function animate() {
     // BULK-LIBS: stats.js FPS counter (enabled via ?debugStats or window.__atlForceStats)
     statsBegin();
     (_vpControls3d || controls3d).update();
+    // Update ortho controls — needed for damping if ever enabled; cheap no-op otherwise
+    if (_vpControlsPlan) _vpControlsPlan.update();
+    if (_vpControlsSect) _vpControlsSect.update();
 
     // Render all viewports — syncRendererSizes removed from RAF to eliminate
     // layout thrash. Canvas resizes are handled by ResizeObserver (see below).

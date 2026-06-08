@@ -182,6 +182,17 @@ function authMiddleware(req, res, next) {
 }
 
 // GET /api/auth/me — get current user
+// GET /api/auth/health — public, no auth required
+// Returns email delivery config status so ops can verify magic link is wired up.
+router.get('/health', (req, res) => {
+  res.json({
+    email_proxy: !!(process.env.POLSIA_EMAIL_PROXY_URL || process.env.EMAIL_PROXY_URL),
+    resend:      !!process.env.RESEND_API_KEY,
+    from:        process.env.EMAIL_FROM || 'Atlantist <noreply@atlantist.cloud> (default)',
+    status:      'ok',
+  });
+});
+
 router.get('/me', authMiddleware, async (req, res) => {
   try {
     if (!req.user) {

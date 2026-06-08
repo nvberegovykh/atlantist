@@ -687,7 +687,8 @@ function _makePane(pane, index) {
     if (sp) dismissViewportSpinner(sp);
   }, 4000);
 
-  // Track canvas size to handle hidden→visible transitions
+  // Track canvas size to handle hidden→visible transitions.
+  // Observe the canvas itself for direct size changes (e.g. window resize, maximize).
   if (typeof ResizeObserver !== 'undefined') {
     new ResizeObserver(() => {
       if (canvas.clientWidth > 0 && canvas.clientHeight > 0) {
@@ -695,6 +696,18 @@ function _makePane(pane, index) {
       }
     }).observe(canvas);
   }
+
+  // Also observe the .vp-cell parent after it is inserted into the DOM.
+  // When column-split CSS vars change (drag divider), the flex cell resizes
+  // but the absolutely-positioned canvas clientWidth doesn’t change until layout.
+  // Observing the cell catches this and triggers a renderer setSize() via _renderAll().
+  // We defer one tick so the cell exists in the DOM when observe() is called.
+  requestAnimationFrame(() => {
+    const cellEl = wrap.parentElement; // .vp-cell once mounted
+    if (cellEl && cellEl.classList.contains('vp-cell') && typeof ResizeObserver !== 'undefined') {
+      new ResizeObserver(() => requestAnimationFrame(() => _renderAll())).observe(cellEl);
+    }
+  });
 
   // Double-click header → maximize
   wrap.addEventListener('dblclick', (e) => {

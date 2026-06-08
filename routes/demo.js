@@ -237,23 +237,165 @@ function genUuid() {
 }
 
 // GET /api/demo/snowdon — Snowdon Visitor Centre demo
+// Returns project metadata + seeded geometry (walls, slabs, columns, levels).
+// Auto-seeds on first call if elements table is empty for this project.
 router.get('/snowdon', async (req, res) => {
   try {
-    // Try to find a Snowdon demo project first
+    // Resolve project — prefer snowdon demo slug, fall back to nyc-midrise
     let projRes = await pool.query(
       `SELECT id, name FROM projects WHERE demo_slug = 'snowdon' AND is_demo = TRUE LIMIT 1`
     );
-    // Fall back to nyc-midrise if snowdon not seeded yet
     if (!projRes.rows[0]) {
       projRes = await pool.query(
         `SELECT id, name FROM projects WHERE demo_slug = 'nyc-midrise' AND is_demo = TRUE LIMIT 1`
       );
     }
     if (!projRes.rows[0]) return res.status(404).json({ error: 'Demo project not found' });
+    const projectId = projRes.rows[0].id;
+    const projectName = projRes.rows[0].name || 'Snowdon Visitor Centre';
+
+    // Ensure levels exist — Ground (0 m) and Roof (3.5 m)
+    let lvlRes = await pool.query(
+      `SELECT * FROM levels WHERE project_id = $1 ORDER BY elevation ASC`, [projectId]
+    );
+    let groundId, roofId;
+    if (lvlRes.rows.length < 2) {
+      // Seed levels idempotently
+      const g = await pool.query(
+        `INSERT INTO levels (name, elevation, is_building_storey, phase, project_id)
+         VALUES ('Ground Floor', 0, true, 'New Construction', $1)
+         ON CONFLICT DO NOTHING RETURNING id`, [projectId]
+      );
+      const r = await pool.query(
+        `INSERT INTO levels (name, elevation, is_building_storey, phase, project_id)
+         VALUES ('Roof', 3.5, false, 'New Construction', $1)
+         ON CONFLICT DO NOTHING RETURNING id`, [projectId]
+      );
+      lvlRes = await pool.query(
+        `SELECT * FROM levels WHERE project_id = $1 ORDER BY elevation ASC`, [projectId]
+      );
+    }
+    groundId = lvlRes.rows[0]?.id;
+    roofId   = lvlRes.rows[lvlRes.rows.length - 1]?.id;
+
+    // Check if geometry already seeded
+    const elCheck = await pool.query(
+      `SELECT COUNT(*) FROM elements WHERE project_id = $1`, [projectId]
+    );
+    const elCount = parseInt(elCheck.rows[0].count, 10);
+
+    if (elCount === 0 && groundId && roofId) {
+      // Seed Snowdon Visitor Centre geometry — 24m x 12m rectangular pavilion
+      // Based on Zaha Hadid's Snowdon Visitor Centre programme: single-storey
+      // rectilinear volume, flat roof, exposed concrete columns at 6m grid.
+      const client = await pool.connect();
+      try {
+        await client.query('BEGIN');
+
+        const W = 24, D = 12, H = 3.5, THICK = 0.3, COL_H = 3.5;
+
+        // Perimeter walls — 8 segments (corners at 0,0 / 24,0 / 24,12 / 0,12)
+        const walls = [
+          // South wall
+          { name: 'Wall-S1', sx:  0, sy:  0, ex: 12, ey:  0 },
+          { name: 'Wall-S2', sx: 12, sy:  0, ex: 24, ey:  0 },
+          // East wall
+          { name: 'Wall-E1', sx: 24, sy:  0, ex: 24, ey:  6 },
+          { name: 'Wall-E2', sx: 24, sy:  6, ex: 24, ey: 12 },
+          // North wall
+          { name: 'Wall-N1', sx: 24, sy: 12, ex: 12, ey: 12 },
+          { name: 'Wall-N2', sx: 12, sy: 12, ex:  0, ey: 12 },
+          // West wall
+          { name: 'Wall-W1', sx:  0, sy: 12, ex:  0, ey:  6 },
+          { name: 'Wall-W2', sx:  0, sy:  6, ex:  0, ey:  0 },
+        ];
+        for (const w of walls) {
+          const ex = await client.query(
+            `SELECT id FROM elements WHERE project_id=$1 AND name=$2 LIMIT 1`,
+            [projectId, w.name]
+          );
+          if (!ex.rows[0]) {
+            await client.query(`
+              INSERT INTO elements
+                (id, project_id, type, type_name, name, base_level_id, top_level_id, parameters, computed, created_at, updated_at)
+              VALUES ($1,$2,'wall','wt-concrete-300',$3,$4,$5,$6,$7,NOW(),NOW())`,
+              [
+                genUuid(), projectId, w.name, groundId, roofId,
+                JSON.stringify({ startCoord:{x:w.sx,y:w.sy}, endCoord:{x:w.ex,y:w.ey}, thickness: THICK }),
+                JSON.stringify({ height: H, thickness: THICK,
+                  length: Math.sqrt((w.ex-w.sx)**2+(w.ey-w.sy)**2) })
+              ]
+            );
+          }
+        }
+
+        // Columns — 4×2 grid at 6m spacing (5 cols × 3 rows inner + corners = corners only here)
+        const cols = [
+          { name:'Col-A1', x: 0, z: 0  }, { name:'Col-B1', x: 6, z: 0  },
+          { name:'Col-C1', x:12, z: 0  }, { name:'Col-D1', x:18, z: 0  }, { name:'Col-E1', x:24, z: 0  },
+          { name:'Col-A2', x: 0, z: 6  }, { name:'Col-C2', x:12, z: 6  }, { name:'Col-E2', x:24, z: 6  },
+          { name:'Col-A3', x: 0, z:12  }, { name:'Col-B3', x: 6, z:12  },
+          { name:'Col-C3', x:12, z:12  }, { name:'Col-D3', x:18, z:12  }, { name:'Col-E3', x:24, z:12  },
+        ];
+        for (const c of cols) {
+          const ex = await client.query(
+            `SELECT id FROM elements WHERE project_id=$1 AND name=$2 LIMIT 1`,
+            [projectId, c.name]
+          );
+          if (!ex.rows[0]) {
+            await client.query(`
+              INSERT INTO elements
+                (id, project_id, type, type_name, name, base_level_id, top_level_id, parameters, computed, created_at, updated_at)
+              VALUES ($1,$2,'column','ct-concrete-300x300',$3,$4,$5,$6,$7,NOW(),NOW())`,
+              [
+                genUuid(), projectId, c.name, groundId, roofId,
+                JSON.stringify({ x: c.x, z: c.z, section:'300x300' }),
+                JSON.stringify({ height: COL_H, section:'300x300' })
+              ]
+            );
+          }
+        }
+
+        // Flat roof slab
+        const roofEx = await client.query(
+          `SELECT id FROM elements WHERE project_id=$1 AND type='roof' LIMIT 1`, [projectId]
+        );
+        if (!roofEx.rows[0]) {
+          await client.query(`
+            INSERT INTO elements
+              (id, project_id, type, type_name, name, base_level_id, top_level_id, parameters, computed, created_at, updated_at)
+            VALUES ($1,$2,'roof','rt-flat-concrete',$3,$4,$5,$6,$7,NOW(),NOW())`,
+            [
+              genUuid(), projectId, 'Roof Slab', roofId, roofId,
+              JSON.stringify({ roof_style:'flat', width: W, depth: D, thickness: 0.2,
+                footprint:[{x:0,y:0},{x:W,y:0},{x:W,y:D},{x:0,y:D}] }),
+              JSON.stringify({ height: 0.2 })
+            ]
+          );
+        }
+
+        await client.query('COMMIT');
+        console.log('[demo/snowdon] Geometry seeded for project', projectId);
+      } catch (seedErr) {
+        await client.query('ROLLBACK');
+        console.error('[demo/snowdon] Seed error (non-fatal):', seedErr.message);
+      } finally {
+        client.release();
+      }
+    }
+
+    // Fetch final elements and levels
+    const [elements, levels] = await Promise.all([
+      pool.query(`SELECT * FROM elements WHERE project_id = $1 ORDER BY type, id`, [projectId]),
+      pool.query(`SELECT * FROM levels WHERE project_id = $1 ORDER BY elevation ASC`, [projectId]),
+    ]);
+
     res.json({
-      id:   projRes.rows[0].id,
-      name: projRes.rows[0].name || 'Snowdon Visitor Centre',
-      slug: 'snowdon'
+      id:       projectId,
+      name:     projectName,
+      slug:     'snowdon',
+      elements: elements.rows,
+      levels:   levels.rows,
     });
   } catch (err) {
     console.error('[demo/snowdon]', err);

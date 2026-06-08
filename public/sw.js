@@ -3,7 +3,7 @@
  * Network-first for HTML pages; cache-first for static assets.
  * Bumping CACHE_VERSION invalidates all stale caches.
  */
-const CACHE_VERSION = 'v36'; // bumped: 2D ortho controls (plan/section), per-row col-split vars, .atl-pane class
+const CACHE_VERSION = 'v37'; // bumped: Snowdon geometry seed, auth/health, OrbitControls update(), vp-cell ResizeObserver, SW precache
 const CACHE_NAME = `atlantist-${CACHE_VERSION}`;
 
 // Static assets to pre-cache (no HTML — HTML is always network-first)
@@ -11,8 +11,12 @@ const PRECACHE_ASSETS = [
   '/favicon.ico',
   '/manifest.json',
   '/css/brand-tokens.css',
-  '/css/app.css',
+  '/css/app.css?v=28',
+  '/css/app-shell.css?v=4',
+  '/css/viewport.css?v=3',
+  '/css/atl-cascade.css?v=2',
   '/css/ui-overhaul.css',
+  '/css/ui-motion.css?v=2',
   '/images/logo.svg',
   '/logo/atlantist-logo.svg',
   '/brand/favicon.svg',
