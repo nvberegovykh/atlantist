@@ -133,7 +133,27 @@ async function sendMagicLinkEmail(email, token) {
     }
   }
 
-  // Fallback: log magic link (dev only)
+  // Resend SDK fallback (set RESEND_API_KEY in Render env to enable)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const { Resend } = require('resend');
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const { error } = await resend.emails.send({
+        from: FROM_ADDRESS,
+        to: email,
+        replyTo: REPLY_TO,
+        subject: 'Your Atlantist sign-in link',
+        html: htmlBody
+      });
+      if (error) throw new Error(error.message);
+      console.log(`[auth] Magic link email sent to ${email} via Resend`);
+      return;
+    } catch (err) {
+      console.error('[auth] Resend error:', err.message);
+    }
+  }
+
+  // Dev fallback: log magic link to console
   console.log(`[auth] Magic link for ${email}: ${magicLink}`);
 }
 

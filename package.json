@@ -30,6 +30,7 @@
     "pdf-lib": "^1.17.1",
     "pg": "^8.11.3",
     "redis": "^4.7.0",
+    "resend": "^6.12.4",
     "stripe": "^16.0.0",
     "ws": "^8.18.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
