@@ -3069,10 +3069,10 @@ function rebuildScene() {
   rebuildScene._busy = true;
   // Mark render dirty so animate() issues a frame after the scene is rebuilt
   markRenderDirty();
-  // Signal coordinator: full rebuild of all branches.
-  // Phase 0: coordinator.flush() runs branches in animate() which calls the
-  // same build functions. Phase 1+ will skip the monolithic path below.
-  if (_coordinator) _coordinator.rebuildAll();
+  // NOTE: do NOT call _coordinator.rebuildAll() here — coordinator.flush() in
+  // animate() handles branch rebuilds. Calling rebuildAll() here caused every
+  // rebuildScene() to double-build all geometry (once inline below, once via
+  // coordinator branches in the next animate() tick). This was the 4fps bug.
   // Outer try-catch ensures a single bad subsystem (bad geometry, bad parameters,
   // bad build function) never leaves the scene blank — the previous render
   // persists until a clean rebuild completes.
