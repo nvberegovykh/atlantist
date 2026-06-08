@@ -317,10 +317,10 @@ router.get('/snowdon', async (req, res) => {
           if (!ex.rows[0]) {
             await client.query(`
               INSERT INTO elements
-                (id, project_id, type, type_name, name, base_level_id, top_level_id, parameters, computed, created_at, updated_at)
-              VALUES ($1,$2,'wall','wt-concrete-300',$3,$4,$5,$6,$7,NOW(),NOW())`,
+                (project_id, type, type_name, name, base_level_id, top_level_id, parameters, computed, created_at, updated_at)
+              VALUES ($1,'wall','wt-concrete-300',$2,$3,$4,$5,$6,NOW(),NOW())`,
               [
-                genUuid(), projectId, w.name, groundId, roofId,
+                projectId, w.name, groundId, roofId,
                 JSON.stringify({ startCoord:{x:w.sx,y:w.sy}, endCoord:{x:w.ex,y:w.ey}, thickness: THICK }),
                 JSON.stringify({ height: H, thickness: THICK,
                   length: Math.sqrt((w.ex-w.sx)**2+(w.ey-w.sy)**2) })
@@ -345,10 +345,10 @@ router.get('/snowdon', async (req, res) => {
           if (!ex.rows[0]) {
             await client.query(`
               INSERT INTO elements
-                (id, project_id, type, type_name, name, base_level_id, top_level_id, parameters, computed, created_at, updated_at)
-              VALUES ($1,$2,'column','ct-concrete-300x300',$3,$4,$5,$6,$7,NOW(),NOW())`,
+                (project_id, type, type_name, name, base_level_id, top_level_id, parameters, computed, created_at, updated_at)
+              VALUES ($1,'column','ct-concrete-300x300',$2,$3,$4,$5,$6,NOW(),NOW())`,
               [
-                genUuid(), projectId, c.name, groundId, roofId,
+                projectId, c.name, groundId, roofId,
                 JSON.stringify({ x: c.x, z: c.z, section:'300x300' }),
                 JSON.stringify({ height: COL_H, section:'300x300' })
               ]
@@ -363,10 +363,10 @@ router.get('/snowdon', async (req, res) => {
         if (!roofEx.rows[0]) {
           await client.query(`
             INSERT INTO elements
-              (id, project_id, type, type_name, name, base_level_id, top_level_id, parameters, computed, created_at, updated_at)
-            VALUES ($1,$2,'roof','rt-flat-concrete',$3,$4,$5,$6,$7,NOW(),NOW())`,
+              (project_id, type, type_name, name, base_level_id, top_level_id, parameters, computed, created_at, updated_at)
+            VALUES ($1,'roof','rt-flat-concrete',$2,$3,$4,$5,$6,NOW(),NOW())`,
             [
-              genUuid(), projectId, 'Roof Slab', roofId, roofId,
+              projectId, 'Roof Slab', roofId, roofId,
               JSON.stringify({ roof_style:'flat', width: W, depth: D, thickness: 0.2,
                 footprint:[{x:0,y:0},{x:W,y:0},{x:W,y:D},{x:0,y:D}] }),
               JSON.stringify({ height: 0.2 })
